@@ -1,0 +1,225 @@
+<?php
+
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ *
+ * @package mod
+ * @subpackage emarking
+ * @copyright 2014 Jorge Villalon <villalon@gmail.com>
+ * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
+ * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/mod/emarking/locallib.php');
+require_once('forms/comparativereport_form.php');
+
+global $DB, $USER;
+
+// Get course module id
+$cmid = required_param('id', PARAM_INT);
+$emarkingid = optional_param('eid', 0, PARAM_INT);
+
+// Validate course module
+if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
+	print_error('Módulo inválido');
+}
+
+// Validate module
+if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
+	print_error('Prueba inválida');
+}
+
+// Validate course
+if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
+	print_error('Curso inválido');
+}
+
+// URLs for current page
+$url = new moodle_url('/mod/emarking/comparativereport.php', array('id'=>$cm->id));
+
+// Course context is used in reports
+$context = context_module::instance($cm->id);
+
+// Validate the user has grading capabilities
+require_capability ( 'mod/emarking:grade', $context );
+
+// First check that the user is logged in
+require_login($course->id);
+if (isguestuser()) {
+	die();
+}
+
+// Page settings (URL, breadcrumbs and title)
+$PAGE->set_context($context);
+$PAGE->set_course($course);
+$PAGE->set_cm($cm);
+$PAGE->set_url($url);
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_heading($course->fullname);
+$PAGE->navbar->add(get_string('comparativereport','mod_emarking'));
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading_with_help(get_string('comparativereport','mod_emarking'), 'comparativereport', 'mod_emarking');
+
+// Print eMarking tabs
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "comparison" );
+
+// Get rubric definitions for both activities
+list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
+$controller = $gradingmanager->get_controller($gradingmethod);
+$definition = $controller->get_definition();
+
+$totalsubmissions = $DB->count_records_sql("
+		SELECT COUNT(e.id) AS total
+		FROM {emarking_submission} AS e
+		WHERE e.emarking = :emarkingid AND e.grade >= 0 AND e.status >= ".EMARKING_STATUS_RESPONDED,
+		array('emarkingid'=>$emarking->id));
+
+if(!$totalsubmissions || $totalsubmissions == 0) {
+	echo $OUTPUT->notification(get_string('nosubmissionsgraded','mod_emarking'),'notifyproblem');
+	echo $OUTPUT->footer();
+	die();
+}
+
+$emarkingsform = new emarking_comparativereport_form(null, array('course'=>$course, 'cm'=>$cm));
+
+$emarkingsform->display();
+
+if($emarkingsform->get_data()) {
+
+	// Get the emarking activity to compare this one to
+	$emarking2 = $DB->get_record('emarking', array('id'=>$emarkingsform->get_data()->emarking2));
+
+	// Get rubric definition for second activity
+	$cm2 = get_coursemodule_from_instance('emarking', $emarking2->id);
+	$context2 = context_module::instance($cm2->id);
+	list($gradingmanager2, $gradingmethod2) = emarking_validate_rubric($context2, false, false);
+	
+	if($gradingmethod2 == null) {
+		echo $OUTPUT->notification(get_string('rubrcismustbeidentical','mod_emarking'),'notifyproblem');
+		echo $OUTPUT->footer();
+		die();
+	}
+	
+	$controller2 = $gradingmanager2->get_controller($gradingmethod2);
+	$definition2 = $controller2->get_definition();
+
+	$criteria = array_values($definition->rubric_criteria);
+	$criteria2 = array_values($definition2->rubric_criteria);
+
+	$problems = false;
+	
+	for($i=0; $i<count($criteria); $i++) {
+		if($criteria[$i]['description'] !== $criteria2[$i]['description']) {
+			{
+				$problems = true;
+				break;
+			}
+			$levels = array_values($criteria[$i]['levels']);
+			$levels2 = array_values($criteria2[$i]['levels']);
+			$problems = count($levels) != count($levels2);
+			for($j=0;$j<count($levels);$j++) {
+				if($levels[$j]['definition'] !== $levels2[$j]['definition']
+				|| $levels[$j]['score'] != $levels2[$j]['score'])
+				{
+					$problems = true;
+					break;
+				}
+			}
+		}
+	}
+	
+	$problems = count($criteria) != count($criteria2);
+	
+	if($problems) {
+		echo $OUTPUT->notification(get_string('rubrcismustbeidentical','mod_emarking'),'notifyproblem');
+		echo $OUTPUT->footer();
+		die();
+	}
+	
+	$sql = "
+			SELECT E1.student,
+				E1.name,
+				E1.description,
+				E1.definition,
+				E1.score,
+				E1.bonus,
+				E1.rawtext AS comment,
+				E2.name AS name2,
+				E2.definition AS definition2,
+				E2.score AS score2,
+				E2.bonus AS bonus2,
+				E2.rawtext AS comment2
+			FROM (
+				SELECT e1.name, es1.student, ec1.bonus, l1.definition, l1.score, c1.description, ec1.rawtext
+				FROM mdl_emarking AS e1
+				INNER JOIN mdl_emarking_submission AS es1 ON (e1.id = :emarking1 AND es1.emarking = e1.id)
+				INNER JOIN mdl_emarking_page AS ep1 ON (ep1.submission = es1.id)
+				INNER JOIN mdl_emarking_comment AS ec1 ON (ec1.page = ep1.id)
+				INNER JOIN mdl_gradingform_rubric_levels AS l1 ON (ec1.levelid = l1.id)
+				INNER JOIN mdl_gradingform_rubric_criteria AS c1 ON (l1.criterionid = c1.id)
+				ORDER BY student, description, definition) AS E1
+			INNER JOIN (
+				SELECT e1.name, es1.student, ec1.bonus, l1.definition, l1.score, c1.description, ec1.rawtext
+				FROM mdl_emarking AS e1
+				INNER JOIN mdl_emarking_submission AS es1 ON (e1.id = :emarking2 AND es1.emarking = e1.id)
+				INNER JOIN mdl_emarking_page AS ep1 ON (ep1.submission = es1.id)
+				INNER JOIN mdl_emarking_comment AS ec1 ON (ec1.page = ep1.id)
+				INNER JOIN mdl_gradingform_rubric_levels AS l1 ON (ec1.levelid = l1.id)
+				INNER JOIN mdl_gradingform_rubric_criteria AS c1 ON (l1.criterionid = c1.id)
+				ORDER BY student, description, definition) AS E2
+			ON (E1.student = E2.student AND E1.description = E2.description AND E1.definition = E2.definition)";
+			
+	
+	$comparison = $DB->get_recordset_sql($sql, array('emarking1'=>$emarking->id, 'emarking2'=>$emarking2->id));
+
+	$laststudent = 0;
+	$data = array();
+	$userdata = array();
+	foreach($comparison as $record) {
+		if($record->student != $laststudent) {
+			if($laststudent > 0) {
+				$data[] = $userdata;
+			}
+			$laststudent = $record->student;
+			$userdata = array();
+			$student = $DB->get_record('user', array('id'=>$record->student));
+			$userdata[get_string('student','grades')]=$student->lastname . ", " . $student->firstname;
+			$userdata['idnumber']=$student->idnumber;
+			$userdata['username']=$student->username;
+		}
+		$userdata[$record->description.'-pre']=$record->score+$record->bonus;
+		$userdata[$record->description.'-post']=$record->score2+$record->bonus2;
+	}
+	$headers = array();
+	if($laststudent > 0) {
+		$data[] = $userdata;
+		$headers[] = get_string('student','grades');
+		$headers[] = 'idnumber';
+		$headers[] = 'username';
+		$headers = array_keys($userdata);
+	}
+
+	$table = new html_table();
+	$table->head = $headers;
+	$table->data = $data;
+	
+	echo html_writer::table($table);
+}
+
+echo $OUTPUT->footer();
