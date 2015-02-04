@@ -1,0 +1,67 @@
+
+    <div class="modal-content">
+        <div class="modal-header">
+            Criterio: {{critDescription}}
+        </div>
+        <div class="modal-body">
+            <button type="button" class="close" ng-click="close()">&times;</button>
+            <table ng-show="arguments" class="table">
+                <tr>
+                    <th>Argumentos <i class="fa fa-info-circle" style="color:blue;"  tooltip="Cada caja en esta columna muestra un puntaje real (contando cualquier bonus) asignado por un corrector. Dentro de la caja los correctores deben dar argumentos que justifican su puntaje."></i></th>
+
+                </tr>
+                <tr ng-repeat="level in arguments track by $index">
+                    <td>
+                    <div ng-repeat="bonusv in level.bonuses">
+
+                            <ul class="list-group">
+                                <li class="list-group-item" ng-class="{'list-group-item-success':bonusv.mymark, 'list-group-item-info':!bonusv.mymark}">
+                                    {{level.definition | cut:true:15:' ...'}}
+                                    ({{level.score | number:2}} pts +{{(bonusv.bonus|number:2)}} bonus)
+                                    <span ng-show="bonusv.mymark" tooltip-popup-delay="1000" tooltip="Tu diste este puntaje al alumno!">(
+                                        <span ng-show="bonusv.marks.length>1">Tu y {{ bonusv.marks.length - 1 }} personas más pusieron este puntaje)</span>
+                                        <span ng-show="bonusv.marks.length<2">Solo tú pusiste este puntaje</span>
+                                        )
+                                    </span>
+                                    <span ng-show="!bonusv.mymark" tooltip-popup-delay="1000">({{ bonusv.marks.length }}
+                                        <span ng-show="bonusv.marks.length>1">personas pusieron este puntaje</span>
+                                        <span ng-show="bonusv.marks.length==1">persona puso este puntaje</span>)
+                                    <button class="btn btn-xs pull-right" ng-click="changeGrade(level,bonusv.bonus)">Cambiar a este nivel</button>
+                                    </span>
+                                </li>
+                                <li class="list-group-item" ng-show="bonusv.arguments.length"><strong>Argumentos: </strong></li>
+                                <li class="list-group-item" ng-repeat="arg in bonusv.arguments">
+                                    <p><span ng-show="arg.isMine">Tu: </span><span ng-hide="arg.isMine">Anónimo: </span>
+                                    {{arg.text}}</p> <span ng-show="arg.voters.length">(<i class="fa fa-thumbs-up"></i> {{arg.voters.length}} personas apoyan esto)</span>
+                                    <span ng-show="arg.iLike"><a class="btn" ng-click="disagree(arg.id)" title="Dejar de apoyar esto"><i class="fa fa-thumbs-down"></i>No apoyar</a></span>
+                                    <span ng-hide="arg.iLike"><a class="btn" ng-click="agree(arg.id)" title="Apoyar esto"><i class="fa fa-thumbs-up"></i>Apoyar</a></span>
+                                    <span ng-show="arg.isMine&&arg.voters.length<1"><a class="btn" ng-click="deleteArgument(arg.id)"><i class="fa fa-trash-o"></i>Borrar</a></span>
+                                </li>
+
+                                <li class="list-group-item" ng-if="bonusv.mymark" ng-show="bonusv.mymark&&showingArgumentForm">
+                                    <form class="form-inline" role="form" ng-submit="submitNewArgument(level.id,bonusv.bonus)">
+                                        <div class="input-group">
+                                            <input class="form-control" name="text" title="Escribe un comentario..." ng-model="newArgument.text" placeholder="Escribe un argumento..."/>
+                                              <span class="input-group-btn"><button class="btn btn-primary">Submit</button>
+                                              </span>
+                                        </div><!-- /input-group -->
+                                        </form>
+                                </li>
+                                {{submittedArg}}
+                                <li class="list-group-item btn btn-default btn-xs" ng-show="bonusv.mymark" ng-click="toggleArgumentForm()">
+                                    <span ng-hide="showingArgumentForm"><i class="fa fa-plus-circle" style="color:green;font-size: 1.5em;"></i> Justificar con nuevo argumento</span>
+                                    <span ng-show="showingArgumentForm"><i class="fa fa-times-circle" style="color:red;font-size: 1.5em;"></i> Cancelar</span>
+                                </li>
+                            </ul>
+
+
+                    </div>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="close()">Cerrar</button>
+        </div>
+    </div><!-- /.modal-content -->
