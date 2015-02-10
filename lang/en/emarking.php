@@ -94,6 +94,7 @@ $string ['enableprintinglist'] = 'Allows printing a list of students';
 $string ['enableprintinglist_help'] = 'allows printing of a list of students, this helps assistance in the classes';
 $string ['printername'] = 'Printer name';
 $string ['printername_help'] = 'Printer\'s name on cups configuration';
+$string ['yourcodeis'] = 'Your security code is';
 
 $string ['minimumdaysbeforeprinting'] = 'Days before exam for printing';
 $string ['minimumdaysbeforeprinting_help'] = 'Teacher can send print orders with at least this number of days in advance, after that it will fail.';

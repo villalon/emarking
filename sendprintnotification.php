@@ -78,4 +78,4 @@ $exam->status=EMARKING_EXAM_PRINTED;
 
 $DB->update_record('emarking_exams', $exam);
 
-redirect(new moodle_url('/mod/emarking/printorders.php',array('category'=>$course->category,'status'=>'2')),get_string('printnotificationsent','mod_emarking'),2);
+redirect(new moodle_url('/mod/emarking/print/printorders.php',array('category'=>$course->category,'status'=>'2')),get_string('printnotificationsent','mod_emarking'),2);
