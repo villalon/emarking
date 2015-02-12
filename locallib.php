@@ -242,7 +242,7 @@ function emarking_tabs($context, $cm, $emarking = null) {
 	}
 	
 	if (isset ( $CFG->local_uai_debug ) && $CFG->local_uai_debug == 1) {
-		$gradetab->subtree [] = new tabobject ( "comment", $CFG->wwwroot . "/mod/emarking/comment.php?id={$cm->id}&action=list", "comment" );
+		$gradetab->subtree [] = new tabobject ( "comment", $CFG->wwwroot . "/mod/emarking/marking/comment.php?id={$cm->id}&action=list", "comment" );
 	}
 	
 	// Grade report tab
@@ -262,9 +262,6 @@ function emarking_tabs($context, $cm, $emarking = null) {
 			// Crowd tabs
 		if ($CFG->emarking_crowdexperiment) {
 			$tabs [] = new tabobject ( "crowd", $CFG->wwwroot . "/mod/emarking/crowd/marking.php?cmid={$cm->id}", "Delphi" );
-		}
-		if ($emarking->experimentalgroups) {
-			$tabs [] = new tabobject ( "experimentalgroups", $CFG->wwwroot . "/mod/emarking/experimentalgroups.php?id={$cm->id}", "Experimental Groups" );
 		}
 	} else {
 		$tabs = $gradetab->subtree;

@@ -60,7 +60,7 @@ if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
 }
 
 // Emarking URL
-$urlemarking = new moodle_url('/mod/emarking/comment.php', array('id'=>$cm->id));
+$urlemarking = new moodle_url('/mod/emarking/marking/comment.php', array('id'=>$cm->id));
 $context = context_module::instance($cm->id);
 
 require_login($course->id);
@@ -171,7 +171,7 @@ if($action =="edited"){
 if($action=='list'){
 
 	// Create Button url
-	$urlcreate = new moodle_url('/mod/emarking/comment.php', array('id'=>$cm->id, 'action'=>'create'));
+	$urlcreate = new moodle_url('/mod/emarking/marking/comment.php', array('id'=>$cm->id, 'action'=>'create'));
 	// Create new comment button
 	echo $OUTPUT->single_button($urlcreate, get_string('createnewcomment', 'mod_emarking'));
 
