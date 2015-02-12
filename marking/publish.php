@@ -27,7 +27,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('NO_OUTPUT_BUFFERING', true);
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once("$CFG->dirroot/lib/weblib.php");
 require_once($CFG->dirroot . '/repository/lib.php');
 require_once($CFG->dirroot . '/mod/emarking/locallib.php'); //cambiar
@@ -61,7 +61,7 @@ if (isguestuser()) {
 	die();
 }
 
-$url = new moodle_url('/mod/emarking/publish.php',  array('id'=>$cm->id));
+$url = new moodle_url('/mod/emarking/marking/publish.php',  array('id'=>$cm->id));
 
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_popup_notification_allowed(false);

@@ -108,7 +108,7 @@ if ($issupervisor && $totalstudents > 0) {
 	echo $OUTPUT->single_button ( $csvurl, get_string('exporttoexcel', 'mod_emarking'));
 }
 
-echo "<form id='publishgrades' action='publish.php' method='post'>";
+echo "<form id='publishgrades' action='marking/publish.php' method='post'>";
 echo "<input type='hidden' name='id' value='$cm->id'>";
 
 // Default variables for the number of criteria for this evaluation

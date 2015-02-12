@@ -16,17 +16,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a one-line short description of the file
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
+ * This page shows a list of all eMarking modules in the current course.
  *
  * @package    mod_emarking
- * @copyright  2011 Your Name
+ * @copyright  2015 Jorge Villalon jorge.villalon@uai.cl
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-/// Replace emarking with the name of your module and remove this line
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
@@ -37,13 +32,6 @@ $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
 require_course_login($course);
 $coursecontext = context_course::instance($course->id);
-
-$event = \emarking\event\course_module_instance_list_viewed::create(array(
-		'context' => context_course::instance($course->id)
-));
-$event->trigger();
-
-
 
 $PAGE->set_url('/mod/emarking/index.php', array('id' => $id));
 $PAGE->set_title(format_string($course->fullname));
@@ -71,12 +59,12 @@ if ($course->format == 'weeks') {
 foreach ($emarkings as $emarking) {
     if (!$emarking->visible) {
         $link = html_writer::link(
-            new moodle_url('/mod/emarking.php', array('id' => $emarking->coursemodule)),
+            new moodle_url('/mod/emarking/view.php', array('id' => $emarking->coursemodule)),
             format_string($emarking->name, true),
             array('class' => 'dimmed'));
     } else {
         $link = html_writer::link(
-            new moodle_url('/mod/emarking.php', array('id' => $emarking->coursemodule)),
+            new moodle_url('/mod/emarking/view.php', array('id' => $emarking->coursemodule)),
             format_string($emarking->name, true));
     }
 

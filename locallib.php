@@ -230,15 +230,15 @@ function emarking_tabs($context, $cm, $emarking = null) {
 	$gradetab->subtree [] = new tabobject ( "mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string ( "marking", 'mod_emarking' ) );
 	if (! $usercangrade) {
 		if ($CFG->emarking_enablejustice && $emarking->peervisibility) {
-			$gradetab->subtree [] = new tabobject ( "ranking", $CFG->wwwroot . "/mod/emarking/ranking.php?id={$cm->id}", get_string ( "ranking", 'mod_emarking' ) );
-			$gradetab->subtree [] = new tabobject ( "viewpeers", $CFG->wwwroot . "/mod/emarking/viewpeers.php?id={$cm->id}", get_string ( "justice.peercheck", 'mod_emarking' ) );
+			$gradetab->subtree [] = new tabobject ( "ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string ( "ranking", 'mod_emarking' ) );
+			$gradetab->subtree [] = new tabobject ( "viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string ( "justice.peercheck", 'mod_emarking' ) );
 		}
-		$gradetab->subtree [] = new tabobject ( "regrade", $CFG->wwwroot . "/mod/emarking/regrades.php?id={$cm->id}", get_string ( "regrades", 'mod_emarking' ) );
+		$gradetab->subtree [] = new tabobject ( "regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string ( "regrades", 'mod_emarking' ) );
 	} else {
 		if (has_capability ( 'mod/emarking:regrade', $context ))
-			$gradetab->subtree [] = new tabobject ( "regrades", $CFG->wwwroot . "/mod/emarking/regraderequests.php?cmid={$cm->id}", get_string ( "regrades", 'mod_emarking' ) );
+			$gradetab->subtree [] = new tabobject ( "regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?cmid={$cm->id}", get_string ( "regrades", 'mod_emarking' ) );
 		if (has_capability ( 'mod/emarking:assignmarkers', $context ))
-			$gradetab->subtree [] = new tabobject ( "markers", $CFG->wwwroot . "/mod/emarking/markers.php?id={$cm->id}", get_string ( "markers", 'mod_emarking' ) );
+			$gradetab->subtree [] = new tabobject ( "markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string ( "markers", 'mod_emarking' ) );
 	}
 	
 	if (isset ( $CFG->local_uai_debug ) && $CFG->local_uai_debug == 1) {
@@ -246,12 +246,12 @@ function emarking_tabs($context, $cm, $emarking = null) {
 	}
 	
 	// Grade report tab
-	$gradereporttab = new tabobject ( "gradereport", $CFG->wwwroot . "/mod/emarking/gradereport.php?id={$cm->id}", get_string ( "reports", "mod_emarking" ) );
+	$gradereporttab = new tabobject ( "gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string ( "reports", "mod_emarking" ) );
 	
-	$gradereporttab->subtree [] = new tabobject ( "report", $CFG->wwwroot . "/mod/emarking/gradereport.php?id={$cm->id}", get_string ( "gradereport", "grades" ) );
-	$gradereporttab->subtree [] = new tabobject ( "markingreport", $CFG->wwwroot . "/mod/emarking/markingreport.php?id={$cm->id}", get_string ( "markingreport", 'mod_emarking' ) );
-	$gradereporttab->subtree [] = new tabobject ( "comparison", $CFG->wwwroot . "/mod/emarking/comparativereport.php?id={$cm->id}", get_string ( "comparativereport", "mod_emarking" ) );
-	$gradereporttab->subtree [] = new tabobject ( "ranking", $CFG->wwwroot . "/mod/emarking/ranking.php?id={$cm->id}", get_string ( "ranking", 'mod_emarking' ) );
+	$gradereporttab->subtree [] = new tabobject ( "report", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string ( "gradereport", "grades" ) );
+	$gradereporttab->subtree [] = new tabobject ( "markingreport", $CFG->wwwroot . "/mod/emarking/reports/markingreport.php?id={$cm->id}", get_string ( "markingreport", 'mod_emarking' ) );
+	$gradereporttab->subtree [] = new tabobject ( "comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string ( "comparativereport", "mod_emarking" ) );
+	$gradereporttab->subtree [] = new tabobject ( "ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string ( "ranking", 'mod_emarking' ) );
 	
 	// Tabs sequence
 	if ($usercangrade) {
@@ -259,10 +259,6 @@ function emarking_tabs($context, $cm, $emarking = null) {
 		$tabs [] = $gradereporttab;
 		if (has_capability ( 'mod/emarking:uploadexam', $context ))
 			$tabs [] = $examstab;
-			// Crowd tabs
-		if ($CFG->emarking_crowdexperiment) {
-			$tabs [] = new tabobject ( "crowd", $CFG->wwwroot . "/mod/emarking/crowd/marking.php?cmid={$cm->id}", "Delphi" );
-		}
 	} else {
 		$tabs = $gradetab->subtree;
 	}
@@ -1168,20 +1164,7 @@ function emarking_calculate_grade($emarking, $totalscore, $totalrubricscore) {
 	
 	return $finalgrade;
 }
-function emarking_publish_all_grades($emarking) {
-	global $DB, $USER, $CFG;
-	
-	$studentsubmissions = $DB->get_records ( "emarking_submission", array (
-			'emarking' => $emarking->id 
-	) );
-	
-	foreach ( $studentsubmissions as $submission ) {
-		if ($submission->status >= EMARKING_STATUS_RESPONDED)
-			emarking_publish_grade ( $submission );
-	}
-	
-	return true;
-}
+
 function emarking_set_finalgrade($userid = 0, $levelid = 0, $levelfeedback = '', $submission = null, $emarking = null, $context = null, $generalfeedback = null, $delete = false, $cmid = 0) {
 	global $USER, $DB, $CFG;
 	
@@ -1334,45 +1317,6 @@ function emarking_set_finalgrade($userid = 0, $levelid = 0, $levelfeedback = '',
 	);
 }
 
-/**
- *
- * @param unknown $submission        	
- */
-function emarking_publish_grade($submission) {
-	global $CFG, $DB, $USER;
-	
-	require_once ($CFG->libdir . '/gradelib.php');
-	
-	if ($submission->status <= EMARKING_STATUS_ABSENT)
-		return;
-		
-		// Copy final grade to gradebook
-	$grade_item = grade_item::fetch ( array (
-			'itemmodule' => 'emarking',
-			'iteminstance' => $submission->emarkingid 
-	) );
-	
-	$feedback = $submission->generalfeedback ? $submission->generalfeedback : '';
-	
-	$grade_item->update_final_grade ( $submission->student, $submission->grade, 'editgrade', $feedback, FORMAT_HTML, $USER->id );
-	
-	if ($submission->status <= EMARKING_STATUS_RESPONDED) {
-		$submission->status = EMARKING_STATUS_RESPONDED;
-	}
-	
-	$submission->timemodified = time ();
-	$DB->update_record ( 'emarking_draft', $submission );
-	
-	$realsubmission = $DB->get_record ( "emarking_submission", array (
-			"id" => $submission->submissionid 
-	) );
-	$realsubmission->status = $submission->status;
-	$realsubmission->timemodified = $submission->timemodified;
-	$realsubmission->generalfeedback = $submission->generalfeedback;
-	$realsubmission->grade = $submission->grade;
-	$realsubmission->teacher = $submission->teacher;
-	$DB->update_record ( 'emarking_submission', $realsubmission );
-}
 
 /**
  * Calculates the next submission to be graded when a marker is currently grading
@@ -1964,38 +1908,3 @@ function emarking_get_categories_childs($id_category) {
 	return $ids;
 }
 
-function emarking_multi_publish_grade($submission) {
-	global $CFG, $DB, $USER;
-	
-	require_once ($CFG->libdir . '/gradelib.php');
-	
-	if ($submission->status <= EMARKING_STATUS_ABSENT)
-		return;
-		
-		// Copy final grade to gradebook
-	$grade_item = grade_item::fetch ( array (
-			'itemmodule' => 'emarking',
-			'iteminstance' => $submission->emarking 
-	) );
-	
-	$feedback = $submission->generalfeedback ? $submission->generalfeedback : '';
-	
-	$grade_item->update_final_grade ( $submission->student, $submission->grade, 'editgrade', $feedback, FORMAT_HTML, $USER->id );
-	
-	if ($submission->status <= EMARKING_STATUS_RESPONDED) {
-		$submission->status = EMARKING_STATUS_RESPONDED;
-	}
-	
-	$submission->timemodified = time ();
-	$DB->update_record ( 'emarking_draft', $submission );
-	
-	$realsubmission = $DB->get_record ( "emarking_submission", array (
-			"id" => $submission->id 
-	) );
-	$realsubmission->status = $submission->status;
-	$realsubmission->timemodified = $submission->timemodified;
-	$realsubmission->generalfeedback = $submission->generalfeedback;
-	$realsubmission->grade = $submission->grade;
-	$realsubmission->teacher = $submission->teacher;
-	$DB->update_record ( 'emarking_submission', $realsubmission );
-}
