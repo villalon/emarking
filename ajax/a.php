@@ -33,6 +33,7 @@ require_once $CFG->dirroot . '/grade/lib.php';
 require_once ("$CFG->dirroot/grade/grading/form/rubric/lib.php");
 require_once ("$CFG->dirroot/lib/filestorage/file_storage.php");
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
+require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
 
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 
@@ -502,13 +503,16 @@ switch ($action) {
 	
 	case 'finishmarking' :
 		
+		require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
+		require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
+		
 		// Add to Moodle log so some auditing can be done
 		$item = array (
 				'context' => context_module::instance ( $cm->id ),
 				'objectid' => $cm->id 
 		);
 		\mod_emarking\event\marking_ended::create ( $item )->trigger ();
-		
+
 		include "act/actCheckGradePermissions.php";
 		include "qry/getRubricSubmission.php";
 		include "act/actFinishMarking.php";

@@ -665,57 +665,6 @@ function emarking_sort_submission_pages($submission, $neworder) {
 	return true;
 }
 
-/**
- * Replace "acentos", spaces from file names.
- * Evita problemas en Windows y Linux.
- *
- * @param unknown $filename
- *        	El nombre original del archivo
- * @return unknown El nombre sin acentos, espacios.
- */
-function emarking_clean_filename($filename, $slash = false) {
-	$replace = array (
-			' ',
-			'á',
-			'é',
-			'í',
-			'ó',
-			'ú',
-			'ñ',
-			'Ñ',
-			'Á',
-			'É',
-			'Í',
-			'Ó',
-			'Ú',
-			'(',
-			')' 
-	);
-	$replacefor = array (
-			'-',
-			'a',
-			'e',
-			'i',
-			'o',
-			'u',
-			'n',
-			'N',
-			'A',
-			'E',
-			'I',
-			'O',
-			'U',
-			'-',
-			'-' 
-	);
-	if ($slash) {
-		$replace [] = '/';
-		$replacefor [] = '-';
-	}
-	$newfile = str_replace ( $replace, $replacefor, $filename );
-	return $newfile;
-}
-
 
 /**
  * Get all courses from a student.
@@ -1092,77 +1041,6 @@ function emarking_get_totalscore($submission, $controller, $fillings) {
 	}
 	
 	return $curscore + $bonus;
-}
-function emarking_calculate_grades_users($emarking, $userid = 0) {
-	global $DB, $USER, $CFG;
-	
-	require_once ($CFG->dirroot . '/grade/grading/lib.php');
-	
-	if (! $cm = get_coursemodule_from_instance ( 'emarking', $emarking->id )) {
-		return;
-	}
-	
-	$context = context_module::instance ( $cm->id );
-	
-	// Get the grading manager, then method and finally controller
-	$gradingmanager = get_grading_manager ( $context, 'mod_emarking', 'attempt' );
-	$gradingmethod = $gradingmanager->get_active_method ();
-	$controller = $gradingmanager->get_controller ( $gradingmethod );
-	$range = $controller->get_grade_range ();
-	$rubricscores = $controller->get_min_max_score ();
-	$totalrubricscore = $rubricscores ['maxscore'];
-	
-	$filter = 'WHERE 1=1';
-	if ($userid > 0)
-		$filter = 'WHERE es.student = ' . $userid;
-	$studentscores = $DB->get_records_sql ( "
-			SELECT es.id,
-			es.student,
-			sum(ifnull(rl.score,0)) as score,
-			sum(ifnull(ec.bonus,0)) as bonus,
-			sum(ifnull(rl.score,0)) + sum(ifnull(ec.bonus,0)) as totalscore
-			FROM {emarking_submission} AS es
-			INNER JOIN {emarking_page} AS ep ON (es.emarking = :emarking AND ep.submission = es.id)
-			LEFT JOIN {emarking_comment} AS ec ON (ec.page = ep.id AND ec.levelid > 0)
-			LEFT JOIN {gradingform_rubric_levels} AS rl ON (ec.levelid = rl.id)
-			$filter
-			AND es.status >= 10
-			GROUP BY es.emarking, es.id", array (
-			'emarking' => $emarking->id 
-	) );
-	
-	foreach ( $studentscores as $studentscore ) {
-		$totalscore = min ( floatval ( $studentscore->totalscore ), $totalrubricscore );
-		
-		$finalgrade = emarking_calculate_grade ( $emarking, $totalscore, $totalrubricscore );
-		
-		$submission = $DB->get_record ( 'emarking_submission', array (
-				'id' => $studentscore->id 
-		) );
-		$submission->grade = $finalgrade;
-		$DB->update_record ( 'emarking_submission', $submission );
-	}
-	
-	return true;
-}
-
-/**
- * Calculates the grade according to score
- * and corrects if there is a slope adjustment
- *
- * @param unknown $emarking        	
- * @param unknown $totalscore        	
- * @param unknown $totalrubricscore        	
- * @return Ambigous <number, mixed>
- */
-function emarking_calculate_grade($emarking, $totalscore, $totalrubricscore) {
-	if (isset ( $emarking->adjustslope ) && $emarking->adjustslope) {
-		$finalgrade = min ( $emarking->grade, ((($emarking->adjustslopegrade - $emarking->grademin) / $emarking->adjustslopescore) * $totalscore) + $emarking->grademin );
-	} else {
-		$finalgrade = ((($emarking->grade - $emarking->grademin) / $totalrubricscore) * $totalscore) + $emarking->grademin;
-	}
-	
-	return $finalgrade;
 }
 
 function emarking_set_finalgrade($userid = 0, $levelid = 0, $levelfeedback = '', $submission = null, $emarking = null, $context = null, $generalfeedback = null, $delete = false, $cmid = 0) {

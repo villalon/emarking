@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2015 Jorge VillalÃ³n {@link http://www.uai.cl},
+ * @copyright 2015 Jorge Villalón {@link http://www.uai.cl},
  * @copyright 2015 Nicolas Perez
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -34,8 +34,6 @@ require_once ($CFG->dirroot . '/mod/emarking/ajax/qry/reportsquerylib.php');
 // Get course module id
 $cmid = required_param("cmid", PARAM_NUMBER);
 $action = required_param("action", PARAM_TEXT);
-$ids = required_param("emarkingids", PARAM_TEXT);
-//var_dump($ids);die();
 // Validate course module
 if (! $cm = get_coursemodule_from_id ( 'emarking', $cmid )) {
 	print_error ( 'Módulo inválido' );
@@ -100,7 +98,10 @@ if($action=="markingreport"){
 
 }else if($action=="gradereport"){
 	
-	$grading = get_status($cmid, $emarking->id);
+$ids = required_param("emarkingids", PARAM_TEXT);
+//var_dump($ids);die();
+	
+$grading = get_status($cmid, $emarking->id);
 	$marks = get_marks($cmid, $emarking->id, $cmid, $ids);
 	$coursemarks = get_courses_marks($cmid, $emarking->id, $cmid, $ids);
 	$pass_ratio = get_pass_ratio($cmid, $emarking->id, $cmid, $ids);

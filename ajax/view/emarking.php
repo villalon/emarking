@@ -7,7 +7,7 @@ if(count($parts)>1) {
 }
 $langhtml = '<meta name="gwt:property" content="locale='.$lang.'">';
 
-$emarkingdir = $CFG->wwwroot. '/mod/emarking/emarkingweb';
+$emarkingdir = $CFG->wwwroot. '/mod/emarking/marking/emarkingweb';
 $version = $module->version;
 
 header('Content-Type: text/html; charset=utf-8');

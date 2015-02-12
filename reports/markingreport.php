@@ -52,7 +52,7 @@ if (! $course = $DB->get_record ( 'course', array (
 }
 
 // URLs for current page
-$url = new moodle_url ( '/mod/emarking/markingreport.php', array (
+$url = new moodle_url ( '/mod/emarking/reports/markingreport.php', array (
 		'id' => $cm->id 
 ) );
 
@@ -604,10 +604,10 @@ foreach ( $markingstatspermarker as $permarker ) {
 $progress = round ( (($totalcomments) / ($totalsubmissions * $numcriteria) * 100), 2 );
 echo $OUTPUT->heading ( get_string ( 'marking', 'mod_emarking' ) . " : " . $progress . "% (" . $totalprogress . "% publicadas)", 3 );
 //$colors = '"#4D4D4D","#5DA5DA","#FAA43A","#60BD68","#F17CB0","#B2912F","#B276B2","#DECF3F","#F15854","#009987","#008270","#006D66","#006056","#008272","#006B5B","#005951","#00493F","#004F42","#004438","#BAEAD6","#A0E5CE","#5EDDC1","#00997C","#007C66","#006854","#9BDBC1","#8EE2BC","#7AD1B5","#54D8A8","#00B28C"';
-$reportsdir = $CFG->wwwroot. '/mod/emarking/reports';
+$reportsdir = $CFG->wwwroot. '/mod/emarking/reports/reportsweb';
 ?>
 
-	 <link rel="stylesheet" type="text/css"  href= "<?php echo $reportsdir ?>/css/reports.css"/>
+	 <link rel="stylesheet" type="text/css"  href= "<?php echo $reportsdir ?>/css/Reports.css"/>
     <script type="text/javascript" language="javascript"src="<?php echo $reportsdir ?>/reports.nocache.js"></script>
 		<div id='reports' cmid='<?php echo $cmid ?>'
 			 action='markingreport' 

@@ -30,7 +30,7 @@ define('NO_OUTPUT_BUFFERING', true);
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once("$CFG->dirroot/lib/weblib.php");
 require_once($CFG->dirroot . '/repository/lib.php');
-require_once($CFG->dirroot . '/mod/emarking/locallib.php'); //cambiar
+require_once('locallib.php'); //cambiar
 
 global $DB, $CFG, $USER;
 

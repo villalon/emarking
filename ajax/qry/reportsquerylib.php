@@ -1,7 +1,7 @@
 <?php
 global $CFG;
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
-require_once ($CFG->dirroot . '/mod/emarking/forms/gradereport_form.php');
+require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php');
 //require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 
 function get_status($cmid, $emarkingid) {
