@@ -1,5 +1,5 @@
 <?php
-require_once (dirname ( __FILE__ ) . '/../../config.php');
+require_once (dirname (dirname(dirname( __FILE__ ))) . '/config.php');
 require_once ("lib.php");
 require_once ($CFG->libdir . '/tablelib.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
@@ -67,9 +67,10 @@ $PAGE->set_cm ( $cm );
 $PAGE->set_heading ( $course->fullname );
 $PAGE->navbar->add ( get_string ( 'emarking', 'mod_emarking' ) );
 $PAGE->requires->jquery();
+$PAGE->requires->jquery_plugin('ui');
 
 // Show header and heading
-echo $OUTPUT->header ();
+echo $OUTPUT->header();
 echo $OUTPUT->heading_with_help ( get_string ( 'emarking', 'mod_emarking' ), 'annotatesubmission', 'mod_emarking' );
 
 // Navigation tabs
@@ -341,9 +342,10 @@ foreach ( $emarkingpages as $pageinfo ) {
 	$markedcriteria = explode ( ",", $pageinfo->criteriaids );
 	$markedcriteriascores = explode ( ",", $pageinfo->criteriascores );
 	if (count ( $markedcriteria ) > 0 && $numcriteria > 0) {
-		$matrix = "<div id='sub-$pageinfo->submission' class='modal hide fade' aria-hidden='true' style='display:none;'>
+		$matrix = "
+				<div id='sub-$pageinfo->submission' class='modal hide fade' aria-hidden='true' style='display:none;'>
 	<div class='modal-header'>
-		<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>�</button>
+		<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>Close</button>
 		<h3>$emarking->name</h3>
 		<h4>$userinfo</h4>
 		</div><div class='modal-body'><table width='100%'>";
@@ -360,7 +362,8 @@ foreach ( $emarkingpages as $pageinfo ) {
 		}
 		$matrix .= "</table></div><div class='modal-footer'>
 		<button class='btn' data-dismiss='modal' aria-hidden='true'>" . get_string ( 'close', 'mod_emarking' ) . "</button>
-	</div></div>";
+	</div></div>
+				";
 	}
 	// Percentage of criteria already marked for this submission
 	$pctmarkedtitle = ($numcriteria - $pageinfo->comments) . " pending criteria";
@@ -403,7 +406,7 @@ foreach ( $emarkingpages as $pageinfo ) {
 		
 		$newstatus = $pageinfo->status >= EMARKING_STATUS_SUBMITTED ? EMARKING_STATUS_ABSENT : EMARKING_STATUS_SUBMITTED;
 		
-		$deletesubmissionurl = new moodle_url ( '/mod/emarking/updatesubmission.php', array (
+		$deletesubmissionurl = new moodle_url ( '/mod/emarking/marking/updatesubmission.php', array (
 				'ids' => $pageinfo->submission,
 				'cm' => $cm->id,
 				'status' => $newstatus 
