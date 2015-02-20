@@ -207,6 +207,103 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
 	$pdf->Output ( "PrintForm" . $exam->id . ".pdf", "I" ); // se genera el nuevo pdf
 }
 
+/**
+ * 
+ * @param unknown $emarking
+ * @param unknown $student
+ * @param unknown $context
+ * @return Ambigous <mixed, stdClass, false, boolean>|stdClass
+ */
+function emarking_get_or_create_submission($emarking, $student, $context) {
+	global $DB, $USER;
+
+	if ($submission = $DB->get_record ( 'emarking_submission', array (
+			'emarking' => $emarking->id,
+			'student' => $student->id
+	) )) {
+		return $submission;
+	}
+
+	$submission = new stdClass ();
+	$submission->emarking = $emarking->id;
+	$submission->student = $student->id;
+	$submission->status = EMARKING_STATUS_SUBMITTED;
+	$submission->timecreated = time ();
+	$submission->timemodified = time ();
+	$submission->teacher = $USER->id;
+	$submission->generalfeedback = NULL;
+	$submission->grade = 0;
+	$submission->sort = rand ( 1, 9999999 );
+
+	$submission->id = $DB->insert_record ( 'emarking_submission', $submission );
+
+	// Normal marking - One draft default
+	if($emarking->type == 1) {
+		$draft = new stdClass();
+		$draft->emarkingid = $emarking->id;
+		$draft->submissionid = $submission->id;
+		$draft->groupid = 0;
+		$draft->timecreated = time ();
+		$draft->timemodified = time ();
+		$draft->grade = 0;
+		$draft->sort = rand ( 1, 9999999 );
+		$draft->teacher = 0;
+		$draft->generalfeedback = NULL;
+		$draft->status = EMARKING_STATUS_SUBMITTED;
+
+		$draft->id = $DB->insert_record ( 'emarking_draft', $draft );
+	}
+	// Markers training - One draft per marker
+	else if($emarking->type == 2) {
+		// Get all users with permission to grade in emarking
+		$markers=get_enrolled_users($context, 'mod/emarking:grade');
+		foreach($markers as $marker) {
+			if(has_capability('mod/emarking:supervisegrading', $context, $marker)) {
+				continue;
+			}
+			$draft = new stdClass();
+			$draft->emarkingid = $emarking->id;
+			$draft->submissionid = $submission->id;
+			$draft->groupid = 0;
+			$draft->timecreated = time ();
+			$draft->timemodified = time ();
+			$draft->grade = 0;
+			$draft->sort = rand ( 1, 9999999 );
+			$draft->teacher = $marker->id;
+			$draft->generalfeedback = NULL;
+			$draft->status = EMARKING_STATUS_SUBMITTED;
+
+			$draft->id = $DB->insert_record ( 'emarking_draft', $draft );
+		}
+	}
+	// Students training
+	else if($emarking->type == 3) {
+		// Get all users with permission to grade in emarking
+		$students=get_enrolled_users($context, 'mod/emarking:submit');
+		foreach($students as $student) {
+			$draft = new stdClass();
+			$draft->emarkingid = $emarking->id;
+			$draft->submissionid = $submission->id;
+			$draft->groupid = 0;
+			$draft->timecreated = time ();
+			$draft->timemodified = time ();
+			$draft->grade = 0;
+			$draft->sort = rand ( 1, 9999999 );
+			$draft->teacher = $student->id;
+			$draft->generalfeedback = NULL;
+			$draft->status = EMARKING_STATUS_SUBMITTED;
+
+			$draft->id = $DB->insert_record ( 'emarking_draft', $draft );
+		}
+	}
+	// Peer review
+	else if($emarking->type == 4) {
+		// TODO: Implement peer review (this is a hard one)
+	}
+
+	return $submission;
+}
+
 
 /**
  *
@@ -351,6 +448,115 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
 }
 
 /**
+ * Uploads a PDF file as a student's submission for a specific assignment
+ *
+ * @param object $emarking
+ *        	the assignment object from dbrecord
+ * @param unknown_type $context
+ *        	the coursemodule
+ * @param unknown_type $course
+ *        	the course object
+ * @param unknown_type $path
+ * @param unknown_type $filename
+ * @param unknown_type $student
+ * @param unknown_type $numpages
+ * @param unknown_type $merge
+ * @return boolean
+ */
+// exportado y cambiado
+function emarking_submit($emarking, $context, $path, $filename, $student, $pagenumber = 0) {
+	global $DB, $USER, $CFG;
+
+	// All libraries for grading
+	require_once ("$CFG->dirroot/grade/grading/lib.php");
+	require_once $CFG->dirroot . '/grade/lib.php';
+	require_once ("$CFG->dirroot/grade/grading/form/rubric/lib.php");
+
+	// Calculate anonymous file name from original file name
+	$filenameparts = explode ( ".", $filename );
+	$anonymousfilename = $filenameparts [0] . "_a." . $filenameparts [1];
+
+	// Verify that both image files (anonymous and original) exist
+	if (! file_exists ( $path . "/" . $filename ) || ! file_exists ( $path . "/" . $anonymousfilename )) {
+		return false;
+	}
+
+	// Filesystem
+	$fs = get_file_storage ();
+
+	// Copy file from temp folder to Moodle's filesystem
+	$file_record = array (
+			'contextid' => $context->id,
+			'component' => 'mod_emarking',
+			'filearea' => 'pages',
+			'itemid' => $emarking->id,
+			'filepath' => '/',
+			'filename' => $filename,
+			'timecreated' => time (),
+			'timemodified' => time (),
+			'userid' => $student->id,
+			'author' => $student->firstname . ' ' . $student->lastname,
+			'license' => 'allrightsreserved'
+	);
+
+	// If the file already exists we delete it
+	if ($fs->file_exists ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $filename )) {
+		$previousfile = $fs->get_file ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $filename );
+		$previousfile->delete ();
+	}
+
+	// Info for the new file
+	$fileinfo = $fs->create_file_from_pathname ( $file_record, $path . '/' . $filename );
+
+	// Now copying the anonymous version of the file
+	$file_record ['filename'] = $anonymousfilename;
+
+	// Check if anoymous file exists and delete it
+	if ($fs->file_exists ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $anonymousfilename )) {
+		$previousfile = $fs->get_file ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $anonymousfilename );
+		$previousfile->delete ();
+	}
+
+	$fileinfoanonymous = $fs->create_file_from_pathname ( $file_record, $path . '/' . $anonymousfilename );
+
+	$submission = emarking_get_or_create_submission ( $emarking, $student , $context);
+
+	// Get the page from previous uploads. If exists update it, if not insert a new page
+	$page = $DB->get_record ( 'emarking_page', array (
+			'submission' => $submission->id,
+			'student' => $student->id,
+			'page' => $pagenumber
+	) );
+
+	if ($page != null) {
+		$page->file = $fileinfo->get_id ();
+		$page->fileanonymous = $fileinfoanonymous->get_id ();
+		$page->timemodified = time ();
+		$page->teacher = $USER->id;
+		$DB->update_record ( 'emarking_page', $page );
+	} else {
+		$page = new stdClass ();
+		$page->student = $student->id;
+		$page->page = $pagenumber;
+		$page->file = $fileinfo->get_id ();
+		$page->fileanonymous = $fileinfoanonymous->get_id ();
+		$page->submission = $submission->id;
+		$page->timecreated = time ();
+		$page->timemodified = time ();
+		$page->teacher = $USER->id;
+
+		$page->id = $DB->insert_record ( 'emarking_page', $page );
+	}
+
+	// Update submission info
+	$submission->teacher = $page->teacher;
+	$submission->timemodified = $page->timemodified;
+	$DB->update_record ( 'emarking_submission', $submission );
+
+	return true;
+}
+
+/**
  * Esta funcion copia el archivo solicitado mediante el Hash (lo busca en la base de datos) en la carpeta temporal especificada.
  *
  * @param String $tempdir
@@ -380,6 +586,65 @@ function emarking_get_path_from_hash($tempdir, $hash, $prefix = '', $create = tr
 
 	return $newfile;
 }
+
+/**
+ * Counts files in dir using an optional suffix
+ *
+ * @param unknown $dir
+ *        	Folder to count files from
+ * @param string $suffix
+ *        	File extension to filter
+ */
+function emarking_count_files_in_dir($dir, $suffix = ".pdf") {
+	return count ( emarking_get_files_list ( $dir, $suffix ) );
+}
+
+/**
+ * Gets a list of files filtered by extension from a folder
+ *
+ * @param unknown $dir
+ *        	Folder
+ * @param string $suffix
+ *        	Extension to filter
+ * @return multitype:unknown Array of filenames
+ */
+function emarking_get_files_list($dir, $suffix = ".pdf") {
+	$files = scandir ( $dir );
+	$cleanfiles = array ();
+
+	foreach ( $files as $filename ) {
+		if (! is_dir ( $filename ) && substr ( $filename, - 4, 4 ) === $suffix)
+			$cleanfiles [] = $filename;
+	}
+
+	return $cleanfiles;
+}
+
+/**
+ * Calculates the total number of pages an exam will have for printing statistics
+ * according to extra sheets, extra exams and if it has a personalized header and
+ * if it uses the backside
+ *
+ * @param unknown $exam
+ *        	the exam object
+ * @param unknown $numpages
+ *        	total pages in document
+ * @return number total pages to print
+ */
+function emarking_exam_total_pages_to_print($exam) {
+	if (! $exam)
+		return 0;
+
+	$total = $exam->totalpages + $exam->extrasheets;
+	if ($exam->totalstudents > 0) {
+		$total = $total * ($exam->totalstudents + $exam->extraexams);
+	}
+	if ($exam->usebackside) {
+		$total = $total / 2;
+	}
+	return $total;
+}
+
 
 /**
  *

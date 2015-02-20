@@ -22,6 +22,31 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['markersqualitycontrol'] = 'Quality Control markers';
+$string['markersqualitycontrol_help'] = 'Quality Control markers are the ones that will mark and grade the QC exams which will be used to calculate inter-marker agreement.';
+$string['enablequalitycontrol'] = 'Enable Quality Control';
+$string['enablequalitycontrol_help'] = 'If QC in enabled, a set of QC exams will be assigned to the QC markers for extra marking and therefore calculate inter-marker agreement.';
+$string['notenoughmarkersfortraining'] = 'Not enough markers for training, please enrol markers as non editing teachers for training.';
+
+$string['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
+$string['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';
+$string['studentvisible_markervisible'] = 'Student visible / Marker visible';
+$string['studentvisible_markeranonymous'] = 'Student visible / Marker anonymous';
+
+$string ['markingtype'] = 'Marking type';
+$string ['markingtype_help'] = "<h2>Marking types</h2><br>
+		There are four types of marking sessions available in eMarking:
+		<ul>
+			<li><b>Normal</b>: Markers grade student exams normally according to a rubric. Exams can be marked more than once for quality control on inter-marker agreement.</li>
+			<li><b>Markers training</b>: Exams do not belong to students in the course. All markers grade all exams and the process does not close until 100% agreement is reached between markers.</li>
+			<li><b>Student training</b>: Exams do not belong to students in the course. Students grade exams as a way to practice for their own evaluations.</li>
+			<li><b>Peer review</b>: Students grade their peers according to the groups configuration. If groups are configured as visible or separated each student in a group marks all exams from another group.</li>
+		</ul>";
+$string ['type_normal'] = 'Normal';
+$string ['type_markers_training'] = 'Markers training';
+$string ['type_student_training'] = 'Student training';
+$string ['type_peer_review'] = 'Peer review';
+		
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
 $string ['exporttoexcel'] = 'Export to Excel';
 
@@ -37,6 +62,7 @@ $string ['adjustslopegrade_help'] = 'The grade used to calculate the slope betwe
 $string ['adjustslopescore'] = 'Score for slope';
 $string ['adjustslopescore_help'] = 'The score used to calculate the slope between adjusted score and 0';
 $string ['adjustslopegrademustbegreaterthanmin'] = 'Grade for adjusting must be greater than the minimum grade';
+$string ['adjustslopegrademustbelowerthanmax'] = 'Grade for adjusting must be lower than the maximum grade';
 $string ['adjustslopescoregreaterthanzero'] = 'Score for adjusting must be greater than 0';
 
 $string ['heartbeatenabled'] = 'Enable students tracking';
@@ -341,6 +367,7 @@ $string ['multiplepdfs_help'] = 'If selected eMarking generates a zip file conta
 $string ['myexams'] = 'My exams';
 $string ['myexams_help'] = 'This page shows all the exam papers that have been sent for printing in this course. You can edit and cancel a submission as long as it has not been downloaded from the copy center.';
 $string ['names'] = 'First Name/Last Name';
+$string ['emailsent'] = 'Security code sent to your email';
 $string ['emarking:addinstance'] = 'Add a new module instance';
 $string ['emarking:downloadexam'] = 'Download exams';
 $string ['emarking:grade'] = 'Grades';
@@ -442,6 +469,7 @@ $string ['smsurl'] = 'SMS provider URL';
 $string ['smsurl_help'] = 'URL of the SMS sending provider';
 $string ['smsuser'] = 'SMS provider user';
 $string ['smsuser_help'] = 'User of the SMS sending provider';
+$string ['smssent'] = 'Security code sent to your mobile phone';
 $string ['specificmarks'] = 'Custom marks';
 $string ['specificmarks_help'] = 'Custom marks, one per line separating code and description by a # (e.g: Sp#Spelling error<br/>Gr#Grammar error)';
 $string ['statistics'] = 'Statics';

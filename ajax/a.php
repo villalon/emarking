@@ -65,8 +65,15 @@ if ($action === 'heartbeat') {
 }
 
 // A valid submission is required
-if (! $submission = $DB->get_record ( 'emarking_draft', array (
+if (! $draft = $DB->get_record ( 'emarking_draft', array (
 		'id' => $ids 
+) )) {
+	emarking_json_error ( 'Invalid draft' );
+}
+
+// A valid submission is required
+if (! $submission = $DB->get_record ( 'emarking_submission', array (
+		'id' => $draft->submissionid 
 ) )) {
 	emarking_json_error ( 'Invalid submission' );
 }
@@ -84,39 +91,33 @@ if (! $user = $DB->get_record ( 'user', array (
 // Assignment to which the submission belong
 
 if (! $emarking = $DB->get_record ( "emarking", array (
-		"id" => $submission->emarkingid 
+		"id" => $draft->emarkingid 
 ) )) {
 	emarking_json_error ( 'Invalid assignment' );
 }
 
-// PROGRESS BAR
-
-if ($emarking->experimentalgroups == 2) { // When draft has overlap
-	$groupwhere = " AND groupid <> 0 ";
-} else {
-	$groupwhere = " AND groupid = 0 ";
-}
-
 // Progress querys
-$totaltest = $DB->count_records_sql ( "SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id $groupwhere" );
-$inprogesstest = $DB->count_records_sql ( "SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id $groupwhere AND status = 15" );
-$publishtest = $DB->count_records_sql ( "SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id $groupwhere AND status > 15" );
+$totaltest = $DB->count_records_sql ( "SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id" );
+$inprogesstest = $DB->count_records_sql ( "SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id AND status = 15" );
+$publishtest = $DB->count_records_sql ( "SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id AND status > 15" );
+
 // Agree level query
 $agreeRecords = $DB->get_records_sql ( "
-		SELECT d.id, STDDEV(d.grade)*2/6 as dispersion, d.submissionid, count(d.id) as conteo
+		SELECT d.id, 
+		STDDEV(d.grade)*2/6 as dispersion, 
+		d.submissionid, 
+		COUNT(d.id) as conteo
 		FROM {emarking_draft} d
-		INNER JOIN {emarking_submission} s ON s.emarking = $emarking->id AND s.id = d.submissionid
-		INNER JOIN mdl_emarking_page p ON p.submission = d.id
-		INNER JOIN mdl_emarking_comment c ON c.page= p.id 
-		WHERE d.groupid <> 0  
-		GROUP by d.submissionid
+		INNER JOIN {emarking_submission} s ON (s.emarking = $emarking->id AND s.id = d.submissionid)
+		INNER JOIN {emarking_page} p ON (p.submission = d.id)
+		INNER JOIN {emarking_comment} c ON (c.page= p.id) 
+		GROUP BY d.submissionid
 		HAVING COUNT(*) > 1" );
 
 // Set agree level average of all active grading assignments
 if ($agreeRecords) {
 	$agreeLevel = array ();
-	foreach ( $agreeRecords as $dispersion ) {
-		
+	foreach ( $agreeRecords as $dispersion ) {		
 		$agreeLevel [] = ( float ) $dispersion->dispersion;
 	}
 	$agreeLevelAvg = round ( 100 * (1 - (array_sum ( $agreeLevel ) / count ( $agreeLevel ))), 1 );
@@ -125,10 +126,12 @@ if ($agreeRecords) {
 }
 
 // Set agree level average of current active assignment
-$agreeAssignment = $DB->get_record_sql ( "SELECT d.submissionid, STDDEV(d.grade)*2/6 as dispersion, count(d.id) as conteo
-										FROM mdl_emarking_draft d
-										WHERE d.groupid <> 0 AND d.submissionid = $submission->submissionid 
-										GROUP BY d.submissionid" );
+$agreeAssignment = $DB->get_record_sql ( "SELECT d.submissionid, 
+										STDDEV(d.grade)*2/6 as dispersion, 
+										COUNT(d.id) as conteo
+										FROM {emarking_draft} d
+										WHERE d.submissionid = ? 
+										GROUP BY d.submissionid", array($draft->submissionid) );
 if ($agreeAssignment) {
 	$agreeAsignmentLevelAvg = $agreeAssignment->dispersion;
 } else {
@@ -136,8 +139,6 @@ if ($agreeAssignment) {
 }
 
 $anonymous = $emarking->anonymous === "1";
-
-$submissionid = $submission->id;
 
 // The course to which the assignment belongs
 if (! $course = $DB->get_record ( "course", array (
@@ -194,25 +195,8 @@ if ($usercangrade == 1 && $issupervisor == 0) {
 	$userRole = "teacher";
 }
 
-if ($emarking->experimentalgroups != 0) {
-	
-	$experimentalgroup = $DB->get_record_sql ( "SELECT *
-							FROM {emarking_experimental_groups}
-							WHERE 	emarkingid = $emarking->id AND 
-									groupid IN (
-										SELECT groupid 
-										FROM {groups_members} 
-										WHERE userid = $userid
-												
-									)" );
-	if ($experimentalgroup) {
-		$linkrubric = $experimentalgroup->linkrubric;
-	} else {
-		$linkrubric = 0;
-	}
-} else {
-	$linkrubric = $emarking->linkrubric;
-}
+$linkrubric = $emarking->linkrubric;
+
 // $totaltest, $inprogesstest, $publishtest
 // Ping action for fast validation of user logged in and communication with server
 if ($action === 'ping') {

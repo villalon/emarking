@@ -21,7 +21,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$sqlcomments = "SELECT aec.id, 
+$sqlcomments = "SELECT 
+		aec.id, 
 		aec.posx, 
 		aec.posy, 
 		aec.rawtext,
@@ -49,19 +50,20 @@ $sqlcomments = "SELECT aec.id,
 		IFNULL(er.bonus, '') AS regradebonus,
 		aec.timecreated
 		FROM {emarking_comment} AS aec
-		INNER JOIN {emarking_page} AS ep ON (aec.page = ep.id AND ep.page = :pageno)
-		INNER JOIN {emarking_draft} AS es ON (es.id = :submission AND ep.submission = es.id)
+		INNER JOIN {emarking_page} AS ep ON (aec.page = ep.id AND ep.page = :pageno AND aec.draft = :draft)
+		INNER JOIN {emarking_draft} AS es ON (aec.draft = es.id)
 		INNER JOIN {user} AS u ON (aec.markerid = u.id)
 		LEFT JOIN {gradingform_rubric_levels} AS grl ON (aec.levelid = grl.id)
 		LEFT JOIN {gradingform_rubric_criteria} AS grc ON (grl.criterionid = grc.id)
 		LEFT JOIN (
-			SELECT grl.criterionid, max(score) AS maxscore
+			SELECT grl.criterionid, 
+			MAX(score) AS maxscore
 			FROM {gradingform_rubric_levels} AS grl
 			GROUP BY grl.criterionid
 		) AS grm ON (grc.id = grm.criterionid)
-		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = grc.id AND er.submission = es.id)
+		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = grc.id AND er.draft = es.id)
 		ORDER BY aec.levelid DESC";
-$params = array('pageno'=>$pageno, 'submission'=>$submission->id);
+$params = array('pageno'=>$pageno, 'draft'=>$draft->id, 'draft'=>$draft->id);
 /**  Measures the correction window **/
 $winwidth = required_param('windowswidth', PARAM_NUMBER);
 $winheight =required_param('windowsheight', PARAM_NUMBER);

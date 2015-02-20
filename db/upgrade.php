@@ -1020,7 +1020,80 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015012502, 'emarking');
     }
     
+    if ($oldversion < 2015021300) {
     
+    	// Define field draft to be added to emarking_page.
+    	$table = new xmldb_table('emarking');
+    	$field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'markingduedate');
     
+    	// Conditionally launch add field draft.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Update all emarking objects for type 1
+    	if($instances = $DB->get_records('emarking')) {
+    		foreach($instances as $instance) {
+    			if($emarking = $DB->get_record('emarking', array('id'=>$instance->id))){
+    				$instance->type = 1;
+    				$DB->update_record('emarking', $instance);
+    			}
+    	    }
+    	}
+    	 
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015021300, 'emarking');
+
+    }
+    
+    if ($oldversion < 2015021900) {
+    
+    	// Rename field emarking on table emarking_markers to NEWNAMEGOESHERE.
+    	$table = new xmldb_table('emarking_markers');
+    	$field = new xmldb_field('masteractivity', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'id');
+    
+    	// Launch rename field emarking.
+    	$dbman->rename_field($table, $field, 'emarking');
+    
+    	$field = new xmldb_field('markerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'emarking');
+    
+    	// Launch rename field emarking.
+    	$dbman->rename_field($table, $field, 'marker');
+    
+    	$field = new xmldb_field('activityid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'marker');
+    
+    	// Launch rename field emarking.
+    	$dbman->rename_field($table, $field, 'qualitycontrol');
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015021900, 'emarking');
+    }
+    
+    if ($oldversion < 2015021901) {
+    
+    	// Rename field submission on table emarking_regrade to NEWNAMEGOESHERE.
+    	$table = new xmldb_table('emarking_regrade');
+    	$field = new xmldb_field('submission', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
+    
+    	// Launch rename field submission.
+    	$dbman->rename_field($table, $field, 'draft');
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015021901, 'emarking');
+    }
+    if ($oldversion < 2015021902) {
+    
+    	// Define field id to be added to emarking_comment.
+    	$table = new xmldb_table('emarking_comment');
+    	$field = new xmldb_field('draft', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'page');
+    
+    	// Conditionally launch add field id.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015021902, 'emarking');
+    }        
 	return true;
 }

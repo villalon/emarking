@@ -50,14 +50,15 @@ $rubricdesc = $DB->get_recordset_sql(
 		INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)
 		INNER JOIN {gradingform_rubric_levels} AS b ON (a.id = b.criterionid)
 		LEFT JOIN (
-		SELECT ec.*, es.id AS submissionid
-		FROM {emarking_comment} AS ec
-		INNER JOIN {emarking_page} AS ep ON (ec.page = ep.id)
-		INNER JOIN {emarking_draft} AS es ON (es.id = :submission AND ep.submission = es.id)
+		SELECT ec.*, 
+			es.id AS draftid
+		FROM {emarking_draft} AS es
+		INNER JOIN {emarking_page} AS ep ON (es.id = :draft AND es.submissionid = ep.submission)
+		INNER JOIN {emarking_comment} AS ec ON (ec.draft = :draft2 AND ec.page = ep.id)
 		) AS E ON (E.levelid = b.id)
-		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = a.id AND er.submission = E.submissionid)
+		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = a.id AND er.draft = E.draftid)
 		ORDER BY a.sortorder ASC, b.score ASC",
-		array('coursemodule'=>$cm->id, 'submission'=>$submission->id));
+		array('coursemodule'=>$cm->id, 'draft'=>$draft->id, 'draft2'=>$draft->id));
 
 $rubriclevels = array();
 foreach ($rubricdesc as $rd) {

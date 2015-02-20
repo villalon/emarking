@@ -50,6 +50,7 @@ list($finalgrade, $previouslvlid, $previouscomment) =
 			$rubriclevel, 
 			'', 
 			$submission, 
+			$draft,
 			$emarking, 
 			$context, 
 			null, 

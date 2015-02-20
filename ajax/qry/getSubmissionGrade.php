@@ -21,14 +21,14 @@
  */
 
 // Gets the grade for this submission if any
-$gradesql = "SELECT g.id, 
-	ifnull(g.grade,i.grademin) as finalgrade, 
-	ifnull(g.timecreated, g.timemodified) as timecreated,
-	ifnull(g.timemodified,g.timecreated) as timemodified,
-	g.generalfeedback as feedback,
-	i.itemname as activityname,
-	i.grademin,
-	i.grademax,
+$gradesql = "SELECT d.id, 
+	IFNULL(d.grade,nm.grademin) as finalgrade, 
+	IFNULL(d.timecreated, d.timemodified) as timecreated,
+	IFNULL(d.timemodified,d.timecreated) as timemodified,
+	d.generalfeedback as feedback,
+	nm.name as activityname,
+	nm.grademin,
+	nm.grade as grademax,
 	u.firstname,
 	u.lastname,
 	u.id as studentid,
@@ -45,12 +45,11 @@ $gradesql = "SELECT g.id,
 	nm.regradesopendate,
 	nm.regradesclosedate,
 	nm.markingduedate
-FROM {grade_items} as i
-	INNER JOIN {emarking} as nm ON (nm.id = i.iteminstance and i.itemmodule = 'emarking')
-	LEFT join {emarking_draft} as g ON (g.emarkingid = nm.id AND g.id = ?)
-	LEFT join {user} as u on (g.student = u.id)
-	LEFT JOIN {course} as c on (c.id = i.courseid)
-	LEFT join {user} as um on (g.teacher = um.id)
-WHERE i.itemmodule = 'emarking' and i.iteminstance = ?";
-$results = $DB->get_record_sql($gradesql, array($submission->id, $submission->emarkingid));
+FROM {emarking_draft} as d
+	INNER JOIN {emarking} as nm ON (d.id = ? AND d.emarkingid = nm.id)
+	INNER JOIN {emarking_submission} as s ON (s.id = d.submissionid)
+	LEFT JOIN {user} as u on (s.student = u.id)
+	LEFT JOIN {course} as c on (c.id = nm.course)
+	LEFT JOIN {user} as um on (d.teacher = um.id)";
+$results = $DB->get_record_sql($gradesql, array($draft->id));
 

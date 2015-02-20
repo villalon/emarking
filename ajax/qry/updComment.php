@@ -74,7 +74,15 @@ $diff = abs($previousbonus - $bonus);
 
 if($comment->levelid > 0) {
 	if($diff > 0.01 || $previouslvlid <> $levelid || $previouscomment !== $commentrawtext) {	
-		emarking_set_finalgrade($userid, $levelid, $commentrawtext, $submission, $emarking, $context, null);
+		emarking_set_finalgrade(
+			$userid, 
+			$levelid, 
+			$commentrawtext, 
+			$submission, 
+			$draft,
+			$emarking, 
+			$context, 
+			null);
 	}
 }
 

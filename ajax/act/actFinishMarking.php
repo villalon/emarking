@@ -35,6 +35,7 @@ if (emarking_create_response_pdf($submission,$user,$context, $cm->id)) {
 		0, 
 		null, 
 		$submission, 
+		$draft,
 		$emarking, 
 		$context, 
 		$generalfeedback, 

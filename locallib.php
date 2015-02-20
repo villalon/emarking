@@ -28,6 +28,7 @@ defined ( 'MOODLE_INTERNAL' ) || die ();
 global $CFG;
 require ($CFG->dirroot . '/lib/coursecatlib.php');
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
+
 function get_string_status($status) {
 	switch ($status) {
 		case EMARKING_REGRADE_MISASSIGNED_SCORE :
@@ -38,6 +39,21 @@ function get_string_status($status) {
 			return get_string ( 'statementproblem', 'mod_emarking' );
 		case EMARKING_REGRADE_OTHER :
 			return get_string ( 'other', 'mod_emarking' );
+		default :
+			return 'INVALID STATUS';
+	}
+}
+
+function get_string_type($type) {
+	switch ($type) {
+		case EMARKING_TYPE_NORMAL :
+			return get_string ( 'type_normal', 'mod_emarking' );
+		case EMARKING_TYPE_MARKER_TRAINING :
+			return get_string ( 'type_markers_training', 'mod_emarking' );
+		case EMARKING_TYPE_STUDENT_TRAINING :
+			return get_string ( 'type_student_training', 'mod_emarking' );
+		case EMARKING_TYPE_PEER_REVIEW:
+			return get_string ( 'type_peer_review', 'mod_emarking' );
 		default :
 			return 'INVALID STATUS';
 	}
@@ -207,13 +223,9 @@ function emarking_get_statuses_as_array() {
  *        	The course module (emarking activity)
  * @return multitype:tabobject
  */
-function emarking_tabs($context, $cm, $emarking = null) {
+function emarking_tabs($context, $cm, $emarking) {
 	global $CFG;
 	global $USER;
-	
-	if ($emarking == null) {
-		throw new moodle_exception ( 'Invalid parameters' );
-	}
 	
 	$usercangrade = has_capability ( 'mod/assign:grade', $context );
 	
@@ -235,9 +247,11 @@ function emarking_tabs($context, $cm, $emarking = null) {
 		}
 		$gradetab->subtree [] = new tabobject ( "regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string ( "regrades", 'mod_emarking' ) );
 	} else {
-		if (has_capability ( 'mod/emarking:regrade', $context ))
+		if (has_capability ( 'mod/emarking:regrade', $context )
+			&& $emarking->type == EMARKING_TYPE_NORMAL)
 			$gradetab->subtree [] = new tabobject ( "regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?cmid={$cm->id}", get_string ( "regrades", 'mod_emarking' ) );
-		if (has_capability ( 'mod/emarking:assignmarkers', $context ))
+		if (has_capability ( 'mod/emarking:assignmarkers', $context )
+			&& $emarking->type == EMARKING_TYPE_NORMAL)
 			$gradetab->subtree [] = new tabobject ( "markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string ( "markers", 'mod_emarking' ) );
 	}
 	
@@ -383,95 +397,8 @@ function emarking_get_logo_file() {
 }
 
 
-/**
- * Counts files in dir using an optional suffix
- *
- * @param unknown $dir
- *        	Folder to count files from
- * @param string $suffix
- *        	File extension to filter
- */
-function emarking_count_files_in_dir($dir, $suffix = ".pdf") {
-	return count ( emarking_get_files_list ( $dir, $suffix ) );
-}
 
-/**
- * Gets a list of files filtered by extension from a folder
- *
- * @param unknown $dir
- *        	Folder
- * @param string $suffix
- *        	Extension to filter
- * @return multitype:unknown Array of filenames
- */
-function emarking_get_files_list($dir, $suffix = ".pdf") {
-	$files = scandir ( $dir );
-	$cleanfiles = array ();
-	
-	foreach ( $files as $filename ) {
-		if (! is_dir ( $filename ) && substr ( $filename, - 4, 4 ) === $suffix)
-			$cleanfiles [] = $filename;
-	}
-	
-	return $cleanfiles;
-}
 
-/**
- * Calculates the total number of pages an exam will have for printing statistics
- * according to extra sheets, extra exams and if it has a personalized header and
- * if it uses the backside
- *
- * @param unknown $exam
- *        	the exam object
- * @param unknown $numpages
- *        	total pages in document
- * @return number total pages to print
- */
-function emarking_exam_total_pages_to_print($exam) {
-	if (! $exam)
-		return 0;
-	
-	$total = $exam->totalpages + $exam->extrasheets;
-	if ($exam->totalstudents > 0) {
-		$total = $total * ($exam->totalstudents + $exam->extraexams);
-	}
-	if ($exam->usebackside) {
-		$total = $total / 2;
-	}
-	return $total;
-}
-
-function emarking_get_or_create_submission($emarking, $student) {
-	global $DB, $USER;
-	
-	if ($submission = $DB->get_record ( 'emarking_submission', array (
-			'emarking' => $emarking->id,
-			'student' => $student->id 
-	) )) {
-		return $submission;
-	}
-	
-	$submission = new stdClass ();
-	$submission->emarking = $emarking->id;
-	$submission->student = $student->id;
-	$submission->status = EMARKING_STATUS_SUBMITTED;
-	$submission->timecreated = time ();
-	$submission->timemodified = time ();
-	$submission->teacher = $USER->id;
-	$submission->grade = 0;
-	$submission->sort = rand ( 1, 9999999 );
-	
-	$submission->id = $DB->insert_record ( 'emarking_submission', $submission );
-	
-	$draft = $submission;
-	$draft->emarkingid = $emarking->id;
-	$draft->submissionid = $submission->id;
-	$draft->groupid = 0;
-	
-	$draft->id = $DB->insert_record ( 'emarking_draft', $draft );
-	
-	return $draft;
-}
 function emarking_get_string_for_status($status) {
 	switch ($status) {
 		case EMARKING_STATUS_ACCEPTED :
@@ -493,114 +420,6 @@ function emarking_get_string_for_status($status) {
 	}
 }
 
-/**
- * Uploads a PDF file as a student's submission for a specific assignment
- *
- * @param object $emarking
- *        	the assignment object from dbrecord
- * @param unknown_type $context
- *        	the coursemodule
- * @param unknown_type $course
- *        	the course object
- * @param unknown_type $path        	
- * @param unknown_type $filename        	
- * @param unknown_type $student        	
- * @param unknown_type $numpages        	
- * @param unknown_type $merge        	
- * @return boolean
- */
-// exportado y cambiado
-function emarking_submit($emarking, $context, $path, $filename, $student, $pagenumber = 0) {
-	global $DB, $USER, $CFG;
-	
-	// All libraries for grading
-	require_once ("$CFG->dirroot/grade/grading/lib.php");
-	require_once $CFG->dirroot . '/grade/lib.php';
-	require_once ("$CFG->dirroot/grade/grading/form/rubric/lib.php");
-	
-	// Calculate anonymous file name from original file name
-	$filenameparts = explode ( ".", $filename );
-	$anonymousfilename = $filenameparts [0] . "_a." . $filenameparts [1];
-	
-	// Verify that both image files (anonymous and original) exist
-	if (! file_exists ( $path . "/" . $filename ) || ! file_exists ( $path . "/" . $anonymousfilename )) {
-		return false;
-	}
-	
-	// Filesystem
-	$fs = get_file_storage ();
-	
-	// Copy file from temp folder to Moodle's filesystem
-	$file_record = array (
-			'contextid' => $context->id,
-			'component' => 'mod_emarking',
-			'filearea' => 'pages',
-			'itemid' => $emarking->id,
-			'filepath' => '/',
-			'filename' => $filename,
-			'timecreated' => time (),
-			'timemodified' => time (),
-			'userid' => $student->id,
-			'author' => $student->firstname . ' ' . $student->lastname,
-			'license' => 'allrightsreserved' 
-	);
-	
-	// If the file already exists we delete it
-	if ($fs->file_exists ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $filename )) {
-		$previousfile = $fs->get_file ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $filename );
-		$previousfile->delete ();
-	}
-	
-	// Info for the new file
-	$fileinfo = $fs->create_file_from_pathname ( $file_record, $path . '/' . $filename );
-	
-	// Now copying the anonymous version of the file
-	$file_record ['filename'] = $anonymousfilename;
-	
-	// Check if anoymous file exists and delete it
-	if ($fs->file_exists ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $anonymousfilename )) {
-		$previousfile = $fs->get_file ( $context->id, 'mod_emarking', 'pages', $emarking->id, '/', $anonymousfilename );
-		$previousfile->delete ();
-	}
-	
-	$fileinfoanonymous = $fs->create_file_from_pathname ( $file_record, $path . '/' . $anonymousfilename );
-	
-	$submission = emarking_get_or_create_submission ( $emarking, $student );
-	
-	// Get the page from previous uploads. If exists update it, if not insert a new page
-	$page = $DB->get_record ( 'emarking_page', array (
-			'submission' => $submission->id,
-			'student' => $student->id,
-			'page' => $pagenumber 
-	) );
-	
-	if ($page != null) {
-		$page->file = $fileinfo->get_id ();
-		$page->fileanonymous = $fileinfoanonymous->get_id ();
-		$page->timemodified = time ();
-		$page->teacher = $USER->id;
-		$DB->update_record ( 'emarking_page', $page );
-	} else {
-		$page = new stdClass ();
-		$page->student = $student->id;
-		$page->page = $pagenumber;
-		$page->file = $fileinfo->get_id ();
-		$page->fileanonymous = $fileinfoanonymous->get_id ();
-		$page->submission = $submission->id;
-		$page->timecreated = time ();
-		$page->timemodified = time ();
-		$page->teacher = $USER->id;
-		
-		$page->id = $DB->insert_record ( 'emarking_page', $page );
-	}
-	
-	// Update submission info
-	$submission->teacher = $page->teacher;
-	$submission->timemodified = $page->timemodified;
-	$DB->update_record ( 'emarking_draft', $submission );
-	
-	return true;
-}
 
 /**
  * Uploads a PDF file as a student's submission for a specific assignment
@@ -1043,158 +862,6 @@ function emarking_get_totalscore($submission, $controller, $fillings) {
 	return $curscore + $bonus;
 }
 
-function emarking_set_finalgrade($userid = 0, $levelid = 0, $levelfeedback = '', $submission = null, $emarking = null, $context = null, $generalfeedback = null, $delete = false, $cmid = 0) {
-	global $USER, $DB, $CFG;
-	
-	require_once ($CFG->dirroot . '/grade/grading/lib.php');
-	
-	// Validate parameters
-	if ($userid == 0 || ($levelid == 0 && $cmid == 0) || $submission == null || $context == null) {
-		return array (
-				false,
-				false,
-				false 
-		);
-	}
-	
-	if ($levelid > 0) {
-		// Firstly get the rubric definition id and criterion id from the level
-		$rubricinfo = $DB->get_record_sql ( "
-				SELECT c.definitionid, l.definition, l.criterionid, l.score, c.description
-				FROM {gradingform_rubric_levels} as l
-				INNER JOIN {gradingform_rubric_criteria} as c on (l.criterionid = c.id)
-				WHERE l.id = ?", array (
-				$levelid 
-		) );
-	} elseif ($cmid > 0) {
-		// Firstly get the rubric definition id and criterion id from the level
-		$rubricinfo = $DB->get_record_sql ( "
-				SELECT
-				d.id as definitionid
-				FROM {course_modules} AS c
-				inner join {context} AS mc on (c.id = ? AND c.id = mc.instanceid)
-				inner join {grading_areas} AS ar on (mc.id = ar.contextid)
-				inner join {grading_definitions} AS d on (ar.id = d.areaid)
-				", array (
-				$cmid 
-		) );
-	} else {
-		return null;
-	}
-	
-	// Get the grading manager, then method and finally controller
-	$gradingmanager = get_grading_manager ( $context, 'mod_emarking', 'attempt' );
-	$gradingmethod = $gradingmanager->get_active_method ();
-	$controller = $gradingmanager->get_controller ( $gradingmethod );
-	$controller->set_grade_range ( array (
-			"$emarking->grademin" => $emarking->grademin,
-			"$emarking->grade" => $emarking->grade 
-	), true );
-	$definition = $controller->get_definition ();
-	
-	// Get the grading instance we should already have
-	$gradinginstancerecord = $DB->get_record ( 'grading_instances', array (
-			'itemid' => $submission->id,
-			'definitionid' => $definition->id 
-	) );
-	
-	// Use the last marking rater id to get the instance
-	$raterid = $USER->id;
-	$itemid = null;
-	if ($gradinginstancerecord) {
-		if ($gradinginstancerecord->raterid > 0) {
-			$raterid = $gradinginstancerecord->raterid;
-		}
-		$itemid = $gradinginstancerecord->id;
-	}
-	
-	// Get or create grading instance (in case submission has not been graded)
-	$gradinginstance = $controller->get_or_create_instance ( $itemid, $raterid, $submission->id );
-	
-	$rubricscores = $controller->get_min_max_score ();
-	
-	// Get the fillings and replace the new one accordingly
-	$fillings = $gradinginstance->get_rubric_filling ();
-	
-	if ($levelid > 0) {
-		if ($delete) {
-			if (! $minlevel = $DB->get_record_sql ( '
-					SELECT id, score
-					FROM {gradingform_rubric_levels}
-					WHERE criterionid = ?
-					ORDER BY score ASC LIMIT 1', array (
-					$rubricinfo->criterionid 
-			) )) {
-				return array (
-						false,
-						false,
-						false 
-				);
-			}
-			$newfilling = array (
-					"remark" => '',
-					"levelid" => $minlevel->id 
-			);
-		} else {
-			$newfilling = array (
-					"remark" => $levelfeedback,
-					"levelid" => $levelid 
-			);
-		}
-		if (isset ( $fillings ['criteria'] [$rubricinfo->criterionid] ['levelid'] ) && isset ( $fillings ['criteria'] [$rubricinfo->criterionid] ['remark'] )) {
-			$previouslvlid = $fillings ['criteria'] [$rubricinfo->criterionid] ['levelid'];
-			$previouscomment = $fillings ['criteria'] [$rubricinfo->criterionid] ['remark'];
-		} else {
-			$previouslvlid = 0;
-			$previouscomment = null;
-		}
-		$fillings ['criteria'] [$rubricinfo->criterionid] = $newfilling;
-	} else {
-		$previouslvlid = 0;
-		$previouscomment = null;
-	}
-	
-	$fillings ['raterid'] = $raterid;
-	$gradinginstance->update ( $fillings );
-	$rawgrade = $gradinginstance->get_grade ();
-	
-	$grade_item = grade_item::fetch ( array (
-			'itemmodule' => 'emarking',
-			'iteminstance' => $submission->emarkingid 
-	) );
-	
-	$previousfeedback = '';
-	$previousfeedback = $submission->generalfeedback == null ? '' : $submission->generalfeedback;
-	
-	if ($generalfeedback == null) {
-		$generalfeedback = $previousfeedback;
-	}
-	
-	$totalscore = emarking_get_totalscore ( $submission, $controller, $fillings );
-	$finalgrade = emarking_calculate_grade ( $emarking, $totalscore, $rubricscores ['maxscore'] );
-	
-	$submission->grade = $finalgrade + $gradebonus;
-	$submission->generalfeedback = $generalfeedback;
-	$submission->status = $emarking->status < EMARKING_STATUS_RESPONDED ? EMARKING_STATUS_GRADING : EMARKING_STATUS_REGRADING;
-	$submission->timemodified = time ();
-	
-	if ($DB->count_records ( "emarking_draft", array (
-			"emarkingid" => $submission->emarkingid,
-			"submissionid" => $submission->submissionid 
-	) ) > 1) {
-		$DB->update_record ( 'emarking_draft', $submission );
-	} else {
-		$DB->update_record ( 'emarking_draft', $submission );
-		$DB->update_record ( 'emarking_submission', $submission );
-	}
-	
-	return array (
-			$finalgrade + $gradebonus,
-			$previouslvlid,
-			$previouscomment 
-	);
-}
-
 
 /**
  * Calculates the next submission to be graded when a marker is currently grading
@@ -1461,192 +1128,8 @@ function emarking_rotate_image($pageno, $submission, $context) {
 	return false;
 }
 
-/**
- * Gets a list of the pages allowed to be seen and interact for this user
- *
- * @param unknown $emarking        	
- * @return array of page numbers
- */
-function emarking_get_allowed_pages($emarking) {
-	global $DB, $USER;
-	
-	$allowedpages = array ();
-	
-	// We add page 0 so array_search returns only positive values for normal pages
-	$allowedpages [] = 0;
-	
-	// If there is criteria assigned for this emarking activity
-	if ($criteria = $DB->get_records ( 'emarking_page_criterion', array (
-			'emarking' => $emarking->id 
-	) )) {
-		// Organize pages per criterion
-		$criteriapages = array ();
-		foreach ( $criteria as $cr ) {
-			if (! isset ( $criteriapages [$cr->criterion] ))
-				$criteriapages [$cr->criterion] = array ();
-			$criteriapages [$cr->criterion] [] = $cr->page;
-		}
-		$filteredbycriteria = true;
-		
-		// Get criteria the user is allowed to see
-		$usercriteria = $DB->get_records ( 'emarking_marker_criterion', array (
-				'emarking' => $emarking->id,
-				'marker' => $USER->id 
-		) );
-		
-		// Add pages to allowed array if the user can see them
-		foreach ( $usercriteria as $uc ) {
-			if (isset ( $criteriapages [$uc->criterion] ))
-				$allowedpages = array_merge ( $allowedpages, $criteriapages [$uc->criterion] );
-		}
-		// If there is no criteria assigned, all pages are allowed
-	} else {
-		// Get the maximum page number in the emarking activity
-		if ($max = $DB->get_record_sql ( '
-				SELECT MAX(page) AS pagenumber 
-				FROM {emarking_submission} AS s 
-				INNER JOIN {emarking_page} AS p ON (p.submission = s.id AND s.emarking = :emarking)', array (
-				'emarking' => $emarking->id 
-		) )) {
-			for($i = 1; $i <= $max->pagenumber; $i ++) {
-				$allowedpages [] = $i;
-			}
-			// If no pages yet, we get the total pages from the activity if it is set
-		} else if ($emarking->totalpages > 0) {
-			for($i = 1; $i <= $emarking->totalpages; $i ++) {
-				$allowedpages [] = $i;
-			}
-			// Finally we assume there are less than 50 pages
-		} else {
-			for($i = 1; $i <= 50; $i ++) {
-				$allowedpages [] = $i;
-			}
-		}
-	}
-	
-	// Sort the array
-	asort ( $allowedpages );
-	
-	return $allowedpages;
-}
 
-/**
- *
- * @param unknown $emarking        	
- * @param unknown $submission        	
- * @param unknown $anonymous        	
- * @param unknown $context        	
- * @return multitype:stdClass
- */
-function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
-	global $DB, $CFG, $USER;
-	
-	$emarkingpages = array ();
-	
-	// Get criteria to filter pages
-	$filterpages = false;
-	$allowedpages = array ();
-	
-	// If user is supervisor, site admin or the student who owns the submission, we should not filter
-	if (has_capability ( 'mod/emarking:supervisegrading', $context ) || is_siteadmin () || $USER->id == $submission->student) {
-		$filterpages = false;
-	} else if (
-	// If it is another student (can't grade nor add instances) and peer visibility is allowed, we don't filter
-	// but we force it as anonymous
-	! has_capability ( 'mod/emarking:grade', $context ) && $emarking->peervisibility) {
-		$filterpages = false;
-		$anonymous = true;
-	} else {
-		// Remaining case is for markers
-		$filterpages = true;
-		
-		$allowedpages = emarking_get_allowed_pages ( $emarking );
-	}
-	
-	// In case there are no pages for this submission, we generate missing pages for those allowed
-	if (! $pages = $DB->get_records ( 'emarking_page', array (
-			'submission' => $submission->id 
-	), 'page ASC' )) {
-		if ($emarking->totalpages > 0) {
-			for($i = 0; $i < $emarking->totalpages; $i ++) {
-				$emarkingpage = new stdClass ();
-				$emarkingpage->url = $CFG->wwwroot . '/mod/emarking/pix/missing.png';
-				$emarkingpage->width = 800;
-				$emarkingpage->height = 1035;
-				$emarkingpage->totalpages = $emarking->totalpages;
-				if ($filterpages) {
-					$emarkingpage->showmarker = array_search ( $i + 1, $allowedpages ) !== false ? 1 : 0;
-				} else {
-					$emarkingpage->showmarker = 1;
-				}
-				
-				$emarkingpages [] = $emarkingpage;
-			}
-		}
-		return $emarkingpages;
-	}
-	
-	$fs = get_file_storage ();
-	$numfiles = max ( count ( $pages ), $emarking->totalpages );
-	$pagecount = 0;
-	
-	foreach ( $pages as $page ) {
-		$pagecount ++;
-		
-		$pagenumber = $page->page;
-		
-		while ( count ( $emarkingpages ) < $pagenumber - 1 ) {
-			$emarkingpage = new stdClass ();
-			$emarkingpage->url = $CFG->wwwroot . '/mod/emarking/pix/missing.png';
-			$emarkingpage->width = 800;
-			$emarkingpage->height = 1035;
-			$emarkingpage->totalpages = $numfiles;
-			
-			if ($filterpages) {
-				$emarkingpage->showmarker = array_search ( count ( $emarkingpages ) + 1, $allowedpages ) !== false ? 1 : 0;
-			} else {
-				$emarkingpage->showmarker = 1;
-			}
-			
-			$emarkingpages [] = $emarkingpage;
-		}
-		
-		$fileid = $anonymous ? $page->fileanonymous : $page->file;
-		if (! $file = $fs->get_file_by_id ( $fileid )) {
-			$emarkingpage = new stdClass ();
-			$emarkingpage->url = $CFG->wwwroot . '/mod/emarking/pix/missing.png';
-			$emarkingpage->width = 800;
-			$emarkingpage->height = 1035;
-			$emarkingpage->totalpages = $numfiles;
-			
-			if ($filterpages) {
-				$emarkingpage->showmarker = array_search ( $pagenumber, $allowedpages ) !== false ? 1 : 0;
-			} else {
-				$emarkingpage->showmarker = 1;
-			}
-			
-			$emarkingpages [] = $emarkingpage;
-		}
-		
-		if ($imageinfo = $file->get_imageinfo ()) {
-			$imgurl = file_encode_url ( $CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarkingid . '/' . $file->get_filename () );
-			$emarkingpage = new stdClass ();
-			$emarkingpage->url = $imgurl . "?r=" . random_string ( 15 );
-			$emarkingpage->width = $imageinfo ['width'];
-			$emarkingpage->height = $imageinfo ['height'];
-			$emarkingpage->totalpages = $numfiles;
-			
-			if ($filterpages) {
-				$emarkingpage->showmarker = array_search ( $pagenumber, $allowedpages ) !== false ? 1 : 0;
-			} else {
-				$emarkingpage->showmarker = 1;
-			}
-			
-			$emarkingpages [] = $emarkingpage;
-		}
-	}
-	return $emarkingpages;
-}
+
 function emarking_validate_rubric($context, $die = true, $showform = true) {
 	global $OUTPUT, $CFG;
 	

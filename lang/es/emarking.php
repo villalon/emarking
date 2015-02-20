@@ -22,6 +22,32 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
+$string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
+$string['enablequalitycontrol'] = 'Habilitar Control de Calidad';
+$string['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas serán asignados a los correctores de CC para que sean corregidos nuevamente y así calcular el acuerdo entre correctores.';
+$string['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
+
+$string['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
+$string['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
+$string['studentvisible_markervisible'] = 'Estudiante visible / Corrector visible';
+$string['studentvisible_markeranonymous'] = 'Estudiante visible / Corrector anónimo';
+
+
+$string ['markingtype'] = 'Tipo de corrección';
+$string ['markingtype_help'] = "<h2>Tipos de corrección</h2><br>
+		Hay cuatro tipos de corrección en eMarking:
+		<ul>
+			<li><b>Normal</b>: Correctores corrigen las pruebas normalmente de acuerdo a una rúbrica. Las pruebas pueden ser corregidas por más de un corrector para control de calidad.</li>
+			<li><b>Entrenamiento de correctores</b>: Las pruebas no pertenecen a estudiantes del curso. Todos los correctores corrigen todas las pruebas y deben alcanzar un acuerdo de 100% para finalizar el proceso.</li>
+			<li><b>Entrenamiento de estudiantes</b>: Las pruebas no pertenecen a estudiantes del curso. Los estudiantes corrigen como práctica para su próxima evaluación.</li>
+			<li><b>Revisión entre pares</b>: Los estudiantes se corrigen entre si de acuerdo a la configuración de grupos. Si hay grupos configurados (visibles o separados), cada estudiante corrige todas las pruebas de otro grupo.</li>
+		</ul>";
+$string ['type_normal'] = 'Normal';
+$string ['type_markers_training'] = 'Entrenamiento de correctores';
+$string ['type_student_training'] = 'Entrenamiento de estudiantes';
+$string ['type_peer_review'] = 'Revisión entre pares';
+
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';
 $string ['exporttoexcel'] = 'Exportar a Excel';
 
@@ -37,6 +63,7 @@ $string ['adjustslopegrade_help'] = 'La calificación usada para calcular la pen
 $string ['adjustslopescore'] = 'Puntaje de ajuste';
 $string ['adjustslopescore_help'] = 'El puntaje usado para calcular la pendiente de ajuste, i.e. entre 0 y el puntaje de ajuste.';
 $string ['adjustslopegrademustbegreaterthanmin'] = 'Calificación de ajuste debe ser mayor que la calificación mínima';
+$string ['adjustslopegrademustbelowerthanmax'] = 'Calificación de ajuste debe ser menor que la calificación máxima';
 $string ['adjustslopescoregreaterthanzero'] = 'Puntaje de ajuste debe ser mayor que 0';
 
 $string ['heartbeatenabled'] = 'Habilitar seguimiento a estudiantes';

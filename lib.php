@@ -33,6 +33,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// eMarking type
+define('EMARKING_TYPE_NORMAL',1);
+define('EMARKING_TYPE_MARKER_TRAINING',2);
+define('EMARKING_TYPE_STUDENT_TRAINING',3);
+define('EMARKING_TYPE_PEER_REVIEW',4);
+
 // Print orders status
 define('EMARKING_EXAM_UPLOADED',1);
 define('EMARKING_EXAM_SENT_TO_PRINT',2);
@@ -118,24 +124,6 @@ function emarking_update_instance(stdClass $emarking, mod_emarking_mod_form $mfo
 		$emarking->collaborativefeatures=0;
 	}
 	
-	if(!isset($mform->get_data()->experimentalgroups)){
-		$emarking->experimentalgroups=0;
-		$DB->delete_records("emarking_experimental_groups", array("emarkingid"=>$emarking->instance));
-	}else{
-		$groups = $DB->get_records("groups", array("courseid"=>$COURSE->id));
-		foreach ($groups as $group){
-			if(!$DB->get_record("emarking_experimental_groups", array("emarkingid"=>$emarking->instance, "groupid"=>$group->id))){
-				$expGroup = new stdClass();
-				$expGroup->emarkingid = $emarking->instance;
-				$expGroup->groupid = $group->id;
-				$expGroup->datestart = time();
-				$expGroup->dateend = time() + 30*24*60*60;
-				$DB->insert_record("emarking_experimental_groups", $expGroup);
-			}
-		}
-		
-	}
-
 	if(!isset($mform->get_data()->enableduedate)) {
 		$emarking->markingduedate=NULL;
 	}
@@ -347,7 +335,7 @@ function emarking_grade_item_update(stdClass $emarking, $grades=null) {
 	global $CFG;
 
 	require_once($CFG->libdir.'/gradelib.php');
-	require_once($CFG->dirroot.'/mod/emarking/locallib.php');
+	require_once($CFG->dirroot.'/mod/emarking/marking/locallib.php');
 	
 	if($grades==null) {
 		emarking_calculate_grades_users($emarking);
@@ -628,20 +616,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
 	
 	$fs = get_file_storage();
 	
-    /*
-     *  Check if this module is part of crowd module linking.
-     */
-    if( $markermap = $DB->get_record('emarking_markers',array('activityid'=>$cm->instance))){ //(Its linked)
-
-        if($markermap->masteractivity != $cm->instance){
-            //This is a child soreplace the context for the parent's
-            $parentcm = get_coursemodule_from_instance("emarking",$markermap->masteractivity);
-            $context = context_module::instance($parentcm->id);
-            $arg0 = $markermap->masteractivity;
-        }
-    }
-    
-    //echo $context->id."..".$filearea."..".$arg0;die();
+    //echo $context->id."..".$filearea."..".$arg0."..".$filename;die();
     if (! $file = $fs->get_file ( $context->id, 'mod_emarking', $filearea, $arg0, '/', $filename)) {
 		//submission .pdf hay que cambiar al nombre del png user-curso-pag.png
 		echo "File really not found";

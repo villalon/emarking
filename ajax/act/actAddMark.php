@@ -83,6 +83,7 @@ $posy = ($posy/$winheight);
 // Create the new mark
 $emarking_comment = new stdClass();
 $emarking_comment->page = $page->id;
+$emarking_comment->draft = $draft->id;
 $emarking_comment->posx = $posx;
 $emarking_comment->posy = $posy;
 $emarking_comment->width = '140';
@@ -108,13 +109,14 @@ list($finalgrade, $previouslevel, $previouscomment) =
 			$rubriclevel, 
 			$comment, 
 			$submission, 
+			$draft,
 			$emarking, 
 			$context, 
 			null);
 
 // When we add a mark we also have to include its regrade information (that may not be included)
 $regrade = $DB->get_record('emarking_regrade', 
-		array('submission'=>$submission->id, 'criterion'=>$rubricinfo->criterionid));
+		array('draft'=>$draft->id, 'criterion'=>$rubricinfo->criterionid));
 
 // If there was no regrade create default information (as empty)
 if(!$regrade) {
