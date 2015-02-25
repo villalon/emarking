@@ -93,12 +93,25 @@ function emarking_supports($feature) {
  * @return int The id of the newly inserted emarking record
  */
 function emarking_add_instance(stdClass $data, mod_emarking_mod_form  $mform = null) {
-	global $DB,$CFG;
+	global $DB,$CFG, $COURSE;
+	
 	$data->timecreated = time();
 	$id = $DB->insert_record('emarking', $data);
 	$data->id = $id;
 	emarking_grade_item_update($data);
-
+	
+	foreach($data as $k => $v) {
+		$parts = explode('-', $k);
+		if(count($parts) > 1 && $parts[0] === 'marker') {
+			$markerid = intval($parts[1]);
+			$marker = new stdClass();
+			$marker->emarking = $id;
+			$marker->marker = $markerid;
+			$marker->qualitycontrol = 1;
+			$DB->insert_record('emarking_markers', $marker);
+		}
+	}
+	
 	return $id;
 }
 

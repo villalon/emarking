@@ -212,6 +212,7 @@ if ($action === 'ping') {
 			'hascapability' => $usercangrade,
 			'supervisor' => $issupervisor,
 			'markers' => json_encode ( $markersToSend ),
+			'markingtype' => $emarking->type,
 			'totalTests' => $totaltest, // Progress bar indicator
 			'inProgressTests' => $inprogesstest, // Progress bar indicator
 			'publishedTests' => $publishtest, // Progress bar indicator

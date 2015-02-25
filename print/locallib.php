@@ -247,11 +247,21 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
 		$draft->timemodified = time ();
 		$draft->grade = 0;
 		$draft->sort = rand ( 1, 9999999 );
+		$draft->qualitycontrol = 0;
 		$draft->teacher = 0;
 		$draft->generalfeedback = NULL;
 		$draft->status = EMARKING_STATUS_SUBMITTED;
 
-		$draft->id = $DB->insert_record ( 'emarking_draft', $draft );
+		$DB->insert_record ( 'emarking_draft', $draft );
+		
+		if($emarking->qualitycontrol) {
+			$qcdrafts = $DB->count_records('emarking_draft', array('emarkingid'=>$emarking->id, 'qualitycontrol'=>1));
+			$totalstudents=emarking_get_students_count_for_printing($emarking->course);
+			if(ceil($totalstudents / 4) > $qcdrafts) {
+				$draft->qualitycontrol = 1;
+				$DB->insert_record ( 'emarking_draft', $draft );
+			}
+		}
 	}
 	// Markers training - One draft per marker
 	else if($emarking->type == 2) {
@@ -273,7 +283,7 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
 			$draft->generalfeedback = NULL;
 			$draft->status = EMARKING_STATUS_SUBMITTED;
 
-			$draft->id = $DB->insert_record ( 'emarking_draft', $draft );
+			$DB->insert_record ( 'emarking_draft', $draft );
 		}
 	}
 	// Students training
@@ -293,7 +303,8 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
 			$draft->generalfeedback = NULL;
 			$draft->status = EMARKING_STATUS_SUBMITTED;
 
-			$draft->id = $DB->insert_record ( 'emarking_draft', $draft );
+			
+			$DB->insert_record ( 'emarking_draft', $draft );
 		}
 	}
 	// Peer review

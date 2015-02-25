@@ -62,6 +62,7 @@ $posy = ($posy/$winheight);
 // Create the new comment record
 $emarking_comment = new stdClass();
 $emarking_comment->page = $page->id;
+$emarking_comment->draft = $draft->id;
 $emarking_comment->posx = $posx;
 $emarking_comment->posy = $posy;
 $emarking_comment->width = $width;

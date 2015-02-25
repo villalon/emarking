@@ -34,13 +34,19 @@ $results = $DB->get_records_sql(
 			1 AS used, 
 			c.timemodified AS lastused, 
 			c.markerid
-			FROM {emarking_comment} AS c
-			INNER JOIN {emarking_page} AS ep ON (c.page = ep.id)
-			INNER JOIN {emarking_draft} AS es ON (es.emarkingid = :emarking AND ep.submission = es.id)
+			FROM {emarking_submission} AS es
+			INNER JOIN {emarking_draft} AS d ON (es.emarking = :emarking AND d.submissionid = es.id)
+			INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
 			WHERE c.textformat IN (1,2) AND LENGTH(rawtext) > 0
-			union select id, text, 1, 1, 0, 0
+			UNION
+			SELECT  id, 
+					text, 
+					1, 
+					1, 
+					0, 
+					0
 			from {emarking_predefined_comment}
 			WHERE emarkingid = :emarking2) as T
 			GROUP BY text
 			ORDER BY text"
-		, array('emarking'=>$submission->emarking, 'emarking2'=>$submission->emarkingid));
+		, array('emarking'=>$submission->emarking, 'emarking2'=>$submission->emarking));

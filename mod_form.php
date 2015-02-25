@@ -72,6 +72,11 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$mform->addElement ( 'select', 'type', get_string ( 'markingtype', 'mod_emarking' ), $types );
 		$mform->addHelpButton ( 'type', 'markingtype', 'mod_emarking' );
 		$mform->setType ( 'type', PARAM_INT );
+		
+		// If we are in editing mode we can not change the type anymore
+		if($this->_instance) {
+			$mform->freeze('type');
+		}
 	
 		// Adding the standard "name" field
 		$mform->addElement ( 'text', 'name', get_string ( 'name' ), array (
@@ -139,21 +144,21 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$mform->setType ( 'custommarks', PARAM_TEXT );
 		
 		// Due date settings
-		$mform->addElement ( 'checkbox', 'enablequalitycontrol', get_string ( 'enablequalitycontrol', 'mod_emarking' ) );
-		$mform->addHelpButton ( 'enablequalitycontrol', 'enablequalitycontrol', 'mod_emarking' );
+		$mform->addElement ( 'checkbox', 'qualitycontrol', get_string ( 'enablequalitycontrol', 'mod_emarking' ) );
+		$mform->addHelpButton ( 'qualitycontrol', 'enablequalitycontrol', 'mod_emarking' );
 		
 		// Get all users with permission to grade in emarking
 		$markers=get_enrolled_users($ctx, 'mod/emarking:grade');
 		$chkmarkers = array();
 		foreach($markers as $marker) {
-			$chkmarkers[] = $mform->createElement ( 'checkbox', 'assign-'.$marker->id, null, $marker->firstname . " " . $marker->lastname);
+			$chkmarkers[] = $mform->createElement ( 'checkbox', 'marker-'.$marker->id, null, $marker->firstname . " " . $marker->lastname);
 		}
 		
 		// Add markers group as checkboxes
 		$mform->addGroup($chkmarkers, 'markers', get_string('markersqualitycontrol','mod_emarking'), array('<br />'), false);
 		$mform->addHelpButton ( 'markers', 'markersqualitycontrol', 'mod_emarking' );
 		$mform->setType ( 'markers', PARAM_INT);
-		$mform->disabledIf ( 'markers', 'enablequalitycontrol' );
+		$mform->disabledIf ( 'markers', 'qualitycontrol' );
 		
 		// -------------------------------------------------------------------------------
 		// Experimental features
@@ -380,6 +385,21 @@ class mod_emarking_mod_form extends moodleform_mod {
 			$errors['type'] = get_string('notenoughmarkersfortraining', 'mod_emarking');
 		}
 		
+		$qualitycontrol = isset($data ['enablequalitycontrol']) ?  $data ['enablequalitycontrol'] : false;
+		if($data['type'] == EMARKING_TYPE_NORMAL && $qualitycontrol) {
+		// Get all users with permission to grade in emarking
+				// Get all users with permission to grade in emarking
+		$markers=get_enrolled_users($ctx, 'mod/emarking:grade');
+		$totalmarkers=0;
+		foreach($markers as $marker) {
+			if(isset($data['marker-'.$marker->id])) {
+				$totalmarkers++;
+			}
+		}
+		if($totalmarkers == 0)
+			$errors['markers'] = get_string('notenoughmarkersforqualitycontrol', 'mod_emarking');
+		}
+
 		return $errors;
 	}
 }

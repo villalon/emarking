@@ -27,6 +27,7 @@ $string['markersqualitycontrol_help'] = 'Quality Control markers are the ones th
 $string['enablequalitycontrol'] = 'Enable Quality Control';
 $string['enablequalitycontrol_help'] = 'If QC in enabled, a set of QC exams will be assigned to the QC markers for extra marking and therefore calculate inter-marker agreement.';
 $string['notenoughmarkersfortraining'] = 'Not enough markers for training, please enrol markers as non editing teachers for training.';
+$string['notenoughmarkersforqualitycontrol'] = 'No markers were selected for quality control. Please select at least one marker as responsible for marking the control exams.';
 
 $string['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
 $string['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';

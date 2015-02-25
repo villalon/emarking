@@ -61,8 +61,9 @@ $sql = "SELECT
 			c.description as criterio,
 			s.id as ids,
 			s.status as status
-		FROM {emarking_regrade} as rg
-		INNER JOIN {emarking_submission} AS s ON (s.id = rg.submission AND s.emarking = :emarking)
+		FROM {emarking_submission} AS s 
+		INNER JOIN {emarking_draft} AS d ON (s.emarking = :emarking AND d.submissionid = s.id) 
+		INNER JOIN {emarking_regrade} as rg ON (d.id = rg.draft)
 		INNER JOIN {user} AS u ON (u.id = s.student)
 		INNER JOIN {gradingform_rubric_criteria} as c ON (c.id = rg.criterion)
 		ORDER BY u.lastname ASC";

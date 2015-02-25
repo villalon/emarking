@@ -27,6 +27,7 @@ $string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de 
 $string['enablequalitycontrol'] = 'Habilitar Control de Calidad';
 $string['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas serán asignados a los correctores de CC para que sean corregidos nuevamente y así calcular el acuerdo entre correctores.';
 $string['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
+$string['notenoughmarkersforqualitycontrol'] = 'No ha seleccionado correctores para que realicen el control de calidad. Por favor seleccione al menos un corrector como responsable de corregir las pruebas de control.';
 
 $string['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
 $string['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';

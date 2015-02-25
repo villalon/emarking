@@ -47,13 +47,13 @@ $emarking_comment = $DB->get_record_sql('
 		SELECT ec.* 
 		FROM {emarking_comment} AS ec
 		INNER JOIN {emarking_page} AS ep 
-			ON (ec.levelid = :levelid AND ep.submission = :submissionid AND ec.page = ep.id)', 
-		array('levelid'=>$rubriclevel, 'submissionid'=>$submission->id));
+			ON (ec.levelid = :levelid AND ec.draft = :draft AND ep.submission = :submissionid AND ec.page = ep.id)', 
+		array('levelid'=>$rubriclevel, 'draft'=>$draft->id, 'submissionid'=>$submission->id));
 
 // Check if there was already a regrade request
 $newrecord=false;
 if(!$emarking_regrade = $DB->get_record('emarking_regrade', 
-		array('submission'=>$submission->id, 'criterion'=>$rubricinfo->criterionid))) {
+		array('draft'=>$draft->id, 'criterion'=>$rubricinfo->criterionid))) {
 	$emarking_regrade = new stdClass();
 	$newrecord=true;
 }
@@ -67,7 +67,7 @@ $emarking_regrade->timemodified = time();
 // If the record is new then add the basic information
 if($newrecord) {
 	$emarking_regrade->student = $USER->id;
-	$emarking_regrade->submission = $submission->id;
+	$emarking_regrade->draft = $draft->id;
 	$emarking_regrade->criterion = $rubricinfo->criterionid;
 	$emarking_regrade->timecreated = time();
 	$emarking_regrade->markercomment = null;
@@ -87,9 +87,9 @@ if($newrecord) {
 }
 
 // Update the submission
-$submission->timemodified = time();
-$submission->status = EMARKING_STATUS_REGRADING;
-$DB->update_record('emarking_submission', $submission);
+$draft->timemodified = time();
+$draft->status = EMARKING_STATUS_REGRADING;
+$DB->update_record('emarking_draft', $draft);
 
 // Send the output
 $output = array('error'=>'',

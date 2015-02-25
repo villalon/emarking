@@ -1095,5 +1095,36 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2015021902, 'emarking');
     }        
-	return true;
+    
+    if ($oldversion < 2015022300) {
+    
+    	// Define field id to be added to emarking_comment.
+    	$table = new xmldb_table('emarking_draft');
+    	$field = new xmldb_field('qualitycontrol', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'sort');
+    
+    	// Conditionally launch add field id.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015022300, 'emarking');
+    }
+        
+    if ($oldversion < 2015022301) {
+    
+    	// Define field id to be added to emarking_comment.
+    	$table = new xmldb_table('emarking');
+    	$field = new xmldb_field('qualitycontrol', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'type');
+    
+    	// Conditionally launch add field id.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015022301, 'emarking');
+    }
+        
+    return true;
 }
