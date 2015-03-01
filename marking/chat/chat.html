@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+<head>
+  <title>eMarking CHAT</title>
+  <!-- load bootstrap css -->
+  <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="bootstrap/css/estilo.css" />
+  <!-- load socket and jQuery -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <!-- load bootstrap js -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script>
+  
+  	//Get variables from URL
+  	function getQueryVariable(variable)
+	{
+	       var query = window.location.search.substring(1);
+	       var vars = query.split("&");
+	       for (var i=0;i<vars.length;i++) {
+	               var pair = vars[i].split("=");
+	               if(pair[0] == variable){return pair[1];}
+	       }
+	       return(false);
+	}
+  	//Get online user firstname and lastname
+  	var usernameOnlineURI = new String(getQueryVariable("username"));
+  	var usernameOnline = decodeURIComponent(usernameOnlineURI);
+  	//Get online user firstname and lastname
+  	var userOnlineURI = new String(getQueryVariable("user"));
+  	var userOnlinePre = decodeURIComponent(userOnlineURI);
+  	//Removing @alumnos.uai.cl or @uai.cl from username
+  	if(userOnlinePre.indexOf('@') === -1){
+  		var userOnline = userOnlinePre;
+  	} else {
+  		var userOnline = userOnlinePre.substr(0, userOnlinePre.indexOf('@'));
+  	}
+  	//Get online user id
+  	var idOnlineURI = new String(getQueryVariable("id"));
+  	var idOnline = decodeURIComponent(idOnlineURI);
+  	//Get online user groupID
+  	var groupIDURI = new String(getQueryVariable("groupID"));
+  	var groupID = decodeURIComponent(groupIDURI);
+  	
+	  
+  	
+  </script>
+</head>
+<body>
+<!-- chat total area -->
+<div class="container-fluid">
+
+<!-- Username banner (commented for reducing used frame space!!) -->
+  <div class="row userBanner">
+  	<p id="usuarioActual"></p>
+  </div>
+  
+<!-- Messages area -->
+  <div class="row">
+      <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 areaChat" id="areaChat">
+        <ul id="listaMensajes"></ul>
+      </div>
+      <!-- Users list (online = green) -->
+      <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        <h5 style="padding-left:5px;">Usuarios en la sala:</h5>
+        <div id="users"></div>
+      </div>
+  </div>  
+    
+<!-- input del texto del mensaje -->
+<hr>
+  <div class="row">
+  	<form class="form-inline" role="form" id="formularioMensaje">
+		<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+  		<input type="text" autocomplete="off" class="form-control" id="mensaje" placeholder="Escribe un mensaje...">
+		</div>
+		<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+		<button class="btn btn-primary btn-block" onClick="submit_form(); return false;">Enviar</button>
+		</div>
+	</form>
+  </div>
+
+</div> <!-- Close main container div -->
+
+  <!-- Server communication -->
+  <script>
+  	//Banner name
+  	//document.getElementById("usuarioActual").innerHTML = "Sala "+groupID+" - Bienvenido "+usernameOnline+"!";
+  	//Connect to socket (of the specific namespace)
+    var socket = io('/chat');
+  	//Set variables
+    var $chatForm = $('#formularioMensaje');
+    var $mensaje = $('#mensaje'); 
+    var $listaMensajes = $('#listaMensajes');
+    var $users = $('#users');
+    var $areaChat = $('#areaChat');
+    
+  	//Save room
+	  socket.emit('chat room', groupID, function(data){
+	});
+	
+    //Save nickname
+    socket.emit('nuevo usuario', userOnline, function(data){
+      });
+    
+    //Show online users list
+    socket.on('usernames', function(data){
+      	var html = "<table class='table'>";
+      	Object.keys(data).forEach(function(key){
+      		//Only show online users of same groupID
+      		if(data[key].room==groupID){
+      			if(data[key].username==userOnline){
+      				html += "<tr class='info'><td>"+data[key].username+"</td></tr>";	
+      			} else{
+      				html += "<tr class='success'><td>"+data[key].username+"</td></tr>";	
+      			}
+      		}
+      	});
+      	html += "</table>";
+      	$users.html(html);
+    });
+
+    //Send message after submit text function
+    $chatForm.submit(function(e){
+      e.preventDefault();
+      //se incluye el mensaje y la room (groupID) a la que pertenece
+      socket.emit('chat message', $mensaje.val(), groupID, function(data){
+        $listaMensajes.append($('<li class="error">').text('Error! El usuario no existe.'));
+      //always on bottom
+        $areaChat[0].scrollTop = $areaChat[0].scrollHeight;
+      });
+      $mensaje.val('');
+      return false;
+    });
+    //Show old messages function
+    socket.on('cargar mensajes antiguos', function(docs){
+      for(var i=0; i<docs.length; i++){
+        displayMsg(docs[i]);
+      //always on bottom
+        $areaChat[0].scrollTop = $areaChat[0].scrollHeight;
+      } 
+    });
+
+    //Broadcast messages function
+    socket.on('chat message', function(data){
+      displayMsg(data);
+    //always on bottom
+      $areaChat[0].scrollTop = $areaChat[0].scrollHeight;
+    });
+
+    //Write message function
+    function displayMsg(data){
+    	if(data.room==groupID){
+    		$listaMensajes.append($('<li>').append('<strong>'+data.nick+':</strong> '+data.msg));
+    		//always on bottom
+    	    $areaChat[0].scrollTop = $areaChat[0].scrollHeight;
+    	}
+    
+    }
+
+    //Send private message function (whisper). OBS: This messages are not stored into mongo DB
+    //IMPORTANT: whisper works only with usernames WITHOUT SPACES!!
+    socket.on('whisper', function(data){
+    	//only accepts whispers from same group (and by the user who's pointed)
+    	if(data.toUser==userOnline){
+    		$listaMensajes.append($('<li class="privado">').text('(MENSAJE PRIVADO) '+data.nick+': '+data.msg));	
+    	}
+      //always on bottom
+      $areaChat[0].scrollTop = $areaChat[0].scrollHeight;
+    });
+  	
+  </script>
+
+</body>
+</html>

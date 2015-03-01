@@ -1,0 +1,85 @@
+* { 
+	margin: 0; padding: 0; box-sizing: border-box; 
+}
+
+body { 
+	font: 13px Helvetica, Arial; 
+}
+
+form { 
+	
+}
+
+form input { 
+	border: 0; 
+	padding: 10px; 
+	width: 90%; 
+	margin-right: .5%; 
+}
+form button { 
+	width: 9%; 
+	background: rgb(130, 224, 255); 
+	border: none; 
+	/*padding: 10px; */
+}
+
+.error {
+	color:red;
+}
+
+.privado {
+	color:blue;
+	font-style: italic;
+}
+
+.iconChat {
+	width:25px;
+	height:auto;
+}
+
+.divChat {
+	width: 400px;
+	height: 40%;
+	position: fixed;
+	bottom: 0px;
+	right: 10px;
+	border: solid;
+}
+
+#listaMensajes { 
+	list-style-type: none; 
+	margin: 0; 
+	padding: 0; 
+}
+
+#listaMensajes li { 
+	padding: 5px 10px; 
+}
+
+#listaMensajes li:nth-child(odd) { 
+	background: #eee; 
+}
+
+.areaChat {
+	float:left;
+	width:80%;
+}
+
+#divUsers {
+	float:right;
+	width: 20%;
+}
+
+#contenido {
+	/*
+	float:bottom;
+	padding-bottom: 0px;
+	width:100%;
+	*/
+	background: #000; 
+	padding: 3px; 
+	/*position: fixed;*/ 
+	bottom: 0; 
+	width: 100%; 
+	right: 10px;
+}
