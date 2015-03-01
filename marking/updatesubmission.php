@@ -27,7 +27,7 @@ require_once($CFG->dirroot."/mod/emarking/locallib.php");
 
 global $DB, $USER;
 
-$submissionid = required_param('ids', PARAM_INT);
+$draftid = required_param('ids', PARAM_INT);
 $cmid = required_param('cm', PARAM_INT);
 $newstatus = required_param('status', PARAM_INT);
 $confirm = required_param('status', PARAM_INT);
@@ -36,8 +36,12 @@ if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
 	print_error(get_string('invalidid', 'mod_emarking') . $cmid);
 }
 
-if(!$submission = $DB->get_record('emarking_submission', array('id'=>$submissionid))) {
-	print_error(get_string('invalidsubmission', 'mod_emarking') . $submissionid);
+if(!$draft = $DB->get_record('emarking_draft', array('id'=>$draftid))) {
+	print_error(get_string('invalidraft', 'mod_emarking') . $draftid);
+}
+
+if(!$submission = $DB->get_record('emarking_submission', array('id'=>$draft->submissionid))) {
+	print_error(get_string('invalidsubmission', 'mod_emarking') . $draft->submissionid);
 }
 
 if(!$emarking = $DB->get_record('emarking', array('id'=>$submission->emarking))) {
@@ -80,16 +84,16 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
 if($confirm) {
-	$submission->status = $newstatus;
-	$DB->update_record('emarking_submission',$submission);
+	$draft->status = $newstatus;
+	$DB->update_record('emarking_draft',$draft);
 	redirect($cancelurl, get_string('transactionsuccessfull', 'mod_emarking'),2);
 	die();
 }
 
 echo $OUTPUT->header();
 
-$submission->newstatus = $newstatus;
-echo $OUTPUT->confirm(get_string('updatesubmissionconfirm', 'mod_emarking', $submission), $continueurl, $cancelurl);
+$draft->newstatus = $newstatus;
+echo $OUTPUT->confirm(get_string('updatesubmissionconfirm', 'mod_emarking', $draft), $continueurl, $cancelurl);
 
 echo $OUTPUT->footer();
 die();

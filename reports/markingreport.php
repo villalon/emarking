@@ -100,9 +100,8 @@ if ($rubriccriteria = $rubriccontroller->get_definition ()) {
 // Counts the total of exams
 $totalsubmissions = $DB->count_records_sql ( "
 		SELECT COUNT(e.id) AS total
-		FROM {grade_items} AS gi
-		INNER JOIN {emarking_submission} AS e ON (gi.iteminstance = ? and gi.itemtype = 'mod' and gi.itemmodule = 'emarking' AND gi.iteminstance = e.emarking)
-		WHERE e.grade >= 0 AND e.status >= " . EMARKING_STATUS_RESPONDED, array (
+		FROM {emarking_submission} AS e
+		WHERE e.emarking = ? AND e.grade >= 0 AND e.status >= " . EMARKING_STATUS_RESPONDED, array (
 		$emarking->id 
 ) );
 
@@ -397,14 +396,14 @@ $markingstats = $DB->get_record_sql ( "
 		FROM (
 		SELECT	s.student,
 		s.id as submissionid,
-		CASE WHEN s.status < 10 THEN 1 ELSE 0 END AS missing,
-		CASE WHEN s.status = 10 THEN 1 ELSE 0 END AS submitted,
-		CASE WHEN s.status > 10 AND s.status < 20 THEN 1 ELSE 0 END AS grading,
-		CASE WHEN s.status = 20 THEN 1 ELSE 0 END AS graded,
-		CASE WHEN s.status > 20 THEN 1 ELSE 0 END AS regrading,
-		s.timemodified,
-		s.grade,
-		s.generalfeedback,
+		CASE WHEN d.status < 10 THEN 1 ELSE 0 END AS missing,
+		CASE WHEN d.status = 10 THEN 1 ELSE 0 END AS submitted,
+		CASE WHEN d.status > 10 AND s.status < 20 THEN 1 ELSE 0 END AS grading,
+		CASE WHEN d.status = 20 THEN 1 ELSE 0 END AS graded,
+		CASE WHEN d.status > 20 THEN 1 ELSE 0 END AS regrading,
+		d.timemodified,
+		d.grade,
+		d.generalfeedback,
 		count(distinct p.id) as pages,
 		CASE WHEN 0 = $numcriteria THEN 0 ELSE count(distinct c.id) / $numcriteria END as comments,
 		count(distinct r.id) as regrades,
@@ -415,10 +414,11 @@ $markingstats = $DB->get_record_sql ( "
 		s.sort
 		FROM {emarking} AS nm
 		INNER JOIN {emarking_submission} AS s ON (nm.id = :emarkingid AND s.emarking = nm.id)
+        INNER JOIN {emarking_draft} as d ON (d.submissionid = s.id)
 		INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-		LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.levelid > 0)
+		LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.levelid > 0 AND c.draft = d.id)
 		LEFT JOIN {gradingform_rubric_levels} as l ON (c.levelid = l.id)
-		LEFT JOIN {emarking_regrade} as r ON (r.submission = s.id AND r.criterion = l.criterionid AND r.accepted = 0)
+		LEFT JOIN {emarking_regrade} as r ON (r.draft = d.id AND r.criterion = l.criterionid AND r.accepted = 0)
 		GROUP BY nm.id, s.student
 ) as T
 		GROUP by id", array (
@@ -447,13 +447,14 @@ $sqlstatscriterion = "SELECT  a.id,
 							e.name,
 							d.name,
 							a.description,
-							COUNT(distinct s.id) AS submissions,
+							COUNT(distinct dr.id) AS submissions,
 							COUNT(distinct ec.id) AS comments,
 							COUNT(distinct r.id) AS regrades
 					        
 					        FROM {emarking_submission} AS s
 					        INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-							INNER JOIN {course_modules} AS cm ON (e.id=cm.instance)
+					        INNER JOIN {emarking_draft} AS dr ON (dr.submissionid=s.id AND dr.qualitycontrol=0)
+                            INNER JOIN {course_modules} AS cm ON (e.id=cm.instance)
 							INNER JOIN {course} AS co ON (cm.course=co.id)
 					        INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid AND cm.id = ? )
 					        INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
@@ -463,7 +464,7 @@ $sqlstatscriterion = "SELECT  a.id,
 					        INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
 					        INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
 					        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid)
-					        LEFT JOIN {emarking_regrade} as r ON (r.submission = s.id AND r.criterion = a.id)
+					        LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = a.id)
 							GROUP BY a.id
 							ORDER BY a.sortorder";
 $markingstatspercriterion = $DB->get_records_sql ( $sqlstatscriterion, array (
@@ -485,7 +486,8 @@ $sqlcontributorstats = "SELECT
 		
         FROM {emarking_submission} AS s
         INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-		INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN ($emarkingids))
+        INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
+        INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN ($emarkingids))
 		INNER JOIN {course} AS co ON (cm.course=co.id)
 		INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
         INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
@@ -494,7 +496,7 @@ $sqlcontributorstats = "SELECT
         INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
         INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
         INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid)
+        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
         INNER JOIN {user} as u ON (ec.markerid = u.id)
 		GROUP BY e.id ";
 $markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats );
@@ -507,6 +509,7 @@ COUNT(distinct ec.id) AS comments
 
 FROM {emarking_submission} AS s
 INNER JOIN {emarking} AS e ON (s.emarking=e.id)
+INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
 INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN ($emarkingids))
 INNER JOIN {course} AS co ON (cm.course=co.id)
 INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
@@ -516,7 +519,7 @@ INNER JOIN {grading_instances} AS i ON (d.id=i.definitionid)
 INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
 INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
 INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid)
+INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
 INNER JOIN {user} as u ON (ec.markerid = u.id)
 GROUP BY ec.markerid ";
 $allmarkers = $DB->get_records_sql ( $getmarkers );
@@ -566,12 +569,13 @@ $markingstatspermarker = $DB->get_recordset_sql ( "
 		FROM
 		{emarking} AS e
 		INNER JOIN {emarking_submission} AS s ON (e.id = :emarkingid AND s.emarking = e.id)
-		INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-		LEFT JOIN {emarking_comment} as ec on (ec.page = p.id)
+		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
+        INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
+		LEFT JOIN {emarking_comment} as ec on (ec.page = p.id AND ec.draft = dr.id)
 		LEFT JOIN {gradingform_rubric_levels} AS bb ON (ec.levelid = bb.id)
-		LEFT JOIN {emarking_regrade} as r ON (r.submission = s.id AND r.criterion = bb.criterionid)
+		LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = bb.criterionid)
 		LEFT JOIN {user} as u ON (ec.markerid = u.id)
-		WHERE s.status >= 10
+		WHERE dr.status >= 10
 		GROUP BY ec.markerid, bb.criterionid) AS T
 		ON (a.id = T.criterionid AND emc.marker = T.markerid)
 		GROUP BY T.markerid, a.id

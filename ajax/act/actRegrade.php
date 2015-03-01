@@ -46,9 +46,8 @@ if(!$rubricinfo = $DB->get_record_sql("
 $emarking_comment = $DB->get_record_sql('
 		SELECT ec.* 
 		FROM {emarking_comment} AS ec
-		INNER JOIN {emarking_page} AS ep 
-			ON (ec.levelid = :levelid AND ec.draft = :draft AND ep.submission = :submissionid AND ec.page = ep.id)', 
-		array('levelid'=>$rubriclevel, 'draft'=>$draft->id, 'submissionid'=>$submission->id));
+		WHERE ec.levelid = :levelid AND ec.draft = :draft', 
+		array('levelid'=>$rubriclevel, 'draft'=>$draft->id));
 
 // Check if there was already a regrade request
 $newrecord=false;

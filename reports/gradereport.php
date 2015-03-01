@@ -85,11 +85,11 @@ echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), "report" );
 
 // Counts the total of exams
 $totalsubmissions = $DB->count_records_sql ( "
-		SELECT COUNT(e.id) AS total 
-		FROM {grade_items} AS gi
-		INNER JOIN {emarking_submission} AS e ON (gi.iteminstance = ? and gi.itemtype = 'mod' and gi.itemmodule = 'emarking' AND gi.iteminstance = e.emarking)
-		WHERE e.grade >= 0 AND e.status >= " . EMARKING_STATUS_RESPONDED, array (
-		$emarking->id 
+		SELECT COUNT(dr.id) AS total 
+		FROM {emarking_draft} AS dr
+		INNER JOIN {emarking_submission} AS e ON (e.emarking = :emarking AND e.id = dr.submissionid AND dr.qualitycontrol=0)
+		WHERE dr.grade >= 0 AND dr.status >= :status", array (
+		'emarking' => $emarking->id , 'status' => EMARKING_STATUS_RESPONDED
 ) );
 
 if (! $totalsubmissions || $totalsubmissions == 0) {
@@ -132,10 +132,11 @@ if ($parallels && count ( $parallels ) > 0) {
 }
 
 // counts the total of disticts categories
-$sqlcats = "select count(distinct(c.category)) as categories
-from {emarking} as a
-inner join {course} as c on (a.course = c.id)
-where a.id in ($emarkingids)";
+$sqlcats = "SELECT 
+                COUNT(DISTINCT(c.category)) as categories
+                FROM {emarking} AS a
+                INNER JOIN {course} AS c ON (a.course = c.id)
+                WHERE a.id IN ($emarkingids)";
 
 $totalcategories = $DB->count_records_sql ( $sqlcats );
 
@@ -207,44 +208,44 @@ min(mingrade) as mingradeemarking,
 min(maxgrade) as maxgradeemarking
 from (
 select
-round(ss.grade,2) as grade, -- Nota final (calculada o manual via calificador)
-i.grademax as maxgrade, -- Nota máxima del emarking
-i.grademin as mingrade, -- Nota mínima del emarking
-case when ss.grade is null then 0 -- Indicador de si la nota es null
+round(dr.grade,2) as grade, -- Nota final (calculada o manual via calificador)
+a.grade as maxgrade, -- Nota máxima del emarking
+a.grademin as mingrade, -- Nota mínima del emarking
+case when dr.grade is null then 0 -- Indicador de si la nota es null
 else 1
 end as attended,
-case when ss.grade >= i.gradepass then 1
+case when dr.grade >= 4 then 1 -- TODO: REPLACE
 else 0
 end as pass,
-case when ss.grade >= 0 AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 1 then 1 else 0 end as histogram_01,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 1  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 2 then 1 else 0 end as histogram_02,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 2  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 3 then 1 else 0 end as histogram_03,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 3  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 4 then 1 else 0 end as histogram_04,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 4  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 5 then 1 else 0 end as histogram_05,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 5  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 6 then 1 else 0 end as histogram_06,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 6  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 7 then 1 else 0 end as histogram_07,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 7  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 8 then 1 else 0 end as histogram_08,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 8  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 9 then 1 else 0 end as histogram_09,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 9  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 10 then 1 else 0 end as histogram_10,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 10  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 11 then 1 else 0 end as histogram_11,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 11 then 1 else 0 end as histogram_12,
-case when ss.grade - i.grademin < (i.grademax - i.grademin) / 3 then 1 else 0 end as rank_1,
-case when ss.grade - i.grademin >= (i.grademax - i.grademin) / 3 AND ss.grade - i.grademin  < (i.grademax - i.grademin) / 2 then 1 else 0 end as rank_2,
-case when ss.grade - i.grademin >= (i.grademax - i.grademin) / 2  then 1 else 0 end as rank_3,
+case when dr.grade >= 0 AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 1 then 1 else 0 end as histogram_01,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 1  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 2 then 1 else 0 end as histogram_02,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 2  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 3 then 1 else 0 end as histogram_03,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 3  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 4 then 1 else 0 end as histogram_04,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 4  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 5 then 1 else 0 end as histogram_05,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 5  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 6 then 1 else 0 end as histogram_06,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 6  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 7 then 1 else 0 end as histogram_07,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 7  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 8 then 1 else 0 end as histogram_08,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 8  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 9 then 1 else 0 end as histogram_09,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 9  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 10 then 1 else 0 end as histogram_10,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 10  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 11 then 1 else 0 end as histogram_11,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 11 then 1 else 0 end as histogram_12,
+case when dr.grade - a.grademin < (a.grade - a.grademin) / 3 then 1 else 0 end as rank_1,
+case when dr.grade - a.grademin >= (a.grade - a.grademin) / 3 AND dr.grade - a.grademin  < (a.grade - a.grademin) / 2 then 1 else 0 end as rank_2,
+case when dr.grade - a.grademin >= (a.grade - a.grademin) / 2  then 1 else 0 end as rank_3,
 c.category as categoryid,
 cc.name as categoryname,
-i.iteminstance as emarkingid,
+a.id as emarkingid,
 a.name as modulename,
 c.fullname as coursename
-from mdl_grade_items as i
-inner join mdl_emarking as a on (i.itemtype = 'mod' AND i.itemmodule = 'emarking' and i.iteminstance in ($emarkingids) AND i.iteminstance = a.id)
-inner join mdl_course as c on (i.courseid = c.id)
-inner join mdl_course_categories as cc on (c.category = cc.id)
-inner join mdl_emarking_submission as ss on (a.id = ss.emarking)
-where ss.grade is not null AND ss.status >= 20
-order by emarkingid asc, ss.grade asc) as G
-group by categoryid, emarkingid
-with rollup) as T";
+FROM {emarking} AS a
+INNER JOIN {emarking_submission} AS ss ON (a.id = ss.emarking AND a.id IN ($emarkingids))
+INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = ss.id AND dr.qualitycontrol=0)
+INNER JOIN {course} AS c ON (a.course = c.id)
+INNER JOIN {course_categories} AS cc ON (c.category = cc.id)
+WHERE dr.grade is not null AND dr.status >= 20
+ORDER BY emarkingid asc, dr.grade asc) as G
+GROUP BY categoryid, emarkingid
+WITH ROLLUP) as T";
 
 $emarkingstats = $DB->get_recordset_sql ( $sql );
 
@@ -351,14 +352,14 @@ $sqlcriteria = '
 				round(max(b.score),1) AS maxscore,
 				round(avg(b.score)/t.maxscore,1) AS effectiveness,
 				t.maxscore AS maxcriterionscore
-
 				FROM {emarking_submission} AS s
-				INNER JOIN {emarking} AS e ON s.emarking=e.id
+				INNER JOIN {emarking} AS e ON (s.emarking=e.id AND s.emarking IN (' . $emarkingids . ') )
+				INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
 				INNER JOIN {course_modules} AS cm ON e.id=cm.instance
 				INNER JOIN {context} AS c ON cm.id=c.instanceid
 				INNER JOIN {grading_areas} AS ga ON c.id=ga.contextid
 				INNER JOIN {grading_definitions} AS gd ON ga.id=gd.areaid
-				INNER JOIN {grading_instances} AS i ON (gd.id=i.definitionid  AND s.emarking in (' . $emarkingids . ') AND s.status >= 20)
+				INNER JOIN {grading_instances} AS i ON (gd.id=i.definitionid  AND dr.status >= 20)
 				INNER JOIN {gradingform_rubric_fillings} AS f ON i.id=f.instanceid
 				INNER JOIN {gradingform_rubric_criteria} AS a ON f.criterionid=a.id
 				INNER JOIN {gradingform_rubric_levels} AS b ON f.levelid=b.id
@@ -455,12 +456,12 @@ $table->align = array (
 );
 $table->data = $data;
 echo html_writer::table ( $table );
-$reportsdir = $CFG->wwwroot. '/mod/emarking/reports';
+$reportsdir = $CFG->wwwroot. '/mod/emarking/reports/reportsweb';
 ?>
 
-    <link rel="stylesheet" type="text/css"  href= "<?php echo $reportsdir ?>/css/reports.css"/>
+    <link rel="stylesheet" type="text/css"  href= "<?php echo $reportsdir ?>/css/Reports.css"/>
     <script type="text/javascript" language="javascript"src="<?php echo $reportsdir ?>/reports.nocache.js"></script>
-	<div id='reports' cmid='<?php echo $cmid ?>'
+	<div id='reports' cmid='<?php echo $cmid ?>' emarkingids='<?php echo $emarkingids?>'
 		 action='gradereport' 
 		 url='<?php echo$CFG->wwwroot ?>/mod/emarking/ajax/reports.php' ></div>
 

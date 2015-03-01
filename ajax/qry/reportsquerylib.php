@@ -17,6 +17,7 @@ function get_status($cmid, $emarkingid) {
 	if ($rubriccriteria = $rubriccontroller->get_definition ()) {
 		$numcriteria = count ( $rubriccriteria->rubric_criteria );
 	}
+	
 	$markingstats = $DB->get_record_sql ( "
 			SELECT	COUNT(distinct id) AS activities,
 			COUNT(DISTINCT student) AS students,
@@ -49,10 +50,11 @@ function get_status($cmid, $emarkingid) {
 			s.sort
 			FROM {emarking} AS nm
 			INNER JOIN {emarking_submission} AS s ON (nm.id = :emarkingid AND s.emarking = nm.id)
-			INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-			LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.levelid > 0)
+			INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
+	        INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
+			LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.levelid > 0 AND c.draft = dr.id)
 			LEFT JOIN {gradingform_rubric_levels} as l ON (c.levelid = l.id)
-			LEFT JOIN {emarking_regrade} as r ON (r.submission = s.id AND r.criterion = l.criterionid AND r.accepted = 0)
+			LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = l.criterionid AND r.accepted = 0)
 			GROUP BY nm.id, s.student
 	) as T
 			GROUP by id", array (
@@ -85,8 +87,9 @@ function get_markers($cmid, $emarkingid) {
 		CONCAT(u.firstname , ' ', u.lastname) AS markername,
 		COUNT(distinct ec.id) AS comments
         FROM {emarking_submission} AS s
-        INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-		INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id=?)
+        INNER JOIN {emarking} AS e ON (e.id=? AND s.emarking=e.id)
+		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
+	    INNER JOIN {course_modules} AS cm ON (e.id=cm.instance)
         INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
         INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
         INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
@@ -94,7 +97,7 @@ function get_markers($cmid, $emarkingid) {
         INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
         INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
         INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid)
+        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
         INNER JOIN {user} as u ON (ec.markerid = u.id)
 		GROUP BY ec.markerid";
 	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
@@ -130,7 +133,8 @@ function get_contribution_per_marker($cmid, $emarkingid) {
 		COUNT(distinct ec.id) AS comments
         FROM {emarking_submission} AS s
         INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-		INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id=?)
+		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
+	    INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id=?)
         INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
         INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
         INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
@@ -138,7 +142,7 @@ function get_contribution_per_marker($cmid, $emarkingid) {
         INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
         INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
         INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid)
+        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft=dr.id)
         INNER JOIN {user} as u ON (ec.markerid = u.id)
 		GROUP BY ec.markerid";
 	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
@@ -313,17 +317,18 @@ function get_marks($cmid, $emarkingid, $extracategory, $ids) {
 	case when ss.grade - i.grademin >= (i.grademax - i.grademin) / 2  then 1 else 0 end as rank_3,
 	c.category as categoryid,
 	cc.name as categoryname,
-	i.iteminstance as emarkingid,
+	a.id as emarkingid,
 	a.name as modulename,
 	c.fullname as coursename
-	from {grade_items} as i
-	inner join {emarking} as a on (i.itemtype = 'mod' AND i.itemmodule = 'emarking' and i.iteminstance in ( '.$ids.') AND i.iteminstance = a.id)
-	inner join {course} as c on (i.courseid = c.id)
-	inner join {course_categories} as cc on (c.category = cc.id)
-	inner join {emarking_submission} as ss on (a.id = ss.emarking)
-	where ss.grade is not null AND ss.status >= 20
-	order by emarkingid asc, ss.grade asc) as G
-	group by categoryid, emarkingid
+	from {emarking} AS a
+	INNER JOIN {grade_items} AS i on (i.itemtype = 'mod' AND i.itemmodule = 'emarking' and i.iteminstance in ( '.$ids.') AND i.iteminstance = a.id)
+	INNER JOIN {emarking_submission} AS ss on (a.id = ss.emarking)
+	INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = ss.id AND dr.qualitycontrol=0)
+	INNER JOIN {course} AS c on (i.courseid = c.id)
+	INNER JOIN {course_categories} AS cc on (c.category = cc.id)
+	WHERE dr.grade is not null AND dr.status >= 20
+	ORDER BY emarkingid asc, dr.grade asc) as G
+	GROUP BY categoryid, emarkingid
 	with rollup) as T";
 	
 	$emarkingstats = $DB->get_recordset_sql ( $sql );
@@ -900,7 +905,7 @@ function get_efficiency($cmid, $emarkingid, $extracategory, $ids) {
 	$sqlcriteria = '
 				SELECT co.fullname,
 				co.id AS courseid,
-				s.emarking AS emarkingid,
+				e.id AS emarkingid,
 				a.id AS criterionid,
 				a.description,
 				round(avg(b.score),1) AS avgscore,
@@ -911,12 +916,13 @@ function get_efficiency($cmid, $emarkingid, $extracategory, $ids) {
 				t.maxscore AS maxcriterionscore
 	
 				FROM {emarking_submission} AS s
-				INNER JOIN {emarking} AS e ON s.emarking=e.id
-				INNER JOIN {course_modules} AS cm ON e.id=cm.instance
+				INNER JOIN {emarking} AS e ON (s.emarking IN ( '. $ids.' ) AND s.emarking=e.id)
+				INNER JOIN {emarking_draft} AS dr ON (s.id=dr.submissionid AND dr.qualitycontrol=0 AND dr.status >= 20)
+	            INNER JOIN {course_modules} AS cm ON e.id=cm.instance
 				INNER JOIN {context} AS c ON cm.id=c.instanceid
 				INNER JOIN {grading_areas} AS ga ON c.id=ga.contextid
 				INNER JOIN {grading_definitions} AS gd ON ga.id=gd.areaid
-				INNER JOIN {grading_instances} AS i ON (gd.id=i.definitionid  AND s.emarking in ( '. $ids.' ) AND s.status >= 20)
+				INNER JOIN {grading_instances} AS i ON (gd.id=i.definitionid)
 				INNER JOIN {gradingform_rubric_fillings} AS f ON i.id=f.instanceid
 				INNER JOIN {gradingform_rubric_criteria} AS a ON f.criterionid=a.id
 				INNER JOIN {gradingform_rubric_levels} AS b ON f.levelid=b.id
@@ -935,6 +941,7 @@ function get_efficiency($cmid, $emarkingid, $extracategory, $ids) {
 				GROUP BY s.emarking,a.id
 				ORDER BY a.description,emarkingid';
 	
+	echo $sqlcriteria . "<hr>";
 	$criteriastats = $DB->get_recordset_sql ( $sqlcriteria );
 	
 	$forcount = $DB->get_recordset_sql ( $sqlcriteria ); // run the sql again to get the count

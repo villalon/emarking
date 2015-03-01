@@ -27,7 +27,7 @@
 $generalfeedback = required_param('feedback', PARAM_RAW_TRIMMED);
 
 // Firstly create the response pdf
-if (emarking_create_response_pdf($submission,$user,$context, $cm->id)) {
+if (emarking_create_response_pdf($draft,$user,$context, $cm->id)) {
 	
 	// If the pdf was created successfully then update the final grade and feedback
 	list($finalgrade, $previouslvlid, $previouscomment) = emarking_set_finalgrade(
@@ -43,10 +43,12 @@ if (emarking_create_response_pdf($submission,$user,$context, $cm->id)) {
 		$cm->id);
 	
 
-	
 	// It is only publish if there just one draft
-	if($DB->count_records("emarking_draft", array("emarkingid"=>$submission->emarkingid, "submissionid"=>$submission->submissionid))==1){
-		emarking_publish_grade($submission);
+	if($DB->count_records('emarking_draft', 
+	    array('emarkingid'=>$submission->emarking, 
+	          'submissionid'=>$submission->id,
+	           'qualitycontrol'=>0))==1) {
+	    emarking_publish_grade($draft);
 	}
 
 	$nextsubmission = emarking_get_next_submission($emarking, $submission);

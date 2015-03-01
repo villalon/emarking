@@ -238,7 +238,7 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
 	$submission->id = $DB->insert_record ( 'emarking_submission', $submission );
 
 	// Normal marking - One draft default
-	if($emarking->type == 1) {
+	if($emarking->type == EMARKING_TYPE_NORMAL) {
 		$draft = new stdClass();
 		$draft->emarkingid = $emarking->id;
 		$draft->submissionid = $submission->id;
@@ -264,7 +264,7 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
 		}
 	}
 	// Markers training - One draft per marker
-	else if($emarking->type == 2) {
+	else if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 		// Get all users with permission to grade in emarking
 		$markers=get_enrolled_users($context, 'mod/emarking:grade');
 		foreach($markers as $marker) {
@@ -287,7 +287,7 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
 		}
 	}
 	// Students training
-	else if($emarking->type == 3) {
+	else if($emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {
 		// Get all users with permission to grade in emarking
 		$students=get_enrolled_users($context, 'mod/emarking:submit');
 		foreach($students as $student) {
@@ -308,7 +308,7 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
 		}
 	}
 	// Peer review
-	else if($emarking->type == 4) {
+	else if($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
 		// TODO: Implement peer review (this is a hard one)
 	}
 
@@ -391,20 +391,29 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
 		$courseid = $parts [1];
 		$pagenumber = $parts [2];
 
-		if (! $student = $DB->get_record ( 'user', array (
-				'id' => $studentid
-		) )) {
-			$totalDocumentsIgnored ++;
-			continue;
+		$updatemessage = $filename;
+		
+		// Now we process the files according to the emarking type
+		if ($emarking->type == EMARKING_TYPE_NORMAL) {
+			
+			if (!$student = $DB->get_record('user', array('id' => $studentid))) {
+				$totalDocumentsIgnored ++;
+				continue;
+			}
+			
+			if ($courseid != $course->id) {
+				$totalDocumentsIgnored ++;
+				continue;
+			}
+			
+			$updatemessage = $student->firstname . " " . $student->lastname;
+		} else {
+			$student = new stdClass();
+			$student->id = $studentid;
 		}
-
-		if ($courseid != $course->id) {
-			$totalDocumentsIgnored ++;
-			continue;
-		}
-
+		
 		if ($progressbar) {
-			$progressbar->update ( $current, $total, $student->firstname . " " . $student->lastname );
+			$progressbar->update($current, $total, $updatemessage);
 		}
 
 		// 1 pasa a 1 1 * 2 - 1 = 1
@@ -491,10 +500,16 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
 	if (! file_exists ( $path . "/" . $filename ) || ! file_exists ( $path . "/" . $anonymousfilename )) {
 		return false;
 	}
+	
+	if(!$student)
+		return false;
 
 	// Filesystem
 	$fs = get_file_storage ();
 
+	$userid = isset($student->firstname) ? $student->id : $USER->id;
+	$author = isset($student->firstname) ? $student->firstname . ' ' . $student->lastname : $USER->firstname . ' ' . $USER->lastname;
+	
 	// Copy file from temp folder to Moodle's filesystem
 	$file_record = array (
 			'contextid' => $context->id,
@@ -505,8 +520,8 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
 			'filename' => $filename,
 			'timecreated' => time (),
 			'timemodified' => time (),
-			'userid' => $student->id,
-			'author' => $student->firstname . ' ' . $student->lastname,
+			'userid' => $userid,
+			'author' => $author,
 			'license' => 'allrightsreserved'
 	);
 
@@ -739,16 +754,24 @@ function emarking_exam_get_parallels($exam) {
 
 /**
  * Creates the PDF version (downloadable) of the whole feedback produced by the teacher/tutor
- *
- * @param int $submissionid
+ * 
+ * @param unknown $draft
+ * @param unknown $student
+ * @param unknown $context
+ * @param unknown $cmid
  * @return boolean
  */
-function emarking_create_response_pdf($submission, $student, $context, $cmid) {
+function emarking_create_response_pdf($draft, $student, $context, $cmid) {
 	global $CFG, $DB;
 
 	require_once $CFG->libdir . '/pdflib.php';
 	
 	$fs = get_file_storage ();
+
+	if (! $submission = $DB->get_record ( 'emarking_submission', array (
+			'id' => $draft->submissionid))) {
+		return false;
+	}
 
 	if (! $pages = $DB->get_records ( 'emarking_page', array (
 			'submission' => $submission->id,
@@ -757,10 +780,11 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 		return false;
 	}
 
-	$emarking = $DB->get_record ( 'emarking', array (
-			'id' => $submission->emarkingid
-	) );
-
+	if(!$emarking = $DB->get_record ( 'emarking', array (
+			'id' => $submission->emarking
+	) ))
+	    return false;
+	
 	$numpages = count ( $pages );
 
 	$sqlcomments = "SELECT ec.id,
@@ -779,7 +803,7 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 			grc.description AS criteriondesc,
 			u.id AS markerid, CONCAT(u.firstname,' ',u.lastname) AS markername
 			FROM {emarking_comment} AS ec
-			INNER JOIN {emarking_page} AS ep ON (ep.submission = :submission AND ec.page = ep.id)
+			INNER JOIN {emarking_page} AS ep ON (ec.draft = :draft AND ec.page = ep.id)
 			LEFT JOIN {user} AS u ON (ec.markerid = u.id)
 			LEFT JOIN {gradingform_rubric_levels} AS grl ON (ec.levelid = grl.id)
 			LEFT JOIN {gradingform_rubric_criteria} AS grc ON (grl.criterionid = grc.id)
@@ -791,7 +815,7 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 			WHERE ec.pageno > 0
 			ORDER BY ec.pageno";
 	$params = array (
-			'submission' => $submission->id
+			'draft' => $draft->id
 	);
 	$comments = $DB->get_records_sql ( $sqlcomments, $params );
 
@@ -883,17 +907,19 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 		// $pdf->SetAutoPageBreak($auto_page_break, $bMargin);
 		// set the starting point for the page content
 		$pdf->setPageMark ();
-
-		$widthratio = $pdf->getPageWidth () / 800;
+		
+		$dimensions = $pdf->getPageDimensions();
 
 		if (isset ( $commentsperpage [$page->page] )) {
 			foreach ( $commentsperpage [$page->page] as $comment ) {
 
 				$content = $comment->rawtext;
-
+				$posx = (int) (((float)$comment->posx) * $dimensions['w']);
+				$posy = (int) (((float)$comment->posy) * $dimensions['h']);
+				
 				if ($comment->textformat == 1) {
 					// text annotation
-					$pdf->Annotation ( $comment->posx * $widthratio, $comment->posy * $widthratio, 6, 6, $content, array (
+					$pdf->Annotation ( $posx, $posy, 6, 6, $content, array (
 							'Subtype' => 'Text',
 							'StateModel' => 'Review',
 							'State' => 'None',
@@ -910,7 +936,7 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 				} elseif ($comment->textformat == 2) {
 					$content = $comment->criteriondesc . ': ' . round ( $comment->score, 1 ) . '/' . round ( $comment->maxscore, 1 ) . "\n" . $comment->leveldesc . "\n" . get_string ( 'comment', 'mod_emarking' ) . ': ' . $content;
 					// text annotation
-					$pdf->Annotation ( $comment->posx * $widthratio, $comment->posy * $widthratio, 6, 6, $content, array (
+					$pdf->Annotation ( $posx, $posy, 6, 6, $content, array (
 							'Subtype' => 'Text',
 							'StateModel' => 'Review',
 							'State' => 'None',
@@ -925,9 +951,9 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 							)
 					) );
 				} elseif ($comment->textformat == 3) {
-					$pdf->Image ( $CFG->dirroot . "/mod/emarking/img/check.gif", $comment->posx * $widthratio, $comment->posy * $widthratio, $iconsize, $iconsize, '', '', '', false, 300, '', false, false, 0 );
+					$pdf->Image ( $CFG->dirroot . "/mod/emarking/img/check.gif", $posx, $posy, $iconsize, $iconsize, '', '', '', false, 300, '', false, false, 0 );
 				} elseif ($comment->textformat == 4) {
-					$pdf->Image ( $CFG->dirroot . "/mod/emarking/img/crossed.gif", $comment->posx * $widthratio, $comment->posy * $widthratio, $iconsize, $iconsize, '', '', '', false, 300, '', false, false, 0 );
+					$pdf->Image ( $CFG->dirroot . "/mod/emarking/img/crossed.gif", $posx, $posy, $iconsize, $iconsize, '', '', '', false, 300, '', false, false, 0 );
 				}
 			}
 		}
@@ -964,15 +990,14 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 		INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)
 		INNER JOIN {gradingform_rubric_levels} AS b ON (a.id = b.criterionid)
 		LEFT JOIN (
-		SELECT ec.*, es.id AS submissionid
+		SELECT ec.*, d.id AS draftid
 		FROM {emarking_comment} AS ec
-		INNER JOIN {emarking_page} AS ep ON (ec.page = ep.id)
-		INNER JOIN {emarking_draft} AS es ON (es.id = :submission AND ep.submission = es.id)
+		INNER JOIN {emarking_draft} AS d ON (d.id = :draft AND ec.draft = d.id)
 		) AS E ON (E.levelid = b.id)
-		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = a.id AND er.submission = E.submissionid)
+		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = a.id AND er.draft = E.draftid)
 		ORDER BY a.sortorder ASC, b.score ASC", array (
 				'coursemodule' => $cmid,
-				'submission' => $submission->id
+				'draft' => $draft->id
 		) );
 
 		$table = new html_table ();
@@ -1000,7 +1025,7 @@ function emarking_create_response_pdf($submission, $student, $context, $cmid) {
 	}
 	// ---------------------------------------------------------
 
-	$pdffilename = 'response_' . $emarking->id . '_' . $student->id . '.pdf';
+	$pdffilename = 'response_' . $emarking->id . '_' . $draft->id . '.pdf';
 	$pathname = $tempdir . '/' . $pdffilename;
 
 	if (@file_exists ( $pathname )) {

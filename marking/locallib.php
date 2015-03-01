@@ -255,52 +255,207 @@ function emarking_get_allowed_pages($emarking) {
  *
  * @param unknown $submission
  */
-function emarking_publish_grade($submission) {
+function emarking_publish_grade($draft) {
 	global $CFG, $DB, $USER;
 
 	require_once ($CFG->libdir . '/gradelib.php');
 
+	if(!$submission = $DB->get_record('emarking_submission', array('id'=>$draft->submissionid))) {
+		return;
+	}
+	
+	if(!$emarking = $DB->get_record('emarking', array('id'=>$submission->emarking))) {
+		return;
+	}
+
+	if($emarking->type != EMARKING_TYPE_NORMAL)
+		return;
+	
 	if ($submission->status <= EMARKING_STATUS_ABSENT)
 		return;
 
 	// Copy final grade to gradebook
 	$grade_item = grade_item::fetch ( array (
 			'itemmodule' => 'emarking',
-			'iteminstance' => $submission->emarkingid
+			'iteminstance' => $submission->emarking
 	) );
 
-	$feedback = $submission->generalfeedback ? $submission->generalfeedback : '';
+	$feedback = $draft->generalfeedback ? $draft->generalfeedback : '';
 
-	$grade_item->update_final_grade ( $submission->student, $submission->grade, 'editgrade', $feedback, FORMAT_HTML, $USER->id );
+	$grade_item->update_final_grade ( $submission->student, $draft->grade, 'editgrade', $feedback, FORMAT_HTML, $USER->id );
 
-	if ($submission->status <= EMARKING_STATUS_RESPONDED) {
-		$submission->status = EMARKING_STATUS_RESPONDED;
+	if ($draft->status <= EMARKING_STATUS_RESPONDED) {
+		$draft->status = EMARKING_STATUS_RESPONDED;
 	}
 
-	$submission->timemodified = time ();
-	$DB->update_record ( 'emarking_draft', $submission );
+	$draft->timemodified = time();
+	$DB->update_record ( 'emarking_draft', $draft );
 
-	$realsubmission = $DB->get_record ( "emarking_submission", array (
-			"id" => $submission->submissionid
-	) );
-	$realsubmission->status = $submission->status;
-	$realsubmission->timemodified = $submission->timemodified;
-	$realsubmission->generalfeedback = $submission->generalfeedback;
-	$realsubmission->grade = $submission->grade;
-	$realsubmission->teacher = $submission->teacher;
-	$DB->update_record ( 'emarking_submission', $realsubmission );
+	$submission->status = $draft->status;
+	$submission->timemodified = $draft->timemodified;
+	$submission->generalfeedback = $draft->generalfeedback;
+	$submission->grade = $draft->grade;
+	$submission->teacher = $draft->teacher;
+	$DB->update_record ( 'emarking_submission', $submission );
 }
+
+/**
+ * Exports all grades and scores in an exam in Excel format
+ *
+ * @param unknown $emarking
+ */
+function emarking_download_excel($emarking) {
+    global $DB;
+
+    $csvsql = "
+		SELECT cc.fullname AS course,
+			e.name AS exam,
+			u.id,
+			u.idnumber,
+			u.lastname,
+			u.firstname,
+			cr.description,
+			IFNULL(l.score, 0) AS score,
+			IFNULL(c.bonus, 0) AS bonus,
+			IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
+			d.grade
+		FROM {emarking} AS e
+		INNER JOIN {emarking_submission} AS s ON (e.id = :emarkingid AND e.id = s.emarking)
+		INNER JOIN {emarking_draft} AS d ON (d.submissionid = s.id AND d.qualitycontrol=0)
+        INNER JOIN {course} AS cc ON (cc.id = e.course)
+		INNER JOIN {user} AS u ON (s.student = u.id)
+		INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
+		INNER JOIN {emarking_comment} AS c ON (c.page = p.id AND d.id = c.draft)
+		INNER JOIN {gradingform_rubric_levels} AS l ON (c.levelid = l.id)
+		INNER JOIN {gradingform_rubric_criteria} AS cr ON (cr.id = l.criterionid)
+		ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
+
+    // Get data and generate a list of questions
+    $rows = $DB->get_recordset_sql ( $csvsql, array (
+        'emarkingid' => $emarking->id
+    ) );
+
+    $questions = array ();
+    foreach ( $rows as $row ) {
+        if (array_search ( $row->description, $questions ) === FALSE)
+            $questions [] = $row->description;
+    }
+
+    $current = 0;
+    $laststudent = 0;
+    $headers = array (
+        '00course' => get_string ( 'course' ),
+        '01exam' => get_string ( 'exam', 'mod_emarking' ),
+        '02idnumber' => get_string ( 'idnumber' ),
+        '03lastname' => get_string ( 'lastname' ),
+        '04firstname' => get_string ( 'firstname' )
+    );
+    $tabledata = array ();
+    $data = null;
+
+    $rows = $DB->get_recordset_sql ( $csvsql, array (
+        'emarkingid' => $emarking->id
+    ) );
+
+    $studentname = '';
+    $lastrow = null;
+    foreach ( $rows as $row ) {
+        $index = 10 + array_search ( $row->description, $questions );
+        $keyquestion = $index . "" . $row->description;
+        if (! isset ( $headers [$keyquestion] )) {
+            $headers [$keyquestion] = $row->description;
+        }
+        if ($laststudent != $row->id) {
+            if ($laststudent > 0) {
+                $tabledata [$studentname] = $data;
+                $current ++;
+            }
+            $data = array (
+                '00course' => $row->course,
+                '01exam' => $row->exam,
+                '02idnumber' => $row->idnumber,
+                '03lastname' => $row->lastname,
+                '04firstname' => $row->firstname,
+                $keyquestion => $row->totalscore,
+                '99grade' => $row->grade
+            );
+            $laststudent = intval ( $row->id );
+            $studentname = $row->lastname . ',' . $row->firstname;
+        } else {
+            $data [$keyquestion] = $row->totalscore;
+        }
+        $lastrow = $row;
+    }
+    $studentname = $lastrow->lastname . ',' . $lastrow->firstname;
+    $tabledata [$studentname] = $data;
+    $headers ['99grade'] = get_string ( 'grade' );
+    ksort ( $tabledata );
+
+    $current = 0;
+    $newtabledata = array ();
+    foreach ( $tabledata as $data ) {
+        foreach ( $questions as $q ) {
+            $index = 10 + array_search ( $q, $questions );
+            if (! isset ( $data [$index . "" . $q] )) {
+                $data [$index . "" . $q] = '0.000';
+            }
+        }
+        ksort ( $data );
+        $current ++;
+        $newtabledata [] = $data;
+    }
+
+    $tabledata = $newtabledata;
+
+    $downloadfilename = clean_filename ( "$emarking->name.xls" );
+    // Creating a workbook
+    $workbook = new MoodleExcelWorkbook ( "-" );
+    // Sending HTTP headers
+    $workbook->send ( $downloadfilename );
+    // Adding the worksheet
+    $myxls = $workbook->add_worksheet ( get_string ( 'emarking', 'mod_emarking' ) );
+
+    // Writing the headers in the first row
+    $row = 0;
+    $col = 0;
+    foreach ( array_values ( $headers ) as $d ) {
+        $myxls->write_string ( $row, $col, $d );
+        $col ++;
+    }
+    // Writing the data
+    $row = 1;
+    foreach ( $tabledata as $data ) {
+        $col = 0;
+        foreach ( array_values ( $data ) as $d ) {
+            if ($row > 0 && $col >= 5) {
+                $myxls->write_number ( $row, $col, $d );
+            } else {
+                $myxls->write_string ( $row, $col, $d );
+            }
+            $col ++;
+        }
+        $row ++;
+    }
+    $workbook->close ();
+}
+
 
 function emarking_publish_all_grades($emarking) {
 	global $DB, $USER, $CFG;
+	
+	if($emarking->type != EMARKING_TYPE_NORMAL)
+		return;
 
-	$studentsubmissions = $DB->get_records ( "emarking_submission", array (
+	$studentdrafts = $DB->get_records_sql(
+			"SELECT d.* 
+			FROM {emarking_draft} as d
+			INNER JOIN {emarking_submission} as s ON (d.submissionid = s.id AND s.emarking = :emarking AND d.qualitycontrol = 0)", array (
 			'emarking' => $emarking->id
 	) );
 
-	foreach ( $studentsubmissions as $submission ) {
-		if ($submission->status >= EMARKING_STATUS_RESPONDED)
-			emarking_publish_grade ( $submission );
+	foreach ( $studentdrafts as $draft ) {
+		if ($draft->status >= EMARKING_STATUS_RESPONDED)
+			emarking_publish_grade ( $draft );
 	}
 
 	return true;
@@ -314,6 +469,9 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
 	if (! $cm = get_coursemodule_from_instance ( 'emarking', $emarking->id )) {
 		return;
 	}
+	
+	if($emarking->type != EMARKING_TYPE_NORMAL)
+		return;
 
 	$context = context_module::instance ( $cm->id );
 
@@ -336,10 +494,11 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
 			sum(ifnull(rl.score,0)) + sum(ifnull(ec.bonus,0)) as totalscore
 			FROM {emarking_submission} AS es
 			INNER JOIN {emarking_page} AS ep ON (es.emarking = :emarking AND ep.submission = es.id)
-			LEFT JOIN {emarking_comment} AS ec ON (ec.page = ep.id AND ec.levelid > 0)
+			INNER JOIN {emarking_draft} AS d ON (d.submissionid = es.id AND d.qualitycontrol = 0)
+			LEFT JOIN {emarking_comment} AS ec ON (ec.page = ep.id AND ec.levelid > 0 AND ec.draft = d.id)
 			LEFT JOIN {gradingform_rubric_levels} AS rl ON (ec.levelid = rl.id)
 			$filter
-			AND es.status >= 10
+			AND d.status >= 10
 			GROUP BY es.emarking, es.id", array (
 					'emarking' => $emarking->id
 			) );
@@ -685,7 +844,8 @@ function emarking_multi_create_response_pdf($submission, $student, $context, $cm
  * @param number $userid
  * @param number $levelid
  * @param string $levelfeedback
- * @param string $submission
+ * @param object $submission
+ * @param object $draft
  * @param string $emarking
  * @param string $context
  * @param string $generalfeedback
@@ -693,7 +853,8 @@ function emarking_multi_create_response_pdf($submission, $student, $context, $cm
  * @param number $cmid
  * @return multitype:boolean |NULL|multitype:number NULL
  */
-function emarking_set_finalgrade($userid = 0, 
+function emarking_set_finalgrade(
+		$userid = 0, 
 		$levelid = 0, 
 		$levelfeedback = '', 
 		$submission = null, 

@@ -34,10 +34,9 @@ if($rubriclevel <= 0) {
 if(!$comment = $DB->get_record_sql(
 		"SELECT ec.*
 		FROM {emarking_comment} AS ec
-		INNER JOIN {emarking_page} AS ep 
-			ON (ec.levelid = :level AND ep.submission = :submission AND ec.page = ep.id)"
-		, array('level'=>$rubriclevel,'submission'=>$submission->id))){
-	emarking_json_error("Invalid comment",array('levelid'=>$rubriclevel,'pagesid'=>$submission->id));
+		WHERE ec.levelid = :level AND ec.draft = :draft"
+		, array('level'=>$rubriclevel,'draft'=>$draft->id))){
+	emarking_json_error("Invalid comment",array('levelid'=>$rubriclevel,'draft'=>$draft->id));
 }
 
 // Delete the comment

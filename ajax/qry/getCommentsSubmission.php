@@ -63,7 +63,7 @@ $sqlcomments = "SELECT
 		) AS grm ON (grc.id = grm.criterionid)
 		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = grc.id AND er.draft = es.id)
 		ORDER BY aec.levelid DESC";
-$params = array('pageno'=>$pageno, 'draft'=>$draft->id, 'draft'=>$draft->id);
+$params = array('pageno'=>$pageno, 'draft'=>$draft->id);
 /**  Measures the correction window **/
 $winwidth = required_param('windowswidth', PARAM_NUMBER);
 $winheight =required_param('windowsheight', PARAM_NUMBER);

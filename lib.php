@@ -629,10 +629,10 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
 	
 	$fs = get_file_storage();
 	
-    //echo $context->id."..".$filearea."..".$arg0."..".$filename;die();
     if (! $file = $fs->get_file ( $context->id, 'mod_emarking', $filearea, $arg0, '/', $filename)) {
 		//submission .pdf hay que cambiar al nombre del png user-curso-pag.png
-		echo "File really not found";
+        echo $context->id."..".$filearea."..".$arg0."..".$filename;
+        echo "File really not found";
 		send_file_not_found();
 	}
 	

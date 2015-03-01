@@ -62,12 +62,13 @@ $maxscorerecord = $DB->get_record_sql("
 		GROUP BY l.criterionid", array($rubricinfo->criterionid) );
 
 // Get all the previous comments with the same criterion
-$previouscomments = $DB->get_records_sql("SELECT ec.*
+$previouscomments = $DB->get_records_sql(
+    "SELECT ec.*
 		FROM {emarking_comment} AS ec
-		INNER JOIN {emarking_page} AS ep ON (ec.page = ep.id AND ep.submission = ?) 
-		WHERE levelid in (
+		WHERE draft = ?
+            AND levelid in (
 			SELECT id FROM {gradingform_rubric_levels} WHERE criterionid = ?)",
-		array($submission->id, $rubricinfo->criterionid));
+		array($draft->id, $rubricinfo->criterionid));
 
 // Delete all records from the same criterion
 foreach($previouscomments as $prevcomment) {

@@ -44,6 +44,29 @@ function get_string_status($status) {
 	}
 }
 
+function emarking_get_icon_status($status) {
+    global $OUTPUT;
+    
+    switch($status) {
+    	case EMARKING_STATUS_MISSING:
+    	    return $OUTPUT->pix_icon ( 'i/warning', emarking_get_string_for_status($status));
+        case EMARKING_STATUS_ABSENT:
+    	    return $OUTPUT->pix_icon ( 't/block', emarking_get_string_for_status($status));
+    	case EMARKING_STATUS_SUBMITTED:
+    	    return $OUTPUT->pix_icon ( 'i/user', emarking_get_string_for_status($status));
+    	case EMARKING_STATUS_GRADING:
+    	    return $OUTPUT->pix_icon ( 'i/grade_partiallycorrect', emarking_get_string_for_status($status));
+    	case EMARKING_STATUS_RESPONDED:
+    	    return $OUTPUT->pix_icon ( 'i/grade_correct', emarking_get_string_for_status($status));
+    	case EMARKING_STATUS_REGRADING:
+    	    return $OUTPUT->pix_icon ( 'i/flagged', emarking_get_string_for_status($status));
+    	case EMARKING_STATUS_REGRADING_RESPONDED:
+    	    return $OUTPUT->pix_icon ( 'i/unflagged', emarking_get_string_for_status($status));
+    	case EMARKING_STATUS_ACCEPTED:
+    	    return $OUTPUT->pix_icon ( 't/locked', emarking_get_string_for_status($status));
+    }
+}
+
 function get_string_type($type) {
 	switch ($type) {
 		case EMARKING_TYPE_NORMAL :
@@ -59,144 +82,6 @@ function get_string_type($type) {
 	}
 }
 
-/**
- * Exports all grades and scores in an exam in Excel format
- *
- * @param unknown $emarking        	
- */
-function emarking_download_excel($emarking) {
-	global $DB;
-	
-	$csvsql = "
-		SELECT cc.fullname AS course,
-			e.name AS exam,
-			u.id,
-			u.idnumber,
-			u.lastname,
-			u.firstname,
-			cr.description,
-			IFNULL(l.score, 0) AS score,
-			IFNULL(c.bonus, 0) AS bonus,
-			IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
-			s.grade
-		FROM {emarking} AS e 
-		INNER JOIN {emarking_submission} AS s ON (e.id = :emarkingid AND e.id = s.emarking)
-		INNER JOIN {course} AS cc ON (cc.id = e.course)
-		INNER JOIN {user} AS u ON (s.student = u.id)
-		INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-		INNER JOIN {emarking_comment} AS c ON (c.page = p.id)
-		INNER JOIN {gradingform_rubric_levels} AS l ON (c.levelid = l.id)
-		INNER JOIN {gradingform_rubric_criteria} AS cr ON (cr.id = l.criterionid)
-		ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
-	
-	// Get data and generate a list of questions
-	$rows = $DB->get_recordset_sql ( $csvsql, array (
-			'emarkingid' => $emarking->id 
-	) );
-	
-	$questions = array ();
-	foreach ( $rows as $row ) {
-		if (array_search ( $row->description, $questions ) === FALSE)
-			$questions [] = $row->description;
-	}
-	
-	$current = 0;
-	$laststudent = 0;
-	$headers = array (
-			'00course' => get_string ( 'course' ),
-			'01exam' => get_string ( 'exam', 'mod_emarking' ),
-			'02idnumber' => get_string ( 'idnumber' ),
-			'03lastname' => get_string ( 'lastname' ),
-			'04firstname' => get_string ( 'firstname' ) 
-	);
-	$tabledata = array ();
-	$data = null;
-	
-	$rows = $DB->get_recordset_sql ( $csvsql, array (
-			'emarkingid' => $emarking->id 
-	) );
-	
-	$studentname = '';
-	$lastrow = null;
-	foreach ( $rows as $row ) {
-		$index = 10 + array_search ( $row->description, $questions );
-		$keyquestion = $index . "" . $row->description;
-		if (! isset ( $headers [$keyquestion] )) {
-			$headers [$keyquestion] = $row->description;
-		}
-		if ($laststudent != $row->id) {
-			if ($laststudent > 0) {
-				$tabledata [$studentname] = $data;
-				$current ++;
-			}
-			$data = array (
-					'00course' => $row->course,
-					'01exam' => $row->exam,
-					'02idnumber' => $row->idnumber,
-					'03lastname' => $row->lastname,
-					'04firstname' => $row->firstname,
-					$keyquestion => $row->totalscore,
-					'99grade' => $row->grade 
-			);
-			$laststudent = intval ( $row->id );
-			$studentname = $row->lastname . ',' . $row->firstname;
-		} else {
-			$data [$keyquestion] = $row->totalscore;
-		}
-		$lastrow = $row;
-	}
-	$studentname = $lastrow->lastname . ',' . $lastrow->firstname;
-	$tabledata [$studentname] = $data;
-	$headers ['99grade'] = get_string ( 'grade' );
-	ksort ( $tabledata );
-	
-	$current = 0;
-	$newtabledata = array ();
-	foreach ( $tabledata as $data ) {
-		foreach ( $questions as $q ) {
-			$index = 10 + array_search ( $q, $questions );
-			if (! isset ( $data [$index . "" . $q] )) {
-				$data [$index . "" . $q] = '0.000';
-			}
-		}
-		ksort ( $data );
-		$current ++;
-		$newtabledata [] = $data;
-	}
-	
-	$tabledata = $newtabledata;
-	
-	$downloadfilename = clean_filename ( "$emarking->name.xls" );
-	// Creating a workbook
-	$workbook = new MoodleExcelWorkbook ( "-" );
-	// Sending HTTP headers
-	$workbook->send ( $downloadfilename );
-	// Adding the worksheet
-	$myxls = $workbook->add_worksheet ( get_string ( 'emarking', 'mod_emarking' ) );
-	
-	// Writing the headers in the first row
-	$row = 0;
-	$col = 0;
-	foreach ( array_values ( $headers ) as $d ) {
-		$myxls->write_string ( $row, $col, $d );
-		$col ++;
-	}
-	// Writing the data
-	$row = 1;
-	foreach ( $tabledata as $data ) {
-		$col = 0;
-		foreach ( array_values ( $data ) as $d ) {
-			if ($row > 0 && $col >= 5) {
-				$myxls->write_number ( $row, $col, $d );
-			} else {
-				$myxls->write_string ( $row, $col, $d );
-			}
-			$col ++;
-		}
-		$row ++;
-	}
-	$workbook->close ();
-}
 /**
  * Returns an array with all possible statuses for an eMarking submission
  *

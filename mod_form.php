@@ -73,11 +73,6 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$mform->addHelpButton ( 'type', 'markingtype', 'mod_emarking' );
 		$mform->setType ( 'type', PARAM_INT );
 		
-		// If we are in editing mode we can not change the type anymore
-		if($this->_instance) {
-			$mform->freeze('type');
-		}
-	
 		// Adding the standard "name" field
 		$mform->addElement ( 'text', 'name', get_string ( 'name' ), array (
 				'size' => '64' 
@@ -146,6 +141,7 @@ class mod_emarking_mod_form extends moodleform_mod {
 		// Due date settings
 		$mform->addElement ( 'checkbox', 'qualitycontrol', get_string ( 'enablequalitycontrol', 'mod_emarking' ) );
 		$mform->addHelpButton ( 'qualitycontrol', 'enablequalitycontrol', 'mod_emarking' );
+		$mform->disabledIf ( 'qualitycontrol', 'type', 'neq', '1' );
 		
 		// Get all users with permission to grade in emarking
 		$markers=get_enrolled_users($ctx, 'mod/emarking:grade');
@@ -298,12 +294,38 @@ class mod_emarking_mod_form extends moodleform_mod {
 		
 		$mform->addElement ( 'checkbox', 'collaborativefeatures', get_string ( 'collaborativefeatures', 'mod_emarking' ) );
 		$mform->addHelpButton ( 'collaborativefeatures', 'collaborativefeatures', 'mod_emarking' );
+
+		// If we are in editing mode we can not change the type anymore
+		if($this->_instance) {
+			$emarking = $DB->get_record('emarking', array('id'=>$this->_instance));
+			$freeze = array();
+			$freeze[] = 'type';
+			if($emarking->type == EMARKING_TYPE_NORMAL) {
+				$freeze[] = 'qualitycontrol';
+			}
+			$mform->freeze($freeze);
+		}
 		
 		// -------------------------------------------------------------------------------
 		// add standard buttons, common to all modules
 		$this->add_action_buttons ();
 	}
-	
+
+    function data_preprocessing(&$default_values)
+    {
+        global $DB;
+        
+        parent::data_preprocessing($default_values);
+        
+        if ($this->_instance) {
+            $markers = $DB->get_records('emarking_markers', array(
+                'emarking' => $this->_instance
+            ));
+            foreach ($markers as $marker) {
+                $default_values['marker-' . $marker->marker] = 1;
+            }
+        }
+    }
 
 	function validation($data, $files) {
 		global $CFG, $COURSE;

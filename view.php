@@ -25,6 +25,7 @@ require_once (dirname (dirname(dirname( __FILE__ ))) . '/config.php');
 require_once ("lib.php");
 require_once ($CFG->libdir . '/tablelib.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
+require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
 require_once ($CFG->dirroot . "/lib/externallib.php");
 require_once($CFG->dirroot.'/lib/excellib.class.php');
 
@@ -80,6 +81,9 @@ if ($exportcsv && $usercangrade && $issupervisor) {
 	emarking_download_excel($emarking);
 	die ();
 }
+
+// Get all user which can mark in this activity
+$markers=get_enrolled_users($context, 'mod/emarking:grade');
 
 // Page navigation and URL settings
 $PAGE->set_url ( $urlemarking );
@@ -166,7 +170,11 @@ $numcriteriauser = $DB->count_records_sql ( "
 ) );
 
 // Check if activity is configured with separate groups to filter users
-if ($cm->groupmode == SEPARATEGROUPS && $usercangrade && ! is_siteadmin ( $USER ) && ! $issupervisor) {
+if ($cm->groupmode == SEPARATEGROUPS
+	&& $emarking->type == EMARKING_TYPE_NORMAL
+	&& $usercangrade 
+	&& ! is_siteadmin ( $USER ) 
+	&& ! $issupervisor) {
 		$userfilter .= "
 		AND u.id in (
 			SELECT userid
@@ -182,17 +190,17 @@ if ($cm->groupmode == SEPARATEGROUPS && $usercangrade && ! is_siteadmin ( $USER 
 
 
 // Get submissions with extra info to show
-$sql = "
+$sqlstudents = "
 SELECT  u.id,
-		u.picture,
-		u.imagealt,
-		u.firstname,
-		u.lastname,
-		u.middlename,
-		u.firstnamephonetic,
-		u.lastnamephonetic,
-		u.alternatename,
-		u.email,
+u.picture,
+u.imagealt,
+u.firstname,
+u.lastname,
+u.middlename,
+u.firstnamephonetic,
+u.lastnamephonetic,
+u.alternatename,
+u.email,
 IFNULL(NM.submissionid,0) as submission,
 GROUP_CONCAT(IFNULL(NM.groupid,0) SEPARATOR '#') as groupid,
 GROUP_CONCAT(IFNULL(NM.draftid,0) SEPARATOR '#') as draft,
@@ -201,11 +209,11 @@ GROUP_CONCAT(IFNULL(NM.pages,0) SEPARATOR '#') as pages,
 GROUP_CONCAT(IFNULL(NM.comments,0) SEPARATOR '#') as comments,
 GROUP_CONCAT(IFNULL(NM.qcs,0) SEPARATOR '#') as qcs,
 GROUP_CONCAT(
-	CASE WHEN 0 = $numcriteria THEN 0 ELSE ROUND( IFNULL(NM.comments,0) / $numcriteria * 100, 0) END
-	SEPARATOR '#') as pctmarked,
+CASE WHEN 0 = $numcriteria THEN 0 ELSE ROUND( IFNULL(NM.comments,0) / $numcriteria * 100, 0) END
+SEPARATOR '#') as pctmarked,
 GROUP_CONCAT(
-	CASE WHEN 0 = $numcriteriauser THEN 0 ELSE ROUND( IFNULL(NM.commentsassigned,0) / $numcriteriauser * 100, 0) END
-	SEPARATOR '#') as pctmarkeduser,
+CASE WHEN 0 = $numcriteriauser THEN 0 ELSE ROUND( IFNULL(NM.commentsassigned,0) / $numcriteriauser * 100, 0) END
+SEPARATOR '#') as pctmarkeduser,
 GROUP_CONCAT(IFNULL(NM.grade,0) SEPARATOR '#') as grade,
 GROUP_CONCAT(IFNULL(NM.score,0) SEPARATOR '#') as score,
 GROUP_CONCAT(IFNULL(NM.bonus,0) SEPARATOR '#') as bonus,
@@ -268,13 +276,107 @@ $userfilter
 GROUP BY u.id
 ";
 
+$sqldrafts = "
+SELECT  es.student as id,
+		'' as picture,
+		'' as imagealt,
+		'' as firstname,
+		'' as lastname,
+		'' as middlename,
+		'' as firstnamephonetic,
+		'' as lastnamephonetic,
+		'' as alternatename,
+		'' as email,
+IFNULL(NM.submissionid,0) as submission,
+GROUP_CONCAT(IFNULL(NM.groupid,0) SEPARATOR '#') as groupid,
+GROUP_CONCAT(IFNULL(NM.draftid,0) SEPARATOR '#') as draft,
+GROUP_CONCAT(IFNULL(NM.status,0) SEPARATOR '#') as status,
+GROUP_CONCAT(IFNULL(NM.pages,0) SEPARATOR '#') as pages,
+GROUP_CONCAT(IFNULL(NM.comments,0) SEPARATOR '#') as comments,
+GROUP_CONCAT(IFNULL(NM.qcs,0) SEPARATOR '#') as qcs,
+GROUP_CONCAT(
+CASE WHEN 0 = $numcriteria THEN 0 ELSE ROUND( IFNULL(NM.comments,0) / $numcriteria * 100, 0) END
+SEPARATOR '#') as pctmarked,
+GROUP_CONCAT(
+CASE WHEN 0 = $numcriteriauser THEN 0 ELSE ROUND( IFNULL(NM.commentsassigned,0) / $numcriteriauser * 100, 0) END
+SEPARATOR '#') as pctmarkeduser,
+GROUP_CONCAT(IFNULL(NM.grade,0) SEPARATOR '#') as grade,
+GROUP_CONCAT(IFNULL(NM.score,0) SEPARATOR '#') as score,
+GROUP_CONCAT(IFNULL(NM.bonus,0) SEPARATOR '#') as bonus,
+GROUP_CONCAT(IFNULL(NM.regrades,0) SEPARATOR '#') as regrades,
+GROUP_CONCAT(IFNULL(NM.generalfeedback,'') SEPARATOR '#') as feedback,
+GROUP_CONCAT(IFNULL(NM.timemodified, 0) SEPARATOR '#') as timemodified,
+NM.grademax as grademax,
+NM.grademin as grademin,
+NM.sort,
+NM.commentsassignedids,
+GROUP_CONCAT(NM.criteriaids SEPARATOR '#') as criteriaids,
+GROUP_CONCAT(NM.criteriascores SEPARATOR '#') as criteriascores,
+GROUP_CONCAT(IFNULL(um.picture, '') SEPARATOR '#') as markerpicture,
+GROUP_CONCAT(IFNULL(um.lastname, '') SEPARATOR '#') as markerlast,
+GROUP_CONCAT(IFNULL(um.firstname, '') SEPARATOR '#') as markerfirst,
+GROUP_CONCAT(IFNULL(um.id, 0) SEPARATOR '#') as markerid
+FROM {emarking_submission} AS es
+INNER JOIN {emarking} AS e ON (e.id = ? AND es.emarking = e.id)
+LEFT JOIN (
+SELECT s.student,
+d.id as draftid,
+d.submissionid as submissionid,
+d.groupid as groupid,
+d.status,
+d.timemodified,
+d.grade,
+d.generalfeedback,
+d.teacher as marker,
+d.qualitycontrol as qcs,
+count(distinct p.id) as pages,
+count(distinct c.id) as comments,
+count(distinct r.id) as regrades,
+count(distinct mc.id) as commentsassigned,
+IFNULL(GROUP_CONCAT(mc.id),'') as commentsassignedids,
+IFNULL(GROUP_CONCAT(l.criterionid),'') as criteriaids,
+IFNULL(GROUP_CONCAT(l.score + c.bonus),'') as criteriascores,
+nm.course,
+nm.id,
+nm.grade as grademax,
+nm.grademin as grademin,
+round(sum(l.score),2) as score,
+round(sum(c.bonus),2) as bonus,
+d.sort
+FROM {emarking} AS nm
+INNER JOIN {emarking_draft} AS d ON (nm.id = ? AND d.emarkingid = nm.id $qcfilter)
+INNER JOIN {emarking_submission} AS s ON (s.id = d.submissionid)
+INNER JOIN {emarking_page} AS p ON (p.submission = d.submissionid)
+LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.draft = d.id AND c.levelid > 0)
+LEFT JOIN {gradingform_rubric_levels} as l ON (c.levelid = l.id)
+LEFT JOIN {emarking_regrade} as r ON (r.draft = d.id AND r.criterion = l.criterionid AND r.accepted = 0)
+LEFT JOIN {emarking_marker_criterion} AS mc ON (mc.criterion = l.criterionid AND mc.emarking = nm.id AND mc.marker=?)
+GROUP BY d.id
+) AS NM ON (es.student = NM.student AND es.id = NM.submissionid)
+LEFT JOIN {user} as um ON (NM.marker = um.id)
+$userfilter
+GROUP BY es.student
+";
+
+if($emarking->type == EMARKING_TYPE_NORMAL) {
+
 // Run the query on the database
-$drafts = $DB->get_recordset_sql ( $sql, array (
+$drafts = $DB->get_recordset_sql ( $sqlstudents, array (
 		$course->id,
 		$emarking->id,
 		$USER->id
 ), $page * $perpage, $perpage );
 
+} else {
+
+// Run the query on the database
+$drafts = $DB->get_recordset_sql ( $sqldrafts, array (
+		$emarking->id,
+		$emarking->id,
+		$USER->id
+), $page * $perpage, $perpage );
+
+}
 $totalstudents = count($drafts);
 
 $actionsheader = get_string ( 'actions', 'mod_emarking' );
@@ -285,12 +387,7 @@ $headers[] = get_string ( 'names', 'mod_emarking' );
 if($emarking->type == 2)
 	$headers[] = get_string ( 'marker', 'mod_emarking' );
 $headers[] = get_string ( 'status', 'mod_emarking' );
-$headers[] = get_string ( 'pctmarked', 'mod_emarking' );
-$headers[] = get_string ( 'grade', 'mod_emarking' ) . ' ' . get_string ( 'between', 'mod_emarking', array (
-				'min' => floatval ( $emarking->grademin ),
-				'max' => floatval ( $emarking->grade )
-		) );
-$headers[] = get_string ( 'comment', 'mod_emarking' );
+$headers[] = get_string ( 'grade', 'mod_emarking' );
 $headers[] = get_string ( 'lastmodification', 'mod_emarking' );
 $headers[] = $actionsheader;
 // Define flexible table (can be sorted in different ways)
@@ -301,9 +398,7 @@ $columns[] = 'lastname';
 if($emarking->type==2)
 	$columns[] = 'marker';
 $columns[] = 'status';
-$columns[] = 'pctmarked';
 $columns[] = 'grade';
-$columns[] = 'comment';
 $columns[] = 'timemodified';
 $columns[] = 'actions';
 $showpages->define_columns ($columns);
@@ -327,27 +422,42 @@ if ($showpages->get_sql_sort ()) {
 }
 
 // Get submissions with extra info to show
-$sql .= $orderby;
+$sqlstudents .= $orderby;
+$sqldrafts .= $orderby;
 
+if($emarking->type == EMARKING_TYPE_NORMAL) {
 // Run the query on the database
-$drafts = $DB->get_recordset_sql ( $sql, array (
+$drafts = $DB->get_recordset_sql ( $sqlstudents, array (
 		$course->id,
 		$emarking->id,
 		$USER->id 
 ), $page * $perpage, $perpage );
+} else {
+	// Run the query on the database
+	$drafts = $DB->get_recordset_sql ( $sqldrafts, array (
+			$emarking->id,
+			$emarking->id,
+			$USER->id
+	), $page * $perpage, $perpage );	
+}
 
 
 $unpublishedsubmissions = 0;
 // Prepare data for the table
 foreach ( $drafts as $draft ) {
 	
-	// var_dump($draft);echo"<hr>";
 	// Student info
 	$profileurl = new moodle_url ( '/user/view.php', array (
 			'id' => $draft->id,
 			'course' => $course->id 
 	) );
-	$userinfo = $emarking->anonymous ? get_string ( 'anonymousstudent', 'mod_emarking' ) : $OUTPUT->user_picture ( $draft ) . '&nbsp;<a href="' . $profileurl . '">' . $draft->firstname . ' ' . $draft->lastname . '</a>';
+	
+	if($emarking->type == EMARKING_TYPE_NORMAL) {
+	    $userinfo = $emarking->anonymous ? get_string ( 'anonymousstudent', 'mod_emarking' ) 
+	    : $OUTPUT->user_picture ( $draft ) . '&nbsp;<a href="' . $profileurl . '">' . $draft->firstname . ' ' . $draft->lastname . '</a>';
+	} else {
+	    $userinfo = get_string('exam', 'mod_emarking') . ' ' . $draft->submission;
+	}
 	
 	$draftids = explode('#', $draft->draft);
 	$draftqcs = explode('#', $draft->qcs);
@@ -362,25 +472,21 @@ foreach ( $drafts as $draft ) {
 	$draftsbonus = explode('#', $draft->bonus);
 	$draftsgrade = explode('#', $draft->grade);
 	$draftsscore = explode('#', $draft->score);
-		
-	$status='';
-	$current=0;
-	foreach($draftstatuses as $st) {
-	// Draft status
-	$pages = intval ( $draftspages[$current] );
-	$status .= emarking_get_string_for_status ( $st ) . '<br/>';
 	
-	// Add warning icon if there are missing pages in draft
-	if ($emarking->totalpages > 0 && $emarking->totalpages > $pages) {
-		$status .= $OUTPUT->pix_icon ( 'i/risk_xss', get_string ( 'missingpages', 'mod_emarking' ) );
-	}
-		$current++;
-	}
-
+	$status='';
 	$pctmarked = '';
 	$current=0;
 	foreach($draftids as $d) {
-	// Completion matrix
+	    
+	    
+	    $pages = intval ( $draftspages[$current] );
+		$status .= emarking_get_icon_status ( $draftstatuses[$current] );
+	
+		// Add warning icon if there are missing pages in draft
+		if ($emarking->totalpages > 0 && $emarking->totalpages > $pages) {
+		    $status .= $OUTPUT->pix_icon ( 'i/risk_xss', get_string ( 'missingpages', 'mod_emarking' ) );
+		}
+	    // Completion matrix
 	$matrix = '';
 	$markedcriteria = explode ( ",", $draftscriteriaids[$current] );
 	$markedcriteriascores = explode ( ",", $draftscriteriascores[$current] );
@@ -406,7 +512,7 @@ foreach ( $drafts as $draft ) {
 			. ($numcriteriauser > 0 ? $draftspctmarkeduser[$current] . "% / " : '') 
 			. $draftspctmarked[$current] . "%" 
 			. ($draftsregrades[$current] > 0 ? '<br/>' . $draftsregrades[$current] . ' ' . get_string ( 'regradespending', 'mod_emarking' ) : '') . "</a>" . $matrix;
-	$pctmarked .= $OUTPUT->box ( $matrixlink, 'generalbox', null, array (
+	$pctmarked .=  $OUTPUT->box ( $status . '&nbsp;' . $matrixlink, 'generalbox', null, array (
 			'title' => $pctmarkedtitle 
 	) );
 	$current++;
@@ -419,17 +525,21 @@ foreach ( $drafts as $draft ) {
 	$bonusinfo = $draftsbonus[$current] != 0 ? round ( $draftsbonus[$current], 2 ) . " " : ' ';
 	$bonusinfo = ($draftsbonus[$current] > 0 ? '+' : '') . $bonusinfo;
 	$gradevalue = round ( floatval ( $draftsgrade[$current] ), 2 );
-	$thisfinalgrade = $emarking->type == EMARKING_TYPE_NORMAL ? ($draftstatuses[$current] == EMARKING_STATUS_GRADING && $usercangrade ? $gradevalue . '<br/>' . get_string ( 'notpublished', 'mod_emarking' ) 
-		: $OUTPUT->heading ( $draftstatuses[$current] >= EMARKING_STATUS_RESPONDED ? $gradevalue : '-', 3 ))
-		: $gradevalue;
-	$finalgrade .= $OUTPUT->box ( $thisfinalgrade, 'generalbox', null, array (
-			'title' => round ( $draftsscore[$current], 2 ) . $bonusinfo . get_string ( 'of', 'mod_emarking' ) . " " . $rubricscores ['maxscore'] . " " . get_string ( 'points', 'grades' ) 
-	) );
-	$current++;
+        $thisfinalgrade = '-';
+        if ($draftstatuses[$current] >= EMARKING_STATUS_GRADING) {
+            $thisfinalgrade = $gradevalue;
+            if ($draftstatuses[$current] >= EMARKING_STATUS_RESPONDED) {
+                $thisfinalgrade = '<strong>' . $thisfinalgrade . '</strong>';
+            }
+        }
+        $finalgrade .= $OUTPUT->box($thisfinalgrade, 'generalbox', null, array(
+            'title' => round($draftsscore[$current], 2) . $bonusinfo . get_string('of', 'mod_emarking') . " " . $rubricscores['maxscore'] . " " . get_string('points', 'grades')
+        ));
+        $current ++;
 	}
 	
 	// Action buttons
-	$actions = '<div width="100%" style="white-space:nowrap; margin-top:15px;">';
+	$actions = '<div width="100%" style="white-space:nowrap;">';
 	
 	$current=0;
 	foreach($draftids as $d) {
@@ -474,7 +584,7 @@ foreach ( $drafts as $draft ) {
 	}
 	
 	// Url for downloading PDF feedback
-	$responseurl = new moodle_url ( '/pluginfile.php/' . $context->id . '/mod_emarking/response/' . $thisid . '/response_' . $emarking->id . '_' . $thisid . '.pdf' );
+	$responseurl = new moodle_url ( '/pluginfile.php/' . $context->id . '/mod_emarking/response/' . $draft->id . '/response_' . $emarking->id . '_' . $thisid . '.pdf' );
 	
 	// Download PDF button
 	if ($emarking->type == EMARKING_TYPE_NORMAL 
@@ -511,47 +621,34 @@ foreach ( $drafts as $draft ) {
 	$timesmodified = explode('#', $draft->timemodified);
 	$timemodified = '';
 	foreach($timesmodified as $t) {
-		$timemodified .= $t > 0 ? date ( "d/m/y H:i", $t ) . '<br/>' : '';
+		$timemodified .= $t > 0 ? date ( "d M H:i", $t ) : '';
 	}
 	// If there's a draft show total pages
 	if ($draft->status >= EMARKING_STATUS_SUBMITTED) {
 		$totalpages = $emarking->totalpages > 0 ? ' / ' . $emarking->totalpages . ' ' : ' ';
-		$timemodified .= '<br/>' . $pages . $totalpages . get_string ( 'pages', 'mod_emarking' );
+		// $status .= '&nbsp;' . $pages . $totalpages;
 	}
-
-	if($emarking->type==EMARKING_TYPE_MARKER_TRAINING) {
-	$markersids = explode('#', $draft->markerid);
-	$markersfirst = explode('#', $draft->markerfirst);
-	$markerslast = explode('#', $draft->markerlast);
-	$markerspicture = explode('#', $draft->markerpicture);
-	$current=0;
-	$markers = '';
-	foreach($markersids as $mids) {
-		$user = new stdClass();
-		$user->id = $mids;
-		$user->picture = $markerspicture[$current];
-		$user->firstname = $markersfirst[$current];
-		$user->lastname = $markerslast[$current];
-		$user->imagealt = '';
-		$user->firstnamephonetic = '';
-		$user->lastnamephonetic = '';
-		$user->middlename = '';
-		$user->alternatename = '';
-		$user->email = '';
-		$markers .= $OUTPUT->user_picture($user) . ' ';
-		$current++;
-	}
-	}
+	
+	// Markers pictures
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+        $markersids = explode('#', $draft->markerid);
+        $markersstring = '';
+        foreach ($markersids as $mids) {
+            foreach ($markers as $marker) {
+                if ($mids == $marker->id) {
+                    $markersstring .= $OUTPUT->user_picture($marker) . '&nbsp;';
+                }
+            }
+        }
+    }
 	
 	$data = array();
 	$data[] = $userinfo;
 	if($emarking->type==EMARKING_TYPE_MARKER_TRAINING) {
-		$data[] = $markers;
+		$data[] = $markersstring;
 	}
-	$data[] = $status;
 	$data[] = $pctmarked;
 	$data[] = $finalgrade;
-	$data[] = $feedback;
 	$data[] = $timemodified;
 	$data[] = $actions;
 	$showpages->add_data ($data);
