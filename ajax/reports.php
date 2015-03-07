@@ -111,7 +111,6 @@ if ($action == "markingreport") {
 } else 
     if ($action == "gradereport") {
         
-        // var_dump($ids);die();
         // counts the total of disticts categories
         $sqlcats = "select count(distinct(c.category)) as categories
 from {emarking} as a

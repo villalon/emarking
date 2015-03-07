@@ -510,17 +510,18 @@ function get_question_advance($cmid, $emarkingid) {
 					  
 					        FROM {emarking_submission} AS s
 					        INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-							INNER JOIN {course_modules} AS cm ON (e.id=cm.instance)
+					        INNER JOIN {emarking_draft} AS dr ON (s.id=dr.submissionid)
+	                        INNER JOIN {course_modules} AS cm ON (e.id=cm.instance)
 							INNER JOIN {course} AS co ON (cm.course=co.id)
-					        INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid AND cm.id = ? )
+					        INNER JOIN {context} AS c ON (dr.status>=10 AND cm.id = c.instanceid AND cm.id = ? )
 					        INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
 					        INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
 					        INNER JOIN {grading_instances} AS i ON (d.id=i.definitionid)
 					        INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
 					        INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
 					        INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-					        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid)
-					        LEFT JOIN {emarking_regrade} as r ON (r.submission = s.id AND r.criterion = a.id)
+					        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
+					        LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = a.id)
 							GROUP BY a.id
 							ORDER BY a.sortorder";
 	$markingstatspercriterion = $DB->get_records_sql ( $sqlstatscriterion, array (
@@ -653,12 +654,13 @@ function get_marker_advance($cmid, $emarkingid){
 		FROM
 		{emarking} AS e
 		INNER JOIN {emarking_submission} AS s ON (e.id = :emarkingid AND s.emarking = e.id)
-		INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-		LEFT JOIN {emarking_comment} as ec on (ec.page = p.id)
+		INNER JOIN {emarking_draft} AS dr ON (s.id = dr.submissionid)
+	    INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
+		LEFT JOIN {emarking_comment} as ec on (ec.page = p.id AND ec.draft = dr.id)
 		LEFT JOIN {gradingform_rubric_levels} AS bb ON (ec.levelid = bb.id)
-		LEFT JOIN {emarking_regrade} as r ON (r.submission = s.id AND r.criterion = bb.criterionid)
+		LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = bb.criterionid)
 		LEFT JOIN {user} as u ON (ec.markerid = u.id)
-		WHERE s.status >= 10
+		WHERE dr.status >= 10
 		GROUP BY ec.markerid, bb.criterionid) AS T
 		ON (a.id = T.criterionid )
 		INNER JOIN {emarking_marker_criterion} AS emc ON (emc.emarking = c.instance AND emc.marker = T.markerid)

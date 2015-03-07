@@ -456,19 +456,15 @@ $table->align = array (
 );
 $table->data = $data;
 echo html_writer::table ( $table );
-$reportsdir = $CFG->wwwroot. '/mod/emarking/reports/reportsweb';
+$reportsdir = $CFG->wwwroot. '/mod/emarking/marking/emarkingreports';
 ?>
-
-    <link rel="stylesheet" type="text/css"  href= "<?php echo $reportsdir ?>/css/Reports.css"/>
-    <script type="text/javascript" language="javascript"src="<?php echo $reportsdir ?>/reports.nocache.js"></script>
-	<div id='reports' cmid='<?php echo $cmid ?>' emarkingids='<?php echo $emarkingids?>'
+    <script type="text/javascript" language="javascript"src="<?php echo $reportsdir ?>/emarkingreports.nocache.js"></script>
+	<div id='reports' 
+	     cmid='<?php echo $cmid ?>' 
+	     emarkingids='<?php echo $emarkingids?>'
+	     emarking='<?php echo $emarkingids?>'
 		 action='gradereport' 
 		 url='<?php echo$CFG->wwwroot ?>/mod/emarking/ajax/reports.php' ></div>
 
 <?php
 echo $OUTPUT->footer ();
-
-
-
-
-
