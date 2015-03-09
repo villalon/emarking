@@ -22,6 +22,8 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['emarkingsecuritycode'] = 'eMarking security code';
+
 $string['markersqualitycontrol'] = 'Quality Control markers';
 $string['markersqualitycontrol_help'] = 'Quality Control markers are the ones that will mark and grade the QC exams which will be used to calculate inter-marker agreement.';
 $string['enablequalitycontrol'] = 'Enable Quality Control';

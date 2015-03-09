@@ -200,7 +200,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for regrades"/>
-        <KEY NAME="submission" TYPE="foreign" FIELDS="submission" REFTABLE="emarking_submission" REFFIELDS="id"/>
+        <KEY NAME="draft" TYPE="foreign" FIELDS="draft" REFTABLE="emarking_submission" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="emarking_task" COMMENT="stores tasks for each marker.">

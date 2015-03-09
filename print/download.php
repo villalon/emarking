@@ -168,7 +168,7 @@ if ($token > 9999) {
 					echo 'Error, can\'t create a zip file!';
 				}
 			} else {
-				emarking_download_exam ( $examid, $multiplepdfs );
+				emarking_download_exam ( $examid, $multiplepdfs, null, null, null, null, true );
 			}
 		} else {
 			$file = $DB->get_record ( 'files', array (

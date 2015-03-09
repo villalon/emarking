@@ -22,6 +22,8 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
+
 $string['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
 $string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
 $string['enablequalitycontrol'] = 'Habilitar Control de Calidad';

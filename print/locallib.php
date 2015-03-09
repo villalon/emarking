@@ -29,6 +29,55 @@ function emarking_get_temp_dir_path($postfix) {
 }
 
 /**
+ * Imports the OMR fonts
+ * @param string $echo if echoes the result
+ */
+function emarking_import_omr_fonts($echo = false) {
+    // The list of extensions a font in the tcpdf installation has
+    $fontfilesextensions = array(
+        '.ctg.z',
+        '.php',
+        '.z'
+    );
+    
+    // The font files required for OMR
+    $fonts = array(
+        '3of9_new' => '/mod/emarking/lib/omr/3OF9_NEW.TTF',
+        'omrbubbles' => '/mod/emarking/lib/omr/OMRBubbles.ttf',
+        'omrextnd' => '/mod/emarking/lib/omr/OMRextnd.ttf'
+    );
+    
+    // We delete previous fonts if any and then import it
+    foreach ($fonts as $fontname => $fontfile) {
+    
+        // Deleteing the previous fonts
+        foreach ($fontfilesextensions as $extension) {
+            $fontfilename = $CFG->libdir . '/tcpdf/fonts/' . $fontname . $extension;
+            if (file_exists($fontfilename)) {
+                if($echo)
+                    echo "Deleting $fontfilename<br/>";
+                unlink($fontfilename);
+            }
+        }
+    
+        // Import the font
+        $ttfontname = TCPDF_FONTS::addTTFfont($CFG->dirroot . $fontfile, 'TrueType', 'ansi', 32);
+    
+        // Validate if import went well
+        if ($threeofnine === $fontname) {
+                if($echo)
+                    echo "Fatal error importing font $fontname<br/>";
+            return false;
+        } else {
+                if($echo)
+                    echo "$fontname imported!<br/>";
+        }
+    }
+    
+    return true;
+}
+
+/**
  * Get students count from a course, for printing.
  *
  * @param unknown_type $courseid
@@ -146,21 +195,21 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
 	$pdf = new FPDI ();
 	$cp = $pdf->setSourceFile ( $CFG->dirroot . "/mod/emarking/img/printformtemplate.pdf" );
 	for($i = 1; $i <= $cp; $i ++) {
-		$pdf->AddPage (); // Agrega una nueva página
+		$pdf->AddPage (); // Agrega una nueva pÃ¡gina
 		if ($i <= $cp) {
-			$tplIdx = $pdf->importPage ( $i ); // Se importan las páginas del documento pdf.
+			$tplIdx = $pdf->importPage ( $i ); // Se importan las pÃ¡ginas del documento pdf.
 			$pdf->useTemplate ( $tplIdx, 0, 0, 0, 0, $adjustPageSize = true ); // se inserta como template el archivo pdf subido
 
-			// Copia/Impresión/Plotteo
+			// Copia/ImpresiÃ³n/Plotteo
 			$pdf->SetXY ( 32, 48.5 );
 			$pdf->Write ( 1, "x" );
-			// Fecha día
+			// Fecha dÃ­a
 			$pdf->SetXY ( 153, 56 );
 			$pdf->Write ( 1, core_text::strtoupper ( date ( 'd' ) ) );
 			// Fecha mes
 			$pdf->SetXY ( 163, 56 );
 			$pdf->Write ( 1, core_text::strtoupper ( date ( 'm' ) ) );
-			// Fecha año
+			// Fecha aÃ±o
 			$pdf->SetXY ( 173, 56 );
 			$pdf->Write ( 1, core_text::strtoupper ( date ( 'Y' ) ) );
 			// Solicitante
@@ -172,28 +221,28 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
 			// Campus UAI
 			$pdf->SetXY ( 95, 80.8 );
 			$pdf->Write ( 1, core_text::strtoupper ( "" ) );
-			// Número originales
+			// NÃºmero originales
 			$pdf->SetXY ( 35, 106.5 );
 			$pdf->Write ( 1, core_text::strtoupper ( $cantsheets ) );
-			// Número copias
+			// NÃºmero copias
 			$pdf->SetXY ( 60, 106.5 );
 			$pdf->Write ( 1, core_text::strtoupper ( "--" ) );
-			// Número impresiones
+			// NÃºmero impresiones
 			$pdf->SetXY ( 84, 106.5 );
 			$pdf->Write ( 1, core_text::strtoupper ( $totalextraexams ) );
 			// BN
 			$pdf->SetXY ( 106, 106.5 );
 			$pdf->Write ( 1, "x" );
-			// Páginas totales
+			// PÃ¡ginas totales
 			$pdf->SetXY ( 135, 106.5 );
 			$pdf->Write ( 1, core_text::strtoupper ( $canttotalpages ) );
-			// Número impresiones Total
+			// NÃºmero impresiones Total
 			$pdf->SetXY ( 84, 133.8 );
 			$pdf->Write ( 1, core_text::strtoupper ( "" ) );
-			// Páginas totales Total
+			// PÃ¡ginas totales Total
 			$pdf->SetXY ( 135, 133.8 );
 			$pdf->Write ( 1, core_text::strtoupper ( "" ) );
-			// Páginas totales Total
+			// PÃ¡ginas totales Total
 			$pdf->SetXY ( 43, 146 );
 			$pdf->Write ( 1, core_text::strtoupper ( $course->fullname . " , " . $exam->name ) );
 			// Recepcionado por Nombre
@@ -686,17 +735,17 @@ function emarking_exam_total_pages_to_print($exam) {
 function emarking_send_email_code($code, $user, $coursename, $examname) {
 	global $CFG;
 
-	$posttext = 'Código de seguridad eMarking\n'; // TODO: Internacionalizar
+	$posttext = get_string('emarkingsecuritycode', 'mod_emarking').'\n'; // TODO: Internacionalizar
 	$posttext .= $coursename . ' ' . $examname . '\n';
-	$posttext .= 'Su código: ' . $code . '';
+	$posttext .= get_string('yourcodeis', 'mod_emarking').': ' . $code . '';
 
 	$thismessagehtml = '<html>';
-	$thismessagehtml .= '<h3>Código de seguridad eMarking</h3>';
+	$thismessagehtml .= '<h3>'.get_string('emarkingsecuritycode', 'mod_emarking').'</h3>';
 	$thismessagehtml .= $coursename . ' ' . $examname . '<br>';
-	$thismessagehtml .= 'Su código:<br>' . $code . '<br>';
+	$thismessagehtml .= get_string('yourcodeis', 'mod_emarking').':<br>' . $code . '<br>';
 	$thismessagehtml .= '</html>';
 
-	$subject = "Código de seguridad eMarking";
+	$subject = get_string('emarkingsecuritycode', 'mod_emarking');
 
 	$headers = "From: $CFG->supportname  \r\n" . "Reply-To: $CFG->noreplyaddress\r\n" . 'Content-Type: text/html; charset="utf-8"' . "\r\n" . 'X-Mailer: PHP/' . phpversion ();
 
@@ -960,7 +1009,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
 	}
 	// ---------------------------------------------------------
 
-	// COGIDO PARA IMPRIMIR RÚBRICA
+	// COGIDO PARA IMPRIMIR RÃšBRICA
 	if ($emarking->downloadrubricpdf) {
 
 		$cm = new StdClass ();
@@ -1016,7 +1065,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
 
 		// add extra page with rubrics
 		$pdf->AddPage ();
-		$pdf->Write ( 0, 'Rúbrica', '', 0, 'L', true, 0, false, false, 0 );
+		$pdf->Write ( 0, 'RÃºbrica', '', 0, 'L', true, 0, false, false, 0 );
 		$pdf->SetFont ( 'helvetica', '', 8 );
 
 		$tbl = html_writer::table ( $table );
@@ -1035,7 +1084,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
 	// Close and output PDF document
 	$pdf->Output ( $pathname, 'F' );
 
-	// Copiar archivo desde temp a Área
+	// Copiar archivo desde temp a Ã�rea
 	$file_record = array (
 			'contextid' => $context->id,
 			'component' => 'mod_emarking',
@@ -1067,7 +1116,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
  * @param unknown $examid
  * @return NULL
  */
-function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, $pbar = null, $sendprintorder = false, $printername = null) {
+function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, $pbar = null, $sendprintorder = false, $printername = null, $printanswersheet = false) {
 	global $DB, $CFG, $USER, $OUTPUT;
 
 	// Se obtiene el examen
@@ -1151,19 +1200,23 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 			$students = emarking_get_students_for_printing ( $downloadexam->course );
 		}
 
-		$nombre = array ();
+		$studentinfo = array();
 
 		$current = 0;
-		// Los resultados del query se recorren mediante un foreach loop.
+		// Fill studentnames with student info (name, idnumber, id and picture)
 		foreach ( $students as $student ) {
 			if (array_search ( $student->enrol, $enrolincludes ) === false) {
 				continue;
 			}
-			$nombre [] = substr ( "$student->lastname, $student->firstname", 0, 65 );
-			$rut [] = $student->idnumber;
-			$moodleid [] = $student->id;
+			
+			$stinfo = new stdClass();
+			$stinfo->name = substr ( "$student->lastname, $student->firstname", 0, 65 );
+			$stinfo->idnumber = $student->idnumber;
+			$stinfo->id = $student->id;
+			
 			// Get the image file for student
 			$imgfound = false;
+			// If we have the student photos path set we search for its picture there
 			if ($CFG->emarking_pathuserpicture && is_dir ( $CFG->emarking_pathuserpicture )) {
 				$idstring = "" . $student->idnumber;
 				$revid = strrev ( $idstring );
@@ -1171,10 +1224,12 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 				$idpath .= "/" . substr ( $revid, 0, 1 );
 				$idpath .= "/" . substr ( $revid, 1, 1 );
 				if (file_exists ( $idpath . "/user$idstring.png" )) {
-					$userimg [] = $idpath . "/user$idstring.png";
+					$stinfo->picture = $idpath . "/user$idstring.png";
 					$imgfound = true;
 				}
 			}
+			
+			// If no picture was found in the pictures repo try to use the Moodle one or default on the anonymous
 			if (! $imgfound) {
 				$usercontext = context_user::instance ( $student->id );
 				$imgfile = $DB->get_record ( 'files', array (
@@ -1184,24 +1239,32 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 						'filename' => 'f1.png'
 				) );
 				if ($imgfile)
-					$userimg [] = emarking_get_path_from_hash ( $userimgdir, $imgfile->pathnamehash, "u" . $student->id, true );
+					$stinfo->picture = emarking_get_path_from_hash ( $userimgdir, $imgfile->pathnamehash, "u" . $student->id, true );
 				else
-					$userimg [] = $CFG->dirroot . "/pix/u/f1.png";
+					$stinfo->picture = $CFG->dirroot . "/pix/u/f1.png";
 			}
+			
+			// Store student info
+			$studentinfo[] = $stinfo;
 		}
-		$numberstudents = count ( $nombre );
+		$numberstudents = count ( $studentinfo );
 
+		// Add the extra students to the list
 		for($i = $numberstudents; $i < $numberstudents + $downloadexam->extraexams; $i ++) {
-			$nombre [$i] = '..............................................................................';
-			$rut [$i] = '0';
-			$moodleid [$i] = '0';
-			$userimg [$i] = $CFG->dirroot . "/pix/u/f1.png";
+		    $stinfo = new stdClass();
+		    $stinfo->name = '..............................................................................';
+		    $stinfo->idnumber = 0;
+		    $stinfo->id = 0;
+		    $stinfo->picture = $CFG->dirroot . "/pix/u/f1.png";
+		    $studentinfo[] = $stinfo;
 		}
 
+		// Create filename for the download
 		$newfile = emarking_get_path_from_hash ( $filedir, $pdffileshash [$current] ['hash'] );
 		$path = $filedir . "/" . str_replace ( ' ', '-', $pdffileshash [$current] ['filename'] );
 		$hash = hash_file ( 'md5', $path );
 
+		// Check if there is a logo file
 		$logoisconfigured = false;
 		if ($logofile = emarking_get_logo_file ()) {
 			$logofilepath = emarking_get_path_from_hash ( $filedir, $logofile->get_pathnamehash () );
@@ -1231,7 +1294,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 
 		if ($sendprintorder) {
 			if ($pbar != null) {
-				$pbar->update ( 0, count ( $nombre ), '' );
+				$pbar->update ( 0, count ( $studentinfo ), '' );
 			}
 		}
 
@@ -1261,7 +1324,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 				$top = 22;
 				$pdf->SetFont ( 'Helvetica', '', 8 );
 				$pdf->SetXY ( $left, $top );
-				$pdf->Write ( 1, core_text::strtoupper ( "N° Inscritos: " . count ( $nombre ) ) );
+				$pdf->Write ( 1, core_text::strtoupper ( "N° Inscritos: " . count ( $studentinfo ) ) );
 
 				// $year = date("Y");
 				// $month= date("F");
@@ -1283,7 +1346,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 
 				$t = 0;
 				$t2 = 46;
-				for($a = 0; $a <= count ( $nombre ) - 1; $a ++) {
+				for($a = 0; $a <= count ( $studentinfo ) - 1; $a ++) {
 						
 					if ($n == 24 || $n == 48 || $n == 72 || $n == 96 || $n == 120) {
 						$pdf->AddPage ();
@@ -1296,9 +1359,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 					$pdf->SetFont ( 'Helvetica', '', 8 );
 					$pdf->SetXY ( $left, $top );
 					$pdf->Cell ( 10, 10, $n . ")", 1, 0, 'L' );
-					$pdf->Cell ( 120, 10, core_text::strtoupper ( $nombre [$a] ), 1, 0, 'L' );
+					$pdf->Cell ( 120, 10, core_text::strtoupper ( $studentinfo[$a]->name ), 1, 0, 'L' );
 					$pdf->Cell ( 50, 10, "", 1, 0, 'L' );
-					// $pdf->Write ( 1, core_text::strtoupper ( $nombre [$a] ) );
 					$t = $t + 10;
 				}
 				$flag = 1;
@@ -1332,7 +1394,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 		}
 
 		// Here we produce a PDF file for each student
-		for($k = 0; $k <= count ( $nombre ) - 1; $k ++) {
+		foreach($studentinfo as $stinfo) {
 				
 			// If there are multiplepdfs we have to produce one per student
 			if ($multiplepdfs || $sendprintorder || $groupid != null) {
@@ -1349,60 +1411,22 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 			}
 				
 			$pdf->SetAutoPageBreak ( false );
+			
+			if($printanswersheet) {
+			    emarking_create_omr_answer_sheet($stinfo);
+			    $pdf->AddPage();
+				emarking_draw_header($pdf, $stinfo, $downloadexam, 0);
+			}
+			
 			for($i = 1; $i <= $cp + $downloadexam->extrasheets; $i = $i + 1) {
-				$h = rand ( 1, 999999 );
-				$img = $fileimg . "/qr" . $h . "_" . $rut [$k] . "_" . $i . "_" . $hash . ".png";
-				$imgrotated = $fileimg . "/qr" . $h . "_" . $rut [$k] . "_" . $i . "_" . $hash . "r.png";
-				// Se genera QR con id, curso y número de página
-				$qrstring = "$moodleid[$k] - $downloadexam->course - $i";
-				QRcode::png ( $qrstring, $img ); // se inserta QR
-				QRcode::png ( $qrstring . " - R", $imgrotated ); // se inserta QR
-				$gdimg = imagecreatefrompng ( $imgrotated );
-				$rotated = imagerotate ( $gdimg, 180, 0 );
-				imagepng ( $rotated, $imgrotated );
-				$pdf->AddPage (); // Agrega una nueva página
+			    
+			    $pdf->AddPage (); // Agrega una nueva página
 				if ($i <= $cp) {
 					$tplIdx = $pdf->importPage ( $i ); // Se importan las páginas del documento pdf.
 					$pdf->useTemplate ( $tplIdx, 0, 0, 0, 0, $adjustPageSize = true ); // se inserta como template el archivo pdf subido
 				}
-				/*
-				 * Ahora se escribe texto sobre las páginas ya importadas. Se fija la fuente, el tipo y el tamaño de la letra. Se señala el título. Se da el nombre, apellido y rut del alumno al cual pertenece la prueba. Se indica el curso correspondiente a la evaluación. Se introduce una imagen. Esta corresponde al QR que se genera con los datos
-				*/
 
-				if ($CFG->emarking_includelogo && $logoisconfigured) {
-					$pdf->Image ( $logofilepath, 2, 8, 30 );
-				}
-
-				$left = 58;
-				$top = 8;
-				$pdf->SetFont ( 'Helvetica', '', 12 );
-				$pdf->SetXY ( $left, $top );
-				$pdf->Write ( 1, core_text::strtoupper ( $downloadexam->name ) );
-				$pdf->SetFont ( 'Helvetica', '', 9 );
-				$top += 5;
-				$pdf->SetXY ( $left, $top );
-				$pdf->Write ( 1, core_text::strtoupper ( get_string ( 'name' ) . ": " . $nombre [$k] ) );
-				$top += 4;
-				if ($rut [$k] && strlen ( $rut [$k] ) > 0) {
-					$pdf->SetXY ( $left, $top );
-					$pdf->Write ( 1, get_string ( 'idnumber', 'mod_emarking' ) . ": " . $rut [$k] );
-					$top += 4;
-				}
-				$pdf->SetXY ( $left, $top );
-				$pdf->Write ( 1, core_text::strtoupper ( get_string ( 'course' ) . ": " . $course->fullname ) );
-				$top += 4;
-				if (file_exists ( $userimg [$k] )) {
-					$pdf->Image ( $userimg [$k], 35, 8, 15, 15, "PNG", null, "T", true );
-				}
-				$totals = new stdClass ();
-				$totals->identified = $i;
-				$totals->total = $cp + $downloadexam->extrasheets;
-				$pdf->SetXY ( $left, $top );
-				$pdf->Write ( 1, core_text::strtoupper ( get_string ( 'page' ) . ": " . get_string ( 'aofb', 'mod_emarking', $totals ) ) );
-				$pdf->Image ( $img, 176, 3, 34 ); // y antes era -2
-				$pdf->Image ( $imgrotated, 0, $pdf->getPageHeight () - 35, 34 );
-				unlink ( $img );
-				unlink ( $imgrotated );
+				emarking_draw_header($pdf, $stinfo, $downloadexam, $i);
 			}
 				
 			if ($multiplepdfs || $sendprintorder || $groupid != null) {
@@ -1419,10 +1443,10 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 					$zip->addFile ( $pdffile, emarking_clean_filename ( $qrstring ) . ".pdf" );
 				}
 
-				$jobs [$k] ["param_1_pbar"] = $k + 1;
-				$jobs [$k] ["param_2_pbar"] = count ( $nombre );
-				$jobs [$k] ["param_3_pbar"] = 'Imprimiendo pruebas de ' . core_text::strtoupper ( $nombre [$k] );
-				$jobs [$k] ["name_job"] = $pdffile;
+				$jobs [] ["param_1_pbar"] = $k + 1;
+				$jobs [] ["param_2_pbar"] = count ( $studentinfo );
+				$jobs [] ["param_3_pbar"] = 'Imprimiendo pruebas de ' . core_text::strtoupper ($stinfo->name);
+				$jobs [] ["name_job"] = $pdffile;
 			}
 		}
 
@@ -1561,7 +1585,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 			unlink ( $file1 );
 			return $filedir;
 		} else {
-			ob_start (); // modificación: ingreso de esta linea, ya que anterior revisión mostraba error en el archivo
+			ob_start (); // modificaciÃ³n: ingreso de esta linea, ya que anterior revisiÃ³n mostraba error en el archivo
 				
 			header ( 'Content-Description: File Transfer' );
 			header ( 'Content-Type: application/x-download' );
@@ -1643,12 +1667,67 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 		$pbar->update_full ( 100, 'Impresión completada exitosamente' );
 
 		return true;
-		/*
-		 * $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT; $downloadexam->printdate = time (); $DB->update_record ( 'emarking_exams', $downloadexam ); $downloadURL = $CFG->wwwroot . '/pluginfile.php/' . $file->contextid . '/mod_emarking/' . $file->filearea . '/' . $file->itemid . '/' . $file->filename; $startdownload = true; echo '<meta http-equiv="refresh" content="2;url=' . $downloadURL . '">'; return true;
-		*/
 	}
 }
 
+function emarking_draw_header($pdf, $stinfo, $downloadexam, $i) {
+    /*
+     * Ahora se escribe texto sobre las páginas ya importadas. Se fija la fuente, el tipo y el tamaÃ±o de la letra. Se seÃ±ala el tÃ­tulo. Se da el nombre, apellido y rut del alumno al cual pertenece la prueba. Se indica el curso correspondiente a la evaluaciÃ³n. Se introduce una imagen. Esta corresponde al QR que se genera con los datos
+     */
+    // For the QR string and get the images
+    $qrstring = "$stinfo->id - $downloadexam->course - $i";
+    list($img, $imgrotated) = emarking_create_qr_image($qrstring);
+    
+    
+    if ($CFG->emarking_includelogo && $logoisconfigured) {
+        $pdf->Image ( $logofilepath, 2, 8, 30 );
+    }
+    
+    $left = 58;
+    $top = 8;
+    $pdf->SetFont ( 'Helvetica', '', 12 );
+    $pdf->SetXY ( $left, $top );
+    $pdf->Write ( 1, core_text::strtoupper ( $downloadexam->name ) );
+    $pdf->SetFont ( 'Helvetica', '', 9 );
+    $top += 5;
+    $pdf->SetXY ( $left, $top );
+    $pdf->Write ( 1, core_text::strtoupper ( get_string ( 'name' ) . ": " . $stinfo->name) );
+    $top += 4;
+    if ($stinfo->idnumber && strlen ( $stinfo->idnumber ) > 0) {
+        $pdf->SetXY ( $left, $top );
+        $pdf->Write ( 1, get_string ( 'idnumber', 'mod_emarking' ) . ": " . $stinfo->idnumber );
+        $top += 4;
+    }
+    $pdf->SetXY ( $left, $top );
+    $pdf->Write ( 1, core_text::strtoupper ( get_string ( 'course' ) . ": " . $course->fullname ) );
+    $top += 4;
+    if (file_exists ( $stinfo->picture )) {
+        $pdf->Image ( $stinfo->picture, 35, 8, 15, 15, "PNG", null, "T", true );
+    }
+    $totals = new stdClass ();
+    $totals->identified = $i;
+    $totals->total = $cp + $downloadexam->extrasheets;
+    $pdf->SetXY ( $left, $top );
+    $pdf->Write ( 1, core_text::strtoupper ( get_string ( 'page' ) . ": " . get_string ( 'aofb', 'mod_emarking', $totals ) ) );
+    $pdf->Image ( $img, 176, 3, 34 ); // y antes era -2
+    $pdf->Image ( $imgrotated, 0, $pdf->getPageHeight () - 35, 34 );
+    unlink ( $img );
+    unlink ( $imgrotated );
+}
+
+function emarking_create_qr_image($qrstring) {
+    $h = random_string(15);
+    $img = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . ".png";
+    $imgrotated = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . "r.png";
+    // Se genera QR con id, curso y número de página
+    QRcode::png ( $qrstring, $img ); // se inserta QR
+    QRcode::png ( $qrstring . " - R", $imgrotated ); // se inserta QR
+    $gdimg = imagecreatefrompng ( $imgrotated );
+    $rotated = imagerotate ( $gdimg, 180, 0 );
+    imagepng ( $rotated, $imgrotated );
+    
+    return array($img, $imgrotated);
+}
 /**
  * Erraces all the content of a directory, then ir creates te if they don't exist.
  *
@@ -1749,6 +1828,93 @@ function emarking_send_sms($message, $number) {
 	return false;
 }
 
+function emarking_create_omr_answer_sheet($studentinfo) {
+    global $CFG;
+    
+    require_once($CFG->libdir . '/tcpdf/tcpdf.php'); // for more documentation, see the top of this file
+    require_once($CFG->dirroot . '/mod/emarking/lib/openbub/ans_pdf_open.php'); // for more documentation, see the top of this file
+    
+    // Variables to be assigned
+    $exam= "";
+    $grade= "";
+    $teacher= "";
+    $subject= "";
+    $instancedate= "";
+    $exam_id="";
+    $student_code="";
+    $student_name="";
+    
+    // Create a new BubPdf object.
+    $BubPdf=new BubPdf('P', 'in', 'LETTER', true);
+    
+    // NewExam sets the margins, etc
+    BP_NewExam($CorrectAnswersProvided=TRUE);
+    
+    BP_StudentAnswerSheetStart();
+    
+    // A simple 12 question answer sheet
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',4, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',7, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',8, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    BP_AddAnswerBubbles('A',5, 1,FALSE,false,null);
+    
+    BP_StudentAnswerSheetComplete();
+    
+    // the CreateExam call can be used to retrieve an array of the zone assignments
+    BP_CreateExam();
+    
+    $filepath = emarking_get_temp_dir_path($studentinfo->id);
+    $filename = $filepath . '/exam'.random_string(15).'.pdf';
+    //display the PDF of the Exam
+    $BubPdf->Output($filename, 'F'); // NOTE: "Save a Copy" in the acrobat plugin seems to ignore the name, though "File->Save As..." in the browser does not.
+    
+    return $filename;
+}
+
 /**
  * Replace "acentos", spaces from file names.
  * Evita problemas en Windows y Linux.
@@ -1760,18 +1926,18 @@ function emarking_send_sms($message, $number) {
 function emarking_clean_filename($filename, $slash = false) {
 	$replace = array (
 			' ',
-			'á',
-			'é',
-			'í',
-			'ó',
-			'ú',
-			'ñ',
-			'Ñ',
-			'Á',
-			'É',
-			'Í',
-			'Ó',
-			'Ú',
+			'Ã¡',
+			'Ã©',
+			'Ã­',
+			'Ã³',
+			'Ãº',
+			'Ã±',
+			'Ã‘',
+			'Ã�',
+			'Ã‰',
+			'Ã�',
+			'Ã“',
+			'Ãš',
 			'(',
 			')'
 	);
