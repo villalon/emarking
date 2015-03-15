@@ -2,7 +2,7 @@
 
 // require_once('../../../../lib/tcpdf/tcpdf.php');
 
-class BubPdf extends TCPDF
+class BubPdf extends FPDI
 {
 
 /* BubPdf Documentation:
@@ -123,6 +123,9 @@ class BubPdf extends TCPDF
 	var $ansbubcellw=.27;
 	var $UseExtendedBubFont;
 	
+	// File path
+	public $logofilepath = null;
+	
 	//All zones that get defined
 	var $zonesArray;
 	var $numExamZones = 0;
@@ -221,12 +224,17 @@ class BubPdf extends TCPDF
 
 	function Header()
 	{
+	    parent::Header();return;
 		 //Page header
-		 global $exam_id, $exam, $grade, $subject, $instancedate, $teacher, $student_code, $student_name,$DBG,$authlib;
+		 global $exam_id, $examtitle, $grade, $subject, $instancedate, $teacher, $student_code, $student_name,$DBG,$authlib,$logofilepath;
 
 			//$filepath=$_SERVER['PHP_SELF'];																	//figure out what $filepath is
 			//for($i=0;$i<(count(explode("/", $filepath))-2);$i++) $ImgLoc .= "../";				//figure out where images are located
-			$this->Image('images/bubblesoftlogo_print.jpg',0.5,0.5,1.5);
+			
+		 // If we have a logo file, we add it
+			if($logofilepath) {
+			 $this->Image($logofilepath,0.5,0.5,1.5);
+			}
 
 			if($DBG){
 				 $this->SetXY(2.15,1); 
@@ -367,7 +375,7 @@ class BubPdf extends TCPDF
 				// Arial Bold 15
 				// Exam
 				$this->SetFont('helvetica','B',14);
-				$this->MultiCell(5.75,0,$exam,0,1);
+				$this->MultiCell(5.75,0,$examtitle,0,1);
 				$this->SetFont('helvetica','',8);
 				if($this->InlineAnswerBubbles){
 					$this->Cell(5,0,"(ID: ".$exam_id."C)",0,1); 
@@ -397,7 +405,7 @@ class BubPdf extends TCPDF
 				// Arial Bold 15
 				// Exam
 				$this->SetFont('helvetica','B',14);
-				$this->MultiCell(4.75,0,$exam,0,1);
+				$this->MultiCell(4.75,0,$examtitle,0,1);
 				$this->SetFont('helvetica','',8);
 				if($this->InlineAnswerBubbles){
 					$this->Cell(4.75,0,"(ID: ".$exam_id."C)",0,0);
@@ -483,6 +491,8 @@ class BubPdf extends TCPDF
 	
 	function Footer()
 	{
+	    parent::Footer();
+	    return;
 		global $DBG,$exam_id, $RosterSectionID, $instancedate, $authlib, $student_name, $teacher, $instancedate;
 		
 		if($DBG){
@@ -715,7 +725,7 @@ class BubPdf extends TCPDF
 	{
 		global $DBG,$student_code,$student_name;
 
-		if(!$this->PlainExamQuestionsMode && !$this->MultipleMeasuresMode && !$this->InlineAnswerBubbles) BP_FinishOffExamBubbleZone();
+		if(!$this->PlainExamQuestionsMode && !$this->MultipleMeasuresMode && !$this->InlineAnswerBubbles) BP_FinishOffExamBubbleZone($this);
 
 		if($this->TransactionInProgress) $this->TransactionBreakEncountered=TRUE;
 
@@ -724,18 +734,21 @@ class BubPdf extends TCPDF
 		// wide columns detected will cause a switch to fewer columns
 		if( ( ( $this->col == 2 ) && !$this->ForceThreeColumns ) || ( ( $this->col == 1 ) && !$this->ForceTwoColumns ) || ( ( $this->col == 0 ) && !$this->ForceOneColumn ) ) {
 			//Go to next column
-			BP_SetCol($this->col+1);
+			BP_SetCol($this, $this->col+1);
 			//Set ordinate to top
 			return false; //Keep on page
 		} else {
 			$this->TransactionPageBreakEncountered++;
 			//Go back to first column
-			BP_SetCol(0);
+			BP_SetCol($this, 0);
 			return true; //Page break
 		}
 
 	}
 
+	function setFilePath($filepath) {
+	    $this->logofilepath = $filepath;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -746,9 +759,8 @@ class BubPdf extends TCPDF
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function BP_SetCol($col,$NoNewZone=FALSE)
+function BP_SetCol($BubPdf, $col,$NoNewZone=FALSE)
 {
-	global $BubPdf;
 	global $DBG;
 
 
@@ -777,12 +789,11 @@ function BP_SetCol($col,$NoNewZone=FALSE)
 		$BubPdf->SetLineStyle(array('width' => 0.85 / $BubPdf->getScaleFactor(), 'cap' => 'round', 'join' => 'miter', 'dash' => 0, 'color' => array(0,0,0)));
 	}
 
-	if(!$BubPdf->PlainExamQuestionsMode && !$BubPdf->MultipleMeasuresMode && !$BubPdf->InlineAnswerBubbles && !$NoNewZone) BP_StartNewExamBubbleZone();
+	if(!$BubPdf->PlainExamQuestionsMode && !$BubPdf->MultipleMeasuresMode && !$BubPdf->InlineAnswerBubbles && !$NoNewZone) BP_StartNewExamBubbleZone($BubPdf);
 
 }
 
-function BP_StartNewExamBubbleZone(){
-	global $BubPdf;
+function BP_StartNewExamBubbleZone($BubPdf){
 	global $DBG;
 
 	if($BubPdf->ZoneArrayCapturing && !$BubPdf->TransactionInProgress){ // only need to capture zone information for the first student's answer sheet(s), because the others should be identical
@@ -809,8 +820,7 @@ function BP_StartNewExamBubbleZone(){
 
 }
 
-function BP_FinishOffExamBubbleZone(){
-	global $BubPdf;
+function BP_FinishOffExamBubbleZone($BubPdf){
 	global $DBG;
 
 	if($BubPdf->ZoneArrayCapturing && !$BubPdf->TransactionInProgress){ // only need to capture zone information for the first student's answer sheet(s), because the others should be identical
@@ -862,15 +872,15 @@ function BP_FinishOffExamBubbleZone(){
 
 }
 
-function BP_CreateExam(){
-	global $BubPdf, $DBG;
+function BP_CreateExam($BubPdf){
+	global $DBG;
 
 	
 	if($BubPdf->MultipleMeasuresMode == TRUE){
-		BP_PrintMultMeasBubbles();
+		BP_PrintMultMeasBubbles($BubPdf);
 		return $BubPdf->zonesArray;
 	}elseif (!$BubPdf->InlineAnswerBubbles) {
-		BP_PrintAnswerBubbles();
+		BP_PrintAnswerBubbles($BubPdf);
 		return $BubPdf->zonesArray;
 	}
 
@@ -884,49 +894,45 @@ function BP_CreateExam(){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function BP_NewExam($CorrectAnswersProvided=FALSE)
+function BP_NewExam(BubPdf $BubPdf, $CorrectAnswersProvided=FALSE)
 {
-	global $BubPdf;
-
-	global $exam, $teacher, $exam_id, $grade, $subject, $instancedate;
+	global $examtitle, $teacher, $exam_id, $grade, $subject, $instancedate;
 
 	// StudentCode bubbles removed whenever CorrectAnswers are provided
 	if($CorrectAnswersProvided) $BubPdf->CorrectAnswersProvided = TRUE;
 
-	// $BubPdf->AliasNbPages(); //Defines an alias for the total number of pages. It will be substituted as the document is closed.
+	$BubPdf->getAliasNbPages(); //Defines an alias for the total number of pages. It will be substituted as the document is closed.
 	$BubPdf->SetTopMargin($BubPdf->AreaTopMargin);
 	$BubPdf->SetLeftMargin($BubPdf->AreaLeftMargin);
 	$BubPdf->SetAutoPageBreak(TRUE, $BubPdf->AreaBotMargin); // bottom margin (if columns seem offset funny, this number could be to blame)
 
 	// fill in some of the PDF meta data
-	$BubPdf->SetTitle($exam);
+	$BubPdf->SetTitle($examtitle);
 	$BubPdf->SetAuthor($teacher);
 	$BubPdf->SetSubject($exam_id);
 	$BubPdf->SetKeywords("$grade $subject $instancedate");
 
 }
 
-function BP_StudentAnswerSheetStart(){
-	global $BubPdf;
+function BP_StudentAnswerSheetStart($BubPdf){
 	global $DBG;
 	global $student_name;
 	
 	$BubPdf->AddPage();
-	BP_SetCol(0,TRUE);
+	BP_SetCol($BubPdf, 0, TRUE);
 
 	unset($BubPdf->PassagesPrinted);
 	$BubPdf->PassagesPrinted=array();
 }
 
-function BP_StudentAnswerSheetComplete(){
-	global $BubPdf;
+function BP_StudentAnswerSheetComplete($BubPdf){
 	global $DBG;
 	global $student_name;
 
 	if($BubPdf->MultipleMeasuresMode == TRUE){
-		BP_PrintMultMeasBubbles();
+		BP_PrintMultMeasBubbles($BubPdf);
 	}elseif (!$BubPdf->InlineAnswerBubbles) {
-		BP_PrintAnswerBubbles();
+		BP_PrintAnswerBubbles($BubPdf);
 	}
 	
 	// Capture the final page number as soon as the first answer sheet is complete
@@ -941,9 +947,9 @@ function BP_StudentAnswerSheetComplete(){
 
 }
 
-function BP_AddAnswerBubbles($AnswerStyle,$AnswersPossible,$NumberOfQuestions,$AlternateChoices,$FillCorrectAnswers=FALSE,$CorrectAnswers=0)
+function BP_AddAnswerBubbles($BubPdf, $AnswerStyle,$AnswersPossible,$NumberOfQuestions,$AlternateChoices,$FillCorrectAnswers=FALSE,$CorrectAnswers=0)
 {
-	global $BubPdf, $DBG;
+	global $DBG;
 
 	// Fill the Arrays for Answer Bubble Zones
 	array_push($BubPdf->BubStyles,$AnswerStyle);
@@ -993,9 +999,9 @@ function BP_AddAnswerBubbles($AnswerStyle,$AnswersPossible,$NumberOfQuestions,$A
 	$BubPdf->TempQNum=($BubPdf->TempQNum+$NumberOfQuestions); 
 }
 
-function BP_FillAnswerBubble($position)
+function BP_FillAnswerBubble($BubPdf, $position)
 {
-	global $BubPdf,$DBG;
+	global $DBG;
 
 	//grab the width of one char
 	$w = $BubPdf->GetCharWidth('0');
@@ -1062,9 +1068,9 @@ function BP_IncrementAnsChar(&$value)
 
 }
 
-function BP_PrintAnswerBubbles()
+function BP_PrintAnswerBubbles($BubPdf)
 {
-	global $BubPdf,$DBG;
+	global $DBG;
 
 	// grab the first element from the arrays, then pop from the top until they're empty
 	$NumberOfQuestions = array_shift($BubPdf->BubNumberOfQuestions);
@@ -1170,7 +1176,7 @@ function BP_PrintAnswerBubbles()
 
 		}
 
-		if(!$BubPdf->PlainExamQuestionsMode) BP_StartNewExamBubbleZone();
+		if(!$BubPdf->PlainExamQuestionsMode) BP_StartNewExamBubbleZone($BubPdf);
 
 		// NSD: Simple alternating rows, when the number is even, swap $PossibleAns and $PossibleAns2
 		if(( (1+$BubPdf->qnum) % 2 == 0 ) &&  $NsdNumberingOn && $AlternateChoices ){
@@ -1192,7 +1198,7 @@ function BP_PrintAnswerBubbles()
 
 			$i++;
 			// Fill the correct answers if necessary, but only if was provided, and within range TBD: maybe this should somehow flag an error when the correct ans is out of range
-			if($FillCorrectAnswers && $CorrectAnswers[$i] && ($CorrectAnswers[$i]<=$AnswersPossible) && ($CorrectAnswers[$i]>0) ) BP_FillAnswerBubble($CorrectAnswers[$i]);
+			if($FillCorrectAnswers && $CorrectAnswers[$i] && ($CorrectAnswers[$i]<=$AnswersPossible) && ($CorrectAnswers[$i]>0) ) BP_FillAnswerBubble($BubPdf, $CorrectAnswers[$i]);
 
 			//break up the line of answer options so we can put each bubble in a cell
 			$answers=explode (" ",$PossibleAns);
@@ -1228,7 +1234,7 @@ function BP_PrintAnswerBubbles()
 
 				$i++;
 				// Fill the correct answers if necessary, but only if was provided, and within range
-				if($FillCorrectAnswers && $CorrectAnswers[$i] && ($CorrectAnswers[$i]<=$AnswersPossible) && ($CorrectAnswers[$i]>0) ) BP_FillAnswerBubble($CorrectAnswers[$i]);
+				if($FillCorrectAnswers && $CorrectAnswers[$i] && ($CorrectAnswers[$i]<=$AnswersPossible) && ($CorrectAnswers[$i]>0) ) BP_FillAnswerBubble($BubPdf, $CorrectAnswers[$i]);
 
 				//break up the line of answer options so we can put each bubble in a cell
 				$answers=explode (" ",$PossibleAns2);
@@ -1256,7 +1262,7 @@ function BP_PrintAnswerBubbles()
 
 		}
 
-		if(!$BubPdf->PlainExamQuestionsMode) BP_FinishOffExamBubbleZone();
+		if(!$BubPdf->PlainExamQuestionsMode) BP_FinishOffExamBubbleZone($BubPdf);
 
 		// grab the next set of data, or null to exit the loop
 		$NumberOfQuestions = array_shift($BubPdf->BubNumberOfQuestions);
@@ -1296,9 +1302,8 @@ function BP_AddMultMeasAnswerBubbles($points, $MultMeasName, $MultMeasPointStart
 
 }
 
-function BP_PrintMultMeasBubbles()
+function BP_PrintMultMeasBubbles($BubPdf)
 {
-	global $BubPdf;
 	global $DBG; 
 
 	// grab the first element from the arrays, then pop from the top until they're empty
@@ -1322,10 +1327,10 @@ function BP_PrintMultMeasBubbles()
 			if( ($AreaRemaining < 1.35) && ($AreaRemaining > .01) && !($BubPdf->qnum==0) ) {
 				/*DEBUG*/ if ($DBG) $BubPdf->Cell(0.3,0,"PBK_MM".$AreaRemaining,0,1);
 				if ($BubPdf->col==1) {
-					BP_SetCol(0);
+					BP_SetCol($BubPdf, 0);
 					$BubPdf->AddPage();
 				} else {
-					BP_SetCol($BubPdf->col+1);
+					BP_SetCol($BubPdf, $BubPdf->col+1);
 				}
 			}
 			
@@ -1344,7 +1349,7 @@ function BP_PrintMultMeasBubbles()
 			$BubPdf->SetTextColor(0, 0, 0); // black
 			$BubPdf->Cell(.3,0," ",0,1);
 
-			if(!$BubPdf->PlainExamQuestionsMode) BP_StartNewExamBubbleZone();
+			if(!$BubPdf->PlainExamQuestionsMode) BP_StartNewExamBubbleZone($BubPdf);
 
 			$BubPdf->SetFont("omrbubbles", "", 11);
 
@@ -1428,7 +1433,7 @@ function BP_PrintMultMeasBubbles()
 			$BubPdf->SetXY($finalx, $finaly);
 			$BubPdf->ansWidth = 2.05; // zone width for multiple measures
 
-			if(!$BubPdf->PlainExamQuestionsMode) BP_FinishOffExamBubbleZone();
+			if(!$BubPdf->PlainExamQuestionsMode) BP_FinishOffExamBubbleZone($BubPdf);
 
 			$BubPdf->SetFont('helvetica','',11);
 			$BubPdf->SetTextColor(0);

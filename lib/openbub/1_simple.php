@@ -1,5 +1,8 @@
 <?php
-
+require_once('../../../../config.php');
+require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
+require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
+//require_once('../../../../lib/tcpdf/tcpdf.php');
 require_once('ans_pdf_open.php'); // for more documentation, see the top of this file
 
 // Variables to be assigned
@@ -16,17 +19,17 @@ $student_name="Rosales, Jose";
 $BubPdf=new BubPdf('P', 'in', 'LETTER', true);
 
 // NewExam sets the margins, etc
-BP_NewExam($CorrectAnswersProvided=FALSE);
+BP_NewExam($BubPdf, $CorrectAnswersProvided=FALSE);
 
-BP_StudentAnswerSheetStart();
+BP_StudentAnswerSheetStart($BubPdf);
 
 // A simple 12 question exam
-BP_AddAnswerBubbles('A',5, 12,FALSE,FALSE);
+BP_AddAnswerBubbles($BubPdf, 'A',5, 12,FALSE,FALSE);
 
-BP_StudentAnswerSheetComplete();
+BP_StudentAnswerSheetComplete($BubPdf);
 
 // the CreateExam call can be used to retrieve an array of the zone assignments
-$myZones = BP_CreateExam();
+$myZones = BP_CreateExam($BubPdf);
 
 //display the PDF of the Exam
 $BubPdf->Output("exam_".$exam_id.".pdf"); // NOTE: "Save a Copy" in the acrobat plugin seems to ignore the name, though "File->Save As..." in the browser does not.

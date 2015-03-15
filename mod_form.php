@@ -66,7 +66,7 @@ class mod_emarking_mod_form extends moodleform_mod {
 				1 => get_string('type_normal', 'mod_emarking'),
 				2 => get_string('type_markers_training', 'mod_emarking'),
 				3 => get_string('type_student_training', 'mod_emarking'),
-				4 => get_string('type_peer_review', 'mod_emarking')
+				// 4 => get_string('type_peer_review', 'mod_emarking')
 				);
 		
 		$mform->addElement ( 'select', 'type', get_string ( 'markingtype', 'mod_emarking' ), $types );
