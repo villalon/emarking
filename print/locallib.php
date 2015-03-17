@@ -1989,6 +1989,7 @@ function emarking_create_quiz_pdf($cm, $debug = false)
                 $question = $qattempt->get_question();
                 $qhtml = $attemptobj->render_question($slot, false);
                 if (! $debug) {
+                    $qhtml = emarking_clean_question_html($qhtml);
                     $doc->writeHTML($qhtml);
                 } else {
                     $qhtml = emarking_clean_question_html($qhtml);
