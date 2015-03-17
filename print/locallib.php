@@ -1991,6 +1991,7 @@ function emarking_create_quiz_pdf($cm, $debug = false)
                 if (! $debug) {
                     $doc->writeHTML($qhtml);
                 } else {
+                    $qhtml = emarking_clean_question_html($qhtml);
                     echo $qhtml;
                 }
             }
@@ -2000,6 +2001,15 @@ function emarking_create_quiz_pdf($cm, $debug = false)
     if (! $debug) {
         $doc->Output();
     }
+}
+
+function emarking_clean_question_html($html) {
+    $html = preg_replace('/[\n\r]/', '', $html);
+    $html = preg_replace('/<div class="state">(.*?)<\/div>/', '', $html);
+    $html = preg_replace('/<div class="grade">(.*?)<\/div>/', '', $html);
+    $html = preg_replace('/<div class="questionflag">(.*?)<\/div>/', '', $html);
+    $html = preg_replace('/<h4 class="accesshide">(.*?)<\/h4>/', '', $html);
+    return $html;
 }
 
 /**
