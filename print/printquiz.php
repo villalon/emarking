@@ -31,6 +31,7 @@ $CFG->debugdisplay = 0;
 global $DB, $USER;
 
 $cmid = required_param('cmid', PARAM_INT);
+$debug = optional_param('debug', false, PARAM_BOOL);
 
 if (! $cm = get_coursemodule_from_id('quiz', $cmid)) {
     print_error('Invalid cm id');
@@ -54,4 +55,4 @@ $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
-emarking_create_quiz_pdf($cm);
+emarking_create_quiz_pdf($cm, $debug);

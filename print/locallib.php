@@ -1930,11 +1930,11 @@ function emarking_create_omr_answer_sheet($studentinfo, $logofilepath)
  *
  * @param unknown $cmid            
  */
-function emarking_create_quiz_pdf($cm)
+function emarking_create_quiz_pdf($cm, $debug = false)
 {
     global $DB, $CFG;
     
-    require_once($CFG->libdir . '/pdflib.php');
+    require_once ($CFG->libdir . '/pdflib.php');
     
     if (! $course = $DB->get_record('course', array(
         'id' => $cm->course
@@ -1955,12 +1955,14 @@ function emarking_create_quiz_pdf($cm)
         $course->id
     ));
     
-    $doc = new pdf;
-    $doc->setPrintHeader(false);
-    $doc->setPrintFooter(false);
-    
-    $doc->AddPage();
-    $doc->Write(5, 'Hello World!');
+    if (! $debug) {
+        $doc = new pdf();
+        $doc->setPrintHeader(false);
+        $doc->setPrintFooter(false);
+        
+        $doc->AddPage();
+        $doc->Write(5, 'Hello World!');
+    }
     
     foreach ($users as $user) {
         
@@ -1986,12 +1988,18 @@ function emarking_create_quiz_pdf($cm)
                 $qattempt = $attemptobj->get_question_attempt($slot);
                 $question = $qattempt->get_question();
                 $qhtml = $attemptobj->render_question($slot, false);
-                $doc->writeHTML($qhtml);
+                if (! $debug) {
+                    $doc->writeHTML($qhtml);
+                } else {
+                    echo $qhtml;
+                }
             }
         }
     }
     
-    $doc->Output();
+    if (! $debug) {
+        $doc->Output();
+    }
 }
 
 /**
