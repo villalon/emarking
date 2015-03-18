@@ -55,4 +55,4 @@ $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
-emarking_create_quiz_pdf($cm, $debug);
+emarking_create_quiz_pdf($cm, $debug, $context, $course);

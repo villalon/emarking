@@ -81,6 +81,38 @@ function emarking_import_omr_fonts($echo = false)
     return true;
 }
 
+function emarking_get_student_picture($student, $userimgdir)
+{
+    global $CFG, $DB;
+    
+    // Get the image file for student
+    $imgfound = false;
+    // If we have the student photos path set we search for its picture there
+    if ($CFG->emarking_pathuserpicture && is_dir($CFG->emarking_pathuserpicture)) {
+        $idstring = "" . $student->idnumber;
+        $revid = strrev($idstring);
+        $idpath = $CFG->emarking_pathuserpicture;
+        $idpath .= "/" . substr($revid, 0, 1);
+        $idpath .= "/" . substr($revid, 1, 1);
+        if (file_exists($idpath . "/user$idstring.png")) {
+            return $stinfo->picture = $idpath . "/user$idstring.png";
+        }
+    }
+    
+    // If no picture was found in the pictures repo try to use the Moodle one or default on the anonymous
+    $usercontext = context_user::instance($student->id);
+    $imgfile = $DB->get_record('files', array(
+        'contextid' => $usercontext->id,
+        'component' => 'user',
+        'filearea' => 'icon',
+        'filename' => 'f1.png'
+    ));
+    if ($imgfile)
+        return emarking_get_path_from_hash($userimgdir, $imgfile->pathnamehash, "u" . $student->id, true);
+    else
+        return $CFG->dirroot . "/pix/u/f1.png";
+}
+
 /**
  * Get students count from a course, for printing.
  *
@@ -205,7 +237,7 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
     $pdf = new FPDI();
     $cp = $pdf->setSourceFile($CFG->dirroot . "/mod/emarking/img/printformtemplate.pdf");
     for ($i = 1; $i <= $cp; $i ++) {
-        $pdf->AddPage(); // Agrega una nueva pÃ¡gina
+        $pdf->AddPage(); // Agrega una nueva página
         if ($i <= $cp) {
             $tplIdx = $pdf->importPage($i); // Se importan las pÃ¡ginas del documento pdf.
             $pdf->useTemplate($tplIdx, 0, 0, 0, 0, $adjustPageSize = true); // se inserta como template el archivo pdf subido
@@ -1237,36 +1269,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             $stinfo->name = substr("$student->lastname, $student->firstname", 0, 65);
             $stinfo->idnumber = $student->idnumber;
             $stinfo->id = $student->id;
-            
-            // Get the image file for student
-            $imgfound = false;
-            // If we have the student photos path set we search for its picture there
-            if ($CFG->emarking_pathuserpicture && is_dir($CFG->emarking_pathuserpicture)) {
-                $idstring = "" . $student->idnumber;
-                $revid = strrev($idstring);
-                $idpath = $CFG->emarking_pathuserpicture;
-                $idpath .= "/" . substr($revid, 0, 1);
-                $idpath .= "/" . substr($revid, 1, 1);
-                if (file_exists($idpath . "/user$idstring.png")) {
-                    $stinfo->picture = $idpath . "/user$idstring.png";
-                    $imgfound = true;
-                }
-            }
-            
-            // If no picture was found in the pictures repo try to use the Moodle one or default on the anonymous
-            if (! $imgfound) {
-                $usercontext = context_user::instance($student->id);
-                $imgfile = $DB->get_record('files', array(
-                    'contextid' => $usercontext->id,
-                    'component' => 'user',
-                    'filearea' => 'icon',
-                    'filename' => 'f1.png'
-                ));
-                if ($imgfile)
-                    $stinfo->picture = emarking_get_path_from_hash($userimgdir, $imgfile->pathnamehash, "u" . $student->id, true);
-                else
-                    $stinfo->picture = $CFG->dirroot . "/pix/u/f1.png";
-            }
+            $stinfo->picture = emarking_get_student_picture($student, $userimgdir);
             
             // Store student info
             $studentinfo[] = $stinfo;
@@ -1720,15 +1723,17 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     }
 }
 
-function emarking_draw_header($pdf, $stinfo, $downloadexam, $i, $fileimg, $logofilepath, $course, $cp)
+function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true)
 {
     global $CFG;
+    
+    $pdf->SetAutoPageBreak(false);
     /*
      * Ahora se escribe texto sobre las páginas ya importadas. Se fija la fuente, el tipo y el tamaÃ±o de la letra. Se seÃ±ala el tÃ­tulo. Se da el nombre, apellido y rut del alumno al cual pertenece la prueba. Se indica el curso correspondiente a la evaluaciÃ³n. Se introduce una imagen. Esta corresponde al QR que se genera con los datos
      */
     // For the QR string and get the images
-    $qrstring = "$stinfo->id - $downloadexam->course - $i";
-    list ($img, $imgrotated) = emarking_create_qr_image($fileimg, $qrstring, $stinfo, $i);
+    $qrstring = "$stinfo->id - $course->id - $pagenumber";
+    list ($img, $imgrotated) = emarking_create_qr_image($fileimgpath, $qrstring, $stinfo, $pagenumber);
     
     if ($CFG->emarking_includelogo && $logofilepath) {
         $pdf->Image($logofilepath, 2, 8, 30);
@@ -1738,7 +1743,7 @@ function emarking_draw_header($pdf, $stinfo, $downloadexam, $i, $fileimg, $logof
     $top = 8;
     $pdf->SetFont('Helvetica', '', 12);
     $pdf->SetXY($left, $top);
-    $pdf->Write(1, core_text::strtoupper($downloadexam->name));
+    $pdf->Write(1, core_text::strtoupper($examname));
     $pdf->SetFont('Helvetica', '', 9);
     $top += 5;
     $pdf->SetXY($left, $top);
@@ -1755,19 +1760,26 @@ function emarking_draw_header($pdf, $stinfo, $downloadexam, $i, $fileimg, $logof
     if (file_exists($stinfo->picture)) {
         $pdf->Image($stinfo->picture, 35, 8, 15, 15, "PNG", null, "T", true);
     }
-    $totals = new stdClass();
-    $totals->identified = $i;
-    $totals->total = $cp + $downloadexam->extrasheets;
-    $pdf->SetXY($left, $top);
-    $pdf->Write(1, core_text::strtoupper(get_string('page') . ": " . get_string('aofb', 'mod_emarking', $totals)));
+    if ($totalpages) {
+        $totals = new stdClass();
+        $totals->identified = $pagenumber;
+        $totals->total = $totalpages;
+        $pdf->SetXY($left, $top);
+        $pdf->Write(1, core_text::strtoupper(get_string('page') . ": " . get_string('aofb', 'mod_emarking', $totals)));
+    }
     $pdf->Image($img, 176, 3, 34); // y antes era -2
-    $pdf->Image($imgrotated, 0, $pdf->getPageHeight() - 35, 34);
+    if ($bottomqr) {
+        $pdf->Image($imgrotated, 0, $pdf->getPageHeight() - 35, 34);
+    }
     unlink($img);
     unlink($imgrotated);
 }
 
 function emarking_create_qr_image($fileimg, $qrstring, $stinfo, $i)
 {
+    global $CFG;
+    require_once ($CFG->dirroot . '/mod/emarking/lib/phpqrcode/phpqrcode.php');
+    
     $h = random_string(15);
     $hash = random_string(15);
     $img = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . ".png";
@@ -1930,7 +1942,7 @@ function emarking_create_omr_answer_sheet($studentinfo, $logofilepath)
  *
  * @param unknown $cmid            
  */
-function emarking_create_quiz_pdf($cm, $debug = false)
+function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course = null, $logofilepath = null)
 {
     global $DB, $CFG;
     
@@ -1941,6 +1953,12 @@ function emarking_create_quiz_pdf($cm, $debug = false)
     ))) {
         return null;
     }
+    
+    $fileimg = $CFG->dataroot . "/temp/emarking/$context->id/qr";
+    emarking_initialize_directory($fileimg, true);
+    
+    $userimgdir = $CFG->dataroot . "/temp/emarking/$context->id/u";
+    emarking_initialize_directory($userimgdir, true);
     
     $query = 'SELECT u.*
 			FROM {user_enrolments} ue
@@ -1955,15 +1973,8 @@ function emarking_create_quiz_pdf($cm, $debug = false)
         $course->id
     ));
     
-    if (! $debug) {
-        $doc = new pdf();
-        $doc->setPrintHeader(false);
-        $doc->setPrintFooter(false);
-        
-        $doc->AddPage();
-        $doc->Write(5, 'Hello World!');
-    }
-    
+    $fullhtml = array();
+    $images = array();
     foreach ($users as $user) {
         
         // Get the quiz object
@@ -1987,30 +1998,151 @@ function emarking_create_quiz_pdf($cm, $debug = false)
             foreach ($slots as $slot) {
                 $qattempt = $attemptobj->get_question_attempt($slot);
                 $question = $qattempt->get_question();
-                $qhtml = $attemptobj->render_question($slot, true);
-                if (! $debug) {
-                    $qhtml = emarking_clean_question_html($qhtml);
-                    $doc->writeHTML($qhtml);
-                } else {
-                    $qhtml = emarking_clean_question_html($qhtml);
+                $qhtml = $attemptobj->render_question($slot, false);
+                $qhtml = emarking_clean_question_html($qhtml);
+                $currentimages = emarking_extract_images_url($qhtml);
+                foreach ($currentimages[1] as $imageurl) {
+                    if (! array_search($imageurl, $images)) {
+                        $images[] = $imageurl;
+                    }
+                }
+                $fullhtml[$user->id][] = $qhtml;
+                if ($debug) {
                     echo $qhtml;
                 }
             }
         }
     }
     
-    if (! $debug) {
-        $doc->Output();
+    $save_to = $CFG->tempdir . '/emarking/printquiz/' . $cm->id . '/';
+    emarking_initialize_directory($save_to, true);
+    $search = array();
+    $replace = array();
+    foreach ($images as $image) {
+        if (! $filename = emarking_get_file_from_url($image, $save_to)) {
+            echo "Problem downloading file $image <hr>";
+        } else {
+            $search[] = $image;
+            $replace[] = $filename;
+        }
     }
+    
+    if ($debug) {
+        var_dump($fullhtml);
+        var_dump(PDF_MARGIN_FOOTER);
+        var_dump(PDF_MARGIN_HEADER);
+        var_dump(PDF_MARGIN_LEFT);
+        var_dump(PDF_MARGIN_TOP);
+        var_dump(PDF_MARGIN_RIGHT);
+        return;
+    }
+    
+    // Now we create the pdf file with the modified html
+    $doc = new pdf();
+    $doc->setPrintHeader(false);
+    $doc->setPrintFooter(false);
+    
+    // set margins
+    $doc->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $doc->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $doc->SetFooterMargin(PDF_MARGIN_FOOTER);
+    
+    foreach ($fullhtml as $uid => $questions) {
+        $doc->AddPage();
+        $stinfo = $DB->get_record('user', array(
+            'id' => $uid
+        ));
+        $stinfo->name = $stinfo->firstname . ' ' . $stinfo->lastname;
+        $stinfo->picture = emarking_get_student_picture($stinfo, $userimgdir);
+        emarking_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), $doc->getNumPages(), $fileimg, $logofilepath, $course, null, false);
+        $doc->SetAutoPageBreak(true);
+        
+        $index = 0;
+        foreach ($questions as $question) {
+            $fullhtml[$uid][$index] = str_replace($search, $replace, $fullhtml[$uid][$index]);
+            $doc->writeHTML($fullhtml[$uid][$index]);
+            $index ++;
+        }
+    }
+    
+    $doc->Output();
 }
 
-function emarking_clean_question_html($html) {
+/**
+ *
+ * @param unknown $url            
+ * @param unknown $pathname            
+ * @return boolean
+ */
+function emarking_get_file_from_url($url, $pathname)
+{
+    // Calculate filename
+    $parts = explode('/', $url);
+    $filename = $parts[count($parts) - 1];
+    
+    $ispluginfile = false;
+    $ispixfile = false;
+    $index = 0;
+    foreach ($parts as $part) {
+        if ($part === 'pluginfile.php') {
+            $ispluginfile = true;
+            break;
+        }
+        if ($part === 'pix.php') {
+            $ispixfile = true;
+            break;
+        }
+        $index ++;
+    }
+    
+    $fs = get_file_storage();
+    
+    // If the file is part of Moodle, we get it from the filesystem
+    if ($ispluginfile) {
+        $contextid = $parts[$index + 1];
+        $component = $parts[$index + 2];
+        $filearea = $parts[$index + 3];
+        $number1 = $parts[$index + 4];
+        $number2 = $parts[$index + 5];
+        $itemid = $parts[$index + 6];
+        $filepath = '/';
+        if ($fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename)) {
+            $file = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
+            $file->copy_content_to($pathname . $filename);
+            return $pathname . $filename;
+        }
+        return false;
+    }
+    
+    // Open binary stream and read it
+    $handle = fopen($url, "rb");
+    $content = stream_get_contents($handle);
+    fclose($handle);
+    
+    // Save the binary file
+    $file = fopen($pathname . $filename, "wb+");
+    fputs($file, $content);
+    fclose($file);
+    
+    return $pathname . $filename;
+}
+
+function emarking_clean_question_html($html)
+{
     $html = preg_replace('/[\n\r]/', '', $html);
     $html = preg_replace('/<div class="state">(.*?)<\/div>/', '', $html);
     $html = preg_replace('/<div class="grade">(.*?)<\/div>/', '', $html);
     $html = preg_replace('/<div class="questionflag">(.*?)<\/div>/', '', $html);
     $html = preg_replace('/<h4 class="accesshide">(.*?)<\/h4>/', '', $html);
+    $html = preg_replace('/checked="checked"/', '', $html);
     return $html;
+}
+
+function emarking_extract_images_url($html)
+{
+    $images = array();
+    $number = preg_match_all('/<img [^>]*src\s*=\s*"([^"]*)"[^>]*>/', $html, $images);
+    return $images;
 }
 
 /**

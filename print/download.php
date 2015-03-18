@@ -27,7 +27,7 @@ require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/confi
 require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
 require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
 
-require_once ('phpqrcode/phpqrcode.php');
+require_once ($CFG->dirroot . '/mod/emarking/lib/phpqrcode/phpqrcode.php');
 require_once ($CFG->dirroot . '/mod/emarking/lib.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ('locallib.php');

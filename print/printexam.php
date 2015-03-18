@@ -34,7 +34,7 @@ require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_brid
 require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
 require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
 
-require_once ('phpqrcode/phpqrcode.php');
+require_once ($CFG->dirroot . '/mod/emarking/lib/phpqrcode/phpqrcode.php');
 
 global $DB, $CFG, $USER;
 
