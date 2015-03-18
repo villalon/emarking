@@ -26,7 +26,7 @@
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once($CFG->dirroot."/mod/emarking/print/locallib.php");
-require_once ($CFG->dirroot . '/mod/quiz/locallib.php');
+
 $CFG->debugdisplay = 0;
 global $DB, $USER;
 

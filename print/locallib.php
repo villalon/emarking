@@ -1947,6 +1947,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
     global $DB, $CFG;
     
     require_once ($CFG->libdir . '/pdflib.php');
+    require_once ($CFG->dirroot . '/mod/quiz/locallib.php');
     
     if (! $course = $DB->get_record('course', array(
         'id' => $cm->course
@@ -1980,10 +1981,6 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
         // Get the quiz object
         $quizobj = quiz::create($cm->instance, $user->id);
         
-        // TODO get to know what usage by activity means
-        $quba = question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
-        $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
-        
         // Create the new attempt and initialize the question sessions
         $attemptnumber = 1;
         $lastattempt = null;
@@ -1991,6 +1988,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
         
         $attempts = quiz_get_user_attempts($quizobj->get_quizid(), $user->id, 'all');
         
+        $numattempts = count($attempts);
         foreach ($attempts as $attempt) {
             
             $attemptobj = quiz_attempt::create($attempt->id);
@@ -2011,6 +2009,9 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
                     echo $qhtml;
                 }
             }
+            
+            // One attempt per user
+            break;
         }
     }
     
