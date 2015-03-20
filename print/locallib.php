@@ -1164,6 +1164,34 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid)
     return true;
 }
 
+function emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path, $fileimg, $course, $examname, $answers) {
+    global $CFG;
+
+    require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
+    require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
+
+    if($answers == null)
+        return;
+    
+    $answerspdffilename = $filedir . '/answer' . random_string(15) . '.pdf';
+    $answerspdf = emarking_create_omr_answer_sheet($answers);
+    $answerspdf->Output($answerspdffilename, 'F');
+    
+    $pdf->setSourceFile($answerspdffilename);
+    $tplidx = $pdf->ImportPage(1);
+    $s = $pdf->getTemplatesize($tplidx);
+    $pdf->AddPage('P', array(
+        $s['w'],
+        $s['h']
+    ));
+    $pdf->useTemplate($tplidx);
+    if($path) {
+        $pdf->setSourceFile($path);
+    }
+    
+    emarking_draw_header($pdf, $stinfo, $examname, null, $fileimg, $logofilepath, $course);
+}
+
 /**
  * Creates a personalized exam file.
  *
@@ -1443,31 +1471,10 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             }
             
             $pdf->SetAutoPageBreak(false);
-            
+
+            // Add bubble sheet for the student if it should be added
             if ($printanswersheet) {
-                $answerspdffilename = $filedir . '/answer' . random_string(15) . '.pdf';
-                $answerspdf = emarking_create_omr_answer_sheet($studentinfo, $logofilepath);
-                $answerspdf->Output($answerspdffilename, 'F');
-                
-                $pdf->setSourceFile($answerspdffilename);
-                $tplidx = $pdf->ImportPage(1);
-                $s = $pdf->getTemplatesize($tplidx);
-                $pdf->AddPage('P', array(
-                    $s['w'],
-                    $s['h']
-                ));
-                $pdf->useTemplate($tplidx);
-                $pdf->setSourceFile($path);
-                
-                /*
-                 * BP_AddAnswerBubbles($pdf,'q',5, 12,FALSE,FALSE);
-                 * BP_NewExam($pdf, $CorrectAnswersProvided=TRUE);
-                 * BP_StudentAnswerSheetStart($pdf);
-                 * BP_AddAnswerBubbles($pdf,'A',5, 12,FALSE,FALSE);
-                 * BP_StudentAnswerSheetComplete($pdf);
-                 * BP_CreateExam($pdf);
-                 */
-                emarking_draw_header($pdf, $stinfo, $downloadexam, 0, $fileimg, $logofilepath, $course, 1);
+                emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path, $fileimg, $course, $downloadexam->name, null);
             }
             
             for ($i = 1; $i <= $cp + $downloadexam->extrasheets; $i = $i + 1) {
@@ -1478,7 +1485,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                     $pdf->useTemplate($tplIdx, 0, 0, 0, 0, $adjustPageSize = true); // se inserta como template el archivo pdf subido
                 }
                 
-                emarking_draw_header($pdf, $stinfo, $downloadexam, $i, $fileimg, $logofilepath, $course, $cp);
+                emarking_draw_header($pdf, $stinfo, $downloadexam->name, $i, $fileimg, $logofilepath, $course, $cp);
             }
             
             if ($multiplepdfs || $sendprintorder || $groupid != null) {
@@ -1743,6 +1750,7 @@ function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpat
     $top = 8;
     $pdf->SetFont('Helvetica', '', 12);
     $pdf->SetXY($left, $top);
+    if(is_object($examname)) {var_dump($examname);die();}
     $pdf->Write(1, core_text::strtoupper($examname));
     $pdf->SetFont('Helvetica', '', 9);
     $top += 5;
@@ -1900,23 +1908,13 @@ function emarking_send_sms($message, $number)
     return false;
 }
 
-function emarking_create_omr_answer_sheet($studentinfo, $logofilepath)
+function emarking_create_omr_answer_sheet($answers = null)
 {
     global $CFG;
     
     require_once ($CFG->libdir . '/tcpdf/tcpdf.php'); // for more documentation, see the top of this file
     require_once ($CFG->dirroot . '/mod/emarking/lib/openbub/ans_pdf_open.php'); // for more documentation, see the top of this file
-                                                                                 
-    // Variables to be assigned
-    $examtitle = "Cumulative Assessment 10-B";
-    $grade = "Grade 4";
-    $teacher = "Mr. Smithman";
-    $subject = "Language Arts";
-    $instancedate = "Fall 2009";
-    $exam_id = "786B";
-    $student_code = "1870654129";
-    $student_name = "Rosales, Jose";
-    
+
     // Create a new BubPdf object.
     $BubPdf = new BubPdf('P', 'in', 'LETTER', true);
     $BubPdf->SetPrintHeader(false);
@@ -1928,7 +1926,9 @@ function emarking_create_omr_answer_sheet($studentinfo, $logofilepath)
     BP_StudentAnswerSheetStart($BubPdf);
     
     // A simple 12 question exam
-    BP_AddAnswerBubbles($BubPdf, 'A', 5, 12, FALSE, FALSE);
+    foreach($answers as $options) {
+        BP_AddAnswerBubbles($BubPdf, 'A', $options, 1, FALSE, FALSE);
+    }
     
     BP_StudentAnswerSheetComplete($BubPdf);
     
@@ -1946,6 +1946,8 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
 {
     global $DB, $CFG;
     
+    require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
+    require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
     require_once ($CFG->libdir . '/pdflib.php');
     require_once ($CFG->dirroot . '/mod/quiz/locallib.php');
     
@@ -1954,6 +1956,9 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
     ))) {
         return null;
     }
+    
+    $filedir = $CFG->dataroot . "/temp/emarking/$context->id";
+    emarking_initialize_directory($filedir, true);
     
     $fileimg = $CFG->dataroot . "/temp/emarking/$context->id/qr";
     emarking_initialize_directory($fileimg, true);
@@ -1975,6 +1980,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
     ));
     
     $fullhtml = array();
+    $numanswers = array();
     $images = array();
     foreach ($users as $user) {
         
@@ -1996,6 +2002,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
             foreach ($slots as $slot) {
                 $qattempt = $attemptobj->get_question_attempt($slot);
                 $question = $qattempt->get_question();
+                $numanswers[$user->id][] = count($question->answers);
                 $qhtml = $attemptobj->render_question($slot, false);
                 $qhtml = emarking_clean_question_html($qhtml);
                 $currentimages = emarking_extract_images_url($qhtml);
@@ -2039,22 +2046,26 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
     }
     
     // Now we create the pdf file with the modified html
-    $doc = new pdf();
+    $doc = new FPDI();
     $doc->setPrintHeader(false);
     $doc->setPrintFooter(false);
     
     // set margins
     $doc->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-    $doc->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $doc->SetHeaderMargin(250);
     $doc->SetFooterMargin(PDF_MARGIN_FOOTER);
     
+    
     foreach ($fullhtml as $uid => $questions) {
-        $doc->AddPage();
         $stinfo = $DB->get_record('user', array(
             'id' => $uid
         ));
         $stinfo->name = $stinfo->firstname . ' ' . $stinfo->lastname;
         $stinfo->picture = emarking_get_student_picture($stinfo, $userimgdir);
+
+        emarking_add_answer_sheet($doc, $filedir, $stinfo, $logofilepath, null, $fileimg, $course, $quizobj->get_quiz_name(), $numanswers[$uid]);
+        
+        $doc->AddPage();
         emarking_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), $doc->getNumPages(), $fileimg, $logofilepath, $course, null, false);
         $doc->SetAutoPageBreak(true);
         
@@ -2136,6 +2147,9 @@ function emarking_clean_question_html($html)
     $html = preg_replace('/<div class="questionflag">(.*?)<\/div>/', '', $html);
     $html = preg_replace('/<h4 class="accesshide">(.*?)<\/h4>/', '', $html);
     $html = preg_replace('/checked="checked"/', '', $html);
+    $html = preg_replace('/alt="[^"]*"/', '', $html);
+    $html = preg_replace('/title="[^"]*"/', '', $html);
+    $html = preg_replace('/<script type="math\/tex">(.*?)<\/script>/', '', $html);
     return $html;
 }
 

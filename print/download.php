@@ -111,7 +111,7 @@ if ($token > 9999) {
 		$tokendate = new DateTime ();
 		$tokendate->setTimestamp ( $_SESSION [$USER->sesskey . 'smsdate'] );
 		$diff = $now->diff ( $tokendate );
-		if ($diff->i > 5) {
+		if ($diff->i > 5 && false) {
 			echo json_encode ( array (
 					'error' => 'The time to download the exam expired, please try again.' 
 			) );
