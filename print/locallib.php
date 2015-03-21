@@ -1188,8 +1188,27 @@ function emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path
     if($path) {
         $pdf->setSourceFile($path);
     }
+
+    $top = 50;
+    $left = 10;
+    $width = $s['w'] - 20;
+    $height = $s['h'] - 65;
     
-    emarking_draw_header($pdf, $stinfo, $examname, null, $fileimg, $logofilepath, $course);
+    // Corners
+    $style = array('width' => 0.25, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0));
+    $pdf->Circle($left, $top, 9, 0, 360, 'F', $style, array(0,0,0));
+    $pdf->Circle($left, $top, 4, 0, 360, 'F', $style, array(255,255,255));
+
+    $pdf->Circle($left + $width, $top, 9, 0, 360, 'F', $style, array(0,0,0));
+    $pdf->Circle($left + $width, $top, 4, 0, 360, 'F', $style, array(255,255,255));
+    
+    $pdf->Circle($left, $top + $height, 9, 0, 360, 'F', $style, array(0,0,0));
+    $pdf->Circle($left, $top + $height, 4, 0, 360, 'F', $style, array(255,255,255));
+    
+    $pdf->Circle($left + $width, $top + $height, 9, 0, 360, 'F', $style, array(0,0,0));
+    $pdf->Circle($left + $width, $top + $height, 4, 0, 360, 'F', $style, array(255,255,255));
+    
+    emarking_draw_header($pdf, $stinfo, $examname, 1, $fileimg, $logofilepath, $course, null, false, true);
 }
 
 /**
@@ -1730,16 +1749,17 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     }
 }
 
-function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true)
+function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true, $isanswersheet = false)
 {
     global $CFG;
     
     $pdf->SetAutoPageBreak(false);
-    /*
-     * Ahora se escribe texto sobre las páginas ya importadas. Se fija la fuente, el tipo y el tamaÃ±o de la letra. Se seÃ±ala el tÃ­tulo. Se da el nombre, apellido y rut del alumno al cual pertenece la prueba. Se indica el curso correspondiente a la evaluaciÃ³n. Se introduce una imagen. Esta corresponde al QR que se genera con los datos
-     */
+
     // For the QR string and get the images
-    $qrstring = "$stinfo->id - $course->id - $pagenumber";
+    $qrstring = "$stinfo->id-$course->id-$pagenumber";
+    if($isanswersheet) {
+        $qrstring .= '-BB';
+    }
     list ($img, $imgrotated) = emarking_create_qr_image($fileimgpath, $qrstring, $stinfo, $pagenumber);
     
     if ($CFG->emarking_includelogo && $logofilepath) {
@@ -1750,7 +1770,6 @@ function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpat
     $top = 8;
     $pdf->SetFont('Helvetica', '', 12);
     $pdf->SetXY($left, $top);
-    if(is_object($examname)) {var_dump($examname);die();}
     $pdf->Write(1, core_text::strtoupper($examname));
     $pdf->SetFont('Helvetica', '', 9);
     $top += 5;
@@ -1794,7 +1813,7 @@ function emarking_create_qr_image($fileimg, $qrstring, $stinfo, $i)
     $imgrotated = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . "r.png";
     // Se genera QR con id, curso y número de página
     QRcode::png($qrstring, $img); // se inserta QR
-    QRcode::png($qrstring . " - R", $imgrotated); // se inserta QR
+    QRcode::png($qrstring . "-R", $imgrotated); // se inserta QR
     $gdimg = imagecreatefrompng($imgrotated);
     $rotated = imagerotate($gdimg, 180, 0);
     imagepng($rotated, $imgrotated);
@@ -2066,7 +2085,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
         emarking_add_answer_sheet($doc, $filedir, $stinfo, $logofilepath, null, $fileimg, $course, $quizobj->get_quiz_name(), $numanswers[$uid]);
         
         $doc->AddPage();
-        emarking_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), $doc->getNumPages(), $fileimg, $logofilepath, $course, null, false);
+        emarking_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), 2, $fileimg, $logofilepath, $course, null, false);
         $doc->SetAutoPageBreak(true);
         
         $index = 0;

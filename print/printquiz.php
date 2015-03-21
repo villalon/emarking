@@ -25,6 +25,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
+require_once ($CFG->libdir . '/pdflib.php');
+require_once ('../../../mod/assign/feedback/editpdf/fpdi/fpdi.php');
+require_once ('../../../mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
+require_once($CFG->dirroot."/mod/emarking/lib/openbub/ans_pdf_open.php");
 require_once($CFG->dirroot."/mod/emarking/print/locallib.php");
 
 $CFG->debugdisplay = 0;
@@ -56,3 +60,26 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
 emarking_create_quiz_pdf($cm, $debug, $context, $course);
+
+    // Create a new BubPdf object.
+    $BubPdf = new BubPdf('P', 'in', 'LETTER', true);
+    $BubPdf->SetPrintHeader(false);
+    $BubPdf->SetPrintFooter(false);
+    
+    // NewExam sets the margins, etc
+    BP_NewExam($BubPdf, $CorrectAnswersProvided = TRUE);
+    
+    BP_StudentAnswerSheetStart($BubPdf);
+    
+    // A simple 12 question exam
+    for($i=1; $i<35; $i++) {
+        BP_AddAnswerBubbles($BubPdf, 'A', 4, 1, FALSE, FALSE);
+    }
+    
+    BP_StudentAnswerSheetComplete($BubPdf);
+    
+    // the CreateExam call can be used to retrieve an array of the zone assignments
+    $myZones = BP_CreateExam($BubPdf);
+    
+$BubPdf->Output();
+

@@ -24,7 +24,7 @@
  */
 define('CLI_SCRIPT', true);
 
-require_once (dirname ( dirname ( dirname (dirname ( __FILE__ ) ) ) ) . '/config.php');
+require_once (dirname ( dirname ( dirname (dirname (dirname( __FILE__ ) )) ) ) . '/config.php');
 require_once($CFG->libdir.'/clilib.php');
 require_once ($CFG->dirroot . '/mod/quiz/locallib.php');
 

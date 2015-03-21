@@ -1,6 +1,5 @@
 <?php
 
-// require_once('../../../../lib/tcpdf/tcpdf.php');
 
 class BubPdf extends FPDI
 {
