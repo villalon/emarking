@@ -1164,7 +1164,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid)
     return true;
 }
 
-function emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path, $fileimg, $course, $examname, $answers) {
+function emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path, $fileimg, $course, $examname, $answers, $attemptid) {
     global $CFG;
 
     require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
@@ -1208,7 +1208,7 @@ function emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path
     $pdf->Circle($left + $width, $top + $height, 9, 0, 360, 'F', $style, array(0,0,0));
     $pdf->Circle($left + $width, $top + $height, 4, 0, 360, 'F', $style, array(255,255,255));
     
-    emarking_draw_header($pdf, $stinfo, $examname, 1, $fileimg, $logofilepath, $course, null, false, true);
+    emarking_draw_header($pdf, $stinfo, $examname, 1, $fileimg, $logofilepath, $course, null, false, true, $attemptid);
 }
 
 /**
@@ -1493,7 +1493,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 
             // Add bubble sheet for the student if it should be added
             if ($printanswersheet) {
-                emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path, $fileimg, $course, $downloadexam->name, null);
+                emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path, $fileimg, $course, $downloadexam->name, null, 0);
             }
             
             for ($i = 1; $i <= $cp + $downloadexam->extrasheets; $i = $i + 1) {
@@ -1749,7 +1749,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     }
 }
 
-function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true, $isanswersheet = false)
+function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true, $isanswersheet = false, $attemptid = 0)
 {
     global $CFG;
     
@@ -1757,8 +1757,8 @@ function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpat
 
     // For the QR string and get the images
     $qrstring = "$stinfo->id-$course->id-$pagenumber";
-    if($isanswersheet) {
-        $qrstring .= '-BB';
+    if($isanswersheet && $attemptid > 0) {
+        $qrstring .= '-' . $attemptid . '-BB';
     }
     list ($img, $imgrotated) = emarking_create_qr_image($fileimgpath, $qrstring, $stinfo, $pagenumber);
     
@@ -2000,6 +2000,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
     
     $fullhtml = array();
     $numanswers = array();
+    $attemptids = array();
     $images = array();
     foreach ($users as $user) {
         
@@ -2022,6 +2023,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
                 $qattempt = $attemptobj->get_question_attempt($slot);
                 $question = $qattempt->get_question();
                 $numanswers[$user->id][] = count($question->answers);
+                $attemptids[$user->id] = $attempt->id;
                 $qhtml = $attemptobj->render_question($slot, false);
                 $qhtml = emarking_clean_question_html($qhtml);
                 $currentimages = emarking_extract_images_url($qhtml);
@@ -2082,10 +2084,10 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
         $stinfo->name = $stinfo->firstname . ' ' . $stinfo->lastname;
         $stinfo->picture = emarking_get_student_picture($stinfo, $userimgdir);
 
-        emarking_add_answer_sheet($doc, $filedir, $stinfo, $logofilepath, null, $fileimg, $course, $quizobj->get_quiz_name(), $numanswers[$uid]);
+        emarking_add_answer_sheet($doc, $filedir, $stinfo, $logofilepath, null, $fileimg, $course, $quizobj->get_quiz_name(), $numanswers[$uid], $attemptids[$uid]);
         
         $doc->AddPage();
-        emarking_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), 2, $fileimg, $logofilepath, $course, null, false);
+        emarking_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), 2, $fileimg, $logofilepath, $course, null, false, 0);
         $doc->SetAutoPageBreak(true);
         
         $index = 0;
