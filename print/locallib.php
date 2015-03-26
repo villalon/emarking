@@ -2083,6 +2083,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
         ));
         $stinfo->name = $stinfo->firstname . ' ' . $stinfo->lastname;
         $stinfo->picture = emarking_get_student_picture($stinfo, $userimgdir);
+        $stinfo->idnumber = $uid . '-' . $attemptids[$uid];
 
         emarking_add_answer_sheet($doc, $filedir, $stinfo, $logofilepath, null, $fileimg, $course, $quizobj->get_quiz_name(), $numanswers[$uid], $attemptids[$uid]);
         
@@ -2170,6 +2171,7 @@ function emarking_clean_question_html($html)
     $html = preg_replace('/checked="checked"/', '', $html);
     $html = preg_replace('/alt="[^"]*"/', '', $html);
     $html = preg_replace('/title="[^"]*"/', '', $html);
+    $html = preg_replace('/class="texrender"/', 'height="16px;"', $html);
     $html = preg_replace('/<script type="math\/tex">(.*?)<\/script>/', '', $html);
     return $html;
 }
