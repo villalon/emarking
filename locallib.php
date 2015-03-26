@@ -567,23 +567,18 @@ function emarking_get_parallel_courses($course, $extracategory, $regex) {
 	global $CFG, $DB;
 	
 	if ($regex && preg_match_all ( '/' . $regex . '/', $course->shortname, $regs )) {
-		if (isset ( $regs [1] [0] ) && isset ( $regs [2] [0] ) && isset ( $regs [3] [0] )) {
 			$coursecode = $regs [1] [0];
 			
 			$term = $regs [2] [0];
 			$year = $regs [3] [0];
 			
 			$categories = $course->category;
-			/*if ($extracategory > 0)
-				$categories .= ',' . $extracategory;*/
 			$seccionesparalelas = $DB->get_records_select ( 'course', "
 				shortname like '%$coursecode%-%-$term-$year'
 				and id != $course->id", null, 'shortname ASC', '*' );
 			
 			return $seccionesparalelas;
-		} else {
-			return false;
-		}
+		
 	} else {
 		return false;
 	}
