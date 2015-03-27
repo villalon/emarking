@@ -71,8 +71,8 @@ if(!is_siteadmin($USER) && (!$useristeacher || !has_capability('mod/assign:grade
 	print_error('Invalid access, this will be notified!');
 }
 
-$url = new moodle_url('/mod/emarking/updatesubmission.php', array('ids'=>$submission->id, 'cm'=>$cm->id, 'status'=>$newstatus));
-$continueurl = new moodle_url('/mod/emarking/updatesubmission.php', array('ids'=>$submission->id,'confirm'=>1,'cm'=>$cm->id, 'status'=>$newstatus));
+$url = new moodle_url('/mod/emarking/marking/updatesubmission.php', array('ids'=>$submission->id, 'cm'=>$cm->id, 'status'=>$newstatus));
+$continueurl = new moodle_url('/mod/emarking/marking/updatesubmission.php', array('ids'=>$submission->id,'confirm'=>1,'cm'=>$cm->id, 'status'=>$newstatus));
 $cancelurl = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id));
 
 $PAGE->set_context($context);

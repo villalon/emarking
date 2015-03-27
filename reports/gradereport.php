@@ -52,7 +52,7 @@ if (! $course = $DB->get_record ( 'course', array (
 }
 
 // URLs for current page
-$url = new moodle_url ( '/mod/emarking/gradereport.php', array (
+$url = new moodle_url ( '/mod/emarking/reports/gradereport.php', array (
 		'id' => $cm->id 
 ) );
 

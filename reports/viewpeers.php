@@ -39,7 +39,7 @@ if(!$submission = $DB->get_record('emarking_submission', array('emarking'=>$emar
 
 require_login($course, true);
 
-$url = new moodle_url("/mod/emarking/viewpeers.php?id=$cmid");
+$url = new moodle_url("/mod/emarking/reports/viewpeers.php", array('id'=>$cmid));
 $context = context_module::instance($cm->id);
 
 $PAGE->set_context($context);

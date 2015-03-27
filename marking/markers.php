@@ -47,7 +47,7 @@ if (! $course = $DB->get_record ( 'course', array ('id' => $emarking->course))) 
 
 $context = context_module::instance ( $cm->id );
 
-$url = new moodle_url('/mod/emarking/markers.php',array('id'=>$cmid));
+$url = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cmid));
 
 // First check that the user is logged in
 require_login($course->id);

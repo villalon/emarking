@@ -36,7 +36,7 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 
 require_login($course, true);
 
-$url = new moodle_url("/mod/emarking/justice/index.php?id=$cmid");
+$url = new moodle_url("/mod/emarking/reports/ranking.php", array('id'=>$cmid));
 
 $context = context_module::instance($cm->id);
 

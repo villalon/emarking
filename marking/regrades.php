@@ -48,6 +48,10 @@ if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
 	error('You must specify a valid course module ID');
 }
 
+if($emarking->type != EMARKING_TYPE_NORMAL) {
+    error('You can only have regrades in a normal emarking type');
+}
+
 if(!$gradeitemobj = $DB->get_record('grade_items', array('itemtype'=>'mod','itemmodule'=>'emarking','iteminstance'=>$cm->instance))) {
 	error('You must specify a valid course module ID');
 }
@@ -61,8 +65,11 @@ if($criterionid) {
 		if(!$emarkingsubmission = $DB->get_record('emarking_submission', array('emarking'=>$emarking->id, 'student'=>$USER->id))) {
 			print_error('Fatal error! Couldn\'t find emarking submission');
 		}
+        if(!$emarkingdraft = $DB->get_record('emarking_draft', array('emarkingid'=>$emarking->id, 'submissionid'=>$emarkingsubmission->id))) {
+			print_error('Fatal error! Couldn\'t find emarking draft');
+		}
 		$regrade = $DB->get_record('emarking_regrade',
-			array('submission'=>$emarkingsubmission->id,
+			array('draft'=>$emarkingdraft->id,
 					'criterion'=>$criterionid));
 }
 
@@ -70,8 +77,8 @@ $gradeitem = $gradeitemobj->id;
 
 $context = context_module::instance($cm->id);
 
-$url = new moodle_url('/mod/emarking/regrades.php', array('id'=>$cm->id,'criterion'=>$criterionid));
-$cancelurl = new moodle_url('/mod/emarking/regrades.php', array('id'=>$cm->id));
+$url = new moodle_url('/mod/emarking/marking/regrades.php', array('id'=>$cm->id,'criterion'=>$criterionid));
+$cancelurl = new moodle_url('/mod/emarking/marking/regrades.php', array('id'=>$cm->id));
 
 $PAGE->set_context($context);
 $PAGE->set_course($course);
@@ -101,7 +108,7 @@ if($criterionid && !$delete && $requestswithindate) {
 			$regrade->timecreated = time();
 		}
 		$regrade->student = $USER->id;
-		$regrade->submission = $emarkingsubmission->id;
+		$regrade->draft = $emarkingdraft->id;
 		$regrade->motive = $data->motive;
 		$regrade->comment = $data->comment;
 		$regrade->criterion = $criterionid;
@@ -133,7 +140,7 @@ if($criterionid && !$delete && $requestswithindate) {
 
 if($regrade && $delete && $requestswithindate) {
 	$DB->delete_records('emarking_regrade', array(
-			'submission'=>$emarkingsubmission->id,
+			'draft'=>$emarkingdraft->id,
 			'criterion'=>$criterionid));
 	$successmessage=get_string('saved','mod_emarking');
 }
@@ -201,8 +208,8 @@ $table->head = array(
 $data = array();
 foreach($questions as $question){
 
-	$urledit = new moodle_url('/mod/emarking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id));
-	$urldelete = new moodle_url('/mod/emarking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id,'delete'=>'true'));
+	$urledit = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id));
+	$urldelete = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id,'delete'=>'true'));
 
 	$status = 'No solicitada';
 	if($question->regradeid!=null) {

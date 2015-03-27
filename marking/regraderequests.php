@@ -42,10 +42,10 @@ require_capability ( 'mod/emarking:regrade', $context );
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
-$PAGE->set_title(get_string('justice','mod_emarking'));
+$PAGE->set_title(get_string('regrades','mod_emarking'));
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_heading(get_string('justice.my.evaluations','mod_emarking'));
-$PAGE->set_url(new moodle_url("/mod/emarking/regraderequests.php?id=$cmid"));
+$PAGE->set_heading(get_string('regrades','mod_emarking'));
+$PAGE->set_url(new moodle_url("/mod/emarking/marking/regraderequests.php?id=$cmid"));
 $PAGE->navbar->add(get_string('regrades', 'mod_emarking'));	
 
 
@@ -55,19 +55,19 @@ echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades" );
 
 $sql = "SELECT
 			rg.*,
-			u.id as userid,
+			u.id AS userid,
 			u.firstname,
 			u.lastname,
-			c.description as criterio,
-			s.id as ids,
-			s.status as status
+			c.description AS criterio,
+			s.id AS ids,
+			s.status AS status
 		FROM {emarking_submission} AS s 
 		INNER JOIN {emarking_draft} AS d ON (s.emarking = :emarking AND d.submissionid = s.id) 
 		INNER JOIN {emarking_regrade} as rg ON (d.id = rg.draft)
 		INNER JOIN {user} AS u ON (u.id = s.student)
 		INNER JOIN {gradingform_rubric_criteria} as c ON (c.id = rg.criterion)
 		ORDER BY u.lastname ASC";
-$records = $DB->get_records_sql($sql,array("emarking"=>$cm->instance));
+$records = $DB->get_records_sql($sql,array("emarking"=>$emarking->id));
 
 if(count($records) == 0) {
 	echo $OUTPUT->notification(get_string('noregraderequests', 'mod_emarking'), 'notifyproblem');
