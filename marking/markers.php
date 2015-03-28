@@ -62,6 +62,7 @@ $PAGE->set_cm($cm);
 $PAGE->set_url ( $url );
 $PAGE->set_heading ( $course->fullname );
 $PAGE->set_pagelayout ( 'incourse' );
+$PAGE->set_title(get_string('markers', 'mod_emarking'));
 $PAGE->navbar->add(get_string('markers','mod_emarking'));
 
 // Verify capability for security issues

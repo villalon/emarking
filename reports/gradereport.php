@@ -75,7 +75,8 @@ $PAGE->set_cm ( $cm );
 $PAGE->set_url ( $url );
 $PAGE->set_pagelayout ( 'incourse' );
 $PAGE->set_heading ( $course->fullname );
-$PAGE->navbar->add ( get_string ( 'gradereport', 'grades' ) );
+$PAGE->set_title(get_string('gradereport', 'grades'));
+$PAGE->navbar->add(get_string('gradereport', 'grades'));
 
 echo $OUTPUT->header ();
 echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), 'gradereport', 'mod_emarking' );

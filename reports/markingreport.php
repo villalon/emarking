@@ -77,7 +77,8 @@ $PAGE->set_cm ( $cm );
 $PAGE->set_url ( $url );
 $PAGE->set_pagelayout ( 'incourse' );
 $PAGE->set_heading ( $course->fullname );
-$PAGE->navbar->add ( get_string ( 'markingreport', 'mod_emarking' ) );
+$PAGE->set_title(get_string('markingreport', 'mod_emarking'));
+$PAGE->navbar->add (get_string('markingreport', 'mod_emarking'));
 
 echo $OUTPUT->header ();
 echo $OUTPUT->heading_with_help ( get_string ( 'markingreport', 'mod_emarking' ), 'markingreport', 'mod_emarking' );
