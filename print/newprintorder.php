@@ -212,6 +212,7 @@ else if ($data = $mform->get_data()) {
 	
 	// Get the enrolments as a comma separated values
 	$enrollist = array();
+
 	if (! empty ( $mform->get_data ()->enrolments )) {
 		$enrolments = $mform->get_data ()->enrolments;
 		foreach ( $enrolments as $key => $enrolment ) {
