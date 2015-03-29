@@ -23,6 +23,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['emarkingsecuritycode'] = 'eMarking security code';
+$string['predefinedcomments'] = 'Predefined comments';
+$string ['savechanges'] = 'Save changes';
+$string ['changessaved'] = 'Changes saved';
 
 $string['markersqualitycontrol'] = 'Quality Control markers';
 $string['markersqualitycontrol_help'] = 'Quality Control markers are the ones that will mark and grade the QC exams which will be used to calculate inter-marker agreement.';
@@ -503,7 +506,7 @@ $string ['viewpeers'] = 'Students view peers\' exams';
 $string ['viewpeers_help'] = 'Students are allowed to see their peers\' exams in an anonymous way';
 $string ['viewsubmission'] = 'View submission';
 $string ['visualizeandprocess'] = 'Visualizar errores y procesar nuevamente';
-$string ['formnewcomment'] = 'New Comment:';
+$string ['formnewcomment'] = 'Comment text';
 $string ['writecomment'] = 'Write a Comment';
 $string ['createcomment'] = 'Create Comment';
 $string ['formeditcomment'] = 'Edit Comment:';

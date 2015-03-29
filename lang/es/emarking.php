@@ -23,6 +23,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
+$string['predefinedcomments'] = 'Comentarios predefinidos';
+$string['savechanges'] = 'Guardar cambios';
+$string ['changessaved'] = 'Cambios guardados exitosamente';
 
 $string['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
 $string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
@@ -503,7 +506,7 @@ $string ['viewpeers'] = 'Estudiantes ven pruebas de otros estudiantes';
 $string ['viewpeers_help'] = 'Se le permite a los estudiantes revisar pruebas de sus compañeros de manera anónima';
 $string ['viewsubmission'] = 'Ver corrección';
 $string ['visualizeandprocess'] = 'Visualizar errores';
-$string ['formnewcomment'] = 'Nuevo Comentario:';
+$string ['formnewcomment'] = 'Texto del comentario';
 $string ['writecomment'] = 'Escriba un Comentario';
 $string ['createcomment'] = 'Crear Comentario';
 $string ['formeditcomment'] = 'Editar Comentario:';

@@ -140,9 +140,7 @@ function emarking_tabs($context, $cm, $emarking) {
 			$gradetab->subtree [] = new tabobject ( "markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string ( "markers", 'mod_emarking' ) );
 	}
 	
-	if (isset ( $CFG->local_uai_debug ) && $CFG->local_uai_debug == 1) {
-		$gradetab->subtree [] = new tabobject ( "comment", $CFG->wwwroot . "/mod/emarking/marking/comment.php?id={$cm->id}&action=list", "comment" );
-	}
+	$gradetab->subtree [] = new tabobject ( "comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?cmid={$cm->id}&action=list", get_string ( "predefinedcomments", 'mod_emarking' ) );
 	
 	// Grade report tab
 	$gradereporttab = new tabobject ( "gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string ( "reports", "mod_emarking" ) );
