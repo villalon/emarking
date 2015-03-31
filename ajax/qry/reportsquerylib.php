@@ -3,10 +3,16 @@ global $CFG;
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php');
 
+/**
+ * This function gets all stadistical data from corrections on one instrument of evaluation.
+ * @param unknown $numcriteria
+ * @param unknown $emarkingid
+ * @return multitype:NULL
+ */
 function get_status($numcriteria, $emarkingid) {
 	global $DB;
 	
-	$markingstats = $DB->get_record_sql ( "
+	$markingstats = $DB->get_record_sql ( '
 			SELECT	COUNT(distinct id) AS activities,
 			COUNT(DISTINCT student) AS students,
 			MAX(pages) AS maxpages,
@@ -29,7 +35,7 @@ function get_status($numcriteria, $emarkingid) {
 			dr.grade,
 			dr.generalfeedback,
 			count(distinct p.id) as pages,
-			CASE WHEN 0 = $numcriteria THEN 0 ELSE count(distinct c.id) / $numcriteria END as comments,
+			CASE WHEN 0 = :numcriteria THEN 0 ELSE count(distinct c.id) / :numcriteria2 END as comments,
 			count(distinct r.id) as regrades,
 			nm.course,
 			nm.id,
@@ -45,7 +51,9 @@ function get_status($numcriteria, $emarkingid) {
 			LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = l.criterionid AND r.accepted = 0)
 			GROUP BY nm.id, s.student
 	) as T
-			GROUP by id", array (
+			GROUP by id', array (
+			'numcriteria' => $numcriteria,
+			'numcriteria2' => $numcriteria,
 			'emarkingid' => $emarkingid 
 	) );
 	$grading [] = array (
@@ -63,18 +71,30 @@ function get_status($numcriteria, $emarkingid) {
 	return $grading;
 }
 
+/**
+ * Gets the total submissions of an instrument of evaluation and returns the number.
+ * @param unknown $cmid
+ * @param unknown $emarkingid
+ * @return number
+ */
 function get_totalsubmissions($cmid, $emarkingid) {
 	$grading = get_status ( $cmid, $emarkingid );
 	$totalsubmissions = $grading [0] ['missing'] + $grading [0] ['submitted'] + $grading [0] ['grading'] + $grading [0] ['graded'] + $grading [0] ['regrading'];
 	return $totalsubmissions;
 }
 
-function get_markers($cmid, $emarkingid) {
+/**
+ * Gets the contribution, on the evaluation instrument, from each of the correctors.
+ * @param unknown $cmid
+ * @param unknown $emarkingid
+ * @return multitype:multitype:multitype:NULL
+ */
+function get_markers_contribution($cmid, $emarkingid) {
 	global $DB;
 	$totalsubmissions = get_totalsubmissions ( $cmid, $emarkingid );
-	$sqlcontributorstats = "SELECT
+	$sqlcontributorstats = 'SELECT
 		ec.markerid,
-		CONCAT(u.firstname , ' ', u.lastname) AS markername,
+		CONCAT(u.firstname , " ", u.lastname) AS markername,
 		COUNT(distinct ec.id) AS comments
         FROM {emarking_submission} AS s
         INNER JOIN {emarking} AS e ON (e.id=? AND s.emarking=e.id)
@@ -89,7 +109,7 @@ function get_markers($cmid, $emarkingid) {
         INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
         INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
         INNER JOIN {user} as u ON (ec.markerid = u.id)
-		GROUP BY ec.markerid";
+		GROUP BY ec.markerid';
 	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
 			$emarkingid 
 	) );
@@ -97,50 +117,22 @@ function get_markers($cmid, $emarkingid) {
 	$contributions = array ();
 	
 	foreach ( $markingstatstotalcontribution as $contributioner ) {
-		$contributioners [] = array (
+		$contributioners [0] = array (
 				"user" => $contributioner->markername 
 		);
-	}
-	return $contributioners;
-}
-
-function get_contribution_per_marker($numcriteria, $cmid, $emarkingid) {
-	global $DB;
-
-	$totalsubmissions = get_totalsubmissions ( $cmid, $emarkingid );
-	$sqlcontributorstats = "SELECT
-		ec.markerid,
-		CONCAT(u.firstname , ' ', u.lastname) AS markername,
-		COUNT(distinct ec.id) AS comments
-        FROM {emarking_submission} AS s
-        INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
-	    INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id=?)
-        INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
-        INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
-        INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
-        INNER JOIN {grading_instances} AS i ON (d.id=i.definitionid)
-        INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
-        INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
-        INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft=dr.id)
-        INNER JOIN {user} as u ON (ec.markerid = u.id)
-		GROUP BY ec.markerid";
-	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
-			$emarkingid 
-	) );
-	$contributioners = array ();
-	$contributions = array ();
-	
-	foreach ( $markingstatstotalcontribution as $contributioner ) {
-		
-		$contributions [] = array (
-				"contrib" => round ( ($contributioner->comments) * 100 / ($totalsubmissions * $numcriteria), 2 ) 
+		$contributions [0] = array (
+				"contrib" => round ( ($contributioner->comments) * 100 / ($totalsubmissions * $numcriteria), 2 )
 		);
 	}
-	return $contributions;
+	return array($contributioners, $contributions);
 }
-
+/**
+ * Gets stadistical information from the correction.
+ * @param unknown $emarkingstats
+ * @param unknown $totalcategories
+ * @param unknown $totalemarkings
+ * @return multitype:multitype:NULL
+ */
 function get_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
@@ -169,7 +161,11 @@ function get_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	}
 	return $marks;
 }
-
+/**
+ * Runs a query used in the other functions to get information.
+ * @param unknown $ids
+ * @return unknown
+ */
 function get_emarking_stats($ids) {
     global $DB;
     
@@ -279,7 +275,13 @@ function get_emarking_stats($ids) {
     
     return $emarkingstats;
 }
-
+/**
+ * Gets the amount of students who has achieved a mark thats fits in one of the 12 categories. 
+ * @param unknown $emarkingstats
+ * @param unknown $totalcategories
+ * @param unknown $totalemarkings
+ * @return multitype:multitype:Ambigous <> Ambigous <unknown, string>
+ */
 function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
@@ -352,7 +354,13 @@ function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 		
 	return $coursemarks;
 }
-
+/**
+ * Gets the ratio of students that fits into 3 categories, of course aproval.
+ * @param unknown $emarkingstats
+ * @param unknown $totalcategories
+ * @param unknown $totalemarkings
+ * @return multitype:multitype:string NULL
+ */
 function get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
@@ -380,7 +388,11 @@ function get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings) {
 	
 	return $pass_ratio;
 }
-
+/**
+ * Gets the student efficiency of point achievment in every criteria of the rubric.
+ * @param unknown $ids
+ * @return multitype:Ambigous <multitype:, unknown> multitype:
+ */
 function get_efficiency($ids) {
 	global $DB, $CFG;
 
@@ -446,57 +458,21 @@ function get_efficiency($ids) {
 		// FIXME arreglar cuando el nombre de 2 descripciones es la misma
 		if ($lastdescription !== $description) {
 			
-			$effectivenesscriteria [$effectivenessnum] = $description;
+			$effectivenesscriteria[0]["criterion".$effectivenessnum] = $description;
 			$lastdescription = $description;
 		}
-		$effectivenesseffectiveness [$effectivenessnum] = $stats->effectiveness;
+		$effectivenesseffectiveness[0]["rate".$effectivenessnum] = $stats->effectiveness;
 		$effectivenessnum ++;
 	}
 	
-	$effectiveness [0] = $effectivenesscriteria;
-	$effectiveness [1] = $effectivenesseffectiveness;
-	return $effectiveness;
+	return array($effectivenesscriteria,$effectivenesseffectiveness);
 }
-
-function get_efficiency_criterion($efficiency) {
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $efficiency [0] as $criterion ) {
-		$nombre = "criterion" . $count;
-		$display ["count"] = $count + 1;
-		$display [$nombre] = $criterion;
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-}
-
-function get_efficiency_rate($efficiency) {
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	$divisor=count($efficiency[0]);
-	$divisible=count($efficiency[1]);
-	$parallels = $divisible/$divisor;
-	
-	$cont=0;
-	$arr = array();
-	$j=0;
-	for($i=1;$i<=count($efficiency[1]);$i++) {
-		$index=$j;
-		$arr["rate".$index] = $efficiency[1][$i-1];
-		$j++;
-		if($i % $divisor == 0) {
-			$return[] = $arr;
-			$arr = array();
-			$j=0;
-		}
-		
-	}
-	
-	return $return;
-}
+/**
+ * Gets the criteria progress on the correction of the instrument per status.
+ * @param unknown $cmid
+ * @param unknown $emarkingid
+ * @return multitype:unknown
+ */
 function get_question_advance($cmid, $emarkingid) {
 	global $DB;
 	$sqlstatscriterion = "SELECT  a.id,
@@ -538,93 +514,15 @@ function get_question_advance($cmid, $emarkingid) {
 		$grading [0]['grading'.$i] = round ( ($statpercriterion->submissions - $statpercriterion->comments) * 100 / $totalsubmissions, 2 );
 		$i++;
 	}
-	$criteriaadvance [0] = $description;
-	$criteriaadvance [1] = $responded;
-	$criteriaadvance [2] = $regrading;
-	$criteriaadvance [3] = $grading;
-	return $criteriaadvance;
+	
+	return array($description, $responded, $regrading, $grading);
 }
-function get_advance_description($cmid, $emarkingid){
-	$description = get_question_advance( $cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $description [0] as $desc ) {
-		$nombre = "description" . $count;
-		$contador=0;
-		foreach($desc as $d){
-			$display ["count"] = $contador + 1;
-			$interior = "description".$contador;
-			$display[$interior]=$d;
-
-			$contador ++;
-		}
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-}
-function get_advance_responded($cmid, $emarkingid){
-	$responded = get_question_advance( $cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $responded [1] as $desc ) {
-		$nombre = "responded" . $count;
-		$contador=0;
-		foreach($desc as $d){
-			$interior = "responded".$contador;
-			$display[$interior]=$d;
-			$display ["count"] = $contador + 1;
-				
-			$contador ++;
-		}
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-}
-
-function get_advance_regrading($cmid, $emarkingid){
-	$regrading = get_question_advance( $cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $regrading [2] as $desc ) {
-		$nombre = "regrading" . $count;
-		$contador=0;
-		foreach($desc as $d){
-			$interior = "regrading".$contador;
-			$display[$interior]=$d;	
-			$display ["count"] = $contador + 1;
-			
-			$contador ++;
-		}
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-}
-
-function get_advance_grading($cmid, $emarkingid){
-	$grading = get_question_advance( $cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $grading [3] as $desc ) {
-		$nombre = "grading" . $count;
-		$contador=0;
-		foreach($desc as $d){
-			$interior = "grading".$contador;
-			$display[$interior]=$d;
-			$display ["count"] = $contador + 1;
-			$contador ++;
-		}
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-}
+/**
+ * Gets the correctors progress on the correction of the instrument per status.
+ * @param unknown $cmid
+ * @param unknown $emarkingid
+ * @return multitype:string number unknown
+ */
 function get_marker_advance($cmid, $emarkingid){
 	global $DB;
 	$markingstatspermarker = $DB->get_recordset_sql("
@@ -677,76 +575,13 @@ function get_marker_advance($cmid, $emarkingid){
 	foreach($markingstatspermarker as $permarker) {
 		$description = trim(preg_replace('/\s\s+/', ' ', $permarker->description));
 		
-		$correctorcriterio["corrector".$count]=$permarker->markername.$description;
-		$corregido["corregido".$count]=$permarker->comments - $permarker->regrades;
-		$porcorregir["porcorregir".$count]=$permarker->regrades;
-		$porrecorregir["porrecorregir".$count]=$totalsubmissions - $permarker->comments;
+		$correctorcriterio[0]["corrector".$count]=$permarker->markername.$description;
+		$corregido[0]["corregido".$count]=$permarker->comments - $permarker->regrades;
+		$porcorregir[0]["porcorregir".$count]=$permarker->regrades;
+		$porrecorregir[0]["porrecorregir".$count]=$totalsubmissions - $permarker->comments;
 		
 		$count++;
 	}
-	$markeradvance [0]= $correctorcriterio;
-	$markeradvance [1]= $corregido;
-	$markeradvance [2]= $porcorregir;
-	$markeradvance [3]= $porrecorregir;
-	return $markeradvance;
+
+	return array($correctorcriterio,$corregido, $porcorregir, $porrecorregir);
 }
-function get_markeradvance_marker($cmid, $emarkingid){
-	$markeradvance=get_marker_advance($cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $markeradvance [0] as $advance ) {
-		$nombre = "corrector" . $count;
-		$display ["count"] = $count + 1;
-		$display[$nombre] = $advance;
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-	
-}
-function get_markeradvance_corregido($cmid, $emarkingid){
-	$markeradvance=get_marker_advance($cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $markeradvance [1] as $advance ) {
-		$nombre = "corregido" . $count;
-		$display ["count"] = $count + 1;
-		$display[$nombre] = $advance;
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-
-}function get_markeradvance_porcorregir($cmid, $emarkingid){
-	$markeradvance=get_marker_advance($cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $markeradvance [2] as $advance ) {
-		$nombre = "porcorregir" . $count;
-		$display ["count"] = $count + 1;
-		$display[$nombre] = $advance;
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-
-}function get_markeradvance_porrecorregir($cmid, $emarkingid){
-	$markeradvance=get_marker_advance($cmid, $emarkingid);
-	$count = 0;
-	$display = array ();
-	$return = array ();
-	foreach ( $markeradvance [3] as $advance ) {
-		$nombre = "porrecorregir" . $count;
-		$display ["count"] = $count + 1;
-		$display[$nombre] = $advance;
-		$count ++;
-	}
-	$return [0] = $display;
-	return $return;
-
-}
-
-

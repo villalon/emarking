@@ -74,17 +74,10 @@ $totalemarkings = count(explode(',', $ids));
 if ($action == "markingreport") {
     
     $grading = get_status($cmid, $emarking->id);
-    $contributions = get_contribution_per_marker($cmid, $emarking->id);
-    $contributioners = get_markers($cmid, $emarking->id);
-    $advancedescription = get_advance_description($cmid, $emarking->id);
-    $advanceresponded = get_advance_responded($cmid, $emarking->id);
-    $advanceregrading = get_advance_regrading($cmid, $emarking->id);
-    $advancegrading = get_advance_grading($cmid, $emarking->id);
-    $markeradvance_marker = get_markeradvance_marker($cmid, $emarking->id);
-    $markeradvance_corregido = get_markeradvance_corregido($cmid, $emarking->id);
-    $markeradvance_porcorregir = get_markeradvance_porcorregir($cmid, $emarking->id);
-    $markeradvance_porrecorregir = get_markeradvance_porrecorregir($cmid, $emarking->id);
-    
+    list($contributioners,$contributions) = get_markers_contributions($cmid, $emarking->id);
+    list($advancedescription, $advanceresponded, $advanceregrading, $advancegrading) = get_question_advance($cmid, $emarking->id);
+    list($markeradvance_marker,$markeradvance_corregido, $markeradvance_porcorregir, $markeradvance_porrecorregir) = get_marker_advance($cmid, $emarking->id);
+
     $final = Array(
         "Grading" => $grading,
         "Contributioners" => $contributioners,
@@ -126,9 +119,7 @@ where a.id in ($ids)";
         $coursemarks = get_courses_marks($emarkingstats, $totalcategories, $totalemarkings);
         $emarkingstats = get_emarking_stats($ids);
         $pass_ratio = get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings);
-        $efficiency = get_efficiency ($ids);
-        $efficiencycriterion = get_efficiency_criterion($efficiency);
-        $efficiencyrate = get_efficiency_rate($efficiency);
+        list($efficiencycriterion, $efficiencyrate) = get_efficiency ($ids);
         
         $final = Array(
             "Marks" => $marks,
