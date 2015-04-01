@@ -1323,6 +1323,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         }
         $numberstudents = count($studentinfo);
         
+        if($numberstudents == 0) {
+            throw new Exception('No students to print/create the exam');
+        }
         // Add the extra students to the list
         for ($i = $numberstudents; $i < $numberstudents + $downloadexam->extraexams; $i ++) {
             $stinfo = new stdClass();
