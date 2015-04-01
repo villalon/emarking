@@ -1375,7 +1375,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             }
         }
         
-        $jobs[] = array();
+        $jobs = array();
         
         if ($downloadexam->printlist == 1) {
             
@@ -1464,10 +1464,13 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                     if(!$debugprinting) {
                         $printresult = exec($command);
                     }
-                    if ($CFG->debug || $debugprinting) {
+                                    if ($CFG->debug || $debugprinting) {
                         echo "$command <br>";
-                        echo "$printresult <hr>";
+                        if(!$debugprinting) {
+                            echo "$printresult <hr>";
+                        }
                     }
+                    
                 }
             }
         }
@@ -1524,10 +1527,12 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                     $zip->addFile($pdffile, $qrstringtmp . ".pdf");
                 }
                 
-                $jobs[]["param_1_pbar"] = $k + 1;
-                $jobs[]["param_2_pbar"] = count($studentinfo);
-                $jobs[]["param_3_pbar"] = 'Imprimiendo pruebas de ' . core_text::strtoupper($stinfo->name);
-                $jobs[]["name_job"] = $pdffile;
+                $jobs[] = array(
+                    "param_1_pbar" => $k + 1,
+                    "param_2_pbar" => count($studentinfo),
+                    "param_3_pbar" => 'Imprimiendo pruebas de ' . core_text::strtoupper($stinfo->name),
+                    "name_job" => $pdffile                 
+                );
             }
             
             $k++;
@@ -1554,7 +1559,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                     
                     if ($CFG->debug || $debugprinting) {
                         echo "$command <br>";
-                        echo "$printresult <hr>";
+                        if(!$debugprinting) {
+                            echo "$printresult <hr>";
+                        }
                     }
                 }
             }
@@ -1743,10 +1750,13 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             if(!$debugprinting) {
                 $printresult = exec ( $command );
             }
-            if ($CFG->debug || $debugprinting) {
-                echo "$command <br>";
-                echo "$printresult <hr>";
-            }
+                            if ($CFG->debug || $debugprinting) {
+                        echo "$command <br>";
+                        if(!$debugprinting) {
+                            echo "$printresult <hr>";
+                        }
+                    }
+            
             
             if ($pbar != null) {
                 $pbar->update($k, $totalAlumn, '');

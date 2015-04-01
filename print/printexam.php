@@ -98,11 +98,13 @@ echo $OUTPUT->heading ( get_string ( 'printexam', 'mod_emarking' ) );
 
 $result = exec ( 'lpstat -p -d' );
 $parts = explode ( ":", $result );
-if (count ( $parts ) != 2 && !$debugprinting) {
+if(!$debugprinting) {
+if (count ( $parts ) != 2) {
 	print_error ( 'Invalid printer setup. You must install cups and set a default printer for eMarking to be able to print.' );
-} else {
+} else  {
 	$printer = strtoupper ( trim ( $parts [1] ) );
 	echo $OUTPUT->box ( 'Default printer: ' . $printer );
+}
 }
 
 if ($form->get_data ()) {
