@@ -24,7 +24,7 @@
  * @copyright 2015 Xiu-Fong Lin <xlin@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ('forms/gradereport_form.php');
 global $DB, $USER;
@@ -135,11 +135,11 @@ $emarkingsform->display ();
 $totalemarkings = 1;
 if ($parallels && count ( $parallels ) > 0) {
 	foreach ( $parallels as $pcourse ) {
-		$assid = '';
+		$parallelids = '';
 		if ($emarkingsform->get_data () && property_exists ( $emarkingsform->get_data (), "emarkingid_$pcourse->id" )) {
-			eval ( "\$assid = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
-			if ($assid > 0) {
-				$emarkingids .= ',' . $assid;
+			eval ( "\$parallelids = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
+			if ($parallelids > 0) {
+				$emarkingids .= ',' . $parallelids;
 				$totalemarkings ++;
 			}
 		}
@@ -405,7 +405,7 @@ $markingstats = $DB->get_record_sql ( "
 		d.grade,
 		d.generalfeedback,
 		count(distinct p.id) as pages,
-		CASE WHEN 0 = $numcriteria THEN 0 ELSE count(distinct c.id) / $numcriteria END as comments,
+		CASE WHEN 0 = ? THEN 0 ELSE count(distinct c.id) / ? END as comments,
 		count(distinct r.id) as regrades,
 		nm.course,
 		nm.id,
@@ -413,7 +413,7 @@ $markingstats = $DB->get_record_sql ( "
 		round(sum(c.bonus),2) as bonus,
 		s.sort
 		FROM {emarking} AS nm
-		INNER JOIN {emarking_submission} AS s ON (nm.id = :emarkingid AND s.emarking = nm.id)
+		INNER JOIN {emarking_submission} AS s ON (nm.id = ? AND s.emarking = nm.id)
         INNER JOIN {emarking_draft} as d ON (d.submissionid = s.id)
 		INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
 		LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.levelid > 0 AND c.draft = d.id)
@@ -422,7 +422,9 @@ $markingstats = $DB->get_record_sql ( "
 		GROUP BY nm.id, s.student
 ) as T
 		GROUP by id", array (
-		'emarkingid' => $emarkingids 
+		$numcriteria,
+		$numcriteria,
+		$emarkingids 
 ) );
 
 if (! $markingstats) {
@@ -487,7 +489,7 @@ $sqlcontributorstats = "SELECT
         FROM {emarking_submission} AS s
         INNER JOIN {emarking} AS e ON (s.emarking=e.id)
         INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
-        INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN ($emarkingids))
+        INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN (?))
 		INNER JOIN {course} AS co ON (cm.course=co.id)
 		INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
         INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
@@ -499,7 +501,9 @@ $sqlcontributorstats = "SELECT
         INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
         INNER JOIN {user} as u ON (ec.markerid = u.id)
 		GROUP BY e.id ";
-$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats );
+$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
+		$emarkingids 
+) );
 $getmarkers = "SELECT
 e.id,
 ec.markerid,
@@ -510,7 +514,7 @@ COUNT(distinct ec.id) AS comments
 FROM {emarking_submission} AS s
 INNER JOIN {emarking} AS e ON (s.emarking=e.id)
 INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
-INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN ($emarkingids))
+INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN (?))
 INNER JOIN {course} AS co ON (cm.course=co.id)
 INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
 INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
@@ -522,7 +526,9 @@ INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
 INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
 INNER JOIN {user} as u ON (ec.markerid = u.id)
 GROUP BY ec.markerid ";
-$allmarkers = $DB->get_records_sql ( $getmarkers );
+$allmarkers = $DB->get_records_sql ( $getmarkers, array (
+		$emarkingids 
+) );
 // Contribution per contributioner
 
 $datatabletotalcontributioner = "['','" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "',";
@@ -607,16 +613,15 @@ foreach ( $markingstatspermarker as $permarker ) {
 }
 $progress = round ( (($totalcomments) / ($totalsubmissions * $numcriteria) * 100), 2 );
 echo $OUTPUT->heading ( get_string ( 'marking', 'mod_emarking' ) . " : " . $progress . "% (" . $totalprogress . "% publicadas)", 3 );
-//$colors = '"#4D4D4D","#5DA5DA","#FAA43A","#60BD68","#F17CB0","#B2912F","#B276B2","#DECF3F","#F15854","#009987","#008270","#006D66","#006056","#008272","#006B5B","#005951","#00493F","#004F42","#004438","#BAEAD6","#A0E5CE","#5EDDC1","#00997C","#007C66","#006854","#9BDBC1","#8EE2BC","#7AD1B5","#54D8A8","#00B28C"';
-$reportsdir = $CFG->wwwroot. '/mod/emarking/reports/reportsweb';
+$reportsdir = $CFG->wwwroot . '/mod/emarking/reports/reportsweb';
 ?>
 
-	 <link rel="stylesheet" type="text/css"  href= "<?php echo $reportsdir ?>/css/Reports.css"/>
-    <script type="text/javascript" language="javascript"src="<?php echo $reportsdir ?>/reports.nocache.js"></script>
-		<div id='reports' cmid='<?php echo $cmid ?>'
-			 action='markingreport' 
-			 url='<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/reports.php' ></div>
+<link rel="stylesheet" type="text/css"
+	href="<?php echo $reportsdir ?>/css/Reports.css" />
+<script type="text/javascript" language="javascript"
+	src="<?php echo $reportsdir ?>/reports.nocache.js"></script>
+<div id='reports' cmid='<?php echo $cmid ?>' action='markingreport'
+	url='<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/reports.php'></div>
 <?php
-//echo '<div id="reports" cmid="'.$cmid.'" action="markingreport"url="'.$CFG->dirroot.'/mod/emarking/ajax/reports.php></div>';
-echo $CFG->wwwroot.'/mod/emarking/ajax/reports.php';
-echo $OUTPUT->footer();
+echo $CFG->wwwroot . '/mod/emarking/ajax/reports.php';
+echo $OUTPUT->footer ();

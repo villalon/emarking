@@ -24,7 +24,7 @@
  * @copyright 2015 Xiu-Fong Lin <xlin@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once (dirname ( dirname ( dirname (dirname(  __FILE__ )) ) ) . '/config.php');
+require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ('forms/gradereport_form.php');
 
@@ -89,7 +89,8 @@ $totalsubmissions = $DB->count_records_sql ( "
 		FROM {emarking_draft} AS dr
 		INNER JOIN {emarking_submission} AS e ON (e.emarking = :emarking AND e.id = dr.submissionid AND dr.qualitycontrol=0)
 		WHERE dr.grade >= 0 AND dr.status >= :status", array (
-		'emarking' => $emarking->id , 'status' => EMARKING_STATUS_RESPONDED
+		'emarking' => $emarking->id,
+		'status' => EMARKING_STATUS_RESPONDED 
 ) );
 
 if (! $totalsubmissions || $totalsubmissions == 0) {
@@ -114,37 +115,46 @@ $emarkingsform = new emarking_gradereport_form ( null, array (
 		'parallels' => $parallels,
 		'id' => $emarkingids 
 ) );
-
 $emarkingsform->display ();
 // Get the IDs from the parallel courses
 $totalemarkings = 1;
+/*
+ * This if bring all the parallel courses that were match in the regex and concatenate each other with a coma "," in between,
+ * With this if the variable $parallels exists and count how manny id are inside the array to check if they are more than 0,
+ * then it check if the the test exist and check their properties, if the evaluation of this match it brings their ids, and concatenates them.
+ */
 if ($parallels && count ( $parallels ) > 0) {
 	foreach ( $parallels as $pcourse ) {
-		$assid = '';
+		$parallelids = '';
 		if ($emarkingsform->get_data () && property_exists ( $emarkingsform->get_data (), "emarkingid_$pcourse->id" )) {
-			eval ( "\$assid = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
-			if ($assid > 0) {
-				$emarkingids .= ',' . $assid;
+			eval ( "\$parallelids = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
+			if ($parallelids > 0) {
+				$emarkingids .= ',' . $parallelids;
 				$totalemarkings ++;
 			}
 		}
 	}
 }
-
 // counts the total of disticts categories
 $sqlcats = "SELECT 
                 COUNT(DISTINCT(c.category)) as categories
                 FROM {emarking} AS a
                 INNER JOIN {course} AS c ON (a.course = c.id)
-                WHERE a.id IN ($emarkingids)";
+                WHERE a.id IN (?)";
 
-$totalcategories = $DB->count_records_sql ( $sqlcats );
+$totalcategories = $DB->count_records_sql ( $sqlcats, array (
+		$emarkingids 
+) );
 
 // Get the grading manager, then method and finally controller
+// Calls the grading manager, to iniciate the other functions.
 $gradingmanager = get_grading_manager ( $context, 'mod_emarking', 'attempt' );
+// Type of method.(check to see if it is a rubric)
 $gradingmethod = $gradingmanager->get_active_method ();
+// The rubic controller has everything about the rubric, from configurations to the rubric it self
 $rubriccontroller = $gradingmanager->get_controller ( $gradingmethod );
-$definition = $rubriccontroller->get_definition ();
+// Rubric
+$rubicdefinition = $rubriccontroller->get_definition ();
 // Search for stats regardig the exames (eg: max, min, number of students,etc)
 $sql = "select  *,
 case
@@ -272,12 +282,10 @@ foreach ( $emarkingstats as $stats ) {
 	if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
 		continue;
 	}
-	
 	if (! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 ) || ! strncmp ( $stats->seriesname, 'TOTAL', 5 ))
 		$histogram_totals .= "'$stats->seriesname',";
 	else
 		$histogram_courses .= "'$stats->seriesname (N=$stats->students)',";
-	
 	for($i = 1; $i <= 12; $i ++) {
 		$histogramvalue = '';
 		eval ( "\$histogramvalue = \$stats->histogram_$i;" );
@@ -340,7 +348,7 @@ foreach ( $emarkingstats as $stats ) {
 }
 
 // Gets the stats by criteria
-$sqlcriteria = '
+$sqlcriteria = "
 				SELECT co.fullname,
 				co.id AS courseid,
 				s.emarking AS emarkingid,
@@ -353,7 +361,7 @@ $sqlcriteria = '
 				round(avg(b.score)/t.maxscore,1) AS effectiveness,
 				t.maxscore AS maxcriterionscore
 				FROM {emarking_submission} AS s
-				INNER JOIN {emarking} AS e ON (s.emarking=e.id AND s.emarking IN (' . $emarkingids . ') )
+				INNER JOIN {emarking} AS e ON (s.emarking=e.id AND s.emarking IN ($emarkingids) )
 				INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
 				INNER JOIN {course_modules} AS cm ON e.id=cm.instance
 				INNER JOIN {context} AS c ON cm.id=c.instanceid
@@ -376,12 +384,10 @@ $sqlcriteria = '
 							GROUP BY s.id, criterionid) AS t ON (s.emarking=t.emarkingid AND a.id = t.criterionid)
 				INNER JOIN {course} AS co ON e.course=co.id
 				GROUP BY s.emarking,a.id
-				ORDER BY a.description,emarkingid';
+				ORDER BY a.description,emarkingid";
 
 $criteriastats = $DB->get_recordset_sql ( $sqlcriteria );
-
-$forcount = $DB->get_recordset_sql ( $sqlcriteria ); // run the sql again to get the count
-$count = iterator_count ( $forcount );
+$count = iterator_count ( $criteriastats );
 
 $parallels_names_criteria = '';
 $effectivenessnum = - 1;
@@ -456,15 +462,14 @@ $table->align = array (
 );
 $table->data = $data;
 echo html_writer::table ( $table );
-$reportsdir = $CFG->wwwroot. '/mod/emarking/marking/emarkingreports';
+$reportsdir = $CFG->wwwroot . '/mod/emarking/marking/emarkingreports';
 ?>
-    <script type="text/javascript" language="javascript"src="<?php echo $reportsdir ?>/emarkingreports.nocache.js"></script>
-	<div id='reports' 
-	     cmid='<?php echo $cmid ?>' 
-	     emarkingids='<?php echo $emarkingids?>'
-	     emarking='<?php echo $emarkingids?>'
-		 action='gradereport' 
-		 url='<?php echo$CFG->wwwroot ?>/mod/emarking/ajax/reports.php' ></div>
+<script type="text/javascript" language="javascript"
+	src="<?php echo $reportsdir ?>/emarkingreports.nocache.js"></script>
+<div id='reports' cmid='<?php echo $cmid ?>'
+	emarkingids='<?php echo $emarkingids?>'
+	emarking='<?php echo $emarkingids?>' action='gradereport'
+	url='<?php echo$CFG->wwwroot ?>/mod/emarking/ajax/reports.php'></div>
 
 <?php
 echo $OUTPUT->footer ();
