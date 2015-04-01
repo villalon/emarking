@@ -40,6 +40,7 @@ global $DB, $CFG, $USER;
 
 $examid = required_param ( 'exam', PARAM_INT );
 $confirm = optional_param ( 'confirm', false, PARAM_BOOL );
+$debugprinting = optional_param ( 'debug', false, PARAM_BOOL );
 
 // Validate exam
 if (! $exam = $DB->get_record ( 'emarking_exams', array (
@@ -81,8 +82,9 @@ $PAGE->set_course ( $course );
 $PAGE->set_title ( get_string ( 'processtitle', 'mod_emarking' ) );
 $PAGE->set_heading ( $course->fullname );
 $PAGE->navbar->add ( get_string ( 'printexam', 'mod_emarking' ) );
+
 $form = new emarking_printexam_form ( null, array (
-		'examid' => $exam->id 
+		'examid' => $exam->id, 'debug' => $debugprinting 
 ) );
 
 if ($form->is_cancelled ()) {
@@ -96,7 +98,7 @@ echo $OUTPUT->heading ( get_string ( 'printexam', 'mod_emarking' ) );
 
 $result = exec ( 'lpstat -p -d' );
 $parts = explode ( ":", $result );
-if (count ( $parts ) != 2) {
+if (count ( $parts ) != 2 && !$debugprinting) {
 	print_error ( 'Invalid printer setup. You must install cups and set a default printer for eMarking to be able to print.' );
 } else {
 	$printer = strtoupper ( trim ( $parts [1] ) );
@@ -107,6 +109,7 @@ if ($form->get_data ()) {
 	
 	$printer = $printers [$form->get_data ()->printername];
 	
+	if(!$debugprinting) {
 	// TODO This is outrageous!
 	if ($printer == "Edificio-A-CentralDeApuntes") {
 		$target = "10.50.2.124";
@@ -135,6 +138,7 @@ if ($form->get_data ()) {
 	
 	if ($estado != "OK") {
 		print_error ( $estado );
+	}
 	}
 	
 	$pbar = new progress_bar ( 'printing', 500, true );
@@ -170,8 +174,13 @@ $pbar, true, $printer );
 		}
 	} else {
 		if (! emarking_download_exam ( $exam->id, // Id of exam to print
-true, // Print using multiple pdfs
-null, $pbar, true, $printer )) { // Send directly to printer
+                                       true, // Print using multiple pdfs
+                                       null, 
+		                               $pbar, 
+		                               true, 
+		                               $printer,
+		                               false,
+		                               $debugprinting )) { // Send directly to printer
 			print_error ( 'Fatal error trying to print' );
 		}
 	}

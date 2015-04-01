@@ -1217,7 +1217,7 @@ function emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path
  * @param unknown $examid            
  * @return NULL
  */
-function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, $pbar = null, $sendprintorder = false, $printername = null, $printanswersheet = false)
+function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, $pbar = null, $sendprintorder = false, $printername = null, $printanswersheet = false, $debugprinting = false)
 {
     global $DB, $CFG, $USER, $OUTPUT;
     require_once ($CFG->dirroot . '/mod/emarking/lib/openbub/ans_pdf_open.php');
@@ -1226,19 +1226,19 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     if (! $downloadexam = $DB->get_record('emarking_exams', array(
         'id' => $examid
     ))) {
-        return null;
+        throw new Exception('Invalid exam');
     }
     
     // Contexto del curso para verificar permisos
     $context = context_course::instance($downloadexam->course);
     
     if (! has_capability('mod/emarking:downloadexam', $context)) {
-        return null;
+        throw new Exception('Capability problem, user cannot download exam');
     }
     
     // Verify that remote printing is enable, otherwise disable a printing order
     if ($sendprintorder && (! $CFG->emarking_enableprinting || $printername == null)) {
-        return null;
+        throw new Exception('Printing is not enabled or printername was absent ' . $printername);
     }
     
     $course = $DB->get_record('course', array(
@@ -1279,7 +1279,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     
     // Verify that at least we have a PDF
     if (count($pdffileshash) < 1) {
-        return null;
+        throw new Exception('Exam id has no PDF associated. This is a terrible error, please notify the administrator.');
     }
     
     if ($downloadexam->headerqr == 1) {
@@ -1461,8 +1461,10 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                         $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $pdffile;
                     }
                     
-                    $printresult = exec($command);
-                    if ($CFG->debug) {
+                    if(!$debugprinting) {
+                        $printresult = exec($command);
+                    }
+                    if ($CFG->debug || $debugprinting) {
                         echo "$command <br>";
                         echo "$printresult <hr>";
                     }
@@ -1470,6 +1472,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             }
         }
         
+        $k=0;
         // Here we produce a PDF file for each student
         foreach ($studentinfo as $stinfo) {
             
@@ -1508,17 +1511,17 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             }
             
             if ($multiplepdfs || $sendprintorder || $groupid != null) {
-                
-                $pdffile = $filedir . "/" . emarking_clean_filename($qrstring) . ".pdf";
+                $qrstringtmp = emarking_clean_filename("$stinfo->id-$course->id-$i");
+                $pdffile = $filedir . "/" . $qrstringtmp . ".pdf";
                 
                 if (file_exists($pdffile)) {
-                    $pdffile = $filedir . "/" . emarking_clean_filename($qrstring) . "_" . $k . ".pdf";
+                    $pdffile = $filedir . "/" . $qrstringtmp . "_" . $k . ".pdf";
                     $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                    $zip->addFile($pdffile, emarking_clean_filename($qrstring) . "_" . $k . ".pdf");
+                    $zip->addFile($pdffile, $qrstringtmp . "_" . $k . ".pdf");
                 } else {
-                    $pdffile = $filedir . "/" . emarking_clean_filename($qrstring) . ".pdf";
+                    $pdffile = $filedir . "/" . $qrstringtmp . ".pdf";
                     $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                    $zip->addFile($pdffile, emarking_clean_filename($qrstring) . ".pdf");
+                    $zip->addFile($pdffile, $qrstringtmp . ".pdf");
                 }
                 
                 $jobs[]["param_1_pbar"] = $k + 1;
@@ -1526,6 +1529,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                 $jobs[]["param_3_pbar"] = 'Imprimiendo pruebas de ' . core_text::strtoupper($stinfo->name);
                 $jobs[]["name_job"] = $pdffile;
             }
+            
+            $k++;
         }
         
         $printername = explode(',', $CFG->emarking_printername);
@@ -1543,8 +1548,11 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                         $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $valor["name_job"];
                     }
                     
-                    $printresult = exec($command);
-                    if ($CFG->debug) {
+                    if(!$debugprinting) {
+                        $printresult = exec($command);
+                    }
+                    
+                    if ($CFG->debug || $debugprinting) {
                         echo "$command <br>";
                         echo "$printresult <hr>";
                     }
@@ -1732,8 +1740,10 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                 $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $pdffile;
             }
             
-            // $printresult = exec ( $command );
-            if ($CFG->debug) {
+            if(!$debugprinting) {
+                $printresult = exec ( $command );
+            }
+            if ($CFG->debug || $debugprinting) {
                 echo "$command <br>";
                 echo "$printresult <hr>";
             }
