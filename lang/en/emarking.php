@@ -22,19 +22,19 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['emarkingsecuritycode'] = 'eMarking security code';
+$string ['emarkingsecuritycode'] = 'eMarking security code';
 
-$string['markersqualitycontrol'] = 'Quality Control markers';
-$string['markersqualitycontrol_help'] = 'Quality Control markers are the ones that will mark and grade the QC exams which will be used to calculate inter-marker agreement.';
-$string['enablequalitycontrol'] = 'Enable Quality Control';
-$string['enablequalitycontrol_help'] = 'If QC in enabled, a set of QC exams will be assigned to the QC markers for extra marking and therefore calculate inter-marker agreement.';
-$string['notenoughmarkersfortraining'] = 'Not enough markers for training, please enrol markers as non editing teachers for training.';
-$string['notenoughmarkersforqualitycontrol'] = 'No markers were selected for quality control. Please select at least one marker as responsible for marking the control exams.';
+$string ['markersqualitycontrol'] = 'Quality Control markers';
+$string ['markersqualitycontrol_help'] = 'Quality Control markers are the ones that will mark and grade the QC exams which will be used to calculate inter-marker agreement.';
+$string ['enablequalitycontrol'] = 'Enable Quality Control';
+$string ['enablequalitycontrol_help'] = 'If QC in enabled, a set of QC exams will be assigned to the QC markers for extra marking and therefore calculate inter-marker agreement.';
+$string ['notenoughmarkersfortraining'] = 'Not enough markers for training, please enrol markers as non editing teachers for training.';
+$string ['notenoughmarkersforqualitycontrol'] = 'No markers were selected for quality control. Please select at least one marker as responsible for marking the control exams.';
 
-$string['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
-$string['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';
-$string['studentvisible_markervisible'] = 'Student visible / Marker visible';
-$string['studentvisible_markeranonymous'] = 'Student visible / Marker anonymous';
+$string ['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
+$string ['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';
+$string ['studentvisible_markervisible'] = 'Student visible / Marker visible';
+$string ['studentvisible_markeranonymous'] = 'Student visible / Marker anonymous';
 
 $string ['markingtype'] = 'Marking type';
 $string ['markingtype_help'] = "<h2>Marking types</h2><br>
@@ -49,7 +49,7 @@ $string ['type_normal'] = 'Normal';
 $string ['type_markers_training'] = 'Markers training';
 $string ['type_student_training'] = 'Student training';
 $string ['type_peer_review'] = 'Peer review';
-		
+
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
 $string ['exporttoexcel'] = 'Export to Excel';
 
@@ -528,6 +528,7 @@ $string ['advacebycriteria'] = 'Advance by criterion';
 $string ['pointsassignedbymarker'] = 'Points assigned by markers';
 $string ['advancebymarker'] = 'Advance by marker';
 $string ['marker'] = 'Marker';
+$string ['published'] = 'Published';
 
 /**
  * Events

@@ -115,7 +115,7 @@ $emarkingids = '' . $emarking->id;
 
 $extracategory = optional_param ( 'categories', 0, PARAM_INT );
 
-// check for parallel courses
+// Check for parallel courses
 
 if ($CFG->emarking_parallelregex) {
 	$parallels = emarking_get_parallel_courses ( $course, $extracategory, $CFG->emarking_parallelregex );
@@ -146,29 +146,32 @@ if ($parallels && count ( $parallels ) > 0) {
 	}
 }
 
-// counts the total of disticts categories
-$sqlcats = "select count(distinct(c.category)) as categories
-from {emarking} as a
-inner join {course} as c on (a.course = c.id)
-where a.id in ($emarkingids)";
+// Counts the total of disticts categories
+$sqlcats = "SELECT 
+                COUNT(DISTINCT(c.category)) as categories
+                FROM {emarking} AS a
+                INNER JOIN {course} AS c ON (a.course = c.id)
+                WHERE a.id IN (?)";
 
-$totalcategories = $DB->count_records_sql ( $sqlcats );
+$totalcategories = $DB->count_records_sql ( $sqlcats, array (
+		$emarkingids 
+) );
 
-$sql = "select  *,
-case
-when categoryid is null then 'TOTAL'
-when emarkingid is null then concat('SUBTOTAL ', categoryname)
-else coursename
-end as seriesname
-from (
-select 	categoryid as categoryid,
+$sql = "SELECT  *,
+CASE
+WHEN categoryid is null THEN 'TOTAL'
+WHEN emarkingid is null THEN concat('SUBTOTAL ', categoryname)
+ELSE coursename
+END AS seriesname
+FROM (
+SELECT 	categoryid AS categoryid,
 categoryname,
-emarkingid as emarkingid,
+emarkingid AS emarkingid,
 modulename,
 coursename,
-count(*) as students,
-sum(pass) as pass,
-round((sum(pass) / count(*)) * 100,2) as pass_ratio,
+COUNT(*) AS students,
+SUM(pass) AS pass,
+ROUND((SUM(pass) / count(*)) * 100,2) AS pass_ratio,
 SUBSTRING_INDEX(
 SUBSTRING_INDEX(
 group_concat(grade order by grade separator ',')
@@ -176,7 +179,7 @@ group_concat(grade order by grade separator ',')
 , 25/100 * COUNT(*) + 1)
 , ','
 , -1
-) as percentile_25,
+) AS percentile_25,
 SUBSTRING_INDEX(
 SUBSTRING_INDEX(
 group_concat(grade order by grade separator ',')
@@ -184,7 +187,7 @@ group_concat(grade order by grade separator ',')
 , 50/100 * COUNT(*) + 1)
 , ','
 , -1
-) as percentile_50,
+) AS percentile_50,
 SUBSTRING_INDEX(
 SUBSTRING_INDEX(
 group_concat(grade order by grade separator ',')
@@ -192,144 +195,82 @@ group_concat(grade order by grade separator ',')
 , 75/100 * COUNT(*) + 1)
 , ','
 , -1
-) as percentile_75,
-min(grade) as minimum,
-max(grade) as maximum,
-round(avg(grade),2) as average,
-round(stddev(grade),2) as stdev,
-sum(histogram_01) as histogram_1,
-sum(histogram_02) as histogram_2,
-sum(histogram_03) as histogram_3,
-sum(histogram_04) as histogram_4,
-sum(histogram_05) as histogram_5,
-sum(histogram_06) as histogram_6,
-sum(histogram_07) as histogram_7,
-sum(histogram_08) as histogram_8,
-sum(histogram_09) as histogram_9,
-sum(histogram_10) as histogram_10,
-sum(histogram_11) as histogram_11,
-sum(histogram_12) as histogram_12,
-round(sum(rank_1)/count(*),3) as rank_1,
-round(sum(rank_2)/count(*),3) as rank_2,
-round(sum(rank_3)/count(*),3) as rank_3,
-min(mingrade) as mingradeemarking,
-min(maxgrade) as maxgradeemarking
-from (
-select
-round(ss.grade,2) as grade, -- Nota final (calculada o manual via calificador)
-i.grademax as maxgrade, -- Nota máxima del emarking
-i.grademin as mingrade, -- Nota mínima del emarking
-case when ss.grade is null then 0 -- Indicador de si la nota es null
-else 1
-end as attended,
-case when ss.grade >= i.gradepass then 1
-else 0
-end as pass,
-case when ss.grade >= 0 AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 1 then 1 else 0 end as histogram_01,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 1  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 2 then 1 else 0 end as histogram_02,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 2  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 3 then 1 else 0 end as histogram_03,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 3  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 4 then 1 else 0 end as histogram_04,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 4  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 5 then 1 else 0 end as histogram_05,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 5  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 6 then 1 else 0 end as histogram_06,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 6  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 7 then 1 else 0 end as histogram_07,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 7  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 8 then 1 else 0 end as histogram_08,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 8  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 9 then 1 else 0 end as histogram_09,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 9  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 10 then 1 else 0 end as histogram_10,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 10  AND ss.grade < i.grademin + (i.grademax - i.grademin) / 12 * 11 then 1 else 0 end as histogram_11,
-case when ss.grade >= i.grademin + (i.grademax - i.grademin) / 12 * 11 then 1 else 0 end as histogram_12,
-case when ss.grade - i.grademin < (i.grademax - i.grademin) / 3 then 1 else 0 end as rank_1,
-case when ss.grade - i.grademin >= (i.grademax - i.grademin) / 3 AND ss.grade - i.grademin  < (i.grademax - i.grademin) / 2 then 1 else 0 end as rank_2,
-case when ss.grade - i.grademin >= (i.grademax - i.grademin) / 2  then 1 else 0 end as rank_3,
-c.category as categoryid,
-cc.name as categoryname,
-i.iteminstance as emarkingid,
-a.name as modulename,
-c.fullname as coursename
-from mdl_grade_items as i
-inner join mdl_emarking as a on (i.itemtype = 'mod' AND i.itemmodule = 'emarking' and i.iteminstance in ($emarkingids) AND i.iteminstance = a.id)
-inner join mdl_course as c on (i.courseid = c.id)
-inner join mdl_course_categories as cc on (c.category = cc.id)
-inner join mdl_emarking_submission as ss on (a.id = ss.emarking)
-where ss.grade is not null AND ss.status >= 20
-order by emarkingid asc, ss.grade asc) as G
-group by categoryid, emarkingid
-with rollup) as T";
+) AS percentile_75,
+MIN(grade) AS minimum,
+MAX(grade) AS maximum,
+ROUND(avg(grade),2) AS average,
+ROUND(stddev(grade),2) AS stdev,
+SUM(histogram_01) AS histogram_1,
+SUM(histogram_02) AS histogram_2,
+SUM(histogram_03) AS histogram_3,
+SUM(histogram_04) AS histogram_4,
+SUM(histogram_05) AS histogram_5,
+SUM(histogram_06) AS histogram_6,
+SUM(histogram_07) AS histogram_7,
+SUM(histogram_08) AS histogram_8,
+SUM(histogram_09) AS histogram_9,
+SUM(histogram_10) AS histogram_10,
+SUM(histogram_11) AS histogram_11,
+SUM(histogram_12) AS histogram_12,
+ROUND(SUM(rank_1)/count(*),3) AS rank_1,
+ROUND(SUM(rank_2)/count(*),3) AS rank_2,
+ROUND(SUM(rank_3)/count(*),3) AS rank_3,
+MIN(mingrade) AS mingradeemarking,
+MIN(maxgrade) AS maxgradeemarking
+FROM (
+SELECT
+ROUND(dr.grade,2) AS grade, -- Nota final (calculada o manual via calificador)
+a.grade AS maxgrade, -- Nota máxima del emarking
+a.grademin AS mingrade, -- Nota mínima del emarking
+CASE WHEN dr.grade is null THEN 0 -- Indicador de si la nota es null
+ELSE 1
+END AS attended,
+CASE WHEN dr.grade >= 4 THEN 1 -- TODO: REPLACE
+ELSE 0
+END AS pass,
+CASE WHEN dr.grade >= 0 AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 1 THEN 1 ELSE 0 END AS histogram_01,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 1  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 2 THEN 1 ELSE 0 END AS histogram_02,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 2  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 3 THEN 1 ELSE 0 END AS histogram_03,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 3  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 4 THEN 1 ELSE 0 END AS histogram_04,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 4  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 5 THEN 1 ELSE 0 END AS histogram_05,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 5  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 6 THEN 1 ELSE 0 END AS histogram_06,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 6  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 7 THEN 1 ELSE 0 END AS histogram_07,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 7  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 8 THEN 1 ELSE 0 END AS histogram_08,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 8  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 9 THEN 1 ELSE 0 END AS histogram_09,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 9  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 10 THEN 1 ELSE 0 END AS histogram_10,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 10  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 11 THEN 1 ELSE 0 END AS histogram_11,
+CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 11 THEN 1 ELSE 0 END AS histogram_12,
+CASE WHEN dr.grade - a.grademin < (a.grade - a.grademin) / 3 THEN 1 ELSE 0 END AS rank_1,
+CASE WHEN dr.grade - a.grademin >= (a.grade - a.grademin) / 3 AND dr.grade - a.grademin  < (a.grade - a.grademin) / 2 THEN 1 ELSE 0 END AS rank_2,
+CASE WHEN dr.grade - a.grademin >= (a.grade - a.grademin) / 2  THEN 1 ELSE 0 END AS rank_3,
+c.category AS categoryid,
+cc.name AS categoryname,
+a.id AS emarkingid,
+a.name AS modulename,
+c.fullname AS coursename
+FROM {emarking} AS a
+INNER JOIN {emarking_submission} AS ss ON (a.id = ss.emarking AND a.id IN ($emarkingids))
+INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = ss.id AND dr.qualitycontrol=0)
+INNER JOIN {course} AS c ON (a.course = c.id)
+INNER JOIN {course_categories} AS cc ON (c.category = cc.id)
+WHERE dr.grade is not null AND dr.status >= 20
+ORDER BY emarkingid asc, dr.grade asc) AS G
+GROUP BY categoryid, emarkingid
+WITH ROLLUP) AS T";
 
 $emarkingstats = $DB->get_recordset_sql ( $sql );
-
-$mingrade = 0;
-$maxgrade = 0;
-$averages = '';
-
-$histogram_courses = '';
-$histogram_totals = '';
-$histograms = array ();
-$histograms_totals = array ();
-$histogramlabels = array ();
-
-$pass_ratio = '';
-
-$databoxplot = "";
-
+// Initialization of the variable data.
 $data = array ();
 foreach ( $emarkingstats as $stats ) {
-	
+	// if to count the categories so the table doesn't give us a subtotal for each category
 	if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
 		continue;
 	}
+	// if to count the diferent emarkings so the table doesn't give us a total for each emarking
 	if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
 		continue;
 	}
-	
-	if (! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 ) || ! strncmp ( $stats->seriesname, 'TOTAL', 5 ))
-		$histogram_totals .= "'$stats->seriesname',";
-	else
-		$histogram_courses .= "'$stats->seriesname (N=$stats->students)',";
-	for($i = 1; $i <= 12; $i ++) {
-		$histogramvalue = '';
-		eval ( "\$histogramvalue = \$stats->histogram_$i;" );
-		if (! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 ) || ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
-			if (! isset ( $histograms_totals [$i] ))
-				$histograms_totals [$i] = $histogramvalue . ',';
-			else
-				$histograms_totals [$i] .= $histogramvalue . ',';
-		} else {
-			if (! isset ( $histograms [$i] ))
-				$histograms [$i] = $histogramvalue . ',';
-			else
-				$histograms [$i] .= $histogramvalue . ',';
-		}
-		
-		if ($i % 2 != 0) {
-			if ($i <= 6) {
-				$histogramlabels [$i] = '< ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
-			} else {
-				$histogramlabels [$i] = '>= ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1));
-			}
-		} else {
-			$histogramlabels [$i] = '';
-		}
-	}
-	
-	// Set the values for the box plot
-	$series = $stats->seriesname;
-	$min = $stats->minimum;
-	$max = $stats->maximum;
-	$mean = $stats->average;
-	$firstquantile = $stats->percentile_25;
-	$thirdquantile = $stats->percentile_75;
-	$median = $stats->percentile_50;
-	
-	$databoxplot .= '["' . $series . '",' . $min . ',' . $firstquantile . ',' . $thirdquantile . ',' . $max . ',' . $median . ',' . $mean . '],';
-	
-	// Pass Ratio Graph data
-	$pass_ratio .= "['$stats->seriesname (N=$stats->students)',$stats->rank_1,$stats->rank_2,$stats->rank_3],";
-	
-	// Get the diferent indicators from the general stats query and pass it on to the table
-	$mingrade = $stats->mingradeemarking;
-	$maxgrade = $stats->maxgradeemarking;
-	$averages .= "['$stats->seriesname (N=$stats->students)',$stats->average, $stats->minimum, $stats->maximum],";
-	
+	// Data for the table
 	$data [] = array (
 			$stats->seriesname,
 			$stats->students,
@@ -345,9 +286,11 @@ foreach ( $emarkingstats as $stats ) {
 			$stats->rank_3 
 	);
 }
-
+// Create the obj table
 $table = new html_table ();
+// Style of the table
 $table->attributes ['style'] = "width: 100%; text-align:center;";
+// Table headers.
 $table->head = array (
 		strtoupper ( get_string ( 'course' ) ),
 		strtoupper ( get_string ( 'students' ) ),
@@ -365,6 +308,7 @@ $table->head = array (
 		) ) ),
 		strtoupper ( get_string ( 'greaterthan', 'mod_emarking', 4 ) ) 
 );
+// Alignment of the table
 $table->align = array (
 		'left',
 		'center',
@@ -379,11 +323,12 @@ $table->align = array (
 		'center',
 		'center' 
 );
+// Fill the table with the data from the variable $data.
 $table->data = $data;
+// Print of the table.
 echo html_writer::table ( $table );
-
-$markingstats = $DB->get_record_sql ( "
-		SELECT	COUNT(distinct id) AS activities,
+// Sql to get the quantity of tests in each state(submitted, grading, graded, regrading).
+$sqlstats = "SELECT	COUNT(distinct id) AS activities,
 		COUNT(DISTINCT student) AS students,
 		MAX(pages) AS maxpages,
 		MIN(pages) AS minpages,
@@ -409,8 +354,8 @@ $markingstats = $DB->get_record_sql ( "
 		count(distinct r.id) as regrades,
 		nm.course,
 		nm.id,
-		round(sum(l.score),2) as score,
-		round(sum(c.bonus),2) as bonus,
+		round(SUM(l.score),2) as score,
+		round(SUM(c.bonus),2) as bonus,
 		s.sort
 		FROM {emarking} AS nm
 		INNER JOIN {emarking_submission} AS s ON (nm.id = ? AND s.emarking = nm.id)
@@ -421,69 +366,32 @@ $markingstats = $DB->get_record_sql ( "
 		LEFT JOIN {emarking_regrade} as r ON (r.draft = d.id AND r.criterion = l.criterionid AND r.accepted = 0)
 		GROUP BY nm.id, s.student
 ) as T
-		GROUP by id", array (
+		GROUP by id";
+
+$markingstats = $DB->get_record_sql ( $sqlstats, array (
 		$numcriteria,
 		$numcriteria,
 		$emarkingids 
 ) );
-
+// Check if there is any submission graded.
 if (! $markingstats) {
 	echo $OUTPUT->notification ( get_string ( 'nosubmissionsgraded', 'mod_emarking' ), 'notifyproblem' );
 	echo $OUTPUT->footer ();
 	die ();
 }
-
+// Total submissions.
 $totalsubmissions = $markingstats->submitted + $markingstats->grading + $markingstats->graded + $markingstats->regrading;
-$datatable = "['','" . emarking_get_string_for_status ( EMARKING_STATUS_ABSENT ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_SUBMITTED ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_RESPONDED ) . "',	'" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "'],
-			['',($markingstats->missing) *100/$totalsubmissions, ($markingstats->submitted) *100/$totalsubmissions,($markingstats->grading) *100/$totalsubmissions,($markingstats->graded) *100/$totalsubmissions,($markingstats->regrading)*100/$totalsubmissions]";
-
+// Progress percentage.
 $totalprogress = round ( $markingstats->graded / $totalsubmissions * 100, 2 );
-
+// Checks if there is submissions graded.
 if ($numcriteria == 0 || $totalsubmissions == 0) {
 	echo $OUTPUT->notification ( get_string ( 'nosubmissionsgraded', 'mod_emarking' ), 'notifyproblem' );
 	echo $OUTPUT->footer ();
 	die ();
 }
-$sqlstatscriterion = "SELECT  a.id,
-							co.fullname AS course,
-							e.name,
-							d.name,
-							a.description,
-							COUNT(distinct dr.id) AS submissions,
-							COUNT(distinct ec.id) AS comments,
-							COUNT(distinct r.id) AS regrades
-					        
-					        FROM {emarking_submission} AS s
-					        INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-					        INNER JOIN {emarking_draft} AS dr ON (dr.submissionid=s.id AND dr.qualitycontrol=0)
-                            INNER JOIN {course_modules} AS cm ON (e.id=cm.instance)
-							INNER JOIN {course} AS co ON (cm.course=co.id)
-					        INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid AND cm.id = ? )
-					        INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
-					        INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
-					        INNER JOIN {grading_instances} AS i ON (d.id=i.definitionid)
-					        INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
-					        INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
-					        INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-					        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid)
-					        LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = a.id)
-							GROUP BY a.id
-							ORDER BY a.sortorder";
-$markingstatspercriterion = $DB->get_records_sql ( $sqlstatscriterion, array (
-		$cm->id 
-) );
-
-$datatablecriteria = "['Criterio', '" . emarking_get_string_for_status ( EMARKING_STATUS_RESPONDED ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "'],";
-
-foreach ( $markingstatspercriterion as $statpercriterion ) {
-	$description = trim ( preg_replace ( '/\s\s+/', ' ', $statpercriterion->description ) );
-	$datatablecriteria .= "['$description', " . round ( ($statpercriterion->comments - $statpercriterion->regrades) * 100 / $totalsubmissions, 2 ) . "," . round ( $statpercriterion->regrades * 100 / $totalsubmissions, 2 ) . ", " . round ( ($statpercriterion->submissions - $statpercriterion->comments) * 100 / $totalsubmissions, 2 ) . "],";
-}
-$sqlcontributorstats = "SELECT
+// Sql to get the amount of contribution.
+$sqlcontribution = "SELECT
 		e.id,
-		ec.markerid,
-		co.fullname AS course,
-		CONCAT(u.firstname , ' ', u.lastname) AS markername,
 		COUNT(distinct ec.id) AS comments
 		
         FROM {emarking_submission} AS s
@@ -501,118 +409,18 @@ $sqlcontributorstats = "SELECT
         INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
         INNER JOIN {user} as u ON (ec.markerid = u.id)
 		GROUP BY e.id ";
-$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
+$markingcontribution = $DB->get_records_sql ( $sqlcontribution, array (
 		$emarkingids 
 ) );
-$getmarkers = "SELECT
-e.id,
-ec.markerid,
-co.fullname AS course,
-CONCAT(u.firstname , ' ', u.lastname) AS markername,
-COUNT(distinct ec.id) AS comments
-
-FROM {emarking_submission} AS s
-INNER JOIN {emarking} AS e ON (s.emarking=e.id)
-INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
-INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id IN (?))
-INNER JOIN {course} AS co ON (cm.course=co.id)
-INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
-INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
-INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
-INNER JOIN {grading_instances} AS i ON (d.id=i.definitionid)
-INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
-INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
-INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
-INNER JOIN {user} as u ON (ec.markerid = u.id)
-GROUP BY ec.markerid ";
-$allmarkers = $DB->get_records_sql ( $getmarkers, array (
-		$emarkingids 
-) );
-// Contribution per contributioner
-
-$datatabletotalcontributioner = "['','" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "',";
+// Get the total coments.
 $totalcomments = 0;
-foreach ( $markingstatstotalcontribution as $contribution ) {
+foreach ( $markingcontribution as $contribution ) {
 	$totalcomments += $contribution->comments;
 }
-
-$datatabletotalcontributions = "[''," . round ( (($totalsubmissions * $numcriteria - $totalcomments) * 100 / ($totalsubmissions * $numcriteria)), 2 ) . ",";
-
-foreach ( $markingstatstotalcontribution as $contributioner ) {
-	$datatabletotalcontributioner .= "'" . $contributioner->markername . "', ";
-	$datatabletotalcontributions .= round ( ($contributioner->comments) * 100 / ($totalsubmissions * $numcriteria), 2 ) . ", ";
-}
-$datatabletotalcontributioner .= "]";
-$datatabletotalcontributions .= "]";
-$datatabletotalcontribution = $datatabletotalcontributioner . ", " . $datatabletotalcontributions;
-
-$markingstatspermarker = $DB->get_recordset_sql ( "
-		SELECT
-		a.id,
-		a.description,
-		T.*
-		FROM {course_modules} AS c
-		INNER JOIN {context} AS mc ON (c.id = :cmid AND c.id = mc.instanceid)
-		INNER JOIN {grading_areas} AS ar ON (mc.id = ar.contextid)
-		INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
-		INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)
-		INNER JOIN {emarking_marker_criterion} AS emc ON (emc.emarking = c.instance)
-		INNER JOIN (
-		SELECT bb.criterionid,
-		ec.markerid,
-		u.lastname AS markername,
-		ROUND(AVG(bb.score),2) as avgscore,
-		ROUND(STDDEV(bb.score),2) as stdevscore,
-		ROUND(MIN(bb.score),2) as minscore,
-		ROUND(MAX(bb.score),2) as maxscore,
-		ROUND(AVG(ec.bonus),2) AS avgbonus,
-		ROUND(STDDEV(ec.bonus),2) AS stdevbonus,
-		ROUND(MAX(ec.bonus),2) AS maxbonus,
-		ROUND(MIN(ec.bonus),2) AS minbonus,
-		COUNT(distinct ec.id) AS comments,
-		COUNT(distinct r.id) AS regrades
-		FROM
-		{emarking} AS e
-		INNER JOIN {emarking_submission} AS s ON (e.id = :emarkingid AND s.emarking = e.id)
-		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
-        INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-		LEFT JOIN {emarking_comment} as ec on (ec.page = p.id AND ec.draft = dr.id)
-		LEFT JOIN {gradingform_rubric_levels} AS bb ON (ec.levelid = bb.id)
-		LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = bb.criterionid)
-		LEFT JOIN {user} as u ON (ec.markerid = u.id)
-		WHERE dr.status >= 10
-		GROUP BY ec.markerid, bb.criterionid) AS T
-		ON (a.id = T.criterionid AND emc.marker = T.markerid)
-		GROUP BY T.markerid, a.id
-		", array (
-		'cmid' => $cm->id,
-		'emarkingid' => $emarking->id 
-) );
-$datamarkersavailable = false;
-$datatablemarkers = "";
-
-$datatablecontribution = "['Corrector', '" . emarking_get_string_for_status ( EMARKING_STATUS_RESPONDED ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "'],";
-
-foreach ( $markingstatspermarker as $permarker ) {
-	$description = trim ( preg_replace ( '/\s\s+/', ' ', $permarker->description ) );
-	$datatablemarkers .= "['$permarker->markername $description',
-	" . ($permarker->minscore) . ",
-	" . ($permarker->avgscore - $permarker->stdevscore) . ",
-	" . ($permarker->avgscore + $permarker->stdevscore) . ",
-	" . ($permarker->maxscore) . ",
-	],";
-	
-	$datatablecontribution .= "['$permarker->markername $description',
-								" . round ( ($permarker->comments - $permarker->regrades) * 100 / $totalsubmissions, 2 ) . ",
-								" . round ( ($permarker->regrades) * 100 / $totalsubmissions, 2 ) . ",
-								" . round ( ($totalsubmissions - $permarker->comments) * 100 / $totalsubmissions, 2 ) . "
-	],";
-	
-	$datamarkersavailable = true;
-}
+// Calculate the percentage of progression.
 $progress = round ( (($totalcomments) / ($totalsubmissions * $numcriteria) * 100), 2 );
-echo $OUTPUT->heading ( get_string ( 'marking', 'mod_emarking' ) . " : " . $progress . "% (" . $totalprogress . "% publicadas)", 3 );
+// Print a heading with the progression percetage and the published tests.
+echo $OUTPUT->heading ( get_string ( 'marking', 'mod_emarking' ) . " : " . $progress . "% (" . $totalprogress . "% " . get_string ( 'published', 'mod_emarking' ) . ")", 3 );
 $reportsdir = $CFG->wwwroot . '/mod/emarking/reports/reportsweb';
 ?>
 

@@ -22,20 +22,19 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
+$string ['emarkingsecuritycode'] = 'Código de seguridad eMarking';
 
-$string['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
-$string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
-$string['enablequalitycontrol'] = 'Habilitar Control de Calidad';
-$string['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas serán asignados a los correctores de CC para que sean corregidos nuevamente y así calcular el acuerdo entre correctores.';
-$string['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
-$string['notenoughmarkersforqualitycontrol'] = 'No ha seleccionado correctores para que realicen el control de calidad. Por favor seleccione al menos un corrector como responsable de corregir las pruebas de control.';
+$string ['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
+$string ['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
+$string ['enablequalitycontrol'] = 'Habilitar Control de Calidad';
+$string ['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas serán asignados a los correctores de CC para que sean corregidos nuevamente y así calcular el acuerdo entre correctores.';
+$string ['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
+$string ['notenoughmarkersforqualitycontrol'] = 'No ha seleccionado correctores para que realicen el control de calidad. Por favor seleccione al menos un corrector como responsable de corregir las pruebas de control.';
 
-$string['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
-$string['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
-$string['studentvisible_markervisible'] = 'Estudiante visible / Corrector visible';
-$string['studentvisible_markeranonymous'] = 'Estudiante visible / Corrector anónimo';
-
+$string ['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
+$string ['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
+$string ['studentvisible_markervisible'] = 'Estudiante visible / Corrector visible';
+$string ['studentvisible_markeranonymous'] = 'Estudiante visible / Corrector anónimo';
 
 $string ['markingtype'] = 'Tipo de corrección';
 $string ['markingtype_help'] = "<h2>Tipos de corrección</h2><br>
@@ -528,10 +527,12 @@ $string ['advacebycriteria'] = 'Avance por criterio';
 $string ['pointsassignedbymarker'] = 'Puntajes asignados por corrector';
 $string ['advancebymarker'] = 'Avance por corrector';
 $string ['marker'] = 'Corrector';
+$string ['published'] = 'Publicada';
 
 /**
  * Events
  */
+
 $string ['eventemarkinggraded'] = 'Emarking';
 $string ['eventsortpagesswitched'] = 'Ordenar paginas';
 $string ['eventrotatepageswitched'] = 'Rotar pagina';
