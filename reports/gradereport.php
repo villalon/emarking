@@ -26,8 +26,8 @@
  */
 require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
-require_once ('forms/gradereport_form.php');
-require_once ('statstable.php');
+require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php');
+require_once ($CFG->dirroot . '/mod/emarking/reports/statstable.php');
 
 global $DB, $USER;
 
