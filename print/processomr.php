@@ -75,48 +75,47 @@ $timenow = time();
 
 // Get submitted parameters.
 $attemptid = required_param('attempt', PARAM_INT);
+$finish = optional_param('finish', false, PARAM_BOOL);
 
 
 $transaction = $DB->start_delegated_transaction();
 $attemptobj = quiz_attempt::create($attemptid);
 
+if($finish) {
+    $attemptobj->process_finish($timenow, ! false);
+    $transaction->allow_commit();
+    echo "Done finish!";
+    die();
+}
+
 $quizobj = $attemptobj->get_quizobj();
 $quba = question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
 $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
 
-$answer = array();
-$slotsstring = array();
-$simpleanswer = array();
+$choices = array(
+    0,
+    1,
+    0,
+    1,
+    2
+);
+
+$answers = array();
+
+$current=0;
 foreach($attemptobj->get_slots('all') as $k => $slot) {
     $qa = $attemptobj->get_question_attempt($slot);
-    $correct = $qa->get_correct_response();
-    $sequencecheckcount = $qa->get_sequence_check_count();
-    $answer['q'.$attemptobj->get_uniqueid().':'.$slot.'_:flagged'] = '0';
-    $answer['q'.$attemptobj->get_uniqueid().':'.$slot.'_:sequencecheck'] = "$sequencecheckcount";
-    $answer['q'.$attemptobj->get_uniqueid().':'.$slot.'_answer'] = $correct['answer'];
-    $slotsstring[] = $slot;
-    $simpleanswer[$slot] = $correct;
-    
-    $data = $qa->get_submitted_data($answer);
-    $data2 = $qa->get_database_id();
-    $data3 = $qa->get_qt_field_name('answer');
-    $data4 = $quba->prepare_simulated_post_data($simpleanswer);
-    var_dump($qa->get_field_prefix());
-    var_dump($data);echo"<hr>";
-    var_dump($data2);echo"<hr>";
-    var_dump($data3);echo"<hr>";
-    var_dump($data4);echo"<hr>";
+    $currentchoice=0;
+    foreach($qa->get_question()->get_order($qa) as $index => $questionid) {
+        $qans = $qa->get_question()->answers[$questionid];
+        if($currentchoice == $choices[$current]) {
+            $answers[$slot] = array('answer' => clean_param($qans->answer, PARAM_NOTAGS));
+        }
+        $currentchoice++;
+    }
+    $current++;
 }
-$answer['next'] = 'Next';
-$answer['attempt'] = "$attemptid";
-$answer['thispage'] = '0';
-$answer['nextpage'] = '-1';
-$answer['timeup'] = '0';
-$answer['sesskey'] = "$USER->sesskey";
-$answer['scrollpos'] = '';
-$answer['slots'] = implode(',', $slotsstring);
 
-var_dump($simpleanswer);
 // If the attempt is already closed, send them to the review page.
 if ($attemptobj->is_finished()) {
     throw new moodle_quiz_exception($attemptobj->get_quizobj(), 'attemptalreadyclosed', null, $attemptobj->review_url());
@@ -124,7 +123,7 @@ if ($attemptobj->is_finished()) {
 
 // Don't log - we will end with a redirect to a page that is logged.
 try {
-    $attemptobj->process_submitted_actions($timenow, false, $simpleanswer);
+    $attemptobj->process_submitted_actions($timenow, false, $answers);
 } catch (question_out_of_sequence_exception $e) {
     print_error('submissionoutofsequencefriendlymessage', 'question', $attemptobj->attempt_url(null, $thispage));
 } catch (Exception $e) {
@@ -137,9 +136,7 @@ try {
     print_error('errorprocessingresponses', 'question', $attemptobj->attempt_url(null, $thispage), $e->getMessage(), $debuginfo);
 }
 
-// $attemptobj->process_finish($timenow, ! false);
-
 // Send the user to the review page.
-$transaction->allow_commit();
+$DB->commit_delegated_transaction($transaction);
 
 echo "Done";
