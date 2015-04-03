@@ -563,7 +563,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
  *
  * @param stdClass $course        	
  */
-function emarking_get_parallel_courses($course, $extracategory, $regex) {
+function emarking_get_parallel_courses($course, $regex) {
 	global $CFG, $DB;
 	
 	if ($regex && preg_match_all ( '/' . $regex . '/', $course->shortname, $regs )) {
@@ -572,7 +572,6 @@ function emarking_get_parallel_courses($course, $extracategory, $regex) {
 			$term = $regs [2] [0];
 			$year = $regs [3] [0];
 			
-			$categories = $course->category;
 			$seccionesparalelas = $DB->get_records_select ( 'course', "
 				shortname like '%$coursecode%-%-$term-$year'
 				and id != $course->id", null, 'shortname ASC', '*' );
