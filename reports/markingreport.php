@@ -115,7 +115,9 @@ if (! $totalsubmissions || $totalsubmissions == 0) {
 
 // Initialization of the variable $emakingids, with the actual emarking id as the first one on the sequence.
 $emarkingids = '' . $emarking->id;
-
+//Initializatetion of the variable $emarkingidsfortable, its an array with all the parallels ids, this will be used in the stats table.
+$emarkingidsfortable=array();
+$emarkingidsfortable[0]=$emarking->id;
 // Check for parallel courses
 if ($CFG->emarking_parallelregex) {
 	$parallels = emarking_get_parallel_courses ( $course, $CFG->emarking_parallelregex );
@@ -144,13 +146,15 @@ if ($parallels && count ( $parallels ) > 0) {
 			eval ( "\$parallelids = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
 			if ($parallelids > 0) {
 				$emarkingids .= ',' . $parallelids;
+				$emarkingidsfortable[$totalemarkings]=$parallelids;
 				$totalemarkings ++;
 			}
 		}
 	}
 }
+
 // Print the stats table
-echo get_stats_table($emarkingids,$totalemarkings);
+echo get_stats_table($emarkingidsfortable, $totalemarkings);
 
 // Sql to get the quantity of tests in each state(submitted, grading, graded, regrading).
 $sqlstats = "SELECT	COUNT(distinct id) AS activities,
@@ -174,8 +178,8 @@ $sqlstats = "SELECT	COUNT(distinct id) AS activities,
 		d.timemodified,
 		d.grade,
 		d.generalfeedback,
-		count(distinct p.id) as pages,
-		CASE WHEN 0 = ? THEN 0 ELSE count(distinct c.id) / ? END as comments,
+		COUNT(distinct p.id) as pages,
+		CASE WHEN 0 = ? THEN 0 ELSE COUNT(distinct c.id) / ? END as comments,
 		count(distinct r.id) as regrades,
 		nm.course,
 		nm.id,
