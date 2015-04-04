@@ -79,10 +79,10 @@ $PAGE->set_heading ( $course->fullname );
 $PAGE->navbar->add ( get_string ( 'gradereport', 'grades' ) );
 
 echo $OUTPUT->header ();
-echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), 'gradereport', 'mod_emarking' );
+echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), get_string ( 'gradereport', 'mod_emarking' ), 'mod_emarking' );
 
 // Print eMarking tabs.
-echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), "report" );
+echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), get_string ( 'gradereport', 'mod_emarking' ) );
 
 // Counts the total of exams.
 $totalsubmissions = $DB->count_records_sql ( "

@@ -79,10 +79,10 @@ $PAGE->set_heading ( $course->fullname );
 $PAGE->navbar->add ( get_string ( 'markingreport', 'mod_emarking' ) );
 
 echo $OUTPUT->header ();
-echo $OUTPUT->heading_with_help ( get_string ( 'markingreport', 'mod_emarking' ), 'markingreport', 'mod_emarking' );
+echo $OUTPUT->heading_with_help ( get_string ( 'markingreport', 'mod_emarking' ), get_string ( 'markingreport', 'mod_emarking' ), 'mod_emarking' );
 
 // Print eMarking tabs
-echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), "markingreport" );
+echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), get_string ( 'markingreport', 'mod_emarking' ) );
 
 // Get rubric instance
 list ( $gradingmanager, $gradingmethod ) = emarking_validate_rubric ( $context );
