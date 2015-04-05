@@ -70,10 +70,8 @@ function emarking_import_omr_fonts($echo = false)
         // Import the font
         $ttfontname = TCPDF_FONTS::addTTFfont($CFG->dirroot . $fontfile, 'TrueType', 'ansi', 32);
 
-        var_dump($ttfontname);
-        
         // Validate if import went well
-        if ($ttfontname === $fontname) {
+        if ($ttfontname !== $fontname) {
                 echo "Fatal error importing font $fontname<br/>";
             return false;
         } else {
