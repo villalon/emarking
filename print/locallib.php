@@ -37,6 +37,8 @@ function emarking_get_temp_dir_path($postfix)
  */
 function emarking_import_omr_fonts($echo = false)
 {
+    global $CFG;
+    
     // The list of extensions a font in the tcpdf installation has
     $fontfilesextensions = array(
         '.ctg.z',
@@ -58,22 +60,23 @@ function emarking_import_omr_fonts($echo = false)
         foreach ($fontfilesextensions as $extension) {
             $fontfilename = $CFG->libdir . '/tcpdf/fonts/' . $fontname . $extension;
             if (file_exists($fontfilename)) {
-                if ($echo)
-                    echo "Deleting $fontfilename<br/>";
+                echo "Deleting $fontfilename<br/>";
                 unlink($fontfilename);
+            } else {
+                echo "$fontfilename does not exist, it must be created<br/>";
             }
         }
         
         // Import the font
         $ttfontname = TCPDF_FONTS::addTTFfont($CFG->dirroot . $fontfile, 'TrueType', 'ansi', 32);
+
+        var_dump($ttfontname);
         
         // Validate if import went well
-        if ($threeofnine === $fontname) {
-            if ($echo)
+        if ($ttfontname === $fontname) {
                 echo "Fatal error importing font $fontname<br/>";
             return false;
         } else {
-            if ($echo)
                 echo "$fontname imported!<br/>";
         }
     }
