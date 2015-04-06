@@ -103,7 +103,9 @@ if (! $totalsubmissions || $totalsubmissions == 0) {
 
 // Initialization of the variable $emakingids, with the actual emarking id as the first one on the sequence.
 $emarkingids = '' . $emarking->id;
-
+//Initializatetion of the variable $emarkingidsfortable, its an array with all the parallels ids, this will be used in the stats table.
+$emarkingidsfortable=array();
+$emarkingidsfortable[0]=$emarking->id;
 // check for parallel courses
 if ($CFG->emarking_parallelregex) {
 	$parallels = emarking_get_parallel_courses ( $course, $CFG->emarking_parallelregex );
@@ -132,13 +134,14 @@ if ($parallels && count ( $parallels ) > 0) {
 			eval ( "\$parallelids = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
 			if ($parallelids > 0) {
 				$emarkingids .= ',' . $parallelids;
+				$emarkingidsfortable[$totalemarkings]=$parallelids;
 				$totalemarkings ++;
 			}
 		}
 	}
 }
 // Print the stats table
-echo get_stats_table($emarkingids,$totalemarkings);
+echo get_stats_table($emarkingidsfortable,$totalemarkings);
 $reportsdir = $CFG->wwwroot . '/mod/emarking/marking/emarkingreports';
 ?>
 <script type="text/javascript" language="javascript"
