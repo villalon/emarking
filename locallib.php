@@ -241,13 +241,18 @@ function emarking_verify_logo() {
 			if ($filename !== '.') {
 				
 				$existingfile = $fs->get_file ( $syscontext->id, 'mod_emarking', 'logo', 1, '/', $file->get_filename () );
-				if (! $existingfile) {
-					$newrecord = new stdClass ();
-					$newrecord->contextid = $syscontext->id;
-					$newrecord->itemid = 1;
-					$newrecord->filearea = 'logo';
-					$newrecord->component = 'mod_emarking';
-					$fs->create_file_from_storedfile ( $newrecord, $file );
+				
+				if ($existingfile && $existingfile->get_timemodified() < $file->get_timemodified()) {
+				    $existingfile->delete();
+				    $existingfile = null;
+				}
+				if(!$existingfile) {
+				    $newrecord = new stdClass ();
+				    $newrecord->contextid = $syscontext->id;
+				    $newrecord->itemid = 1;
+				    $newrecord->filearea = 'logo';
+				    $newrecord->component = 'mod_emarking';
+				    $fs->create_file_from_storedfile ( $newrecord, $file );
 				}
 			}
 		}
