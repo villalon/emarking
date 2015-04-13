@@ -742,7 +742,7 @@ function emarking_create_dirs($path)
     }
 }
 
-function emarking_get_totalscore($submission, $controller, $fillings)
+function emarking_get_totalscore($draft, $controller, $fillings)
 {
     global $DB;
     
@@ -755,9 +755,8 @@ function emarking_get_totalscore($submission, $controller, $fillings)
     if ($bonusfromcomments = $DB->get_record_sql("
 			SELECT 1, IFNULL(SUM(ec.bonus),0) AS totalbonus
 			FROM {emarking_comment} AS ec
-			INNER JOIN {emarking_page} AS ep ON (ep.submission = :submission AND ec.page = ep.id)
-			WHERE ec.levelid > 0", array(
-        'submission' => $submission->id
+			WHERE ec.levelid > 0 AND ec.draf = :draft", array(
+        'draft' => $draft->id
     ))) {
         $bonus = floatval($bonusfromcomments->totalbonus);
     }

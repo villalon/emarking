@@ -302,6 +302,21 @@ else
                         $newexam->totalstudents = $studentsnumber;
                         $newexam->course = $thiscourse->id;
                         $newexam->id = $DB->insert_record('emarking_exams', $newexam);
+
+                        // Create file records for all new exams
+                        foreach ($exampdfs as $exampdf) {
+                            // Save the submitted file to check if it's a PDF
+                            $filerecord = array(
+                                'component' => 'mod_emarking',
+                                'filearea' => 'exams',
+                                'contextid' => $context->id,
+                                'itemid' => $newexam->id,
+                                'filepath' => '/',
+                                'filename' => $exampdf['filename']
+                            );
+                            $file = $fs->create_file_from_pathname($filerecord, $exampdf['pathname']);
+                        }
+                        
                         // Send new print order notification
                         emarking_send_newprintorder_notification($newexam, $thiscourse);
                     }
