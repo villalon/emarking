@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-
 /**
  *
  * @package mod
@@ -28,17 +27,13 @@ require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/confi
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php');
 require_once ($CFG->dirroot . '/mod/emarking/reports/statstable.php');
-
 global $DB, $USER;
-
 // Get course module id
 $cmid = required_param ( 'id', PARAM_INT );
-
 // Validate course module
 if (! $cm = get_coursemodule_from_id ( 'emarking', $cmid )) {
 	print_error ( get_string('invalidcoursemodule','mod_emarking'));
 }
-
 // Validate module
 if (! $emarking = $DB->get_record ( 'emarking', array (
 		'id' => $cm->instance 
@@ -51,24 +46,19 @@ if (! $course = $DB->get_record ( 'course', array (
 ) )) {
 	print_error ( get_string('invalidcourseid','mod_emarking') );
 }
-
 // URLs for current page
 $url = new moodle_url ( '/mod/emarking/gradereport.php', array (
 		'id' => $cm->id 
 ) );
-
 // Course context is used in reports
 $context = context_module::instance ( $cm->id );
-
 // Validate the user has grading capabilities
 require_capability ( 'mod/emarking:grade', $context );
-
 // First check that the user is logged in
 require_login ( $course->id );
 if (isguestuser ()) {
 	die ();
 }
-
 // Page settings (URL, breadcrumbs and title)
 $PAGE->set_context ( $context );
 $PAGE->set_course ( $course );
@@ -77,13 +67,10 @@ $PAGE->set_url ( $url );
 $PAGE->set_pagelayout ( 'incourse' );
 $PAGE->set_heading ( $course->fullname );
 $PAGE->navbar->add ( get_string ( 'gradereport', 'grades' ) );
-
 echo $OUTPUT->header ();
-echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), get_string ( 'gradereport', 'mod_emarking' ), 'mod_emarking' );
-
+echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), 'gradereport', 'mod_emarking' );
 // Print eMarking tabs.
 echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), get_string ( 'gradereport', 'mod_emarking' ) );
-
 // Counts the total of exams.
 $totalsubmissions = $DB->count_records_sql ( "
 		SELECT COUNT(dr.id) AS total 
@@ -93,17 +80,17 @@ $totalsubmissions = $DB->count_records_sql ( "
 		'emarking' => $emarking->id,
 		'status' => EMARKING_STATUS_RESPONDED 
 ) );
-
 // Check if there are any submissions to be shown.
 if (! $totalsubmissions || $totalsubmissions == 0) {
 	echo $OUTPUT->notification ( get_string ( 'nosubmissionsgraded', 'mod_emarking' ), 'notifyproblem' );
 	echo $OUTPUT->footer ();
 	die ();
 }
-
 // Initialization of the variable $emakingids, with the actual emarking id as the first one on the sequence.
 $emarkingids = '' . $emarking->id;
-
+//Initializatetion of the variable $emarkingidsfortable, its an array with all the parallels ids, this will be used in the stats table.
+$emarkingidsfortable=array();
+$emarkingidsfortable[0]=$emarking->id;
 // check for parallel courses
 if ($CFG->emarking_parallelregex) {
 	$parallels = emarking_get_parallel_courses ( $course, $CFG->emarking_parallelregex );
@@ -132,13 +119,14 @@ if ($parallels && count ( $parallels ) > 0) {
 			eval ( "\$parallelids = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
 			if ($parallelids > 0) {
 				$emarkingids .= ',' . $parallelids;
+				$emarkingidsfortable[$totalemarkings]=$parallelids;
 				$totalemarkings ++;
 			}
 		}
 	}
 }
 // Print the stats table
-echo get_stats_table($emarkingids,$totalemarkings);
+echo get_stats_table($emarkingidsfortable,$totalemarkings);
 $reportsdir = $CFG->wwwroot . '/mod/emarking/marking/emarkingreports';
 ?>
 <script type="text/javascript" language="javascript"

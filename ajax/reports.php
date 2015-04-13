@@ -35,7 +35,7 @@ $cmid = required_param ( "cmid", PARAM_NUMBER );
 // Get action
 $action = required_param ( "action", PARAM_TEXT );
 // Get ids for multy section
-$ids = optional_param ( "emarkingids", '', PARAM_SEQUENCE );
+$ids = optional_param ( "emarkingids","0", PARAM_SEQUENCE );
 // Callback for from webpage
 $callback = optional_param ( 'callback', null, PARAM_RAW_TRIMMED );
 
@@ -44,9 +44,14 @@ if (! $cm = get_coursemodule_from_id ( 'emarking', $cmid )) {
 	print_error ( get_string ( 'invalidcoursemodule', 'mod_emarking' ) );
 }
 
+
 // Validate module
 if (! $emarking = $DB->get_record ( 'emarking', array ('id' => $cm->instance))) {
 	print_error ( get_string ( 'invalidexamid', 'mod_emarking' ) );
+}
+//In case of failure, this is a problem solving
+if($ids == "0"){
+	$ids = $emarking->id;
 }
 // Set context
 $context = context_module::instance ( $cmid );
@@ -74,6 +79,7 @@ if ($action == "markingreport") {
 	// Gets all variables needed to pass to GWT for the graph making in markingreport.php
 	$grading = get_status ( $cmid, $emarking->id );
 	list ( $contributioners, $contributions ) = get_markers_contributions ( $grading, $emarking->id );
+	var_dump($contributioners);die("cage!");
 	list ( $advancedescription, $advanceresponded, $advanceregrading, $advancegrading ) = get_question_advance ( $cmid, $emarking->id );
 	list ( $markeradvance_marker, $markeradvance_corregido, $markeradvance_porcorregir, $markeradvance_porrecorregir ) = get_marker_advance ( $cmid, $emarking->id );
 	
@@ -104,10 +110,10 @@ if ($action == "markingreport") {
 } else if ($action == "gradereport") {
 	
 	// Counts the total of disticts categories
-	$sqlcats = 'SELECT COUNT(DISTINCT(c.category)) AS categories
+	$sqlcats = "SELECT COUNT(DISTINCT(c.category)) AS categories
 				FROM {emarking} AS a
 				INNER JOIN {course} AS c ON (a.course = c.id)
-				WHERE a.id IN (:ids)';
+				WHERE a.id IN (:ids)";
 	
 	$totalcategories = $DB->count_records_sql ( $sqlcats, array('ids'=>$ids) );
 	$grading = get_status ( $numcriteria, $emarking->id );
@@ -119,7 +125,7 @@ if ($action == "markingreport") {
 	$pass_ratio = get_pass_ratio ( $emarkingstats, $totalcategories, $totalemarkings );
 	list ( $efficiencycriterion, $efficiencyrate ) = get_efficiency ( $ids );
 	
-	$final = Array (
+	$final = array (
 			'Marks' => $marks,
 			'CourseMarks' => $coursemarks,
 			'PassRatio' => $pass_ratio,
