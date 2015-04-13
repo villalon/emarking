@@ -15,7 +15,7 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *
+ * 
  * @package mod
  * @subpackage emarking
  * @copyright 2015 Jorge Villalón {@link http://www.uai.cl},

@@ -6,7 +6,7 @@ require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php'
 /**
  * This function gets all stadistical data from corrections on one instrument of evaluation.
  * @param unknown $numcriteria
- * @param unknown $emarkingid
+ * @param unknown $emarkingid 
  * @return multitype:multitype:number
  */
 function get_status($numcriteria, $emarkingid) {
