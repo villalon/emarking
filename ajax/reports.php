@@ -75,11 +75,9 @@ $totalemarkings = count ( explode ( ',', $ids ) );
 // header ( 'Pragma: no-cache' );
 
 if ($action == "markingreport") {
-	
 	// Gets all variables needed to pass to GWT for the graph making in markingreport.php
 	$grading = get_status ( $cmid, $emarking->id );
 	list ( $contributioners, $contributions ) = get_markers_contributions ( $grading, $emarking->id );
-	var_dump($contributioners);die("cage!");
 	list ( $advancedescription, $advanceresponded, $advanceregrading, $advancegrading ) = get_question_advance ( $cmid, $emarking->id );
 	list ( $markeradvance_marker, $markeradvance_corregido, $markeradvance_porcorregir, $markeradvance_porrecorregir ) = get_marker_advance ( $cmid, $emarking->id );
 	

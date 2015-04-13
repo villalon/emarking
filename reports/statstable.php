@@ -15,22 +15,27 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 /**
  *
-* @package mod		
-* @subpackage emarking
-* @copyright 2015 Xiu-Fong Lin (xlin@alumnos.uai.cl)
-* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-
+ * @package mod
+ * @subpackage emarking
+ * @copyright 2015 Xiu-Fong Lin (xlin@alumnos.uai.cl)
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *         
+ */
 /**
- * 
+ *
  * This functions creates the stats table for gradereport.php y markingreport.php
- * 
- * @param sequence $emarkingids
- * @param int $totalemarkings
+ *
+ * @param array $emarkingid        	
+ * @param int $totalemarkings        	
  * @return table
  */
-function get_stats_table($emarkingids,$totalemarkings) {
+function get_stats_table($emarkingid, $totalemarkings) {
 	global $DB;
+	// Set the correct syntaxis for the query in $sqlcats
+	$emarkingids = '';
+	foreach ( $emarkingid as $id ) {
+		$emarkingids = $id . ',';
+	}
 	// counts the total of disticts categories
 	$sqlcats = "SELECT
                 COUNT(DISTINCT(c.category)) as categories
@@ -41,6 +46,8 @@ function get_stats_table($emarkingids,$totalemarkings) {
 	$totalcategories = $DB->count_records_sql ( $sqlcats, array (
 			$emarkingids 
 	) );
+	// This generates a link with the ids and generates a IN sql, so the sql stays secure.
+	list ( $emarking_ids, $param ) = $DB->get_in_or_equal ( $emarkingid, SQL_PARAMS_NAMED );
 	
 	// Search for stats regardig the exames (eg: max, min, number of students,etc)
 	$sql = "SELECT  *,
@@ -135,7 +142,7 @@ function get_stats_table($emarkingids,$totalemarkings) {
 	a.name AS modulename,
 	c.fullname AS coursename
 	FROM {emarking} AS a
-	INNER JOIN {emarking_submission} AS ss ON (a.id = ss.emarking AND a.id IN ($emarkingids))
+	INNER JOIN {emarking_submission} AS ss ON (a.id = ss.emarking AND a.id {$emarking_ids})
 	INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = ss.id AND dr.qualitycontrol=0)
 	INNER JOIN {course} AS c ON (a.course = c.id)
 	INNER JOIN {course_categories} AS cc ON (c.category = cc.id)
@@ -144,7 +151,7 @@ function get_stats_table($emarkingids,$totalemarkings) {
 	GROUP BY categoryid, emarkingid
 	WITH ROLLUP) AS T";
 	
-	$emarkingstats = $DB->get_recordset_sql ( $sql );
+	$emarkingstats = $DB->get_recordset_sql ( $sql, $param );
 	// Initialization of the variable data.
 	$data = array ();
 	foreach ( $emarkingstats as $stats ) {
@@ -156,6 +163,10 @@ function get_stats_table($emarkingids,$totalemarkings) {
 		if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
 			continue;
 		}
+		// Format the ranks by percentages.
+		$rank_1 = number_format ( $stats->rank_1 * 100, 1 ) . '%';
+		$rank_2 = number_format ( $stats->rank_2 * 100, 1 ) . '%';
+		$rank_3 = number_format ( $stats->rank_3 * 100, 1 ) . '%';
 		// Data for the table
 		$data [] = array (
 				$stats->seriesname,
@@ -167,9 +178,9 @@ function get_stats_table($emarkingids,$totalemarkings) {
 				$stats->percentile_50,
 				$stats->percentile_75,
 				$stats->maximum,
-				$stats->rank_1,
-				$stats->rank_2,
-				$stats->rank_3 
+				$rank_1,
+				$rank_2,
+				$rank_3 
 		);
 	}
 	// Create the obj table
