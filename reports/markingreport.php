@@ -134,13 +134,8 @@ if ($parallels && count ( $parallels ) > 0) {
 		}
 	}
 }
-
 // Print the stats table
 echo get_stats_table($emarkingidsfortable, $totalemarkings);
-<<<<<<< HEAD
-=======
-
->>>>>>> 3d33d965dccc59cd93d456cc9be304b6582e6838
 // Sql to get the quantity of tests in each state(submitted, grading, graded, regrading).
 $sqlstats = "SELECT	COUNT(distinct id) AS activities,
 		COUNT(DISTINCT student) AS students,
