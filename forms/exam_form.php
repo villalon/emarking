@@ -190,7 +190,7 @@ class emarking_exam_form extends moodleform {
 		$mform->setDefault ( 'printdoublesided', false );
 		
 		// Obtain parallel courses
-		if ($seccionesparalelas = emarking_get_parallel_courses ( $course, null, $CFG->emarking_parallelregex )) {
+		if ($seccionesparalelas = emarking_get_parallel_courses ( $course, $CFG->emarking_parallelregex )) {
 			// Add a checkbox for each parallel course
 			$checkboxes = array ();
 			foreach ( $seccionesparalelas as $cid => $course ) {
