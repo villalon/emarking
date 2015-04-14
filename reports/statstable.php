@@ -21,10 +21,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *         
  */
-<<<<<<< HEAD
-=======
 
->>>>>>> 3d33d965dccc59cd93d456cc9be304b6582e6838
+
 /**
  *
  * This functions creates the stats table for gradereport.php y markingreport.php

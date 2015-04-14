@@ -22,11 +22,13 @@
  * @copyright 2015 Xiu-Fong Lin <xlin@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php');
 require_once ($CFG->dirroot . '/mod/emarking/reports/statstable.php');
 global $DB, $USER;
+
 // Get course module id
 $cmid = required_param ( 'id', PARAM_INT );
 // Validate course module
