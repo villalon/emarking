@@ -755,7 +755,7 @@ function emarking_get_totalscore($draft, $controller, $fillings)
     if ($bonusfromcomments = $DB->get_record_sql("
 			SELECT 1, IFNULL(SUM(ec.bonus),0) AS totalbonus
 			FROM {emarking_comment} AS ec
-			WHERE ec.levelid > 0 AND ec.draf = :draft", array(
+			WHERE ec.levelid > 0 AND ec.draft = :draft", array(
         'draft' => $draft->id
     ))) {
         $bonus = floatval($bonusfromcomments->totalbonus);
