@@ -69,7 +69,7 @@ $PAGE->navbar->add ( get_string ( 'markingreport', 'mod_emarking' ) );
 echo $OUTPUT->header ();
 echo $OUTPUT->heading_with_help ( get_string ( 'markingreport', 'mod_emarking' ),'markingreport', 'mod_emarking' );
 // Print eMarking tabs
-echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), get_string ( 'markingreport', 'mod_emarking' ) );
+echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ),'markingreport');
 // Get rubric instance
 list ( $gradingmanager, $gradingmethod ) = emarking_validate_rubric ( $context );
 // Get the rubric controller from the grading manager and method
@@ -239,5 +239,4 @@ $reportsdir = $CFG->wwwroot . '/mod/emarking/reports/reportsweb';
 <div id='reports' cmid='<?php echo $cmid ?>' action='markingreport'
 	url='<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/reports.php'></div>
 <?php
-echo $CFG->wwwroot . '/mod/emarking/ajax/reports.php';
 echo $OUTPUT->footer ();

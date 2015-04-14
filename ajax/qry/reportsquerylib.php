@@ -5,8 +5,9 @@ require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php'
 
 /**
  * This function gets all stadistical data from corrections on one instrument of evaluation.
- * @param unknown $numcriteria
- * @param unknown $emarkingid 
+ * 
+ * @param unknown $numcriteria        	
+ * @param unknown $emarkingid        	
  * @return multitype:multitype:number
  */
 function get_status($numcriteria, $emarkingid) {
@@ -50,7 +51,7 @@ function get_status($numcriteria, $emarkingid) {
 			LEFT JOIN {emarking_regrade} AS r ON (r.draft = dr.id AND r.criterion = l.criterionid AND r.accepted = 0)
 			GROUP BY nm.id, s.student) AS T
 			GROUP BY id';
-	$markingstats = $DB->get_record_sql ($sql , array (
+	$markingstats = $DB->get_record_sql ( $sql, array (
 			'numcriteria' => $numcriteria,
 			'numcriteria2' => $numcriteria,
 			'emarkingid' => $emarkingid 
@@ -73,8 +74,9 @@ function get_status($numcriteria, $emarkingid) {
 
 /**
  * Gets the total submissions of an instrument of evaluation and returns the number.
- * @param unknown $cmid
- * @param unknown $emarkingid
+ * 
+ * @param unknown $cmid        	
+ * @param unknown $emarkingid        	
  * @return number
  */
 function get_totalsubmissions($grading) {
@@ -84,14 +86,15 @@ function get_totalsubmissions($grading) {
 
 /**
  * Gets the contribution, on the evaluation instrument, from each of the correctors.
- * @param unknown $cmid
- * @param unknown $emarkingid
+ * 
+ * @param unknown $cmid        	
+ * @param unknown $emarkingid        	
  * @return multitype:multitype:multitype:number
  */
 function get_markers_contribution($grading, $emarkingid) {
 	global $DB;
-	// Get total submission
-	$totalsubmissions = get_totalsubmissions ( $grading );
+	
+	
 	$sqlcontributorstats = "SELECT
 		ec.markerid,
 		CONCAT(u.firstname , ' ', u.lastname) AS markername,
@@ -110,38 +113,52 @@ function get_markers_contribution($grading, $emarkingid) {
         INNER JOIN {emarking_comment} AS ec ON (b.id = ec.levelid AND ec.draft = dr.id)
         INNER JOIN {user} AS u ON (ec.markerid = u.id)
 		GROUP BY ec.markerid";
-	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array ("emarkingid"=>
-			$emarkingid 
+	
+	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
+			"emarkingid" => $emarkingid 
 	) );
 	$contributioners = array ();
 	$contributions = array ();
-	
+	// Get total submission
+	$totalsubmissions = get_totalsubmissions ( $grading );
 	// Filling in array with elements of user names and contribution per marker
 	foreach ( $markingstatstotalcontribution as $contributioner ) {
+		
 		$contributioners [0] = array (
 				"user" => $contributioner->markername 
 		);
-		$contributions [0] = array (
-				"contrib" => round ( ($contributioner->comments) * 100 / ($totalsubmissions * $numcriteria), 2 )
-		);
+		if ($totalsubmissions != 0) {
+			$contributions [0] = array (
+					"contrib" => round ( ($contributioner->comments) * 100 / ($totalsubmissions * $numcriteria), 2 ) 
+			);
+		} else {
+			$contributions [0] = array (
+					"contrib" => 0 
+			);
+		}
 	}
-	return array($contributioners, $contributions);
+	return array (
+			$contributioners,
+			$contributions 
+	);
+	echo"funciono!!";
 }
 /**
  * Gets stadistical information from the correction.
- * @param unknown $emarkingstats
- * @param unknown $totalcategories
- * @param unknown $totalemarkings
+ * 
+ * @param unknown $emarkingstats        	
+ * @param unknown $totalcategories        	
+ * @param unknown $totalemarkings        	
  * @return multitype:multitype:number
  */
 function get_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
-	$emarkingstats->rewind();
+	$emarkingstats->rewind ();
 	
 	// Search for stats regardig the exames (eg: max, min, number of students,etc)
-	$marks = array();
-
+	$marks = array ();
+	
 	foreach ( $emarkingstats as $stats ) {
 		if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
 			continue;
@@ -164,17 +181,18 @@ function get_marks($emarkingstats, $totalcategories, $totalemarkings) {
 }
 /**
  * Runs a query used in the other functions to get information.
- * @param unknown $ids
+ * 
+ * @param unknown $ids        	
  * @return multitype:string number
  */
 function get_emarking_stats($ids) {
-    global $DB;
-    $ides=explode(",",$ids);
-    // This generates a link with the ids and generates a IN sql, so the sql stays secure.
-    list ( $emarking_ids, $param ) = $DB->get_in_or_equal ( $ides, SQL_PARAMS_NAMED );
-    
-    // Search for stats regardig the exames (eg: max, min, number of students,etc)
-    $sql = "SELECT  *,
+	global $DB;
+	$ides = explode ( ",", $ids );
+	// This generates a link with the ids and generates a IN sql, so the sql stays secure.
+	list ( $emarking_ids, $param ) = $DB->get_in_or_equal ( $ides, SQL_PARAMS_NAMED );
+	
+	// Search for stats regardig the exames (eg: max, min, number of students,etc)
+	$sql = "SELECT  *,
     CASE
     WHEN categoryid is null THEN 'TOTAL'
     WHEN emarkingid is null THEN concat('SUBTOTAL ', categoryname)
@@ -274,29 +292,28 @@ function get_emarking_stats($ids) {
     ORDER BY emarkingid asc, dr.grade asc) AS G
     GROUP BY categoryid, emarkingid
     WITH ROLLUP) AS T";
-    
-    $emarkingstats = $DB->get_recordset_sql ( $sql, $param );
-    
-    return $emarkingstats;
+	
+	$emarkingstats = $DB->get_recordset_sql ( $sql, $param );
+	
+	return $emarkingstats;
 }
 /**
- * Gets the amount of students who has achieved a mark thats fits in one of the 12 categories. 
- * @param unknown $emarkingstats
- * @param unknown $totalcategories
- * @param unknown $totalemarkings
+ * Gets the amount of students who has achieved a mark thats fits in one of the 12 categories.
+ *
+ * @param unknown $emarkingstats        	
+ * @param unknown $totalcategories        	
+ * @param unknown $totalemarkings        	
  * @return multitype:multitype:multitype:number
  */
 function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
-	$emarkingstats->rewind();
-	
 	$coursemarks = array ();
 	$data = array ();
 	
 	foreach ( $emarkingstats as $stats ) {
-
-	    if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
+		
+		if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
 			continue;
 		}
 		if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
@@ -340,7 +357,7 @@ function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 			}
 		}
 		// Filling in array with elements for the histogram of course marks
-		$coursemarks[] = array (
+		$coursemarks [] = array (
 				"cero" => $histograms [1],
 				"uno" => $histograms [2],
 				"dos" => $histograms [3],
@@ -352,28 +369,27 @@ function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 				"ocho" => $histograms [9],
 				"nueve" => $histograms [10],
 				"diez" => $histograms [11],
-				"once" => $histograms [12]
+				"once" => $histograms [12] 
 		);
 	}
-		
+	
 	return $coursemarks;
 }
 /**
  * Gets the ratio of students that fits into 3 categories, of course aproval.
- * @param unknown $emarkingstats
- * @param unknown $totalcategories
- * @param unknown $totalemarkings
+ * 
+ * @param unknown $emarkingstats        	
+ * @param unknown $totalcategories        	
+ * @param unknown $totalemarkings        	
  * @return multitype:multitype:string number
  */
 function get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
-	$emarkingstats->rewind;
-	
 	$pass_ratio = array ();
 	foreach ( $emarkingstats as $stats ) {
-
-	    if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
+		
+		if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
 			continue;
 		}
 		
@@ -385,7 +401,7 @@ function get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings) {
 				'seriesname' => $stats->seriesname . "(N=" . $stats->students . ")",
 				'rank1' => $stats->rank_1,
 				'rank2' => $stats->rank_2,
-				'rank3' => $stats->rank_3
+				'rank3' => $stats->rank_3 
 		);
 	}
 	
@@ -393,12 +409,13 @@ function get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings) {
 }
 /**
  * Gets the student efficiency of point achievment in every criteria of the rubric.
- * @param unknown $ids
+ * 
+ * @param unknown $ids        	
  * @return multitype:multitype:multitype:string number
  */
 function get_efficiency($ids) {
 	global $DB, $CFG;
-
+	
 	// Gets the stats by criteria
 	$sqlcriteria = "
 				SELECT co.fullname,
@@ -440,10 +457,10 @@ function get_efficiency($ids) {
 				ORDER BY a.description,emarkingid";
 	
 	$criteriastats = $DB->get_recordset_sql ( $sqlcriteria );
-	$count = count($criteriastats);
+	$count = count ( $criteriastats );
 	
 	$parallels_names_criteria = '';
-	$effectiveness = array();
+	$effectiveness = array ();
 	$effectivenessnum = 0;
 	$effectivenesscriteria = array ();
 	$effectivenesseffectiveness = array ();
@@ -458,25 +475,30 @@ function get_efficiency($ids) {
 		}
 		$description = trim ( preg_replace ( '/\s\s+/', ' ', $stats->description ) );
 		$criteriaid = $stats->criterionid;
-		// FIXME  fix when the name of two descriptions are the same
+		// FIXME fix when the name of two descriptions are the same
 		if ($lastdescription !== $description) {
 			
-			$effectivenesscriteria[0]["criterion".$effectivenessnum] = $description;
+			$effectivenesscriteria [0] ["criterion" . $effectivenessnum] = $description;
+			$effectivenesscriteria [0] ["count"] = $effectivenessnum + 1;
 			$lastdescription = $description;
 		}
-		$effectivenesseffectiveness[0]["rate".$effectivenessnum] = $stats->effectiveness;
+		$effectivenesseffectiveness [0] ["rate" . $effectivenessnum] = $stats->effectiveness;
 		$effectivenessnum ++;
 	}
 	
-	return array($effectivenesscriteria,$effectivenesseffectiveness);
+	return array (
+			$effectivenesscriteria,
+			$effectivenesseffectiveness 
+	);
 }
 /**
  * Gets the criteria progress on the correction of the instrument per status.
- * @param unknown $cmid
- * @param unknown $emarkingid
+ * 
+ * @param unknown $cmid        	
+ * @param unknown $emarkingid        	
  * @return multitype:multitype:multitype:string number
  */
-function get_question_advance($cmid, $emarkingid) {
+function get_question_advance($cmid, $grading) {
 	global $DB;
 	$sqlstatscriterion = "SELECT  a.id,
 							co.fullname AS course,
@@ -506,11 +528,12 @@ function get_question_advance($cmid, $emarkingid) {
 	$markingstatspercriterion = $DB->get_records_sql ( $sqlstatscriterion, array (
 			$cmid 
 	) );
-	$totalsubmissions = get_totalsubmissions( $cmid, $emarkingid );
+	$totalsubmissions = get_totalsubmissions ( $grading );
 	$i = 0;
 	foreach ( $markingstatspercriterion as $statpercriterion ) {
 		
-		$description[0] ['description' . $i] = trim ( preg_replace ( '/\s\s+/', ' ', $statpercriterion->description));
+		$description [0] ['description' . $i] = trim ( preg_replace ( '/\s\s+/', ' ', $statpercriterion->description ) );
+		$description [0] ['count'] = $i;
 		// condition of division by 0.
 		if ($totalsubmissions > 0) {
 			
@@ -524,18 +547,23 @@ function get_question_advance($cmid, $emarkingid) {
 		}
 		$i ++;
 	}
-	
-	return array($description, $responded, $regrading, $grading);
+	return array (
+			$description,
+			$responded,
+			$regrading,
+			$grading 
+	);
 }
 /**
  * Gets the correctors progress on the correction of the instrument per status.
- * @param unknown $cmid
- * @param unknown $emarkingid
+ * 
+ * @param unknown $cmid        	
+ * @param unknown $emarkingid        	
  * @return multitype:multitype:multitype:string number
  */
-function get_marker_advance($cmid, $emarkingid){
+function get_marker_advance($cmid, $emarkingid, $grading) {
 	global $DB;
-	$sql='
+	$sql = '
 		SELECT
 		a.id,
 		a.description,
@@ -574,21 +602,29 @@ function get_marker_advance($cmid, $emarkingid){
 		INNER JOIN {emarking_marker_criterion} AS emc ON (emc.emarking = c.instance AND emc.marker = T.markerid)
 		GROUP BY T.markerid, a.id
 		';
-	$markingstatspermarker = $DB->get_recordset_sql($sql,array('cmid'=>$cmid, 'emarkingid'=>$emarkingid));
+	$markingstatspermarker = $DB->get_recordset_sql ( $sql, array (
+			'cmid' => $cmid,
+			'emarkingid' => $emarkingid 
+	) );
 	$datamarkersavailable = false;
-	$datatablemarkers ='';
+	$datatablemarkers = '';
 	
-	$totalsubmissions=get_totalsubmissions($cmid, $emarkingid);
-	$count =0;
-	foreach($markingstatspermarker as $permarker) {
-		$description = trim(preg_replace('/\s\s+/', ' ', $permarker->description));
-		$markerdescription[0]["corrector".$count]=$permarker->markername.$description;
-		$responded[0]["corregido".$count]=$permarker->comments - $permarker->regrades;
-		$grading[0]["porcorregir".$count]=$permarker->regrades;
-		$regrading[0]["porrecorregir".$count]=$totalsubmissions - $permarker->comments;
-		
-		$count++;
+	$totalsubmissions = get_totalsubmissions ( $grading );
+	$count = 0;
+	foreach ( $markingstatspermarker as $permarker ) {
+		$description = trim ( preg_replace ( '/\s\s+/', ' ', $permarker->description ) );
+		$markerdescription [0] ["corrector" . $count] = $permarker->markername . $description;
+		$responded [0] ["corregido" . $count] = $permarker->comments - $permarker->regrades;
+		$grading [0] ["porcorregir" . $count] = $permarker->regrades;
+		$regrading [0] ["porrecorregir" . $count] = $totalsubmissions - $permarker->comments;
+		$markerdescription [0]["count"] = $count;
+		$count ++;
 	}
-
-	return array($markerdescription, $responded, $grading, $regrading);
+	
+	return array (
+			$markerdescription,
+			$responded,
+			$grading,
+			$regrading 
+	);
 }

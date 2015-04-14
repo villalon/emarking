@@ -70,7 +70,7 @@ $PAGE->navbar->add ( get_string ( 'gradereport', 'grades' ) );
 echo $OUTPUT->header ();
 echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), 'gradereport', 'mod_emarking' );
 // Print eMarking tabs.
-echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), get_string ( 'gradereport', 'mod_emarking' ) );
+echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ),'gradereport');
 // Counts the total of exams.
 $totalsubmissions = $DB->count_records_sql ( "
 		SELECT COUNT(dr.id) AS total 
@@ -129,6 +129,8 @@ if ($parallels && count ( $parallels ) > 0) {
 echo get_stats_table($emarkingidsfortable,$totalemarkings);
 $reportsdir = $CFG->wwwroot . '/mod/emarking/marking/emarkingreports';
 ?>
+<link rel="stylesheet" type="text/css"
+	href="<?php echo $reportsdir ?>/css/Reports.css" />
 <script type="text/javascript" language="javascript"
 	src="<?php echo $reportsdir ?>/emarkingreports.nocache.js"></script>
 <div id='reports' cmid='<?php echo $cmid ?>'

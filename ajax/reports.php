@@ -73,13 +73,14 @@ $totalemarkings = count ( explode ( ',', $ids ) );
 // header('Content-Type: text/html; charset=utf-8');
 // header ( 'Cache-Control: no-cache' );
 // header ( 'Pragma: no-cache' );
-
 if ($action == "markingreport") {
 	// Gets all variables needed to pass to GWT for the graph making in markingreport.php
-	$grading = get_status ( $cmid, $emarking->id );
-	list ( $contributioners, $contributions ) = get_markers_contributions ( $grading, $emarking->id );
-	list ( $advancedescription, $advanceresponded, $advanceregrading, $advancegrading ) = get_question_advance ( $cmid, $emarking->id );
-	list ( $markeradvance_marker, $markeradvance_corregido, $markeradvance_porcorregir, $markeradvance_porrecorregir ) = get_marker_advance ( $cmid, $emarking->id );
+	$grading = get_status ( $numcriteria, $emarking->id );
+	list ( $advancedescription, $advanceresponded, $advanceregrading, $advancegrading ) = get_question_advance ( $cmid, $grading );
+	
+	list ( $markeradvance_marker, $markeradvance_responded, $markeradvance_grading, $markeradvance_regrading ) = get_marker_advance ( $cmid, $emarking->id, $grading );
+	list ( $contributioners, $contributions ) = get_markers_contribution ( $grading, $emarking->id );
+	
 	
 	$final = Array (
 			'Grading' => $grading,
@@ -90,9 +91,9 @@ if ($action == "markingreport") {
 			'Advanceregrading' => $advanceregrading,
 			'Advancegrading' => $advancegrading,
 			'MarkeradvanceMarker' => $markeradvance_marker,
-			'MarkeradvanceCorregido' => $markeradvance_corregido,
-			'MarkeradvancePorcorregir' => $markeradvance_porcorregir,
-			'MarkeradvancePorrecorregir' => $markeradvance_porrecorregir 
+			'MarkeradvanceCorregido' => $markeradvance_responded,
+			'MarkeradvancePorcorregir' => $markeradvance_grading,
+			'MarkeradvancePorrecorregir' => $markeradvance_regrading 
 	);
 	// Array cration for future json
 	$output = $final;
@@ -116,13 +117,14 @@ if ($action == "markingreport") {
 	$totalcategories = $DB->count_records_sql ( $sqlcats, array('ids'=>$ids) );
 	$grading = get_status ( $numcriteria, $emarking->id );
 	$emarkingstats = get_emarking_stats ( $ids );
-	
 	// Gets all variables needed to pass to GWT for the graph making in gradereport.php
-	$marks = get_marks ( $emarkingstats, $totalcategories, $totalemarkings );
 	$coursemarks = get_courses_marks ( $emarkingstats, $totalcategories, $totalemarkings );
-	$pass_ratio = get_pass_ratio ( $emarkingstats, $totalcategories, $totalemarkings );
+	$emarkingstats = get_emarking_stats ( $ids );
+	$marks = get_marks ( $emarkingstats, $totalcategories, $totalemarkings );
+	$emarkingstats = get_emarking_stats ( $ids );
 	list ( $efficiencycriterion, $efficiencyrate ) = get_efficiency ( $ids );
-	
+	$emarkingstats = get_emarking_stats ( $ids );
+	$pass_ratio = get_pass_ratio ( $emarkingstats, $totalcategories, $totalemarkings );
 	$final = array (
 			'Marks' => $marks,
 			'CourseMarks' => $coursemarks,
