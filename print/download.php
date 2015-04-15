@@ -89,9 +89,9 @@ $contextcourse = context_course::instance ( $course->id );
 $url = '/mod/emarking/print/download.php?examid=' . $exam->id . '&token=' . $token . '&sesskey=' . $sesskey;
 
 // Validate capability in the category context
-if (! has_capability ( 'mod/emarking:downloadexam', $contextcat ) 
-	&& ! ($CFG->emarking_teachercandownload 
-			&& has_capability ( 'mod/emarking:downloadexam', $contextcourse ))) {
+if (!(has_capability ( 'mod/emarking:downloadexam', $contextcat ) 
+	|| ($CFG->emarking_teachercandownload 
+			&& has_capability ( 'mod/emarking:downloadexam', $contextcourse )))) {
 	$item = array (
 			'context' => $contextcourse
 	);

@@ -32,10 +32,15 @@ class emarking_printexam_form extends moodleform {
 		$instance = $this->_customdata;
 		
 		$examid = $instance ['examid'];
+		$debug = $instance ['debug'];
 		
 		// Exam totalpages goes hidden as well
 		$mform->addElement ( 'hidden', 'exam', $examid );
 		$mform->setType ( 'exam', PARAM_INT );
+
+		// Exam totalpages goes hidden as well
+		$mform->addElement ( 'hidden', 'debug', $debug );
+		$mform->setType ( 'debug', PARAM_BOOL );
 
 		$mform->addElement ( 'header', 'selectprinter', get_string('selectprinter','mod_emarking' ) );
 

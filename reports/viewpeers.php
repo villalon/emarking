@@ -39,13 +39,13 @@ if(!$submission = $DB->get_record('emarking_submission', array('emarking'=>$emar
 
 require_login($course, true);
 
-$url = new moodle_url("/mod/emarking/viewpeers.php?id=$cmid");
+$url = new moodle_url("/mod/emarking/reports/viewpeers.php", array('id'=>$cmid));
 $context = context_module::instance($cm->id);
 
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
-$PAGE->set_title(get_string('justice','mod_emarking'));
+$PAGE->set_title(get_string('justice.peercheck','mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_heading(get_string('justice.my.evaluations','mod_emarking'));
 $PAGE->set_url($url);

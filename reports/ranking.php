@@ -36,7 +36,7 @@ if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
 
 require_login($course, true);
 
-$url = new moodle_url("/mod/emarking/justice/index.php?id=$cmid");
+$url = new moodle_url("/mod/emarking/reports/ranking.php", array('id'=>$cmid));
 
 $context = context_module::instance($cm->id);
 
@@ -45,7 +45,7 @@ $usercangrade = has_capability('mod/assign:grade', $context);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
-$PAGE->set_title(get_string('justice','mod_emarking'));
+$PAGE->set_title(get_string('justice.my.evaluations','mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_heading(get_string('justice.my.evaluations','mod_emarking'));
 $PAGE->set_url($url);

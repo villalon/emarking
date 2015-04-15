@@ -55,11 +55,16 @@ if(!$course = $DB->get_record('course', array('id'=>$courseid))) {
 	print_error(get_string('invalidcourseid', 'mod_emarking'));
 }
 
+$contextcourse = context_course::instance($course->id);
+$contextcat = context_coursecat::instance($course->category);
+
 // The context for the page is a course
-if($cmid > 0)
+if($cmid > 0) {
 	$context = context_module::instance($cm->id);
-else
-	$context = context_course::instance($course->id);
+}
+else {
+	$context = $contextcourse;
+}
 
 // First check that the user is logged in
 require_login();
@@ -149,7 +154,11 @@ foreach($exams as $exam) {
 
 	list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 
-	if(has_capability('mod/emarking:downloadexam', $context)) {
+	// Show download button if the user has capability for downloading in the category or if she is a teacher
+	// and has download capability for the course and teacher downloads are allowed
+	if (has_capability ( 'mod/emarking:downloadexam', $contextcat )
+	    || ($CFG->emarking_teachercandownload
+	        && has_capability ( 'mod/emarking:downloadexam', $contextcourse ))) {
 		$actions .= '<a href="#">'.$OUTPUT->pix_icon('i/down', get_string('download'),null,array("examid"=>$exam->id,"class"=>"downloademarking")).'</a>&nbsp;&nbsp;';
 	}
 

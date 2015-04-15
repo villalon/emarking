@@ -48,6 +48,10 @@ if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
 	error('You must specify a valid course module ID');
 }
 
+if($emarking->type != EMARKING_TYPE_NORMAL) {
+    error('You can only have regrades in a normal emarking type');
+}
+
 if(!$gradeitemobj = $DB->get_record('grade_items', array('itemtype'=>'mod','itemmodule'=>'emarking','iteminstance'=>$cm->instance))) {
 	error('You must specify a valid course module ID');
 }
@@ -61,8 +65,11 @@ if($criterionid) {
 		if(!$emarkingsubmission = $DB->get_record('emarking_submission', array('emarking'=>$emarking->id, 'student'=>$USER->id))) {
 			print_error('Fatal error! Couldn\'t find emarking submission');
 		}
+        if(!$emarkingdraft = $DB->get_record('emarking_draft', array('emarkingid'=>$emarking->id, 'submissionid'=>$emarkingsubmission->id))) {
+			print_error('Fatal error! Couldn\'t find emarking draft');
+		}
 		$regrade = $DB->get_record('emarking_regrade',
-			array('submission'=>$emarkingsubmission->id,
+			array('draft'=>$emarkingdraft->id,
 					'criterion'=>$criterionid));
 }
 
@@ -70,8 +77,8 @@ $gradeitem = $gradeitemobj->id;
 
 $context = context_module::instance($cm->id);
 
-$url = new moodle_url('/mod/emarking/regrades.php', array('id'=>$cm->id,'criterion'=>$criterionid));
-$cancelurl = new moodle_url('/mod/emarking/regrades.php', array('id'=>$cm->id));
+$url = new moodle_url('/mod/emarking/marking/regrades.php', array('id'=>$cm->id,'criterion'=>$criterionid));
+$cancelurl = new moodle_url('/mod/emarking/marking/regrades.php', array('id'=>$cm->id));
 
 $PAGE->set_context($context);
 $PAGE->set_course($course);
@@ -101,7 +108,7 @@ if($criterionid && !$delete && $requestswithindate) {
 			$regrade->timecreated = time();
 		}
 		$regrade->student = $USER->id;
-		$regrade->submission = $emarkingsubmission->id;
+		$regrade->draft = $emarkingdraft->id;
 		$regrade->motive = $data->motive;
 		$regrade->comment = $data->comment;
 		$regrade->criterion = $criterionid;
@@ -133,7 +140,7 @@ if($criterionid && !$delete && $requestswithindate) {
 
 if($regrade && $delete && $requestswithindate) {
 	$DB->delete_records('emarking_regrade', array(
-			'submission'=>$emarkingsubmission->id,
+			'draft'=>$emarkingdraft->id,
 			'criterion'=>$criterionid));
 	$successmessage=get_string('saved','mod_emarking');
 }
@@ -145,45 +152,46 @@ $gradingmethod = $gradingmanager->get_active_method();
 $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
 $definition = $rubriccontroller->get_definition();
 
-$query = "select
-		a.id as id,
-		a.description as description,
-		round(b.score + comment.bonus,2) as score,
-		round(T.maxscore,2) as maxscore,
-		f.remark as feedback,
-		rg.id as regradeid,
-		rg.markercomment as markercomment,
-		rg.accepted as rgaccepted,
+$query = "SELECT
+		a.id AS id,
+		a.description AS description,
+		round(b.score + comment.bonus,2) AS score,
+		round(T.maxscore,2) AS maxscore,
+		f.remark AS feedback,
+		rg.id AS regradeid,
+		rg.markercomment AS markercomment,
+		rg.accepted AS rgaccepted,
 		rg.motive,
 		rg.comment,
 		comment.bonus
-		from {emarking_submission}  as s
-		inner join {user}  as u on (s.student = :userid AND s.student = u.id)
-		INNER JOIN {grade_items} as gi ON (gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' AND gi.iteminstance = :emarkingid AND gi.iteminstance = s.emarking)
-		inner join {grading_instances}  as i on (s.id = i.itemid AND i.definitionid = :definition)
-		inner join {gradingform_rubric_fillings}  as f on (f.instanceid = i.id)
-		inner join {gradingform_rubric_criteria}  AS a on (a.id = f.criterionid)
-		inner join {gradingform_rubric_levels}  AS b on (b.id = f.levelid)
-		inner join (
-			select
-			s.id as emarkingid,
-			a.id as criterionid,
-			max(l.score) as maxscore
-			from {emarking}  as s
-			inner join {course_modules}  as cm on (s.id = :emarkingid2 AND s.id = cm.instance)
-			inner join {context}  as c on (c.instanceid = cm.id)
-			inner join {grading_areas}  as ar on (ar.contextid = c.id)
-			inner join {grading_definitions}  AS d on (ar.id = d.areaid)
-			inner join {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
-			inner join {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
-			group by s.id, criterionid
-		) as T on (s.emarking = T.emarkingid AND T.criterionid = a.id)
-		inner join {emarking}  as sg on (s.emarking = sg.id)
-		inner join {course}  as co on (sg.course = co.id)
-		inner join {emarking_page} as page on (page.submission = s.id)
-		inner join {emarking_comment} as comment on (comment.page = page.id AND comment.levelid = b.id)
-		left join {emarking_regrade} as rg on (rg.submission = s.id AND a.id = rg.criterion)
-		order by s.student,a.description";
+		FROM {emarking_submission}  AS s
+		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id)
+        INNER JOIN {user}  AS u on (s.student = :userid AND s.student = u.id)
+		-- INNER JOIN {grade_items} AS gi ON (gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' AND gi.iteminstance = :emarkingid AND gi.iteminstance = s.emarking)
+		INNER JOIN {grading_instances}  AS i on (s.id = i.itemid AND i.definitionid = :definition)
+		INNER JOIN {gradingform_rubric_fillings}  AS f on (f.instanceid = i.id)
+		INNER JOIN {gradingform_rubric_criteria}  AS a on (a.id = f.criterionid)
+		INNER JOIN {gradingform_rubric_levels}  AS b on (b.id = f.levelid)
+		INNER JOIN (
+			SELECT
+			s.id AS emarkingid,
+			a.id AS criterionid,
+			MAX(l.score) AS maxscore
+			FROM {emarking} AS s
+			INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
+			INNER JOIN {context}  AS c on (c.instanceid = cm.id)
+			INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
+			INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
+			INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
+			INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
+			GROUP BY s.id, criterionid
+		) AS T ON (s.emarking = T.emarkingid AND T.criterionid = a.id)
+		INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
+		INNER JOIN {course}  AS co ON (sg.course = co.id)
+		INNER JOIN {emarking_page} AS page ON (page.submission = s.id)
+		INNER JOIN {emarking_comment} AS comment ON (comment.page = page.id AND comment.levelid = b.id)
+		LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
+		ORDER BY s.student,a.description";
 
 $questions = $DB->get_records_sql($query,
 		array('userid'=>$USER->id, 'emarkingid'=>$emarking->id, 'definition'=>$definition->id, 'emarkingid2'=>$emarking->id));
@@ -200,8 +208,8 @@ $table->head = array(
 $data = array();
 foreach($questions as $question){
 
-	$urledit = new moodle_url('/mod/emarking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id));
-	$urldelete = new moodle_url('/mod/emarking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id,'delete'=>'true'));
+	$urledit = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id));
+	$urldelete = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id,'delete'=>'true'));
 
 	$status = 'No solicitada';
 	if($question->regradeid!=null) {

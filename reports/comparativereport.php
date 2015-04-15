@@ -50,7 +50,7 @@ if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
 }
 
 // URLs for current page
-$url = new moodle_url('/mod/emarking/comparativereport.php', array('id'=>$cm->id));
+$url = new moodle_url('/mod/emarking/reports/comparativereport.php', array('id'=>$cm->id));
 
 // Course context is used in reports
 $context = context_module::instance($cm->id);
@@ -71,6 +71,7 @@ $PAGE->set_cm($cm);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_heading($course->fullname);
+$PAGE->set_title(get_string('comparativereport','mod_emarking'));
 $PAGE->navbar->add(get_string('comparativereport','mod_emarking'));
 
 echo $OUTPUT->header();

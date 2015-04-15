@@ -988,20 +988,22 @@ function emarking_set_finalgrade(
 	$totalscore = emarking_get_totalscore ( $draft, $controller, $fillings );
 	$finalgrade = emarking_calculate_grade ( $emarking, $totalscore, $rubricscores ['maxscore'] );
 
+	$pendingregrades = $DB->count_records('emarking_regrade', array('draft'=>$draft->id, 'accepted'=>0));
+	
 	// Calculate grade for draft
 	$draft->grade = $finalgrade + $gradebonus;
 	$draft->generalfeedback = $generalfeedback;
-	$draft->status = $emarking->status < EMARKING_STATUS_RESPONDED ? EMARKING_STATUS_GRADING : EMARKING_STATUS_REGRADING;
+	$draft->status = $pendingregrades == 0 ? EMARKING_STATUS_GRADING : EMARKING_STATUS_REGRADING;
 	$draft->timemodified = time ();
 
+	$DB->update_record ( 'emarking_draft', $draft );
+	
+	// Aggregate grade for submission
 	$drafts = $DB->get_records ( "emarking_draft", array (
 			"emarkingid" => $submission->emarking,
 			"submissionid" => $submission->id
 	) );
 	
-	$DB->update_record ( 'emarking_draft', $draft );
-	
-	// Aggregate grade for submission
 	$submission->generalfeedback = '';
 	$submission->grade = 0;
 	foreach($drafts as $d) {
