@@ -136,7 +136,7 @@ function emarking_get_students_count_for_printing($courseid)
         $courseid
     ));
     
-    return $rs->total;
+    return isset($rs->total) ? $rs->total : null;
 }
 
 /**

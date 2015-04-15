@@ -244,8 +244,7 @@ else
             }
         }
         
-        $exam->enrolments = implode(",", $enrollist);
-        
+        $exam->enrolments = implode(",", $enrollist);        
         $exam->printdate = 0;
         $exam->status = isset($mform->get_data()->sendtoprint) ? EMARKING_EXAM_SENT_TO_PRINT : EMARKING_EXAM_UPLOADED;
         

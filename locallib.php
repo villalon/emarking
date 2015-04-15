@@ -590,10 +590,10 @@ function emarking_get_parallel_courses($course, $extracategory, $regex)
         $year = $regs[3][0];
         
         $categories = $course->category;
-        $seccionesparalelas = $DB->get_records_select('course', "
+        $sql = "
 				shortname like '%$coursecode%-%-$term-$year'
-				and id != $course->id", null, 'shortname ASC', '*');
-        
+				and id != $course->id";
+        $seccionesparalelas = $DB->get_records_select('course', $sql, null, 'shortname ASC', '*');
         return $seccionesparalelas;
     } else {
         return false;
