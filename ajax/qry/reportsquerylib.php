@@ -3,26 +3,20 @@ global $CFG;
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php');
 
-/**
- * This function gets all stadistical data from corrections on one instrument of evaluation.
- * 
- * @param unknown $numcriteria        	
- * @param unknown $emarkingid        	
- * @return multitype:multitype:number
- */
 function get_status($numcriteria, $emarkingid) {
 	global $DB;
-	$sql = '
+	
+	$markingstats = $DB->get_record_sql ( "
 			SELECT	COUNT(distinct id) AS activities,
 			COUNT(DISTINCT student) AS students,
 			MAX(pages) AS maxpages,
 			MIN(pages) AS minpages,
 			ROUND(AVG(comments), 2) AS pctmarked,
-			SUM(missing) AS missing,
-			SUM(submitted) AS submitted,
-			SUM(grading) AS grading,
-			SUM(graded) AS graded,
-			SUM(regrading) AS regrading
+			SUM(missing) as missing,
+			SUM(submitted) as submitted,
+			SUM(grading) as grading,
+			SUM(graded) as graded,
+			SUM(regrading) as regrading
 			FROM (
 			SELECT	s.student,
 			s.id as submissionid,
@@ -34,29 +28,26 @@ function get_status($numcriteria, $emarkingid) {
 			dr.timemodified,
 			dr.grade,
 			dr.generalfeedback,
-			COUNT(distinct p.id) AS pages,
-			CASE WHEN 0 = :numcriteria THEN 0 ELSE COUNT(distinct c.id) / :numcriteria2 END AS comments,
-			COUNT(distinct r.id) AS regrades,
+			count(distinct p.id) as pages,
+			CASE WHEN 0 = $numcriteria THEN 0 ELSE count(distinct c.id) / $numcriteria END as comments,
+			count(distinct r.id) as regrades,
 			nm.course,
 			nm.id,
-			ROUND(SUM(l.score),2) AS score,
-			ROUND(SUM(c.bonus),2) AS bonus,
+			round(sum(l.score),2) as score,
+			round(sum(c.bonus),2) as bonus,
 			dr.sort
 			FROM {emarking} AS nm
 			INNER JOIN {emarking_submission} AS s ON (nm.id = :emarkingid AND s.emarking = nm.id)
 			INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
 	        INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-			LEFT JOIN {emarking_comment} AS c on (c.page = p.id AND c.levelid > 0 AND c.draft = dr.id)
-			LEFT JOIN {gradingform_rubric_levels} AS l ON (c.levelid = l.id)
-			LEFT JOIN {emarking_regrade} AS r ON (r.draft = dr.id AND r.criterion = l.criterionid AND r.accepted = 0)
-			GROUP BY nm.id, s.student) AS T
-			GROUP BY id';
-	$markingstats = $DB->get_record_sql ( $sql, array (
-			'numcriteria' => $numcriteria,
-			'numcriteria2' => $numcriteria,
+			LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.levelid > 0 AND c.draft = dr.id)
+			LEFT JOIN {gradingform_rubric_levels} as l ON (c.levelid = l.id)
+			LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = l.criterionid AND r.accepted = 0)
+			GROUP BY nm.id, s.student
+	) as T
+			GROUP by id", array (
 			'emarkingid' => $emarkingid 
 	) );
-	// Filling in array with status elements
 	$grading [] = array (
 			'minpages' => $markingstats->minpages,
 			'maxpages' => $markingstats->maxpages,
@@ -72,35 +63,21 @@ function get_status($numcriteria, $emarkingid) {
 	return $grading;
 }
 
-/**
- * Gets the total submissions of an instrument of evaluation and returns the number.
- * 
- * @param unknown $cmid        	
- * @param unknown $emarkingid        	
- * @return number
- */
-function get_totalsubmissions($grading) {
+function get_totalsubmissions($cmid, $emarkingid) {
+	$grading = get_status ( $cmid, $emarkingid );
 	$totalsubmissions = $grading [0] ['missing'] + $grading [0] ['submitted'] + $grading [0] ['grading'] + $grading [0] ['graded'] + $grading [0] ['regrading'];
 	return $totalsubmissions;
 }
 
-/**
- * Gets the contribution, on the evaluation instrument, from each of the correctors.
- * 
- * @param unknown $cmid        	
- * @param unknown $emarkingid        	
- * @return multitype:multitype:multitype:number
- */
-function get_markers_contribution($grading, $emarkingid) {
+function get_markers($cmid, $emarkingid) {
 	global $DB;
-	
-	
+	$totalsubmissions = get_totalsubmissions ( $cmid, $emarkingid );
 	$sqlcontributorstats = "SELECT
 		ec.markerid,
 		CONCAT(u.firstname , ' ', u.lastname) AS markername,
 		COUNT(distinct ec.id) AS comments
         FROM {emarking_submission} AS s
-        INNER JOIN {emarking} AS e ON (e.id=:emarkingid AND s.emarking=e.id)
+        INNER JOIN {emarking} AS e ON (e.id=? AND s.emarking=e.id)
 		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
 	    INNER JOIN {course_modules} AS cm ON (e.id=cm.instance)
         INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
@@ -110,55 +87,68 @@ function get_markers_contribution($grading, $emarkingid) {
         INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
         INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
         INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-        INNER JOIN {emarking_comment} AS ec ON (b.id = ec.levelid AND ec.draft = dr.id)
-        INNER JOIN {user} AS u ON (ec.markerid = u.id)
+        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
+        INNER JOIN {user} as u ON (ec.markerid = u.id)
 		GROUP BY ec.markerid";
-	
 	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
-			"emarkingid" => $emarkingid 
+			$emarkingid 
 	) );
 	$contributioners = array ();
 	$contributions = array ();
-	// Get total submission
-	$totalsubmissions = get_totalsubmissions ( $grading );
-	// Filling in array with elements of user names and contribution per marker
+	
 	foreach ( $markingstatstotalcontribution as $contributioner ) {
-		
-		$contributioners [0] = array (
+		$contributioners [] = array (
 				"user" => $contributioner->markername 
 		);
-		if ($totalsubmissions != 0) {
-			$contributions [0] = array (
-					"contrib" => round ( ($contributioner->comments) * 100 / ($totalsubmissions * $numcriteria), 2 ) 
-			);
-		} else {
-			$contributions [0] = array (
-					"contrib" => 0 
-			);
-		}
 	}
-	return array (
-			$contributioners,
-			$contributions 
-	);
-	echo"funciono!!";
+	return $contributioners;
 }
-/**
- * Gets stadistical information from the correction.
- * 
- * @param unknown $emarkingstats        	
- * @param unknown $totalcategories        	
- * @param unknown $totalemarkings        	
- * @return multitype:multitype:number
- */
+
+function get_contribution_per_marker($numcriteria, $cmid, $emarkingid) {
+	global $DB;
+
+	$totalsubmissions = get_totalsubmissions ( $cmid, $emarkingid );
+	$sqlcontributorstats = "SELECT
+		ec.markerid,
+		CONCAT(u.firstname , ' ', u.lastname) AS markername,
+		COUNT(distinct ec.id) AS comments
+        FROM {emarking_submission} AS s
+        INNER JOIN {emarking} AS e ON (s.emarking=e.id)
+		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol = 0)
+	    INNER JOIN {course_modules} AS cm ON (e.id=cm.instance AND e.id=?)
+        INNER JOIN {context} AS c ON (s.status>=10 AND cm.id = c.instanceid )
+        INNER JOIN {grading_areas} AS ar ON (c.id = ar.contextid)
+        INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
+        INNER JOIN {grading_instances} AS i ON (d.id=i.definitionid)
+        INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
+        INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
+        INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
+        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft=dr.id)
+        INNER JOIN {user} as u ON (ec.markerid = u.id)
+		GROUP BY ec.markerid";
+	$markingstatstotalcontribution = $DB->get_records_sql ( $sqlcontributorstats, array (
+			$emarkingid 
+	) );
+	$contributioners = array ();
+	$contributions = array ();
+	
+	foreach ( $markingstatstotalcontribution as $contributioner ) {
+		
+		$contributions [] = array (
+				"contrib" => round ( ($contributioner->comments) * 100 / ($totalsubmissions * $numcriteria), 2 ) 
+		);
+	}
+	return $contributions;
+}
+
 function get_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
-	$emarkingstats->rewind ();
+	$emarkingstats->rewind();
 	
 	// Search for stats regardig the exames (eg: max, min, number of students,etc)
-	$marks = array ();
-	
+	$marks = array();
+
 	foreach ( $emarkingstats as $stats ) {
 		if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
 			continue;
@@ -166,7 +156,7 @@ function get_marks($emarkingstats, $totalcategories, $totalemarkings) {
 		if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
 			continue;
 		}
-		// Filling in array with marks statistical elements
+		
 		$marks [] = array (
 				'series' => $stats->seriesname,
 				'min' => $stats->minimum,
@@ -179,34 +169,25 @@ function get_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	}
 	return $marks;
 }
-/**
- * Runs a query used in the other functions to get information.
- * 
- * @param unknown $ids        	
- * @return multitype:string number
- */
+
 function get_emarking_stats($ids) {
-	global $DB;
-	$ides = explode ( ",", $ids );
-	// This generates a link with the ids and generates a IN sql, so the sql stays secure.
-	list ( $emarking_ids, $param ) = $DB->get_in_or_equal ( $ides, SQL_PARAMS_NAMED );
-	
-	// Search for stats regardig the exames (eg: max, min, number of students,etc)
-	$sql = "SELECT  *,
-    CASE
-    WHEN categoryid is null THEN 'TOTAL'
-    WHEN emarkingid is null THEN concat('SUBTOTAL ', categoryname)
-    ELSE coursename
-    END AS seriesname
-    FROM (
-    SELECT 	categoryid AS categoryid,
+    global $DB;
+    
+    $sql = "select  *,
+    case
+    when categoryid is null then 'TOTAL'
+    when emarkingid is null then concat('SUBTOTAL ', categoryname)
+    else coursename
+    end as seriesname
+    from (
+    select 	categoryid as categoryid,
     categoryname,
-    emarkingid AS emarkingid,
+    emarkingid as emarkingid,
     modulename,
     coursename,
-    COUNT(*) AS students,
-    SUM(pass) AS pass,
-    ROUND((SUM(pass) / count(*)) * 100,2) AS pass_ratio,
+    count(*) as students,
+    sum(pass) as pass,
+    round((sum(pass) / count(*)) * 100,2) as pass_ratio,
     SUBSTRING_INDEX(
     SUBSTRING_INDEX(
     group_concat(grade order by grade separator ',')
@@ -214,7 +195,7 @@ function get_emarking_stats($ids) {
     , 25/100 * COUNT(*) + 1)
     , ','
     , -1
-    ) AS percentile_25,
+    ) as percentile_25,
     SUBSTRING_INDEX(
     SUBSTRING_INDEX(
     group_concat(grade order by grade separator ',')
@@ -222,7 +203,7 @@ function get_emarking_stats($ids) {
     , 50/100 * COUNT(*) + 1)
     , ','
     , -1
-    ) AS percentile_50,
+    ) as percentile_50,
     SUBSTRING_INDEX(
     SUBSTRING_INDEX(
     group_concat(grade order by grade separator ',')
@@ -230,90 +211,86 @@ function get_emarking_stats($ids) {
     , 75/100 * COUNT(*) + 1)
     , ','
     , -1
-    ) AS percentile_75,
-    MIN(grade) AS minimum,
-    MAX(grade) AS maximum,
-    ROUND(avg(grade),2) AS average,
-    ROUND(stddev(grade),2) AS stdev,
-    SUM(histogram_01) AS histogram_1,
-    SUM(histogram_02) AS histogram_2,
-    SUM(histogram_03) AS histogram_3,
-    SUM(histogram_04) AS histogram_4,
-    SUM(histogram_05) AS histogram_5,
-    SUM(histogram_06) AS histogram_6,
-    SUM(histogram_07) AS histogram_7,
-    SUM(histogram_08) AS histogram_8,
-    SUM(histogram_09) AS histogram_9,
-    SUM(histogram_10) AS histogram_10,
-    SUM(histogram_11) AS histogram_11,
-    SUM(histogram_12) AS histogram_12,
-    ROUND(SUM(rank_1)/count(*),3) AS rank_1,
-    ROUND(SUM(rank_2)/count(*),3) AS rank_2,
-    ROUND(SUM(rank_3)/count(*),3) AS rank_3,
-    MIN(mingrade) AS mingradeemarking,
-    MIN(maxgrade) AS maxgradeemarking
-    FROM (
-    SELECT
-    ROUND(dr.grade,2) AS grade, -- Nota final (calculada o manual via calificador)
-    a.grade AS maxgrade, -- Nota máxima del emarking
-    a.grademin AS mingrade, -- Nota mínima del emarking
-    CASE WHEN dr.grade is null THEN 0 -- Indicador de si la nota es null
-    ELSE 1
-    END AS attended,
-    CASE WHEN dr.grade >= 4 THEN 1 -- TODO: REPLACE
-    ELSE 0
-    END AS pass,
-    CASE WHEN dr.grade >= 0 AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 1 THEN 1 ELSE 0 END AS histogram_01,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 1  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 2 THEN 1 ELSE 0 END AS histogram_02,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 2  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 3 THEN 1 ELSE 0 END AS histogram_03,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 3  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 4 THEN 1 ELSE 0 END AS histogram_04,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 4  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 5 THEN 1 ELSE 0 END AS histogram_05,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 5  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 6 THEN 1 ELSE 0 END AS histogram_06,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 6  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 7 THEN 1 ELSE 0 END AS histogram_07,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 7  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 8 THEN 1 ELSE 0 END AS histogram_08,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 8  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 9 THEN 1 ELSE 0 END AS histogram_09,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 9  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 10 THEN 1 ELSE 0 END AS histogram_10,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 10  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 11 THEN 1 ELSE 0 END AS histogram_11,
-    CASE WHEN dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 11 THEN 1 ELSE 0 END AS histogram_12,
-    CASE WHEN dr.grade - a.grademin < (a.grade - a.grademin) / 3 THEN 1 ELSE 0 END AS rank_1,
-    CASE WHEN dr.grade - a.grademin >= (a.grade - a.grademin) / 3 AND dr.grade - a.grademin  < (a.grade - a.grademin) / 2 THEN 1 ELSE 0 END AS rank_2,
-    CASE WHEN dr.grade - a.grademin >= (a.grade - a.grademin) / 2  THEN 1 ELSE 0 END AS rank_3,
-    c.category AS categoryid,
-    cc.name AS categoryname,
-    a.id AS emarkingid,
-    a.name AS modulename,
-    c.fullname AS coursename
-    FROM {emarking} AS a
-    INNER JOIN {emarking_submission} AS ss ON (a.id = ss.emarking AND a.id {$emarking_ids})
+    ) as percentile_75,
+    min(grade) as minimum,
+    max(grade) as maximum,
+    round(avg(grade),2) as average,
+    round(stddev(grade),2) as stdev,
+    sum(histogram_01) as histogram_1,
+    sum(histogram_02) as histogram_2,
+    sum(histogram_03) as histogram_3,
+    sum(histogram_04) as histogram_4,
+    sum(histogram_05) as histogram_5,
+    sum(histogram_06) as histogram_6,
+    sum(histogram_07) as histogram_7,
+    sum(histogram_08) as histogram_8,
+    sum(histogram_09) as histogram_9,
+    sum(histogram_10) as histogram_10,
+    sum(histogram_11) as histogram_11,
+    sum(histogram_12) as histogram_12,
+    round(sum(rank_1)/count(*),3) as rank_1,
+    round(sum(rank_2)/count(*),3) as rank_2,
+    round(sum(rank_3)/count(*),3) as rank_3,
+    min(mingrade) as mingradeemarking,
+    min(maxgrade) as maxgradeemarking
+    from (
+    select
+    round(dr.grade,2) as grade, -- Nota final (calculada o manual via calificador)
+    a.grade as maxgrade, -- Nota máxima del emarking
+    a.grademin as mingrade, -- Nota mínima del emarking
+    case when dr.grade is null then 0 -- Indicador de si la nota es null
+    else 1
+    end as attended,
+    case when dr.grade >= i.gradepass then 1
+    else 0
+    end as pass,
+    case when dr.grade >= 0 AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 1 then 1 else 0 end as histogram_01,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 1  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 2 then 1 else 0 end as histogram_02,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 2  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 3 then 1 else 0 end as histogram_03,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 3  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 4 then 1 else 0 end as histogram_04,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 4  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 5 then 1 else 0 end as histogram_05,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 5  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 6 then 1 else 0 end as histogram_06,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 6  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 7 then 1 else 0 end as histogram_07,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 7  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 8 then 1 else 0 end as histogram_08,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 8  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 9 then 1 else 0 end as histogram_09,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 9  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 10 then 1 else 0 end as histogram_10,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 10  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 11 then 1 else 0 end as histogram_11,
+    case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 11 then 1 else 0 end as histogram_12,
+    case when dr.grade - a.grademin < (a.grade - a.grademin) / 3 then 1 else 0 end as rank_1,
+    case when dr.grade - a.grademin >= (a.grade - a.grademin) / 3 AND dr.grade - a.grademin  < (a.grade - a.grademin) / 2 then 1 else 0 end as rank_2,
+    case when dr.grade - a.grademin >= (a.grade - a.grademin) / 2  then 1 else 0 end as rank_3,
+    c.category as categoryid,
+    cc.name as categoryname,
+    a.id as emarkingid,
+    a.name as modulename,
+    c.fullname as coursename
+    from {emarking} AS a
+    INNER JOIN {grade_items} AS i on (i.itemtype = 'mod' AND i.itemmodule = 'emarking' and i.iteminstance in ($ids) AND i.iteminstance = a.id)
+    INNER JOIN {emarking_submission} AS ss on (a.id = ss.emarking)
     INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = ss.id AND dr.qualitycontrol=0)
-    INNER JOIN {course} AS c ON (a.course = c.id)
-    INNER JOIN {course_categories} AS cc ON (c.category = cc.id)
+    INNER JOIN {course} AS c on (i.courseid = c.id)
+    INNER JOIN {course_categories} AS cc on (c.category = cc.id)
     WHERE dr.grade is not null AND dr.status >= 20
-    ORDER BY emarkingid asc, dr.grade asc) AS G
+    ORDER BY emarkingid asc, dr.grade asc) as G
     GROUP BY categoryid, emarkingid
-    WITH ROLLUP) AS T";
-	
-	$emarkingstats = $DB->get_recordset_sql ( $sql, $param );
-	
-	return $emarkingstats;
+    with rollup) as T";
+    
+    $emarkingstats = $DB->get_recordset_sql ( $sql );
+    
+    return $emarkingstats;
 }
-/**
- * Gets the amount of students who has achieved a mark thats fits in one of the 12 categories.
- *
- * @param unknown $emarkingstats        	
- * @param unknown $totalcategories        	
- * @param unknown $totalemarkings        	
- * @return multitype:multitype:multitype:number
- */
+
 function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
+	
+	$emarkingstats->rewind();
 	
 	$coursemarks = array ();
 	$data = array ();
 	
 	foreach ( $emarkingstats as $stats ) {
-		
-		if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
+
+	    if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
 			continue;
 		}
 		if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
@@ -356,8 +333,8 @@ function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 				$histogramlabels [$i] = '';
 			}
 		}
-		// Filling in array with elements for the histogram of course marks
-		$coursemarks [] = array (
+		
+		$coursemarks[] = array (
 				"cero" => $histograms [1],
 				"uno" => $histograms [2],
 				"dos" => $histograms [3],
@@ -369,53 +346,44 @@ function get_courses_marks($emarkingstats, $totalcategories, $totalemarkings) {
 				"ocho" => $histograms [9],
 				"nueve" => $histograms [10],
 				"diez" => $histograms [11],
-				"once" => $histograms [12] 
+				"once" => $histograms [12]
 		);
 	}
-	
+		
 	return $coursemarks;
 }
-/**
- * Gets the ratio of students that fits into 3 categories, of course aproval.
- * 
- * @param unknown $emarkingstats        	
- * @param unknown $totalcategories        	
- * @param unknown $totalemarkings        	
- * @return multitype:multitype:string number
- */
+
 function get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings) {
 	global $DB, $CFG;
 	
+	$emarkingstats->rewind();
+	
 	$pass_ratio = array ();
+	$data = array ();
 	foreach ( $emarkingstats as $stats ) {
-		
-		if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
+
+	    if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
 			continue;
 		}
 		
 		if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
 			continue;
 		}
-		// Filling in array with elements of ranking for pass ratio
-		$pass_ratio [0] = array (
+
+		$pass_ratio [] = array (
 				'seriesname' => $stats->seriesname . "(N=" . $stats->students . ")",
 				'rank1' => $stats->rank_1,
 				'rank2' => $stats->rank_2,
-				'rank3' => $stats->rank_3 
+				'rank3' => $stats->rank_3
 		);
 	}
 	
 	return $pass_ratio;
 }
-/**
- * Gets the student efficiency of point achievment in every criteria of the rubric.
- * 
- * @param unknown $ids        	
- * @return multitype:multitype:multitype:string number
- */
+
 function get_efficiency($ids) {
 	global $DB, $CFG;
-	
+
 	// Gets the stats by criteria
 	$sqlcriteria = "
 				SELECT co.fullname,
@@ -457,10 +425,10 @@ function get_efficiency($ids) {
 				ORDER BY a.description,emarkingid";
 	
 	$criteriastats = $DB->get_recordset_sql ( $sqlcriteria );
-	$count = count ( $criteriastats );
+	$count = count($criteriastats);
 	
 	$parallels_names_criteria = '';
-	$effectiveness = array ();
+	$effectiveness = array();
 	$effectivenessnum = 0;
 	$effectivenesscriteria = array ();
 	$effectivenesseffectiveness = array ();
@@ -475,30 +443,61 @@ function get_efficiency($ids) {
 		}
 		$description = trim ( preg_replace ( '/\s\s+/', ' ', $stats->description ) );
 		$criteriaid = $stats->criterionid;
-		// FIXME fix when the name of two descriptions are the same
+		// FIXME arreglar cuando el nombre de 2 descripciones es la misma
 		if ($lastdescription !== $description) {
 			
-			$effectivenesscriteria [0] ["criterion" . $effectivenessnum] = $description;
-			$effectivenesscriteria [0] ["count"] = $effectivenessnum + 1;
+			$effectivenesscriteria [$effectivenessnum] = $description;
 			$lastdescription = $description;
 		}
-		$effectivenesseffectiveness [0] ["rate" . $effectivenessnum] = $stats->effectiveness;
+		$effectivenesseffectiveness [$effectivenessnum] = $stats->effectiveness;
 		$effectivenessnum ++;
 	}
 	
-	return array (
-			$effectivenesscriteria,
-			$effectivenesseffectiveness 
-	);
+	$effectiveness [0] = $effectivenesscriteria;
+	$effectiveness [1] = $effectivenesseffectiveness;
+	return $effectiveness;
 }
-/**
- * Gets the criteria progress on the correction of the instrument per status.
- * 
- * @param unknown $cmid        	
- * @param unknown $emarkingid        	
- * @return multitype:multitype:multitype:string number
- */
-function get_question_advance($cmid, $grading) {
+
+function get_efficiency_criterion($efficiency) {
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $efficiency [0] as $criterion ) {
+		$nombre = "criterion" . $count;
+		$display ["count"] = $count + 1;
+		$display [$nombre] = $criterion;
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+}
+
+function get_efficiency_rate($efficiency) {
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	$divisor=count($efficiency[0]);
+	$divisible=count($efficiency[1]);
+	$parallels = $divisible/$divisor;
+	
+	$cont=0;
+	$arr = array();
+	$j=0;
+	for($i=1;$i<=count($efficiency[1]);$i++) {
+		$index=$j;
+		$arr["rate".$index] = $efficiency[1][$i-1];
+		$j++;
+		if($i % $divisor == 0) {
+			$return[] = $arr;
+			$arr = array();
+			$j=0;
+		}
+		
+	}
+	
+	return $return;
+}
+function get_question_advance($cmid, $emarkingid) {
 	global $DB;
 	$sqlstatscriterion = "SELECT  a.id,
 							co.fullname AS course,
@@ -521,49 +520,114 @@ function get_question_advance($cmid, $grading) {
 					        INNER JOIN {gradingform_rubric_fillings} AS f ON (i.id=f.instanceid)
 					        INNER JOIN {gradingform_rubric_levels} AS b ON (b.id = f.levelid)
 					        INNER JOIN {gradingform_rubric_criteria} AS a ON (a.id = f.criterionid)
-					        INNER JOIN {emarking_comment} AS ec ON (b.id = ec.levelid AND ec.draft = dr.id)
-					        LEFT JOIN {emarking_regrade} AS r ON (r.draft = dr.id AND r.criterion = a.id)
+					        INNER JOIN {emarking_comment} as ec ON (b.id = ec.levelid AND ec.draft = dr.id)
+					        LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = a.id)
 							GROUP BY a.id
 							ORDER BY a.sortorder";
 	$markingstatspercriterion = $DB->get_records_sql ( $sqlstatscriterion, array (
 			$cmid 
 	) );
-	$totalsubmissions = get_totalsubmissions ( $grading );
+	$totalsubmissions = get_totalsubmissions( $cmid, $emarkingid );
+	$datatablecriteria = "['Criterio', 'Corregido', 'Por recorregir', 'Por corregir'],";
 	$i = 0;
 	foreach ( $markingstatspercriterion as $statpercriterion ) {
 		
-		$description [0] ['description' . $i] = trim ( preg_replace ( '/\s\s+/', ' ', $statpercriterion->description ) );
-		$description [0] ['count'] = $i;
-		// condition of division by 0.
-		if ($totalsubmissions > 0) {
-			
-			$responded [0] ['responded' . $i] = round ( ($statpercriterion->comments - $statpercriterion->regrades) * 100 / $totalsubmissions, 2 );
-			$regrading [0] ['regrading' . $i] = round ( $statpercriterion->regrades * 100 / $totalsubmissions, 2 );
-			$grading [0] ['grading' . $i] = round ( ($statpercriterion->submissions - $statpercriterion->comments) * 100 / $totalsubmissions, 2 );
-		} else if ($totalsubmissions <= 0) {
-			$responded [0] ['responded' . $i] = 0;
-			$regrading [0] ['regrading' . $i] = 0;
-			$grading [0] ['grading' . $i] = 0;
-		}
-		$i ++;
+		$description[0] ['description' . $i] = trim ( preg_replace ( '/\s\s+/', ' ', $statpercriterion->description));
+		$responded[0] ['responded'.$i] = round ( ($statpercriterion->comments - $statpercriterion->regrades) * 100 / $totalsubmissions, 2 );
+		$regrading[0] ['regrading'.$i] = round ( $statpercriterion->regrades * 100 / $totalsubmissions, 2 );
+		$grading [0]['grading'.$i] = round ( ($statpercriterion->submissions - $statpercriterion->comments) * 100 / $totalsubmissions, 2 );
+		$i++;
 	}
-	return array (
-			$description,
-			$responded,
-			$regrading,
-			$grading 
-	);
+	$criteriaadvance [0] = $description;
+	$criteriaadvance [1] = $responded;
+	$criteriaadvance [2] = $regrading;
+	$criteriaadvance [3] = $grading;
+	return $criteriaadvance;
 }
-/**
- * Gets the correctors progress on the correction of the instrument per status.
- * 
- * @param unknown $cmid        	
- * @param unknown $emarkingid        	
- * @return multitype:multitype:multitype:string number
- */
-function get_marker_advance($cmid, $emarkingid, $grading) {
+function get_advance_description($cmid, $emarkingid){
+	$description = get_question_advance( $cmid, $emarkingid);
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $description [0] as $desc ) {
+		$nombre = "description" . $count;
+		$contador=0;
+		foreach($desc as $d){
+			$display ["count"] = $contador + 1;
+			$interior = "description".$contador;
+			$display[$interior]=$d;
+
+			$contador ++;
+		}
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+}
+function get_advance_responded($cmid, $emarkingid){
+	$responded = get_question_advance( $cmid, $emarkingid);
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $responded [1] as $desc ) {
+		$nombre = "responded" . $count;
+		$contador=0;
+		foreach($desc as $d){
+			$interior = "responded".$contador;
+			$display[$interior]=$d;
+			$display ["count"] = $contador + 1;
+				
+			$contador ++;
+		}
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+}
+
+function get_advance_regrading($cmid, $emarkingid){
+	$regrading = get_question_advance( $cmid, $emarkingid);
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $regrading [2] as $desc ) {
+		$nombre = "regrading" . $count;
+		$contador=0;
+		foreach($desc as $d){
+			$interior = "regrading".$contador;
+			$display[$interior]=$d;	
+			$display ["count"] = $contador + 1;
+			
+			$contador ++;
+		}
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+}
+
+function get_advance_grading($cmid, $emarkingid){
+	$grading = get_question_advance( $cmid, $emarkingid);
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $grading [3] as $desc ) {
+		$nombre = "grading" . $count;
+		$contador=0;
+		foreach($desc as $d){
+			$interior = "grading".$contador;
+			$display[$interior]=$d;
+			$display ["count"] = $contador + 1;
+			$contador ++;
+		}
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+}
+function get_marker_advance($cmid, $emarkingid){
 	global $DB;
-	$sql = '
+	$markingstatspermarker = $DB->get_recordset_sql("
 		SELECT
 		a.id,
 		a.description,
@@ -577,10 +641,10 @@ function get_marker_advance($cmid, $emarkingid, $grading) {
 		SELECT bb.criterionid,
 		ec.markerid,
 		u.lastname AS markername,
-		ROUND(AVG(bb.score),2) AS avgscore,
-		ROUND(STDDEV(bb.score),2) AS stdevscore,
-		ROUND(MIN(bb.score),2) AS minscore,
-		ROUND(MAX(bb.score),2) AS maxscore,
+		ROUND(AVG(bb.score),2) as avgscore,
+		ROUND(STDDEV(bb.score),2) as stdevscore,
+		ROUND(MIN(bb.score),2) as minscore,
+		ROUND(MAX(bb.score),2) as maxscore,
 		ROUND(AVG(ec.bonus),2) AS avgbonus,
 		ROUND(STDDEV(ec.bonus),2) AS stdevbonus,
 		ROUND(MAX(ec.bonus),2) AS maxbonus,
@@ -592,39 +656,97 @@ function get_marker_advance($cmid, $emarkingid, $grading) {
 		INNER JOIN {emarking_submission} AS s ON (e.id = :emarkingid AND s.emarking = e.id)
 		INNER JOIN {emarking_draft} AS dr ON (s.id = dr.submissionid)
 	    INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-		LEFT JOIN {emarking_comment} AS ec on (ec.page = p.id AND ec.draft = dr.id)
+		LEFT JOIN {emarking_comment} as ec on (ec.page = p.id AND ec.draft = dr.id)
 		LEFT JOIN {gradingform_rubric_levels} AS bb ON (ec.levelid = bb.id)
-		LEFT JOIN {emarking_regrade} AS r ON (r.draft = dr.id AND r.criterion = bb.criterionid)
-		LEFT JOIN {user} AS u ON (ec.markerid = u.id)
+		LEFT JOIN {emarking_regrade} as r ON (r.draft = dr.id AND r.criterion = bb.criterionid)
+		LEFT JOIN {user} as u ON (ec.markerid = u.id)
 		WHERE dr.status >= 10
 		GROUP BY ec.markerid, bb.criterionid) AS T
 		ON (a.id = T.criterionid )
 		INNER JOIN {emarking_marker_criterion} AS emc ON (emc.emarking = c.instance AND emc.marker = T.markerid)
 		GROUP BY T.markerid, a.id
-		';
-	$markingstatspermarker = $DB->get_recordset_sql ( $sql, array (
-			'cmid' => $cmid,
-			'emarkingid' => $emarkingid 
-	) );
+		",
+			array('cmid'=>$cmid, 'emarkingid'=>$emarkingid));
 	$datamarkersavailable = false;
-	$datatablemarkers = '';
+	$datatablemarkers = "";
 	
-	$totalsubmissions = get_totalsubmissions ( $grading );
+	$datatablecontribution = "['Corrector', 'Corregido', 'Por recorregir', 'Por corregir'],";
+
+	$totalsubmissions=get_totalsubmissions($cmid, $emarkingid);
+	$count =0;
+	foreach($markingstatspermarker as $permarker) {
+		$description = trim(preg_replace('/\s\s+/', ' ', $permarker->description));
+		
+		$correctorcriterio["corrector".$count]=$permarker->markername.$description;
+		$corregido["corregido".$count]=$permarker->comments - $permarker->regrades;
+		$porcorregir["porcorregir".$count]=$permarker->regrades;
+		$porrecorregir["porrecorregir".$count]=$totalsubmissions - $permarker->comments;
+		
+		$count++;
+	}
+	$markeradvance [0]= $correctorcriterio;
+	$markeradvance [1]= $corregido;
+	$markeradvance [2]= $porcorregir;
+	$markeradvance [3]= $porrecorregir;
+	return $markeradvance;
+}
+function get_markeradvance_marker($cmid, $emarkingid){
+	$markeradvance=get_marker_advance($cmid, $emarkingid);
 	$count = 0;
-	foreach ( $markingstatspermarker as $permarker ) {
-		$description = trim ( preg_replace ( '/\s\s+/', ' ', $permarker->description ) );
-		$markerdescription [0] ["corrector" . $count] = $permarker->markername . $description;
-		$responded [0] ["corregido" . $count] = $permarker->comments - $permarker->regrades;
-		$grading [0] ["porcorregir" . $count] = $permarker->regrades;
-		$regrading [0] ["porrecorregir" . $count] = $totalsubmissions - $permarker->comments;
-		$markerdescription [0]["count"] = $count;
+	$display = array ();
+	$return = array ();
+	foreach ( $markeradvance [0] as $advance ) {
+		$nombre = "corrector" . $count;
+		$display ["count"] = $count + 1;
+		$display[$nombre] = $advance;
 		$count ++;
 	}
+	$return [0] = $display;
+	return $return;
 	
-	return array (
-			$markerdescription,
-			$responded,
-			$grading,
-			$regrading 
-	);
 }
+function get_markeradvance_corregido($cmid, $emarkingid){
+	$markeradvance=get_marker_advance($cmid, $emarkingid);
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $markeradvance [1] as $advance ) {
+		$nombre = "corregido" . $count;
+		$display ["count"] = $count + 1;
+		$display[$nombre] = $advance;
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+
+}function get_markeradvance_porcorregir($cmid, $emarkingid){
+	$markeradvance=get_marker_advance($cmid, $emarkingid);
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $markeradvance [2] as $advance ) {
+		$nombre = "porcorregir" . $count;
+		$display ["count"] = $count + 1;
+		$display[$nombre] = $advance;
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+
+}function get_markeradvance_porrecorregir($cmid, $emarkingid){
+	$markeradvance=get_marker_advance($cmid, $emarkingid);
+	$count = 0;
+	$display = array ();
+	$return = array ();
+	foreach ( $markeradvance [3] as $advance ) {
+		$nombre = "porrecorregir" . $count;
+		$display ["count"] = $count + 1;
+		$display[$nombre] = $advance;
+		$count ++;
+	}
+	$return [0] = $display;
+	return $return;
+
+}
+
+
