@@ -140,7 +140,16 @@ class emarking_exam_form extends moodleform {
 				'<br/>' 
 		), true );
 		
-		if ($CFG->emarking_enrolincludes && strlen ( $CFG->emarking_enrolincludes ) > 1) {
+		// If we are editing, we use the previous enrolments
+		if($examid > 0 && isset($exam->enrolments)) {
+		    $enrolincludes = explode ( ",", $exam->enrolments);
+		    foreach ( $enrolincludes as $enroldefault ) {
+		        if (in_array ( $enroldefault, $enrolavailables )) {
+		            $mform->setDefault ( "enrolments[$enroldefault]", true );
+		        }
+		    }
+		// If we are creating a new one, the default comes from the plugin settings
+		} else if ($CFG->emarking_enrolincludes && strlen ( $CFG->emarking_enrolincludes ) > 1) {
 			$enrolincludes = explode ( ",", $CFG->emarking_enrolincludes );
 			foreach ( $enrolincludes as $enroldefault ) {
 				if (in_array ( $enroldefault, $enrolavailables )) {
