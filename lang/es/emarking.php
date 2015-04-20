@@ -534,6 +534,7 @@ $string ['advacebycriteria'] = 'Avance por criterio';
 $string ['pointsassignedbymarker'] = 'Puntajes asignados por corrector';
 $string ['advancebymarker'] = 'Avance por corrector';
 $string ['marker'] = 'Corrector';
+$string ['published'] = 'Publicada';
 
 /**
  * Events

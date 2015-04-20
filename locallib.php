@@ -146,9 +146,9 @@ function emarking_tabs($context, $cm, $emarking)
     $gradetab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?cmid={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     
     // Grade report tab
-    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("reports", "mod_emarking"));
+    $gradereporttab = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("reports", "mod_emarking"));
     
-    $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("gradereport", "grades"));
+    $gradereporttab->subtree[] = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("gradereport", "grades"));
     $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/markingreport.php?id={$cm->id}", get_string("markingreport", 'mod_emarking'));
     $gradereporttab->subtree[] = new tabobject("comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string("comparativereport", "mod_emarking"));
     $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
@@ -579,7 +579,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
  *
  * @param stdClass $course            
  */
-function emarking_get_parallel_courses($course, $extracategory, $regex)
+function emarking_get_parallel_courses($course, $regex)
 {
     global $CFG, $DB;
     
@@ -588,8 +588,7 @@ function emarking_get_parallel_courses($course, $extracategory, $regex)
         
         $term = $regs[2][0];
         $year = $regs[3][0];
-        
-        $categories = $course->category;
+      
         $sql = "
 				shortname like '%$coursecode%-%-$term-$year'
 				and id != $course->id";
