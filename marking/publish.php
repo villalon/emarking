@@ -30,7 +30,8 @@ define('NO_OUTPUT_BUFFERING', true);
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once("$CFG->dirroot/lib/weblib.php");
 require_once($CFG->dirroot . '/repository/lib.php');
-require_once('locallib.php'); //cambiar
+require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
+require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
 
 global $DB, $CFG, $USER;
 
@@ -87,7 +88,11 @@ $totaldocumentsignored = 0;
 $totalsubmissions = count($submissions);
 
 foreach($submissions as $submissionid) {
-	if(!$submission = $DB->get_record('emarking_submission', array('id'=>$submissionid))) {
+	if(!$draft = $DB->get_record('emarking_draft', array('id'=>$submissionid))) {
+		$totaldocumentsignored++;
+		continue;
+	}
+	if(!$submission = $DB->get_record('emarking_submission', array('id'=>$draft->submissionid))) {
 		$totaldocumentsignored++;
 		continue;
 	}
@@ -95,10 +100,10 @@ foreach($submissions as $submissionid) {
 		$totaldocumentsignored++;
 		continue;
 	}
-	if(emarking_multi_create_response_pdf($submission, $student, $context, $cmid)) {
+	if(emarking_create_response_pdf($draft, $student, $context, $cmid)) {
 		$totaldocumentsprocessed++;
-		$pbar->update($totaldocumentsprocessed, $totalsubmissions, get_string('publishinggrade', 'mod_emarking') . $submission->id);
-		emarking_multi_publish_grade($submission);
+		$pbar->update($totaldocumentsprocessed, $totalsubmissions, get_string('publishinggrade', 'mod_emarking') . " " . $draft->id);
+		emarking_publish_grade($draft);
 	} else {
 		$totaldocumentsignored++;
 	}
