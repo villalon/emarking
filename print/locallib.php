@@ -325,7 +325,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
     $submission->timemodified = time();
     $submission->teacher = $USER->id;
     $submission->generalfeedback = NULL;
-    $submission->grade = 0;
+    $submission->grade = $emarking->grademin;
     $submission->sort = rand(1, 9999999);
     
     $submission->id = $DB->insert_record('emarking_submission', $submission);
@@ -338,7 +338,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
         $draft->groupid = 0;
         $draft->timecreated = time();
         $draft->timemodified = time();
-        $draft->grade = 0;
+        $draft->grade = $emarking->grademin;
         $draft->sort = rand(1, 9999999);
         $draft->qualitycontrol = 0;
         $draft->teacher = 0;
@@ -373,7 +373,7 @@ else
                 $draft->groupid = 0;
                 $draft->timecreated = time();
                 $draft->timemodified = time();
-                $draft->grade = 0;
+                $draft->grade = $emarking->grademin;
                 $draft->sort = rand(1, 9999999);
                 $draft->teacher = $marker->id;
                 $draft->generalfeedback = NULL;
@@ -393,7 +393,7 @@ else
                     $draft->groupid = 0;
                     $draft->timecreated = time();
                     $draft->timemodified = time();
-                    $draft->grade = 0;
+                    $draft->grade = $emarking->grademin;
                     $draft->sort = rand(1, 9999999);
                     $draft->teacher = $student->id;
                     $draft->generalfeedback = NULL;

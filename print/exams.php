@@ -182,6 +182,7 @@ foreach($exams as $exam) {
 	$emarking .= $exam->emarking ? get_string('yes') : get_string('no');
 
 	$headerqr .= $exam->headerqr ? get_string('yes') : get_string('no');
+	$headerqr .= "<br/>".$exam->enrolments;
 
 	$examstatus = '';
 	switch($exam->status) {
