@@ -561,7 +561,9 @@ foreach ( $drafts as $draft ) {
 				'menubar' => 'no',
 				'titlebar' => 'no',
 				'status' => 'no',
-				'toolbar' => 'no' 
+				'toolbar' => 'no',
+		        'width' => 860,
+		        'height' => 600
 		) ), null, $pixicon );
 	}
 	

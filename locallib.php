@@ -773,11 +773,11 @@ function emarking_get_totalscore($draft, $controller, $fillings)
  * @param unknown $context            
  * @return number
  */
-function emarking_get_next_submission($emarking, $submission, $context, $student)
+function emarking_get_next_submission($emarking, $draft, $context, $student)
 {
     global $DB, $USER;
     
-    $levelids = 0;
+    $levelids = '';
     if ($criteria = $DB->get_records('emarking_marker_criterion', array(
         'emarking' => $emarking->id,
         'marker' => $USER->id
@@ -798,20 +798,22 @@ function emarking_get_next_submission($emarking, $submission, $context, $student
         $levelids = implode(",", $levelsarray);
     }
     
-    $sortsql = $emarking->anonymous ? " s.sort ASC" : " u.lastname ASC";
+    $sortsql = $emarking->anonymous ? " d.sort ASC" : " u.lastname ASC";
     
-    $criteriafilter = $levelids == 0 ? "" : " AND s.id NOT IN (SELECT s.id
-	FROM {emarking_submission} as s
-	INNER JOIN {emarking_page} as p ON (s.emarking = $emarking->id AND s.status < 20 AND p.submission = s.id)
-	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.levelid IN ($levelids))
-	GROUP BY s.id)";
+    $criteriafilter = $levelids == 0 ? "" : " AND d.id NOT IN (SELECT d.id
+	FROM {emarking_draft} as d
+	INNER JOIN {emarking_submission} AS s ON (s.id = d.submissionid AND s.emarking = $emarking->id)
+	INNER JOIN {emarking_page} as p ON (d.status < 20 AND p.submission = s.id)
+	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.draft = d.id AND c.levelid IN ($levelids))
+	GROUP BY d.id)";
     
-    $sortfilter = $emarking->anonymous ? " AND sort > $submission->sort" : " AND u.lastname > '$student->lastname'";
+    $sortfilter = $emarking->anonymous ? " AND sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
     
-    $basesql = "SELECT s.id
-			FROM {emarking_draft} as s
+    $basesql = "SELECT d.id
+			FROM {emarking_draft} AS d
+            INNER JOIN {emarking_submission} AS s ON (d.submissionid = s.id)
 			INNER JOIN {user} as u ON (s.student = u.id)
-			WHERE s.emarkingid = :emarkingid AND s.submissionid <> :submissionid AND s.status < 20 AND s.status >= 10";
+			WHERE s.emarking = :emarkingid AND d.id <> :draftid AND d.status < 20 AND d.status >= 10";
     
     $sql = "$basesql
 	$criteriafilter
@@ -820,7 +822,7 @@ function emarking_get_next_submission($emarking, $submission, $context, $student
     // Gets the next submission id, limits start from 0 and get a total of 1
     $nextsubmissions = $DB->get_records_sql($sql, array(
         'emarkingid' => $emarking->id,
-        'submissionid' => $submission->id
+        'draftid' => $draft->id
     ), 0, 1);
     $id = 0;
     foreach ($nextsubmissions as $nextsubmission) {
@@ -835,7 +837,7 @@ function emarking_get_next_submission($emarking, $submission, $context, $student
         
         $nextsubmissions = $DB->get_records_sql($sql, array(
             'emarkingid' => $emarking->id,
-            'submissionid' => $submission->id
+            'draftid' => $draft->id
         ), 0, 1);
         foreach ($nextsubmissions as $nextsubmission) {
             $id = $nextsubmission->id;

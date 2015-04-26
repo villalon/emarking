@@ -52,5 +52,6 @@ FROM {emarking_draft} as d
 	LEFT JOIN {user} as u on (s.student = u.id)
 	LEFT JOIN {course} as c on (c.id = nm.course)
 	LEFT JOIN {user} as um on (d.teacher = um.id)";
+
 $results = $DB->get_record_sql($gradesql, array($draft->id));
 
