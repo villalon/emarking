@@ -98,7 +98,7 @@ if($action === 'students') {
 		$emarking = new stdClass();
 		$emarking->name = $emarkingname;
 		$emarking->intro = "Automatically uploaded emarking from file ";
-		$emarking->anonymous = false;
+		$emarking->anonymous = 2;
 		$emarking->custommarks = '';
 		$emarking->course = $course->id;
 		$emarking->grade = 7;

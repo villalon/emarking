@@ -73,7 +73,7 @@ $issupervisor = has_capability ( 'mod/emarking:supervisegrading', $context );
 $usercangrade = has_capability ( 'mod/assign:grade', $context );
 
 if ($issupervisor || is_siteadmin ( $USER )) {
-	$emarking->anonymous = false;
+	$emarking->anonymous = 2;
 }
 
 // Download Excel if it is the case
@@ -404,9 +404,9 @@ $columns[] = 'timemodified';
 $columns[] = 'actions';
 $showpages->define_columns ($columns);
 $showpages->define_baseurl ( $urlemarking );
-$defaulttsort = $emarking->anonymous ? null : 'lastname';
+$defaulttsort = $emarking->anonymous < 2 ? null : 'lastname';
 $showpages->sortable ( true, $defaulttsort, SORT_ASC );
-if ($emarking->anonymous) {
+if ($emarking->anonymous < 2) {
 	$showpages->no_sorting ( 'lastname' );
 }
 $showpages->no_sorting ( 'comment' );
@@ -416,7 +416,7 @@ $showpages->pagesize ( $perpage, $totalstudents );
 $showpages->setup ();
 
 // Decide on sorting depending on URL parameters and flexible table configuration
-$orderby = $emarking->anonymous ? 'ORDER BY sort ASC' : 'ORDER BY u.lastname ASC';
+$orderby = $emarking->anonymous < 2 ? 'ORDER BY sort ASC' : 'ORDER BY u.lastname ASC';
 if ($showpages->get_sql_sort ()) {
 	$orderby = 'ORDER BY ' . $showpages->get_sql_sort ();
 	$tsort = $showpages->get_sql_sort ();
@@ -454,7 +454,7 @@ foreach ( $drafts as $draft ) {
 	) );
 	
 	if($emarking->type == EMARKING_TYPE_NORMAL) {
-	    $userinfo = $emarking->anonymous ? get_string ( 'anonymousstudent', 'mod_emarking' ) 
+	    $userinfo = $emarking->anonymous < 2 ? get_string ( 'anonymousstudent', 'mod_emarking' ) 
 	    : $OUTPUT->user_picture ( $draft ) . '&nbsp;<a href="' . $profileurl . '">' . $draft->firstname . ' ' . $draft->lastname . '</a>';
 	} else {
 	    $userinfo = get_string('exam', 'mod_emarking') . ' ' . $draft->submission;

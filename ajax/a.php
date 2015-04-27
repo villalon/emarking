@@ -141,7 +141,8 @@ if ($agreeAssignment) {
     $agreeAssignmentLevelAvg = 0;
 }
 
-$anonymous = $emarking->anonymous === "1";
+$studentanonymous = $emarking->anonymous === "0" || $emarking->anonymous === "1";
+$markeranonymous = $emarking->anonymous === "1" || $emarking->anonymous === "3";
 
 // The course to which the assignment belongs
 if (! $course = $DB->get_record("course", array(
@@ -168,10 +169,6 @@ $usercangrade = has_capability('mod/emarking:grade', $context);
 $usercanregrade = has_capability('mod/emarking:regrade', $context);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER);
 $isgroupmode = $cm->groupmode == SEPARATEGROUPS;
-
-if ($USER->id != $userid && ! $usercangrade) {
-    $anonymous = true;
-}
 
 if ($submission->status >= EMARKING_STATUS_RESPONDED && ! $usercanregrade) {
     $readonly = true;
@@ -212,7 +209,7 @@ if ($action === 'ping') {
         'role' => $userRole,
         'groupID' => $emarking->id, // emarkig->id assigned to groupID for chat and wall rooms.
         'sesskey' => $USER->sesskey,
-        'anonymous' => $anonymous,
+        'anonymous' => $emarking->anonymous,
         'hascapability' => $usercangrade,
         'supervisor' => $issupervisor,
         'markers' => json_encode($markersToSend),
@@ -242,10 +239,9 @@ if (! $usercangrade) {
     // If the student owns the exam
     if ($USER->id == $userid) {
         $readonly = true;
-    } else 
+    } else {
         if (has_capability('mod/emarking:submit', $context)) { // If the student belongs to the course and is allowed to submit
             $readonly = true;
-            $anonymous = true;
         } else { // This is definitely a hacking attempt
             $item = array(
                 'context' => context_module::instance($cm->id),
@@ -255,6 +251,7 @@ if (! $usercangrade) {
             \mod_emarking\event\unauthorized_granted::create($item)->trigger();
             emarking_json_error('Unauthorized access!');
         }
+    }
 } else {
     $readonly = false;
 }
@@ -358,7 +355,7 @@ switch ($action) {
         break;
     
     case 'getalltabs':
-        $alltabs = emarking_get_all_pages($emarking, $submission, $draft, $anonymous, $context);
+        $alltabs = emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context);
         emarking_json_resultset($alltabs);
         break;
     

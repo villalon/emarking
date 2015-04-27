@@ -798,7 +798,7 @@ function emarking_get_next_submission($emarking, $draft, $context, $student)
         $levelids = implode(",", $levelsarray);
     }
     
-    $sortsql = $emarking->anonymous ? " d.sort ASC" : " u.lastname ASC";
+    $sortsql = $emarking->anonymous < 2 ? " d.sort ASC" : " u.lastname ASC";
     
     $criteriafilter = $levelids == 0 ? "" : " AND d.id NOT IN (SELECT d.id
 	FROM {emarking_draft} as d
@@ -807,7 +807,7 @@ function emarking_get_next_submission($emarking, $draft, $context, $student)
 	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.draft = d.id AND c.levelid IN ($levelids))
 	GROUP BY d.id)";
     
-    $sortfilter = $emarking->anonymous ? " AND sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
+    $sortfilter = $emarking->anonymous < 2 ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
     
     $basesql = "SELECT d.id
 			FROM {emarking_draft} AS d
@@ -844,68 +844,6 @@ function emarking_get_next_submission($emarking, $draft, $context, $student)
         }
     }
     return $id;
-}
-
-/**
- * This function gets a page to display on the eMarking interface using the page number, user id and emarking id
- *
- * @param unknown $pageno            
- * @param unknown $submission            
- * @param string $anonymous            
- * @param unknown $contextid            
- * @return multitype:NULL number |multitype:unknown string NULL Ambigous <unknown, NULL>
- */
-function emarking_get_page_image($pageno, $submission, $anonymous = false, $contextid)
-{
-    global $CFG, $DB;
-    
-    $numfiles = $DB->count_records_sql('
-			SELECT MAX(page) as pages
-			FROM {emarking_page}
-			WHERE submission=?
-			GROUP BY submission', array(
-        $submission->id,
-        $submission->student
-    ));
-    
-    if (! $page = $DB->get_record('emarking_page', array(
-        'submission' => $submission->id,
-        'student' => $submission->student,
-        'page' => $pageno
-    ))) {
-        
-        return array(
-            new moodle_url('/mod/emarking/pix/missing.png'),
-            800,
-            1035,
-            $numfiles
-        );
-    }
-    
-    $fileid = $anonymous ? $page->fileanonymous : $page->file;
-    
-    $fs = get_file_storage();
-    
-    if (! $file = $fs->get_file_by_id($fileid)) {
-        print_error('Attempting to display image for non-existant submission ' . $contextid . "_" . $submission->emarkingid . "_" . $pagefilename);
-    }
-    
-    if ($imageinfo = $file->get_imageinfo()) {
-        $imgurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $contextid . '/mod_emarking/pages/' . $submission->emarkingid . '/' . $file->get_filename());
-        return array(
-            $imgurl,
-            $imageinfo['width'],
-            $imageinfo['height'],
-            $numfiles
-        );
-    }
-    
-    return array(
-        null,
-        0,
-        0,
-        $numfiles
-    );
 }
 
 /**

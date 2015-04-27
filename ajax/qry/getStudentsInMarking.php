@@ -20,11 +20,12 @@
  * @copyright 2013 Jorge Villalón <villalon@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$studentinfo = $anonymous ?  
+$studentanonymous = $anonymous == 0 || $anonymous == 4;
+$studentinfo = $studentanonymous ?  
 	'u.id as studentid, \''.get_string('anonymousstudent', 'mod_emarking').'\' as firstname, \'\' as lastname, \'\' as email, \'\' as idnumber' : 
 	'u.id as studentid, u.firstname, u.lastname, u.email, u.idnumber';
 
-$orderby = $anonymous ? 'ORDER BY sub.timemodified DESC' : 'ORDER BY u.lastname, u.firstname ASC';
+$orderby = $studentanonymous ? 'ORDER BY sub.timemodified DESC' : 'ORDER BY u.lastname, u.firstname ASC';
 
 if($cm->groupmode == SEPARATEGROUPS && !is_siteadmin($USER)) {
 	$results = $DB->get_records_sql(

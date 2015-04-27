@@ -28,11 +28,11 @@
  *
  * @param unknown $emarking
  * @param unknown $submission
- * @param unknown $anonymous
+ * @param unknown $studentanonymous
  * @param unknown $context
  * @return multitype:stdClass
  */
-function emarking_get_all_pages($emarking, $submission, $draft, $anonymous, $context, $winwidth, $winheight) {
+function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context, $winwidth, $winheight) {
 	global $DB, $CFG, $USER;
 
 	$emarkingpages = array ();
@@ -49,7 +49,7 @@ function emarking_get_all_pages($emarking, $submission, $draft, $anonymous, $con
 	// but we force it as anonymous
 	! has_capability ( 'mod/emarking:grade', $context ) && $emarking->peervisibility) {
 		$filterpages = false;
-		$anonymous = true;
+		$studentanonymous = true;
 	} else {
 		// Remaining case is for markers
 		$filterpages = true;
@@ -110,7 +110,7 @@ function emarking_get_all_pages($emarking, $submission, $draft, $anonymous, $con
 			$emarkingpages [] = $emarkingpage;
 		}
 
-		$fileid = $anonymous ? $page->fileanonymous : $page->file;
+		$fileid = $studentanonymous ? $page->fileanonymous : $page->file;
 		if (! $file = $fs->get_file_by_id ( $fileid )) {
 			$emarkingpage = new stdClass ();
 			$emarkingpage->url = $CFG->wwwroot . '/mod/emarking/pix/missing.png';
