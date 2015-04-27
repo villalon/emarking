@@ -146,9 +146,9 @@ function emarking_tabs($context, $cm, $emarking)
     $gradetab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?cmid={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     
     // Grade report tab
-    $gradereporttab = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("reports", "mod_emarking"));
+    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("reports", "mod_emarking"));
     
-    $gradereporttab->subtree[] = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("gradereport", "grades"));
+    $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("gradereport", "grades"));
     $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/markingreport.php?id={$cm->id}", get_string("markingreport", 'mod_emarking'));
     $gradereporttab->subtree[] = new tabobject("comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string("comparativereport", "mod_emarking"));
     $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
@@ -579,7 +579,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
  *
  * @param stdClass $course            
  */
-function emarking_get_parallel_courses($course, $regex)
+function emarking_get_parallel_courses($course, $extracategory, $regex)
 {
     global $CFG, $DB;
     
@@ -588,7 +588,8 @@ function emarking_get_parallel_courses($course, $regex)
         
         $term = $regs[2][0];
         $year = $regs[3][0];
-      
+        
+        $categories = $course->category;
         $sql = "
 				shortname like '%$coursecode%-%-$term-$year'
 				and id != $course->id";
@@ -772,11 +773,11 @@ function emarking_get_totalscore($draft, $controller, $fillings)
  * @param unknown $context            
  * @return number
  */
-function emarking_get_next_submission($emarking, $submission, $context, $student)
+function emarking_get_next_submission($emarking, $draft, $context, $student)
 {
     global $DB, $USER;
     
-    $levelids = 0;
+    $levelids = '';
     if ($criteria = $DB->get_records('emarking_marker_criterion', array(
         'emarking' => $emarking->id,
         'marker' => $USER->id
@@ -797,20 +798,22 @@ function emarking_get_next_submission($emarking, $submission, $context, $student
         $levelids = implode(",", $levelsarray);
     }
     
-    $sortsql = $emarking->anonymous ? " s.sort ASC" : " u.lastname ASC";
+    $sortsql = $emarking->anonymous < 2 ? " d.sort ASC" : " u.lastname ASC";
     
-    $criteriafilter = $levelids == 0 ? "" : " AND s.id NOT IN (SELECT s.id
-	FROM {emarking_submission} as s
-	INNER JOIN {emarking_page} as p ON (s.emarking = $emarking->id AND s.status < 20 AND p.submission = s.id)
-	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.levelid IN ($levelids))
-	GROUP BY s.id)";
+    $criteriafilter = $levelids == 0 ? "" : " AND d.id NOT IN (SELECT d.id
+	FROM {emarking_draft} as d
+	INNER JOIN {emarking_submission} AS s ON (s.id = d.submissionid AND s.emarking = $emarking->id)
+	INNER JOIN {emarking_page} as p ON (d.status < 20 AND p.submission = s.id)
+	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.draft = d.id AND c.levelid IN ($levelids))
+	GROUP BY d.id)";
     
-    $sortfilter = $emarking->anonymous ? " AND sort > $submission->sort" : " AND u.lastname > '$student->lastname'";
+    $sortfilter = $emarking->anonymous < 2 ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
     
-    $basesql = "SELECT s.id
-			FROM {emarking_draft} as s
+    $basesql = "SELECT d.id
+			FROM {emarking_draft} AS d
+            INNER JOIN {emarking_submission} AS s ON (d.submissionid = s.id)
 			INNER JOIN {user} as u ON (s.student = u.id)
-			WHERE s.emarkingid = :emarkingid AND s.submissionid <> :submissionid AND s.status < 20 AND s.status >= 10";
+			WHERE s.emarking = :emarkingid AND d.id <> :draftid AND d.status < 20 AND d.status >= 10";
     
     $sql = "$basesql
 	$criteriafilter
@@ -819,7 +822,7 @@ function emarking_get_next_submission($emarking, $submission, $context, $student
     // Gets the next submission id, limits start from 0 and get a total of 1
     $nextsubmissions = $DB->get_records_sql($sql, array(
         'emarkingid' => $emarking->id,
-        'submissionid' => $submission->id
+        'draftid' => $draft->id
     ), 0, 1);
     $id = 0;
     foreach ($nextsubmissions as $nextsubmission) {
@@ -834,75 +837,13 @@ function emarking_get_next_submission($emarking, $submission, $context, $student
         
         $nextsubmissions = $DB->get_records_sql($sql, array(
             'emarkingid' => $emarking->id,
-            'submissionid' => $submission->id
+            'draftid' => $draft->id
         ), 0, 1);
         foreach ($nextsubmissions as $nextsubmission) {
             $id = $nextsubmission->id;
         }
     }
     return $id;
-}
-
-/**
- * This function gets a page to display on the eMarking interface using the page number, user id and emarking id
- *
- * @param unknown $pageno            
- * @param unknown $submission            
- * @param string $anonymous            
- * @param unknown $contextid            
- * @return multitype:NULL number |multitype:unknown string NULL Ambigous <unknown, NULL>
- */
-function emarking_get_page_image($pageno, $submission, $anonymous = false, $contextid)
-{
-    global $CFG, $DB;
-    
-    $numfiles = $DB->count_records_sql('
-			SELECT MAX(page) as pages
-			FROM {emarking_page}
-			WHERE submission=?
-			GROUP BY submission', array(
-        $submission->id,
-        $submission->student
-    ));
-    
-    if (! $page = $DB->get_record('emarking_page', array(
-        'submission' => $submission->id,
-        'student' => $submission->student,
-        'page' => $pageno
-    ))) {
-        
-        return array(
-            new moodle_url('/mod/emarking/pix/missing.png'),
-            800,
-            1035,
-            $numfiles
-        );
-    }
-    
-    $fileid = $anonymous ? $page->fileanonymous : $page->file;
-    
-    $fs = get_file_storage();
-    
-    if (! $file = $fs->get_file_by_id($fileid)) {
-        print_error('Attempting to display image for non-existant submission ' . $contextid . "_" . $submission->emarkingid . "_" . $pagefilename);
-    }
-    
-    if ($imageinfo = $file->get_imageinfo()) {
-        $imgurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $contextid . '/mod_emarking/pages/' . $submission->emarkingid . '/' . $file->get_filename());
-        return array(
-            $imgurl,
-            $imageinfo['width'],
-            $imageinfo['height'],
-            $numfiles
-        );
-    }
-    
-    return array(
-        null,
-        0,
-        0,
-        $numfiles
-    );
 }
 
 /**

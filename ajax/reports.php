@@ -15,133 +15,136 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * 
+ *
  * @package mod
  * @subpackage emarking
- * @copyright 2015 Jorge VillalÃ³n {@link http://www.uai.cl},
+ * @copyright 2015 Jorge Villalón {@link http://www.uai.cl},
  * @copyright 2015 Nicolas Perez
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define ( 'AJAX_SCRIPT', true );
+define('AJAX_SCRIPT', true);
 // define ( 'NO_DEBUG_DISPLAY', true );
 
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
-require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
+require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/ajax/qry/reportsquerylib.php');
 
 // Get course module id
-$cmid = required_param ( "cmid", PARAM_NUMBER );
-// Get action
-$action = required_param ( "action", PARAM_TEXT );
-// Get ids for multy section
-$ids = optional_param ( "emarkingids","0", PARAM_SEQUENCE );
-// Callback for from webpage
-$callback = optional_param ( 'callback', null, PARAM_RAW_TRIMMED );
+$cmid = required_param("cmid", PARAM_NUMBER);
+$action = required_param("action", PARAM_TEXT);
+$ids = optional_param("emarkingids", '', PARAM_SEQUENCE);
 
 // Validate course module
-if (! $cm = get_coursemodule_from_id ( 'emarking', $cmid )) {
-	print_error ( get_string ( 'invalidcoursemodule', 'mod_emarking' ) );
+if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
+    print_error('Módulo inválido');
 }
-
 
 // Validate module
-if (! $emarking = $DB->get_record ( 'emarking', array ('id' => $cm->instance))) {
-	print_error ( get_string ( 'invalidexamid', 'mod_emarking' ) );
+if (! $emarking = $DB->get_record('emarking', array(
+    'id' => $cm->instance
+))) {
+    print_error('Prueba inválida');
 }
-//In case of failure, this is a problem solving
-if($ids == "0"){
-	$ids = $emarking->id;
-}
-// Set context
-$context = context_module::instance ( $cmid );
-// Validates there is a rubric for this evaluation
-list ( $gradingmanager, $gradingmethod ) = emarking_validate_rubric ( $context );
-$rubriccontroller = $gradingmanager->get_controller ( $gradingmethod );
-$definition = $rubriccontroller->get_definition ();
 
+$context = context_module::instance($cmid);
+
+list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
+$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
+$definition = $rubriccontroller->get_definition();
 // Calculates the number of criteria for this evaluation
+
 $numcriteria = 0;
-if ($rubriccriteria = $rubriccontroller->get_definition ()) {
-	$numcriteria = count ( $rubriccriteria->rubric_criteria );
+if ($rubriccriteria = $rubriccontroller->get_definition()) {
+    $numcriteria = count($rubriccriteria->rubric_criteria);
 }
 
-$totalemarkings = count ( explode ( ',', $ids ) );
+// Callback para from webpage
+$callback = optional_param('callback', null, PARAM_RAW_TRIMMED);
+
+$totalemarkings = count(explode(',', $ids));
 
 // Headers
 // header ( 'Content-Type: text/javascript' );
 // header('Content-Type: text/html; charset=utf-8');
 // header ( 'Cache-Control: no-cache' );
 // header ( 'Pragma: no-cache' );
+
+// var_dump($action);die("este es el action");
 if ($action == "markingreport") {
-	// Gets all variables needed to pass to GWT for the graph making in markingreport.php
-	$grading = get_status ( $numcriteria, $emarking->id );
-	list ( $advancedescription, $advanceresponded, $advanceregrading, $advancegrading ) = get_question_advance ( $cmid, $grading );
-	
-	list ( $markeradvance_marker, $markeradvance_responded, $markeradvance_grading, $markeradvance_regrading ) = get_marker_advance ( $cmid, $emarking->id, $grading );
-	list ( $contributioners, $contributions ) = get_markers_contribution ( $grading, $emarking->id );
-	
-	
-	$final = Array (
-			'Grading' => $grading,
-			'Contributioners' => $contributioners,
-			'Contributions' => $contributions,
-			'Advancedescription' => $advancedescription,
-			'Advanceresponded' => $advanceresponded,
-			'Advanceregrading' => $advanceregrading,
-			'Advancegrading' => $advancegrading,
-			'MarkeradvanceMarker' => $markeradvance_marker,
-			'MarkeradvanceCorregido' => $markeradvance_responded,
-			'MarkeradvancePorcorregir' => $markeradvance_grading,
-			'MarkeradvancePorrecorregir' => $markeradvance_regrading 
-	);
-	// Array cration for future json
-	$output = $final;
-	$jsonOutputs = array (
-			'error' => '',
-			'values' => $output 
-	);
-	// Encode array into json
-	$jsonOutput = json_encode ( $jsonOutputs );
-	if ($callback)
-		$jsonOutput = $callback . "(" . $jsonOutput . ");";
-	echo $jsonOutput;
-} else if ($action == "gradereport") {
-	
-	// Counts the total of disticts categories
-	$sqlcats = "SELECT COUNT(DISTINCT(c.category)) AS categories
-				FROM {emarking} AS a
-				INNER JOIN {course} AS c ON (a.course = c.id)
-				WHERE a.id IN (:ids)";
-	
-	$totalcategories = $DB->count_records_sql ( $sqlcats, array('ids'=>$ids) );
-	$grading = get_status ( $numcriteria, $emarking->id );
-	$emarkingstats = get_emarking_stats ( $ids );
-	// Gets all variables needed to pass to GWT for the graph making in gradereport.php
-	$coursemarks = get_courses_marks ( $emarkingstats, $totalcategories, $totalemarkings );
-	$emarkingstats = get_emarking_stats ( $ids );
-	$marks = get_marks ( $emarkingstats, $totalcategories, $totalemarkings );
-	$emarkingstats = get_emarking_stats ( $ids );
-	list ( $efficiencycriterion, $efficiencyrate ) = get_efficiency ( $ids );
-	$emarkingstats = get_emarking_stats ( $ids );
-	$pass_ratio = get_pass_ratio ( $emarkingstats, $totalcategories, $totalemarkings );
-	$final = array (
-			'Marks' => $marks,
-			'CourseMarks' => $coursemarks,
-			'PassRatio' => $pass_ratio,
-			'EfficiencyCriterion' => $efficiencycriterion,
-			'EfficiencyRate' => $efficiencyrate 
-	);
-	// Array cration for future json
-	$output = $final;
-	$jsonOutputs = array (
-			'error' => '',
-			'values' => $output 
-	);
-	// Encode array into json
-	$jsonOutput = json_encode ( $jsonOutputs );
-	if ($callback)
-		$jsonOutput = $callback . "(" . $jsonOutput . ");";
-	echo $jsonOutput;
-}
+    
+    $grading = get_status($cmid, $emarking->id);
+    $contributions = get_contribution_per_marker($cmid, $emarking->id);
+    $contributioners = get_markers($cmid, $emarking->id);
+    $advancedescription = get_advance_description($cmid, $emarking->id);
+    $advanceresponded = get_advance_responded($cmid, $emarking->id);
+    $advanceregrading = get_advance_regrading($cmid, $emarking->id);
+    $advancegrading = get_advance_grading($cmid, $emarking->id);
+    $markeradvance_marker = get_markeradvance_marker($cmid, $emarking->id);
+    $markeradvance_corregido = get_markeradvance_corregido($cmid, $emarking->id);
+    $markeradvance_porcorregir = get_markeradvance_porcorregir($cmid, $emarking->id);
+    $markeradvance_porrecorregir = get_markeradvance_porrecorregir($cmid, $emarking->id);
+    
+    $final = Array(
+        "Grading" => $grading,
+        "Contributioners" => $contributioners,
+        "Contributions" => $contributions,
+        "Advancedescription" => $advancedescription,
+        "Advanceresponded" => $advanceresponded,
+        "Advanceregrading" => $advanceregrading,
+        "Advancegrading" => $advancegrading,
+        "MarkeradvanceMarker" => $markeradvance_marker,
+        "MarkeradvanceCorregido" => $markeradvance_corregido,
+        "MarkeradvancePorcorregir" => $markeradvance_porcorregir,
+        "MarkeradvancePorrecorregir" => $markeradvance_porrecorregir
+    );
+    
+    $output = $final;
+    $jsonOutputs = array(
+        'error' => '',
+        'values' => $output
+    );
+    $jsonOutput = json_encode($jsonOutputs);
+    if ($callback)
+        $jsonOutput = $callback . "(" . $jsonOutput . ");";
+    echo $jsonOutput;
+} else 
+    if ($action == "gradereport") {
+        
+        // counts the total of disticts categories
+        $sqlcats = "select count(distinct(c.category)) as categories
+from {emarking} as a
+inner join {course} as c on (a.course = c.id)
+where a.id in ($ids)";
+        
+        $totalcategories = $DB->count_records_sql($sqlcats);
+        
+        $grading = get_status($numcriteria, $emarking->id);
+        $emarkingstats = get_emarking_stats($ids);
+        $marks = get_marks($emarkingstats, $totalcategories, $totalemarkings);
+        $emarkingstats = get_emarking_stats($ids);
+        $coursemarks = get_courses_marks($emarkingstats, $totalcategories, $totalemarkings);
+        $emarkingstats = get_emarking_stats($ids);
+        $pass_ratio = get_pass_ratio($emarkingstats, $totalcategories, $totalemarkings);
+        $efficiency = get_efficiency ($ids);
+        $efficiencycriterion = get_efficiency_criterion($efficiency);
+        $efficiencyrate = get_efficiency_rate($efficiency);
+        
+        $final = Array(
+            "Marks" => $marks,
+            "CourseMarks" => $coursemarks,
+            "PassRatio" => $pass_ratio,
+            "EfficiencyCriterion" => $efficiencycriterion,
+            "EfficiencyRate" => $efficiencyrate
+        );
+        $output = $final;
+        $jsonOutputs = array(
+            'error' => '',
+            'values' => $output
+        );
+        $jsonOutput = json_encode($jsonOutputs);
+        if ($callback)
+            $jsonOutput = $callback . "(" . $jsonOutput . ");";
+        echo $jsonOutput;
+    }
 

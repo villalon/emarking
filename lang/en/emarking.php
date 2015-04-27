@@ -258,7 +258,7 @@ $string ['examdate'] = 'Exam date';
 $string ['examdate_help'] = 'Date and time in which the exam will be taken';
 $string ['examdateinvalid'] = 'Invalid exam date, it should be at least {$a->mindays} work days in advance.';
 $string ['examdateprinted'] = 'Print date';
-$string ['examdatesent'] = 'Date of shipment';
+$string ['examdatesent'] = 'Date sent';
 $string ['examdeleteconfirm'] = 'You are about to delete {$a}. ¿Do you want to continue?';
 $string ['examdeleted'] = 'Exam deleted. Please wait while you are redirected';
 $string ['examid'] = 'Exam id';
@@ -534,7 +534,6 @@ $string ['advacebycriteria'] = 'Advance by criterion';
 $string ['pointsassignedbymarker'] = 'Points assigned by markers';
 $string ['advancebymarker'] = 'Advance by marker';
 $string ['marker'] = 'Marker';
-$string ['published'] = 'Published';
 
 /**
  * Events

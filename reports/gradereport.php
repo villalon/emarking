@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
 /**
  *
  * @package mod
@@ -23,10 +24,10 @@
  * @copyright 2015 Xiu-Fong Lin <xlin@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
+require_once (dirname ( dirname ( dirname (dirname(  __FILE__ )) ) ) . '/config.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
-require_once ($CFG->dirroot . '/mod/emarking/reports/forms/gradereport_form.php');
-require_once ($CFG->dirroot . '/mod/emarking/reports/statstable.php');
+require_once ('forms/gradereport_form.php');
+
 global $DB, $USER;
 
 // Get course module id
@@ -34,33 +35,39 @@ $cmid = required_param ( 'id', PARAM_INT );
 
 // Validate course module
 if (! $cm = get_coursemodule_from_id ( 'emarking', $cmid )) {
-	print_error ( get_string ( 'invalidcoursemodule', 'mod_emarking' ) );
+	print_error ( 'Módulo inválido' );
 }
+
 // Validate module
 if (! $emarking = $DB->get_record ( 'emarking', array (
 		'id' => $cm->instance 
 ) )) {
-	print_error ( get_string ( 'invalidexamid', 'mod_emarking' ) );
+	print_error ( 'Prueba inválida' );
 }
 // Validate course
 if (! $course = $DB->get_record ( 'course', array (
 		'id' => $emarking->course 
 ) )) {
-	print_error ( get_string ( 'invalidcourseid', 'mod_emarking' ) );
+	print_error ( 'Curso inválido' );
 }
+
 // URLs for current page
-$url = new moodle_url ( '/mod/emarking/gradereport.php', array (
+$url = new moodle_url ( '/mod/emarking/reports/gradereport.php', array (
 		'id' => $cm->id 
 ) );
+
 // Course context is used in reports
 $context = context_module::instance ( $cm->id );
+
 // Validate the user has grading capabilities
 require_capability ( 'mod/emarking:grade', $context );
+
 // First check that the user is logged in
 require_login ( $course->id );
 if (isguestuser ()) {
 	die ();
 }
+
 // Page settings (URL, breadcrumbs and title)
 $PAGE->set_context ( $context );
 $PAGE->set_course ( $course );
@@ -68,34 +75,36 @@ $PAGE->set_cm ( $cm );
 $PAGE->set_url ( $url );
 $PAGE->set_pagelayout ( 'incourse' );
 $PAGE->set_heading ( $course->fullname );
-$PAGE->navbar->add ( get_string ( 'gradereport', 'grades' ) );
+$PAGE->set_title(get_string('gradereport', 'grades'));
+$PAGE->navbar->add(get_string('gradereport', 'grades'));
+
 echo $OUTPUT->header ();
 echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), 'gradereport', 'mod_emarking' );
-// Print eMarking tabs.
-echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), 'gradereport' );
-// Counts the total of exams.
+
+// Print eMarking tabs
+echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), "report" );
+
+// Counts the total of exams
 $totalsubmissions = $DB->count_records_sql ( "
 		SELECT COUNT(dr.id) AS total 
 		FROM {emarking_draft} AS dr
 		INNER JOIN {emarking_submission} AS e ON (e.emarking = :emarking AND e.id = dr.submissionid AND dr.qualitycontrol=0)
 		WHERE dr.grade >= 0 AND dr.status >= :status", array (
-		'emarking' => $emarking->id,
-		'status' => EMARKING_STATUS_RESPONDED 
+		'emarking' => $emarking->id , 'status' => EMARKING_STATUS_RESPONDED
 ) );
-// Check if there are any submissions to be shown.
+
 if (! $totalsubmissions || $totalsubmissions == 0) {
 	echo $OUTPUT->notification ( get_string ( 'nosubmissionsgraded', 'mod_emarking' ), 'notifyproblem' );
 	echo $OUTPUT->footer ();
 	die ();
 }
-// Initialization of the variable $emakingids, with the actual emarking id as the first one on the sequence.
+
 $emarkingids = '' . $emarking->id;
-// Initializatetion of the variable $emarkingidsfortable, its an array with all the parallels ids, this will be used in the stats table.
-$emarkingidsfortable = array ();
-$emarkingidsfortable [0] = $emarking->id;
+
+$extracategory = optional_param ( 'categories', 0, PARAM_INT );
 // check for parallel courses
 if ($CFG->emarking_parallelregex) {
-	$parallels = emarking_get_parallel_courses ( $course, $CFG->emarking_parallelregex );
+	$parallels = emarking_get_parallel_courses ( $course, $extracategory, $CFG->emarking_parallelregex );
 } else {
 	$parallels = false;
 }
@@ -106,37 +115,357 @@ $emarkingsform = new emarking_gradereport_form ( null, array (
 		'parallels' => $parallels,
 		'id' => $emarkingids 
 ) );
+
 $emarkingsform->display ();
 // Get the IDs from the parallel courses
-/*
- * This if bring all the parallel courses that were match in the regex and concatenate each other with a coma "," in between, With this if the variable $parallels exists and count how manny id are inside the array to check if they are more than 0, then it check if the the test exist and check their properties, if the evaluation of this match it brings their ids, and concatenates them.
- */
 $totalemarkings = 1;
 if ($parallels && count ( $parallels ) > 0) {
 	foreach ( $parallels as $pcourse ) {
-		$parallelids = '';
+		$assid = '';
 		if ($emarkingsform->get_data () && property_exists ( $emarkingsform->get_data (), "emarkingid_$pcourse->id" )) {
-			eval ( "\$parallelids = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
-			if ($parallelids > 0) {
-				$emarkingids .= ',' . $parallelids;
-				$emarkingidsfortable [$totalemarkings] = $parallelids;
+			eval ( "\$assid = \$emarkingsform->get_data()->emarkingid_$pcourse->id;" );
+			if ($assid > 0) {
+				$emarkingids .= ',' . $assid;
 				$totalemarkings ++;
 			}
 		}
 	}
 }
-// Print the stats table
-echo get_stats_table ( $emarkingidsfortable, $totalemarkings );
-$reportsdir = $CFG->wwwroot . '/mod/emarking/marking/emarkingreports';
+
+// counts the total of disticts categories
+$sqlcats = "SELECT 
+                COUNT(DISTINCT(c.category)) as categories
+                FROM {emarking} AS a
+                INNER JOIN {course} AS c ON (a.course = c.id)
+                WHERE a.id IN ($emarkingids)";
+
+$totalcategories = $DB->count_records_sql ( $sqlcats );
+
+// Get the grading manager, then method and finally controller
+$gradingmanager = get_grading_manager ( $context, 'mod_emarking', 'attempt' );
+$gradingmethod = $gradingmanager->get_active_method ();
+$rubriccontroller = $gradingmanager->get_controller ( $gradingmethod );
+$definition = $rubriccontroller->get_definition ();
+// Search for stats regardig the exames (eg: max, min, number of students,etc)
+$sql = "select  *,
+case
+when categoryid is null then 'TOTAL'
+when emarkingid is null then concat('SUBTOTAL ', categoryname)
+else coursename
+end as seriesname
+from (
+select 	categoryid as categoryid,
+categoryname,
+emarkingid as emarkingid,
+modulename,
+coursename,
+count(*) as students,
+sum(pass) as pass,
+round((sum(pass) / count(*)) * 100,2) as pass_ratio,
+SUBSTRING_INDEX(
+SUBSTRING_INDEX(
+group_concat(grade order by grade separator ',')
+, ','
+, 25/100 * COUNT(*) + 1)
+, ','
+, -1
+) as percentile_25,
+SUBSTRING_INDEX(
+SUBSTRING_INDEX(
+group_concat(grade order by grade separator ',')
+, ','
+, 50/100 * COUNT(*) + 1)
+, ','
+, -1
+) as percentile_50,
+SUBSTRING_INDEX(
+SUBSTRING_INDEX(
+group_concat(grade order by grade separator ',')
+, ','
+, 75/100 * COUNT(*) + 1)
+, ','
+, -1
+) as percentile_75,
+min(grade) as minimum,
+max(grade) as maximum,
+round(avg(grade),2) as average,
+round(stddev(grade),2) as stdev,
+sum(histogram_01) as histogram_1,
+sum(histogram_02) as histogram_2,
+sum(histogram_03) as histogram_3,
+sum(histogram_04) as histogram_4,
+sum(histogram_05) as histogram_5,
+sum(histogram_06) as histogram_6,
+sum(histogram_07) as histogram_7,
+sum(histogram_08) as histogram_8,
+sum(histogram_09) as histogram_9,
+sum(histogram_10) as histogram_10,
+sum(histogram_11) as histogram_11,
+sum(histogram_12) as histogram_12,
+round(sum(rank_1)/count(*),3) as rank_1,
+round(sum(rank_2)/count(*),3) as rank_2,
+round(sum(rank_3)/count(*),3) as rank_3,
+min(mingrade) as mingradeemarking,
+min(maxgrade) as maxgradeemarking
+from (
+select
+round(dr.grade,2) as grade, -- Nota final (calculada o manual via calificador)
+a.grade as maxgrade, -- Nota máxima del emarking
+a.grademin as mingrade, -- Nota mínima del emarking
+case when dr.grade is null then 0 -- Indicador de si la nota es null
+else 1
+end as attended,
+case when dr.grade >= 4 then 1 -- TODO: REPLACE
+else 0
+end as pass,
+case when dr.grade >= 0 AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 1 then 1 else 0 end as histogram_01,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 1  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 2 then 1 else 0 end as histogram_02,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 2  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 3 then 1 else 0 end as histogram_03,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 3  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 4 then 1 else 0 end as histogram_04,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 4  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 5 then 1 else 0 end as histogram_05,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 5  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 6 then 1 else 0 end as histogram_06,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 6  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 7 then 1 else 0 end as histogram_07,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 7  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 8 then 1 else 0 end as histogram_08,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 8  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 9 then 1 else 0 end as histogram_09,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 9  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 10 then 1 else 0 end as histogram_10,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 10  AND dr.grade < a.grademin + (a.grade - a.grademin) / 12 * 11 then 1 else 0 end as histogram_11,
+case when dr.grade >= a.grademin + (a.grade - a.grademin) / 12 * 11 then 1 else 0 end as histogram_12,
+case when dr.grade - a.grademin < (a.grade - a.grademin) / 3 then 1 else 0 end as rank_1,
+case when dr.grade - a.grademin >= (a.grade - a.grademin) / 3 AND dr.grade - a.grademin  < (a.grade - a.grademin) / 2 then 1 else 0 end as rank_2,
+case when dr.grade - a.grademin >= (a.grade - a.grademin) / 2  then 1 else 0 end as rank_3,
+c.category as categoryid,
+cc.name as categoryname,
+a.id as emarkingid,
+a.name as modulename,
+c.fullname as coursename
+FROM {emarking} AS a
+INNER JOIN {emarking_submission} AS ss ON (a.id = ss.emarking AND a.id IN ($emarkingids))
+INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = ss.id AND dr.qualitycontrol=0)
+INNER JOIN {course} AS c ON (a.course = c.id)
+INNER JOIN {course_categories} AS cc ON (c.category = cc.id)
+WHERE dr.grade is not null AND dr.status >= 20
+ORDER BY emarkingid asc, dr.grade asc) as G
+GROUP BY categoryid, emarkingid
+WITH ROLLUP) as T";
+
+$emarkingstats = $DB->get_recordset_sql ( $sql );
+
+$mingrade = 0;
+$maxgrade = 0;
+$averages = '';
+
+$histogram_courses = '';
+$histogram_totals = '';
+$histograms = array ();
+$histograms_totals = array ();
+$histogramlabels = array ();
+
+$pass_ratio = '';
+
+$databoxplot = "";
+
+$data = array ();
+foreach ( $emarkingstats as $stats ) {
+	
+	if ($totalcategories == 1 && ! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 )) {
+		continue;
+	}
+	if ($totalemarkings == 1 && ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
+		continue;
+	}
+	
+	if (! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 ) || ! strncmp ( $stats->seriesname, 'TOTAL', 5 ))
+		$histogram_totals .= "'$stats->seriesname',";
+	else
+		$histogram_courses .= "'$stats->seriesname (N=$stats->students)',";
+	
+	for($i = 1; $i <= 12; $i ++) {
+		$histogramvalue = '';
+		eval ( "\$histogramvalue = \$stats->histogram_$i;" );
+		if (! strncmp ( $stats->seriesname, 'SUBTOTAL', 8 ) || ! strncmp ( $stats->seriesname, 'TOTAL', 5 )) {
+			if (! isset ( $histograms_totals [$i] ))
+				$histograms_totals [$i] = $histogramvalue . ',';
+			else
+				$histograms_totals [$i] .= $histogramvalue . ',';
+		} else {
+			if (! isset ( $histograms [$i] ))
+				$histograms [$i] = $histogramvalue . ',';
+			else
+				$histograms [$i] .= $histogramvalue . ',';
+		}
+		
+		if ($i % 2 != 0) {
+			if ($i <= 6) {
+				$histogramlabels [$i] = '< ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
+			} else {
+				$histogramlabels [$i] = '>= ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1));
+			}
+		} else {
+			$histogramlabels [$i] = '';
+		}
+	}
+	
+	// Set the values for the box plot
+	$series = $stats->seriesname;
+	$min = $stats->minimum;
+	$max = $stats->maximum;
+	$mean = $stats->average;
+	$firstquantile = $stats->percentile_25;
+	$thirdquantile = $stats->percentile_75;
+	$median = $stats->percentile_50;
+	
+	$databoxplot .= '["' . $series . '",' . $min . ',' . $firstquantile . ',' . $thirdquantile . ',' . $max . ',' . $median . ',' . $mean . '],';
+	
+	// Pass Ratio Graph data
+	$pass_ratio .= "['$stats->seriesname (N=$stats->students)',$stats->rank_1,$stats->rank_2,$stats->rank_3],";
+	
+	// Get the diferent indicators from the general stats query and pass it on to the table
+	$mingrade = $stats->mingradeemarking;
+	$maxgrade = $stats->maxgradeemarking;
+	$averages .= "['$stats->seriesname (N=$stats->students)',$stats->average, $stats->minimum, $stats->maximum],";
+	
+	$data [] = array (
+			$stats->seriesname,
+			$stats->students,
+			$stats->average,
+			$stats->stdev,
+			$stats->minimum,
+			$stats->percentile_25,
+			$stats->percentile_50,
+			$stats->percentile_75,
+			$stats->maximum,
+			$stats->rank_1,
+			$stats->rank_2,
+			$stats->rank_3 
+	);
+}
+
+// Gets the stats by criteria
+$sqlcriteria = '
+				SELECT co.fullname,
+				co.id AS courseid,
+				s.emarking AS emarkingid,
+				a.id AS criterionid,
+				a.description,
+				round(avg(b.score),1) AS avgscore,
+				round(stddev(b.score),1) AS stdevscore,
+				round(min(b.score),1) AS minscore,
+				round(max(b.score),1) AS maxscore,
+				round(avg(b.score)/t.maxscore,1) AS effectiveness,
+				t.maxscore AS maxcriterionscore
+				FROM {emarking_submission} AS s
+				INNER JOIN {emarking} AS e ON (s.emarking=e.id AND s.emarking IN (' . $emarkingids . ') )
+				INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
+				INNER JOIN {course_modules} AS cm ON e.id=cm.instance
+				INNER JOIN {context} AS c ON cm.id=c.instanceid
+				INNER JOIN {grading_areas} AS ga ON c.id=ga.contextid
+				INNER JOIN {grading_definitions} AS gd ON ga.id=gd.areaid
+				INNER JOIN {grading_instances} AS i ON (gd.id=i.definitionid  AND dr.status >= 20)
+				INNER JOIN {gradingform_rubric_fillings} AS f ON i.id=f.instanceid
+				INNER JOIN {gradingform_rubric_criteria} AS a ON f.criterionid=a.id
+				INNER JOIN {gradingform_rubric_levels} AS b ON f.levelid=b.id
+				INNER JOIN (SELECT s.id AS emarkingid,
+				            a.id AS criterionid,
+				            max(l.score) AS maxscore
+				            FROM {emarking} AS s
+							INNER JOIN {course_modules} AS cm ON (s.id = cm.instance)
+							INNER JOIN {context} AS c ON (c.instanceid = cm.id)
+							INNER JOIN {grading_areas} AS ar ON (ar.contextid = c.id)
+							INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
+							INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)
+							INNER JOIN {gradingform_rubric_levels} AS l ON (a.id = l.criterionid)
+							GROUP BY s.id, criterionid) AS t ON (s.emarking=t.emarkingid AND a.id = t.criterionid)
+				INNER JOIN {course} AS co ON e.course=co.id
+				GROUP BY s.emarking,a.id
+				ORDER BY a.description,emarkingid';
+
+$criteriastats = $DB->get_recordset_sql ( $sqlcriteria );
+
+$forcount = $DB->get_recordset_sql ( $sqlcriteria ); // run the sql again to get the count
+$count = iterator_count ( $forcount );
+
+$parallels_names_criteria = '';
+$effectivenessnum = - 1;
+$effectiveness [0] = '';
+$lastdescription = random_string ();
+$lastcriteria = '';
+$lastcourse = '';
+$parallels_ids = array ();
+foreach ( $criteriastats as $stats ) {
+	
+	if (! isset ( $parallels_ids [$stats->courseid] )) {
+		$parallels_names_criteria .= "'$stats->fullname (N=$count)',";
+		$parallels_ids [$stats->courseid] = $stats->fullname;
+	}
+	$description = trim ( preg_replace ( '/\s\s+/', ' ', $stats->description ) );
+	$criteriaid = $stats->criterionid;
+	// FIXME arreglar cuando el nombre de 2 descripciones es la misma
+	if ($lastdescription !== $description) {
+		$effectivenessnum ++;
+		if ($effectivenessnum > 0) {
+			$effectiveness [$effectivenessnum - 1] .= "]";
+		}
+		$effectiveness [$effectivenessnum] = "['$description', ";
+		$lastdescription = $description;
+	}
+	$effectiveness [$effectivenessnum] .= $stats->effectiveness . ', ';
+}
+
+if ($effectivenessnum >= 0) {
+	$effectiveness [$effectivenessnum] .= ']';
+}
+// STATS PER CRITERIA GRAPH DATA
+$effectivenessstring = "[\n['Criterio', " . $parallels_names_criteria . "],";
+foreach ( $effectiveness as $effectiverow ) {
+	$effectivenessstring .= "\n" . $effectiverow . ", ";
+}
+$effectivenessstring .= " ] ";
+
+// Data stats Table
+$table = new html_table ();
+$table->attributes ['style'] = "width: 100%; text-align:center;";
+$table->head = array (
+		strtoupper ( get_string ( 'course' ) ),
+		strtoupper ( get_string ( 'students' ) ),
+		strtoupper ( get_string ( 'average', 'mod_emarking' ) ),
+		strtoupper ( get_string ( 'stdev', 'mod_emarking' ) ),
+		strtoupper ( get_string ( 'min', 'mod_emarking' ) ),
+		strtoupper ( get_string ( 'quartile1', 'mod_emarking' ) ),
+		strtoupper ( get_string ( 'median', 'mod_emarking' ) ),
+		strtoupper ( get_string ( 'quartile3', 'mod_emarking' ) ),
+		strtoupper ( get_string ( 'max', 'mod_emarking' ) ),
+		strtoupper ( get_string ( 'lessthan', 'mod_emarking', 3 ) ),
+		strtoupper ( get_string ( 'between', 'mod_emarking', array (
+				'min' => 3,
+				'max' => 4 
+		) ) ),
+		strtoupper ( get_string ( 'greaterthan', 'mod_emarking', 4 ) ) 
+);
+$table->align = array (
+		'left',
+		'center',
+		'center',
+		'center',
+		'center',
+		'center',
+		'center',
+		'center',
+		'center',
+		'center',
+		'center',
+		'center' 
+);
+$table->data = $data;
+echo html_writer::table ( $table );
+$reportsdir = $CFG->wwwroot. '/mod/emarking/marking/emarkingreports';
 ?>
-<link rel="stylesheet" type="text/css"
-	href="<?php echo $reportsdir ?>/css/Reports.css" />
-<script type="text/javascript" language="javascript"
-	src="<?php echo $reportsdir ?>/emarkingreports.nocache.js"></script>
-<div id='reports' cmid='<?php echo $cmid ?>'
-	emarkingids='<?php echo $emarkingids?>'
-	emarking='<?php echo $emarkingids?>' action='gradereport'
-	url='<?php echo$CFG->wwwroot ?>/mod/emarking/ajax/reports.php'></div>
+    <script type="text/javascript" language="javascript"src="<?php echo $reportsdir ?>/emarkingreports.nocache.js"></script>
+	<div id='reports' 
+	     cmid='<?php echo $cmid ?>' 
+	     emarkingids='<?php echo $emarkingids?>'
+	     emarking='<?php echo $emarkingids?>'
+		 action='gradereport' 
+		 url='<?php echo$CFG->wwwroot ?>/mod/emarking/ajax/reports.php' ></div>
 
 <?php
 echo $OUTPUT->footer ();

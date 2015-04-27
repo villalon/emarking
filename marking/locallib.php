@@ -28,11 +28,11 @@
  *
  * @param unknown $emarking
  * @param unknown $submission
- * @param unknown $anonymous
+ * @param unknown $studentanonymous
  * @param unknown $context
  * @return multitype:stdClass
  */
-function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
+function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context, $winwidth, $winheight) {
 	global $DB, $CFG, $USER;
 
 	$emarkingpages = array ();
@@ -49,7 +49,7 @@ function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
 	// but we force it as anonymous
 	! has_capability ( 'mod/emarking:grade', $context ) && $emarking->peervisibility) {
 		$filterpages = false;
-		$anonymous = true;
+		$studentanonymous = true;
 	} else {
 		// Remaining case is for markers
 		$filterpages = true;
@@ -68,6 +68,9 @@ function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
 				$emarkingpage->width = 800;
 				$emarkingpage->height = 1035;
 				$emarkingpage->totalpages = $emarking->totalpages;
+				$emarkingpage->pageno = $i + 1;
+				$emarkingpage->comments = array();
+				
 				if ($filterpages) {
 					$emarkingpage->showmarker = array_search ( $i + 1, $allowedpages ) !== false ? 1 : 0;
 				} else {
@@ -79,7 +82,7 @@ function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
 		}
 		return $emarkingpages;
 	}
-
+	
 	$fs = get_file_storage ();
 	$numfiles = max ( count ( $pages ), $emarking->totalpages );
 	$pagecount = 0;
@@ -95,6 +98,8 @@ function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
 			$emarkingpage->width = 800;
 			$emarkingpage->height = 1035;
 			$emarkingpage->totalpages = $numfiles;
+			$emarkingpage->pageno = count ( $emarkingpages ) + 1;
+			$emarkingpage->comments = array();
 				
 			if ($filterpages) {
 				$emarkingpage->showmarker = array_search ( count ( $emarkingpages ) + 1, $allowedpages ) !== false ? 1 : 0;
@@ -105,14 +110,16 @@ function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
 			$emarkingpages [] = $emarkingpage;
 		}
 
-		$fileid = $anonymous ? $page->fileanonymous : $page->file;
+		$fileid = $studentanonymous ? $page->fileanonymous : $page->file;
 		if (! $file = $fs->get_file_by_id ( $fileid )) {
 			$emarkingpage = new stdClass ();
 			$emarkingpage->url = $CFG->wwwroot . '/mod/emarking/pix/missing.png';
 			$emarkingpage->width = 800;
 			$emarkingpage->height = 1035;
 			$emarkingpage->totalpages = $numfiles;
-				
+			$emarkingpage->pageno = $pagenumber;
+	        $emarkingpage->comments = array(); 
+							
 			if ($filterpages) {
 				$emarkingpage->showmarker = array_search ( $pagenumber, $allowedpages ) !== false ? 1 : 0;
 			} else {
@@ -129,6 +136,7 @@ function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
 			$emarkingpage->width = $imageinfo ['width'];
 			$emarkingpage->height = $imageinfo ['height'];
 			$emarkingpage->totalpages = $numfiles;
+			$emarkingpage->pageno = $pagenumber;
 				
 			if ($filterpages) {
 				$emarkingpage->showmarker = array_search ( $pagenumber, $allowedpages ) !== false ? 1 : 0;
@@ -136,12 +144,68 @@ function emarking_get_all_pages($emarking, $submission, $anonymous, $context) {
 				$emarkingpage->showmarker = 1;
 			}
 				
+	        $emarkingpage->comments = emarking_get_comments_page($pagenumber, $draft->id, $winwidth, $winheight); 
+	        
 			$emarkingpages [] = $emarkingpage;
 		}
 	}
+	
 	return $emarkingpages;
 }
 
+function emarking_get_comments_page($pageno, $draftid, $winwidth, $winheight) {
+    global $DB;
+    
+    $sqlcomments = "SELECT
+		aec.id,
+		aec.posx,
+		aec.posy,
+		aec.rawtext,
+		aec.textformat AS format,
+		aec.width,
+		aec.height,
+		aec.colour,
+		ep.page AS pageno,
+		IFNULL(aec.bonus,0) AS bonus,
+		grm.maxscore,
+		aec.levelid,
+		grl.score AS score,
+		grl.definition AS leveldesc,
+		grc.id AS criterionid,
+		grc.description AS criteriondesc,
+		u.id AS markerid,
+		CONCAT(u.firstname,' ',u.lastname) AS markername,
+		IFNULL(er.id, 0) AS regradeid,
+		IFNULL(er.comment, '') AS regradecomment,
+		IFNULL(er.motive,0) AS motive,
+		IFNULL(er.accepted,0) AS regradeaccepted,
+		IFNULL(er.markercomment, '') AS regrademarkercomment,
+		IFNULL(er.levelid, 0) AS regradelevelid,
+		IFNULL(er.markerid, 0) AS regrademarkerid,
+		IFNULL(er.bonus, '') AS regradebonus,
+		aec.timecreated
+		FROM {emarking_comment} AS aec
+		INNER JOIN {emarking_page} AS ep ON (aec.page = ep.id AND ep.page = :pageno AND aec.draft = :draft)
+		INNER JOIN {emarking_draft} AS es ON (aec.draft = es.id)
+		INNER JOIN {user} AS u ON (aec.markerid = u.id)
+		LEFT JOIN {gradingform_rubric_levels} AS grl ON (aec.levelid = grl.id)
+		LEFT JOIN {gradingform_rubric_criteria} AS grc ON (grl.criterionid = grc.id)
+		LEFT JOIN (
+			SELECT grl.criterionid,
+			MAX(score) AS maxscore
+			FROM {gradingform_rubric_levels} AS grl
+			GROUP BY grl.criterionid
+		) AS grm ON (grc.id = grm.criterionid)
+		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = grc.id AND er.draft = es.id)
+		ORDER BY aec.levelid DESC";
+    $params = array('pageno'=>$pageno, 'draft'=>$draftid);
+    
+    $results = $DB->get_records_sql($sqlcomments, $params);
+    
+    $results = array_values($results);
+    
+    return $results;
+}
 /**
  * Gets a list of the pages allowed to be seen and interact for this user
  *
