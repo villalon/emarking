@@ -59,8 +59,8 @@ $sql = "SELECT
 			u.firstname,
 			u.lastname,
 			c.description AS criterio,
-			s.id AS ids,
-			s.status AS status
+			d.id AS ids,
+			d.status AS status
 		FROM {emarking_submission} AS s 
 		INNER JOIN {emarking_draft} AS d ON (s.emarking = :emarking AND d.submissionid = s.id) 
 		INNER JOIN {emarking_regrade} as rg ON (d.id = rg.draft)
@@ -111,8 +111,10 @@ foreach($records as $record){
 								'menubar' => 'no',
 								'titlebar' => 'no',
 								'status' => 'no',
-								'toolbar' => 'no' 
-						)), null, new pix_icon('i/manual_item', get_string('annotatesubmission','mod_emarking')));
+								'toolbar' => 'no',
+			                    'width' => 860,
+			                    'height' => 600,
+			)), null, new pix_icon('i/manual_item', get_string('annotatesubmission','mod_emarking')));
 
     $data[] = $array;
 }
