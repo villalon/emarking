@@ -255,6 +255,7 @@ $string ['examalreadysent'] = 'La prueba ya fue impresa, no puede modificarse.';
 $string ['examdate'] = 'Fecha y hora de la prueba';
 $string ['examdate_help'] = 'La fecha y hora en que se tomará la prueba. Solo se pueden solicitar impresiones con al menos 48 horas de anticipación (sin incluir fines de semana).';
 $string ['examdateinvalid'] = 'Solo se pueden solicitar impresiones con al menos {$a->mindays} días de anticipación (sin incluir fines de semana)';
+$string ['examdateinvaliddayofweek'] = 'Fecha de prueba inválida, solo de Lunes a Viernes y Sábados hasta las 4pm.';
 $string ['examdateprinted'] = 'Fecha de impresión';
 $string ['examdatesent'] = 'Fecha de envío';
 $string ['examdeleteconfirm'] = 'Está a punto de borrar {$a}. ¿Desea continuar?';
