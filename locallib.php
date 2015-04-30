@@ -131,7 +131,7 @@ function emarking_tabs($context, $cm, $emarking)
     $gradetab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('annotatesubmission', 'mod_emarking'));
     $gradetab->subtree[] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
     if (! $usercangrade) {
-        if ($CFG->emarking_enablejustice && $emarking->peervisibility) {
+        if ($emarking->peervisibility) {
             $gradetab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
             $gradetab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("justice.peercheck", 'mod_emarking'));
         }
@@ -141,9 +141,9 @@ function emarking_tabs($context, $cm, $emarking)
             $gradetab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?cmid={$cm->id}", get_string("regrades", 'mod_emarking'));
         if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
             $gradetab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markers", 'mod_emarking'));
+        $gradetab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?cmid={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     }
     
-    $gradetab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?cmid={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     
     // Grade report tab
     $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("reports", "mod_emarking"));

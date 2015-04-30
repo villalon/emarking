@@ -321,11 +321,6 @@ class emarking_exam_form extends moodleform
             
             // If the difference is not enough, show an error
             if ($realdiff < $mindiff) {
-                var_dump($today); echo "<hr>";
-                var_dump($examdate); echo "<hr>";
-                var_dump($diff); echo "<hr>";
-                var_dump($realdiff); echo "<hr>";
-                var_dump($mindiff); echo "<hr>";
                 $a = new stdClass();
                 $a->mindays = $mindiff;
                 $errors['examdate'] = get_string('examdateinvalid', 'mod_emarking', $a);

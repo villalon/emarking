@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $CFG,$OUTPUT, $PAGE, $DB;//To suppress eclipse warnings
 
 require_once($CFG->dirroot.'/mod/emarking/locallib.php');
@@ -62,23 +62,25 @@ if(!has_capability('mod/assign:grade', $context) && !$emarking->peervisibility) 
 $query = "SELECT * FROM (
 		SELECT
 		s.student as userid,
-		s.id as submission,
+		d.id as draftid,
 		s.grade,
 		u.firstname,
 		u.lastname
 		FROM {emarking_submission} as s
-		INNER JOIN {user} as u ON (s.emarking = :emarking AND s.student = u.id)
-		union
+        INNER JOIN {user} as u ON (s.emarking = :emarking AND s.student = u.id)
+		INNER JOIN {emarking_draft} as d ON (d.submissionid = s.id)
+        UNION
 		SELECT
 		uu.userid,
-		CASE WHEN s.id is null THEN 0 ELSE s.id END as submission,
+		IFNULL(d.id, 0) as draftid,
 		IFNULL (s.grade, 0) as finalgrade,
 		u.firstname,
 		u.lastname
 		FROM (SELECT :userid2 as userid) as uu
 		INNER JOIN {user} as u ON (uu.userid = u.id)
-		LEFT JOIN {emarking_submission} as s ON (s.emarking = :emarking2 AND uu.userid = s.student AND s.status >= 20)
-		WHERE uu.userid <> :userid3) as GRADES
+		LEFT JOIN {emarking_submission} as s ON (s.emarking = :emarking2 AND uu.userid = s.student)
+		LEFT JOIN {emarking_draft} as d ON (d.submissionid = s.id AND d.status >= 20)
+        WHERE uu.userid <> :userid3) as GRADES
 		ORDER BY grade DESC";
 
 $exams = $DB->get_records_sql($query,
@@ -123,11 +125,11 @@ foreach($exams as $exam){
 	}else if(isset($exam->grade)){
 		$grade = round($exam->grade,2);
 	}
-	$downloadurl = new moodle_url('/mod/emarking/ajax/a.php',array('action'=>'emarking','ids'=>$exam->submission));
+	$downloadurl = new moodle_url('/mod/emarking/ajax/a.php',array('action'=>'emarking','ids'=>$exam->draftid));
 	$examarray[] = $exam->userid == $USER->id ? $exam->firstname." ".$exam->lastname : "NN";
 	$examarray[] = $grade;
 	$examarray[] = $OUTPUT->action_link($downloadurl, null,
-			new popup_action ( 'click', $downloadurl, 'emarking' . $exam->submission, array (
+			new popup_action ( 'click', $downloadurl, 'emarking' . $exam->draftid, array (
 								'menubar' => 'no',
 								'titlebar' => 'no',
 								'status' => 'no',

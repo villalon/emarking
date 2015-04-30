@@ -704,7 +704,7 @@ if ($usercangrade && $unpublishedsubmissions > 0) {
 }
 echo "</form>";
 // If the user can not grade, we show them
-if (! $usercangrade && $CFG->emarking_enablejustice) {
+if (! $usercangrade) {
 	require_once $CFG->dirroot . '/mod/emarking/forms/justice_form.php';
 	
 	$submission = $DB->get_record ( 'emarking_submission', array (

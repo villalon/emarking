@@ -667,7 +667,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
  * @param cm_info $cm
  */
 function emarking_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm) {
-	$navref->add('Foo', new moodle_url('/mod/emarking/view.php',array('id'=>1)), navigation_node::TYPE_SETTING);
+	// $navref->add('Foo', new moodle_url('/mod/emarking/view.php',array('id'=>1)), navigation_node::TYPE_SETTING);
 }
 
 /**
@@ -682,6 +682,6 @@ function emarking_extend_navigation(navigation_node $navref, stdclass $course, s
 function emarking_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $emarkingnode=null) {
 	global $PAGE, $DB, $USER, $CFG;
 	
-	$emarkingnode->add('Foo');
+	// $emarkingnode->add('Foo');
 
 }

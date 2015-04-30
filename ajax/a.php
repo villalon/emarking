@@ -141,9 +141,6 @@ if ($agreeAssignment) {
     $agreeAssignmentLevelAvg = 0;
 }
 
-$studentanonymous = $emarking->anonymous === "0" || $emarking->anonymous === "1";
-$markeranonymous = $emarking->anonymous === "1" || $emarking->anonymous === "3";
-
 // The course to which the assignment belongs
 if (! $course = $DB->get_record("course", array(
     "id" => $emarking->course
@@ -169,6 +166,15 @@ $usercangrade = has_capability('mod/emarking:grade', $context);
 $usercanregrade = has_capability('mod/emarking:regrade', $context);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER);
 $isgroupmode = $cm->groupmode == SEPARATEGROUPS;
+
+$studentanonymous = $emarking->anonymous === "0" || $emarking->anonymous === "1";
+if($USER->id == $submission->student || $issupervisor) {
+    $studentanonymous = false;
+}
+$markeranonymous = $emarking->anonymous === "1" || $emarking->anonymous === "3";
+if($issupervisor) {
+    $markeranonymous = false;
+}
 
 if ($submission->status >= EMARKING_STATUS_RESPONDED && ! $usercanregrade) {
     $readonly = true;
@@ -209,7 +215,8 @@ if ($action === 'ping') {
         'role' => $userRole,
         'groupID' => $emarking->id, // emarkig->id assigned to groupID for chat and wall rooms.
         'sesskey' => $USER->sesskey,
-        'anonymous' => $emarking->anonymous,
+        'studentanonymous' => $studentanonymous ? "true" : "false",
+        'markeranonymous' => $markeranonymous ? "true" : "false",
         'hascapability' => $usercangrade,
         'supervisor' => $issupervisor,
         'markers' => json_encode($markersToSend),
@@ -355,6 +362,11 @@ switch ($action) {
         break;
     
     case 'getalltabs':
+        $showrubric = optional_param('showrubric', false, PARAM_BOOL);
+        $preferredwidth = optional_param('preferredwidth', 860, PARAM_INT);
+        $today = usertime(time());
+        setcookie('emarking_width',$preferredwidth, $today + 60*60*24*365, "/");
+        setcookie('emarking_showrubric',$showrubric ? "1" : "0", $today + 60*60*24*365, "/");
         $alltabs = emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context);
         emarking_json_resultset($alltabs);
         break;
