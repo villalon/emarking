@@ -33,7 +33,7 @@ require_once($CFG->dirroot."/mod/emarking/marking/form.php");
 
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
 
-$cmid=required_param('cmid', PARAM_INT);
+$cmid=required_param('id', PARAM_INT);
 
 // $action var is needed to change the action wished to perfomr: list, create, edit, delete
 $action=optional_param('action', 'list', PARAM_TEXT);
@@ -56,7 +56,7 @@ if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
 }
 
 // Emarking URL
-$urlemarking = new moodle_url('/mod/emarking/marking/predefinedcomments.php', array('cmid'=>$cm->id));
+$urlemarking = new moodle_url('/mod/emarking/marking/predefinedcomments.php', array('id'=>$cm->id));
 $context = context_module::instance($cm->id);
 
 require_login($course->id);

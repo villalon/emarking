@@ -18,7 +18,7 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $CFG,$OUTPUT, $PAGE, $DB;//To suppress eclipse warnings
 require_once($CFG->dirroot.'/mod/emarking/locallib.php');
 
-$cmid = required_param('cmid', PARAM_INT);
+$cmid = required_param('id', PARAM_INT);
 
 if(!$cm = get_coursemodule_from_id('emarking',$cmid)) {
 	error('Invalid course module id');
