@@ -138,7 +138,7 @@ $examstable = new html_table();
 $examstable->head = array(
 		get_string('examname', 'mod_emarking'),
 		get_string('examdate', 'mod_emarking'),
-		get_string('headerqr', 'mod_emarking'),
+		get_string('details', 'mod_emarking'),
 		get_string('examdatesent', 'mod_emarking'),
 		get_string('status', 'mod_emarking'),
 		get_string('multicourse', 'mod_emarking'),
@@ -181,8 +181,8 @@ foreach($exams as $exam) {
 
 	$emarking .= $exam->emarking ? get_string('yes') : get_string('no');
 
-	$headerqr .= $exam->headerqr ? get_string('yes') : get_string('no');
-	$headerqr .= "<br/>".$exam->enrolments;
+	$headerqr .= $exam->headerqr ? get_string('headerqr', 'mod_emarking') . "<br/>" : '';
+	$headerqr .= get_string('enrolments', 'enrol') . ': ' . $exam->enrolments;
 
 	$examstatus = '';
 	switch($exam->status) {

@@ -287,7 +287,7 @@ $string ['filerequiredtosend'] = 'Se requiere un archivo ZIP';
 $string ['filerequiredtosendnewprintorder'] = 'Se requiere un archivo PDF';
 $string ['finalgrade'] = 'Calificación final';
 $string ['grade'] = 'Calificación';
-$string ['headerqr'] = 'Encabezado personalizado para eMarking';
+$string ['headerqr'] = 'Encabezado personalizado';
 $string ['headerqr_help'] = 'El encabezado personalizado de eMarking permite imprimir la prueba personalizada para cada estudiante. Esto permite luego procesarla automáticamente para su corrección y entrega usando la actividad eMarking.<br/>
 		Ejemplo de encabezado:<br/>
 		<img src="' . $CFG->wwwroot . '/mod/emarking/img/preview.jpg">
@@ -521,6 +521,7 @@ $string ['questioneditcomment'] = '¿Desea editar el comentario?';
 $string ['questiondeletecomment'] = '¿Desea borrar el comentario?';
 $string ['creator'] = 'Creador';
 $string ['building'] = 'Edificio';
+$string ['details'] = 'Detalles';
 
 $string ['gradestats'] = 'Estadistica de notas por curso';
 $string ['gradehistogram'] = 'Histograma de notas por curso';

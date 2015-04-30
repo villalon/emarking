@@ -10,6 +10,16 @@ $langhtml = '<meta name="gwt:property" content="locale='.$lang.'">';
 $emarkingdir = $CFG->wwwroot. '/mod/emarking/marking/emarkingweb';
 $version = $module->version;
 
+$preferredwidth = 860;
+if(isset($_COOKIE['emarking_width']) && intval($_COOKIE['emarking_width']) > 300) {
+    $preferredwidth = intval($_COOKIE['emarking_width']);
+}
+
+$showrubric = true;
+if(isset($_COOKIE['emarking_showrubric'])) {
+    $showrubric = $_COOKIE['emarking_width'] === "1" ? "1" : "0";
+}
+
 header('Content-Type: text/html; charset=utf-8');
 
 ?>
@@ -50,6 +60,8 @@ header('Content-Type: text/html; charset=utf-8');
 	<div id="emarking" 
 		version="<?php echo $version ?>" 
 		submissionId="<?php  echo $ids?>"
+		preferredWidth="<?php echo $preferredwidth ?>"
+		showRubric="<?php echo $showrubric ?>"		
 		moodleurl="<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/a.php"></div>
 </body>
 </html>
