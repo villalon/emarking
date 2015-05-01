@@ -216,7 +216,8 @@ function emarking_pdf_count_pages($newfile, $tempdir, $doubleside = true)
 /**
  * Creates a batch file for printing with windows
  */
-function emarking_create_print_bat() {
+function emarking_create_print_bat()
+{
     global $CFG;
     
     // Generate Bat File
@@ -242,12 +243,12 @@ function emarking_create_print_bat() {
     $contenido .= "echo #   Seleccione una impresora:                                         #\r\n";
     
     $numbers = array();
-    for($i=0; $i<count($printerarray);$i++) {
+    for ($i = 0; $i < count($printerarray); $i ++) {
         $contenido .= "echo #   $i - $printerarray[$i]                                                   #\r\n";
         $numbers[] = $i;
     }
     
-    $i++;
+    $i ++;
     $contenido .= "echo #   $i - Cancelar                                                      #\r\n";
     $contenido .= "echo #                                                                     #\r\n";
     $contenido .= "echo #######################################################################\r\n";
@@ -256,16 +257,16 @@ function emarking_create_print_bat() {
     $contenido .= implode(',', $numbers);
     $contenido .= "]\r\n";
     
-    for($i=0; $i<count($printerarray);$i++) {
+    for ($i = 0; $i < count($printerarray); $i ++) {
         $contenido .= "if %preg01%==$i goto MENU $i \r\n";
     }
     
-    $i++;
+    $i ++;
     $contenido .= "if %preg01%==$i  goto SALIR\r\n";
     $contenido .= "goto MENU\r\n";
     $contenido .= "pause\r\n";
     
-    for($i=0; $i<count($printerarray);$i++) {        
+    for ($i = 0; $i < count($printerarray); $i ++) {
         $contenido .= ":MENU" . $i . "\r\n";
         $contenido .= "cls\r\n";
         $contenido .= "set N=%Random%%random%\r\n";
@@ -495,20 +496,26 @@ else
 
 /**
  * Draws a table with a list of students in the $pdf document
- * 
- * @param unknown $pdf PDF document to print the list in
- * @param unknown $logofilepath the logo
- * @param unknown $downloadexam the exam
- * @param unknown $course the course
- * @param unknown $studentinfo the student info including name and idnumber
+ *
+ * @param unknown $pdf
+ *            PDF document to print the list in
+ * @param unknown $logofilepath
+ *            the logo
+ * @param unknown $downloadexam
+ *            the exam
+ * @param unknown $course
+ *            the course
+ * @param unknown $studentinfo
+ *            the student info including name and idnumber
  */
-function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course, $studentinfo) {
+function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course, $studentinfo)
+{
     global $CFG;
     
     // Pages should be added automatically while the list grows
     $pdf->SetAutoPageBreak(true);
     $pdf->AddPage();
-
+    
     // If we have a logo we draw it
     $left = 10;
     if ($CFG->emarking_includelogo && $logofilepath) {
@@ -549,9 +556,9 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     $pdf->Ln();
     
     // Write each student
-    $current=0;
+    $current = 0;
     foreach ($studentinfo as $stlist) {
-        $current++;
+        $current ++;
         $pdf->Cell(10, 10, $current, 1, 0, 'C');
         $pdf->Cell(20, 10, $stlist->idnumber, 1, 0, 'C');
         $pdf->Cell(100, 10, core_text::strtoupper($stlist->name), 1, 0, 'L');
@@ -585,17 +592,6 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         );
     }
     
-    $numpages = emarking_count_files_in_dir($tempdir, ".png");
-    
-    if ($numpages < 1) {
-        return array(
-            false,
-            get_string('nopagestoprocess', 'mod_emarking'),
-            0,
-            0
-        );
-    }
-    
     $totalDocumentsProcessed = 0;
     $totalDocumentsIgnored = 0;
     
@@ -615,14 +611,14 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
     }
     
     $total = count($pdfFiles);
-
-    if($total == 0) {
+    
+    if ($total == 0) {
         return array(
             false,
             get_string('nopagestoprocess', 'mod_emarking'),
             0,
             0
-        );        
+        );
     }
     
     // Process files
@@ -631,6 +627,13 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         $file = $pdfFiles[$current];
         
         $filename = explode(".", $file);
+
+        $updatemessage = $filename;
+        
+        if ($progressbar) {
+            $progressbar->update($current, $total, $updatemessage);
+        }
+        
         $parts = explode("-", $filename[0]);
         if (count($parts) != 3) {
             if ($CFG->debug)
@@ -643,7 +646,6 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         $courseid = $parts[1];
         $pagenumber = $parts[2];
         
-        $updatemessage = $filename;
         
         // Now we process the files according to the emarking type
         if ($emarking->type == EMARKING_TYPE_NORMAL) {
@@ -659,15 +661,9 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
                 $totalDocumentsIgnored ++;
                 continue;
             }
-            
-            $updatemessage = $student->firstname . " " . $student->lastname;
         } else {
             $student = new stdClass();
             $student->id = $studentid;
-        }
-        
-        if ($progressbar) {
-            $progressbar->update($current, $total, $updatemessage);
         }
         
         // 1 pasa a 1 1 * 2 - 1 = 1
@@ -1420,8 +1416,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $current = 0;
         // Fill studentnames with student info (name, idnumber, id and picture)
         foreach ($students as $student) {
-            if (array_search($student->enrol, $enrolincludes) === false
-                || isset($studentinfo[$student->id])) {
+            if (array_search($student->enrol, $enrolincludes) === false || isset($studentinfo[$student->id])) {
                 continue;
             }
             
@@ -1615,9 +1610,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             }
         }
         
-        if ($multiplepdfs || $groupid != null) {
-
-        } else 
+        if ($multiplepdfs || $groupid != null) {} else 
             if (! $sendprintorder) {
                 $pdf->Output($file1, "F"); // se genera el nuevo pdf
             }

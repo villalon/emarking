@@ -81,6 +81,7 @@ echo $OUTPUT->heading(get_string('uploadinganswersheets', 'mod_emarking'));
 
 // Create progress bar
 $pbar = new progress_bar('extractqr', 500, true);
+$pbar->create();
 
 // Count documents ignored and processed
 $totaldocumentsprocessed = 0;

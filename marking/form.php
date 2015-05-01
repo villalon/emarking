@@ -45,8 +45,8 @@ class CommentForm extends moodleform
         $mform->setType('comment', PARAM_TEXT);
         $mform->addRule('comment', get_string('writecomment', 'mod_emarking'), 'required');
         
-        $mform->addElement('hidden', 'cmid', $cmid);
-        $mform->setType('cmid', PARAM_INT);
+        $mform->addElement('hidden', 'id', $cmid);
+        $mform->setType('id', PARAM_INT);
         
         $this->add_action_buttons(true, get_string('savechanges', 'mod_emarking'));
     }
@@ -87,8 +87,8 @@ class EditCommentForm extends moodleform
         $mform->addElement('hidden', 'action', 'edit');
         $mform->setType('action', PARAM_TEXT);
         
-        $mform->addElement('hidden', 'cmid', $cmid);
-        $mform->setType('cmid', PARAM_INT);
+        $mform->addElement('hidden', 'id', $cmid);
+        $mform->setType('id', PARAM_INT);
         
         $mform->addElement('hidden', 'commentid', $commentid);
         $mform->setType('commentid', PARAM_INT);

@@ -140,7 +140,7 @@ if($action=='list'){
     }
     
 	// Create Button url
-	$urlcreate = new moodle_url('/mod/emarking/marking/predefinedcomments.php', array('cmid'=>$cm->id, 'action'=>'create'));
+	$urlcreate = new moodle_url('/mod/emarking/marking/predefinedcomments.php', array('id'=>$cm->id, 'action'=>'create'));
 
 	$predefinedcomments = $DB->get_records('emarking_predefined_comment', array('emarkingid'=> $emarking->id));
 	
@@ -148,11 +148,11 @@ if($action=='list'){
 	$table = new html_table();
 	$table->head = array(get_string('comment', 'mod_emarking'), get_string('creator', 'mod_emarking'),get_string('actions', 'mod_emarking'));
 	foreach($predefinedcomments as $predefinedcomment){
-		$deleteurl_comment = new moodle_url('', array('action'=>'delete', 'cmid'=>$cm->id, 'commentid'=>$predefinedcomment->id));
+		$deleteurl_comment = new moodle_url('', array('action'=>'delete', 'id'=>$cm->id, 'commentid'=>$predefinedcomment->id));
 		$deleteicon_comment = new pix_icon('t/delete', get_string('delete'));
 		$deleteaction_comment = $OUTPUT->action_icon($deleteurl_comment, $deleteicon_comment,new confirm_action(get_string('questiondeletecomment', 'mod_emarking')));
 
-		$editurl_comment = new moodle_url('', array('action'=>'edit', 'cmid'=>$cm->id, 'commentid'=>$predefinedcomment->id));
+		$editurl_comment = new moodle_url('', array('action'=>'edit', 'id'=>$cm->id, 'commentid'=>$predefinedcomment->id));
 		$editicon_comment = new pix_icon('i/edit', get_string('edit'));
 		$editaction_comment = $OUTPUT->action_icon($editurl_comment, $editicon_comment);
 
