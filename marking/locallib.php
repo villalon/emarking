@@ -513,6 +513,7 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
 	$studentscores = $DB->get_records_sql ( "
 			SELECT es.id,
 			es.student,
+	        d.id as draftid,
 			sum(ifnull(rl.score,0)) as score,
 			sum(ifnull(ec.bonus,0)) as bonus,
 			sum(ifnull(rl.score,0)) + sum(ifnull(ec.bonus,0)) as totalscore
@@ -537,6 +538,12 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
 		) );
 		$submission->grade = $finalgrade;
 		$DB->update_record ( 'emarking_submission', $submission );
+		
+		$draft = $DB->get_record ( 'emarking_draft', array (
+				'id' => $studentscore->draftid
+		) );
+		$draft->grade = $finalgrade;
+		$DB->update_record ( 'emarking_draft', $draft );
 	}
 
 	return true;
