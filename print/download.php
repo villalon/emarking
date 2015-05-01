@@ -191,8 +191,10 @@ if ($token > 9999) {
 		);
 		// Add to Moodle log so some auditing can be done
 		\mod_emarking\event\invalidtoken_granted::create ( $item )->trigger ();
-		
-		print_error ( 'Token not recognized, please go back and try again.' );
+
+		echo $OUTPUT->header();
+		echo $OUTPUT->notification(get_string('eventinvalidtokengranted', 'mod_emarking'), 'notifyproblem');
+		echo $OUTPUT->footer();
 		die ();
 	}
 }

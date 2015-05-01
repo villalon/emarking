@@ -588,10 +588,9 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
     $numpages = emarking_count_files_in_dir($tempdir, ".png");
     
     if ($numpages < 1) {
-        die($tempdir);
         return array(
             false,
-            get_string('invalidpdfnopages', 'mod_emarking'),
+            get_string('nopagestoprocess', 'mod_emarking'),
             0,
             0
         );
@@ -616,6 +615,15 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
     }
     
     $total = count($pdfFiles);
+
+    if($total == 0) {
+        return array(
+            false,
+            get_string('nopagestoprocess', 'mod_emarking'),
+            0,
+            0
+        );        
+    }
     
     // Process files
     for ($current = 0; $current < $total; $current ++) {
