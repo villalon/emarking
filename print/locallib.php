@@ -69,13 +69,13 @@ function emarking_import_omr_fonts($echo = false)
         
         // Import the font
         $ttfontname = TCPDF_FONTS::addTTFfont($CFG->dirroot . $fontfile, 'TrueType', 'ansi', 32);
-
+        
         // Validate if import went well
         if ($ttfontname !== $fontname) {
-                echo "Fatal error importing font $fontname<br/>";
+            echo "Fatal error importing font $fontname<br/>";
             return false;
         } else {
-                echo "$fontname imported!<br/>";
+            echo "$fontname imported!<br/>";
         }
     }
     
@@ -211,6 +211,89 @@ function emarking_pdf_count_pages($newfile, $tempdir, $doubleside = true)
     $doc->Close();
     
     return $files;
+}
+
+/**
+ * Creates a batch file for printing with windows
+ */
+function emarking_create_print_bat() {
+    global $CFG;
+    
+    // Generate Bat File
+    $printerarray = explode(',', $CFG->emarking_printername);
+    
+    $contenido = "@echo off\r\n";
+    $contenido .= "TITLE Sistema de impresion\r\n";
+    $contenido .= "color ff\r\n";
+    $contenido .= "cls\r\n";
+    $contenido .= ":MENUPPL\r\n";
+    $contenido .= "cls\r\n";
+    $contenido .= "echo #######################################################################\r\n";
+    $contenido .= "echo #                     Sistema de impresion                            #\r\n";
+    $contenido .= "echo #                                                                     #\r\n";
+    $contenido .= "echo # @copyright 2014 Eduardo Miranda                                     #\r\n";
+    $contenido .= "echo # Fecha Modificacion 23-04-2014                                       #\r\n";
+    $contenido .= "echo #                                                                     #\r\n";
+    $contenido .= "echo #   Para realizar la impresion debe seleccionar una de las impresoras #\r\n";
+    $contenido .= "echo #   configuradas.                                                     #\r\n";
+    $contenido .= "echo #                                                                     #\r\n";
+    $contenido .= "echo #                                                                     #\r\n";
+    $contenido .= "echo #######################################################################\r\n";
+    $contenido .= "echo #   Seleccione una impresora:                                         #\r\n";
+    
+    $numbers = array();
+    for($i=0; $i<count($printerarray);$i++) {
+        $contenido .= "echo #   $i - $printerarray[$i]                                                   #\r\n";
+        $numbers[] = $i;
+    }
+    
+    $i++;
+    $contenido .= "echo #   $i - Cancelar                                                      #\r\n";
+    $contenido .= "echo #                                                                     #\r\n";
+    $contenido .= "echo #######################################################################\r\n";
+    $contenido .= "set /p preg01= Que desea hacer? [";
+    
+    $contenido .= implode(',', $numbers);
+    $contenido .= "]\r\n";
+    
+    for($i=0; $i<count($printerarray);$i++) {
+        $contenido .= "if %preg01%==$i goto MENU $i \r\n";
+    }
+    
+    $i++;
+    $contenido .= "if %preg01%==$i  goto SALIR\r\n";
+    $contenido .= "goto MENU\r\n";
+    $contenido .= "pause\r\n";
+    
+    for($i=0; $i<count($printerarray);$i++) {        
+        $contenido .= ":MENU" . $i . "\r\n";
+        $contenido .= "cls\r\n";
+        $contenido .= "set N=%Random%%random%\r\n";
+        $contenido .= "plink central.apuntes mkdir -m 0777 ~/pruebas/%N%\r\n";
+        $contenido .= "pscp *.pdf central.apuntes:pruebas/%N%\r\n";
+        $contenido .= "plink central.apuntes cp ~/pruebas/script_pruebas.sh ~/pruebas/%N%\r\n";
+        $contenido .= "plink central.apuntes cd pruebas/%N%;./script_pruebas.sh " . $printerarray[$i] . "\r\n";
+        $contenido .= "plink central.apuntes rm -dfr ~/pruebas/%N%\r\n";
+        $contenido .= "EXIT\r\n";
+    }
+    
+    $contenido .= ":SALIR\r\n";
+    $contenido .= "CLS\r\n";
+    $contenido .= "ECHO Cancelando...\r\n";
+    $contenido .= "EXIT\r\n";
+    
+    $random = random_string();
+    
+    mkdir($CFG->dataroot . '/temp/emarking/' . $random . '_bat/', 0777);
+    
+    $fp = fopen($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat", "x");
+    fwrite($fp, $contenido);
+    fclose($fp);
+    // Generate zip file
+    $zip->addFile($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat", "imprimir.bat");
+    $zip->close();
+    unlink($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat");
+    rmdir($CFG->dataroot . "/temp/emarking/" . $random . "_bat");
 }
 
 /**
@@ -408,6 +491,73 @@ else
                 }
     
     return $submission;
+}
+
+/**
+ * Draws a table with a list of students in the $pdf document
+ * 
+ * @param unknown $pdf PDF document to print the list in
+ * @param unknown $logofilepath the logo
+ * @param unknown $downloadexam the exam
+ * @param unknown $course the course
+ * @param unknown $studentinfo the student info including name and idnumber
+ */
+function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course, $studentinfo) {
+    global $CFG;
+    
+    // Pages should be added automatically while the list grows
+    $pdf->SetAutoPageBreak(true);
+    $pdf->AddPage();
+
+    // If we have a logo we draw it
+    $left = 10;
+    if ($CFG->emarking_includelogo && $logofilepath) {
+        $pdf->Image($logofilepath, $left, 6, 30);
+        $left += 40;
+    }
+    
+    // We position to the right of the logo and write exam name
+    $top = 8;
+    $pdf->SetFont('Helvetica', 'B', 12);
+    $pdf->SetXY($left, $top);
+    $pdf->Write(1, core_text::strtoupper($downloadexam->name));
+    
+    // Write course name
+    $top += 8;
+    $pdf->SetFont('Helvetica', '', 8);
+    $pdf->SetXY($left, $top);
+    $pdf->Write(1, core_text::strtoupper(get_string('course') . ': ' . $course->fullname));
+    
+    // Write number of students
+    $top += 4;
+    $pdf->SetXY($left, $top);
+    $pdf->Write(1, core_text::strtoupper(get_string('students') . ': ' . count($studentinfo)));
+    
+    // Write date
+    $top += 4;
+    $pdf->SetXY($left, $top);
+    $pdf->Write(1, core_text::strtoupper(get_string('date') . ': ' . userdate($downloadexam->examdate, get_string('strftimedatefullshort', 'langconfig'))));
+    
+    // Write the table header
+    $left = 10;
+    $top += 8;
+    $pdf->SetXY($left, $top);
+    $pdf->Cell(10, 10, "N°", 1, 0, 'C');
+    $pdf->Cell(20, 10, core_text::strtoupper(get_string('idnumber')), 1, 0, 'C');
+    $pdf->Cell(100, 10, core_text::strtoupper(get_string('name')), 1, 0, 'C');
+    $pdf->Cell(50, 10, core_text::strtoupper(get_string('signature', 'mod_emarking')), 1, 0, 'C');
+    $pdf->Ln();
+    
+    // Write each student
+    $current=0;
+    foreach ($studentinfo as $stlist) {
+        $current++;
+        $pdf->Cell(10, 10, $current, 1, 0, 'C');
+        $pdf->Cell(20, 10, $stlist->idnumber, 1, 0, 'C');
+        $pdf->Cell(100, 10, core_text::strtoupper($stlist->name), 1, 0, 'L');
+        $pdf->Cell(50, 10, "", 1, 0, 'L');
+        $pdf->Ln();
+    }
 }
 
 /**
@@ -1165,7 +1315,6 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid)
     return true;
 }
 
-
 /**
  * Creates a personalized exam file.
  *
@@ -1263,7 +1412,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $current = 0;
         // Fill studentnames with student info (name, idnumber, id and picture)
         foreach ($students as $student) {
-            if (array_search($student->enrol, $enrolincludes) === false) {
+            if (array_search($student->enrol, $enrolincludes) === false
+                || isset($studentinfo[$student->id])) {
                 continue;
             }
             
@@ -1274,11 +1424,11 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             $stinfo->picture = emarking_get_student_picture($student, $userimgdir);
             
             // Store student info
-            $studentinfo[] = $stinfo;
+            $studentinfo[$student->id] = $stinfo;
         }
         $numberstudents = count($studentinfo);
         
-        if($numberstudents == 0) {
+        if ($numberstudents == 0) {
             throw new Exception('No students to print/create the exam');
         }
         // Add the extra students to the list
@@ -1337,103 +1487,40 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         
         if ($downloadexam->printlist == 1) {
             
-            $flag = 0;
-            // lista de alumnos
-            if ($flag == 0) {
-                $pdf->SetAutoPageBreak(false);
-                $pdf->AddPage();
-                
-                $left = 85;
-                $top = 8;
-                $pdf->SetFont('Helvetica', 'B', 12);
-                $pdf->SetXY($left, $top);
-                $pdf->Write(1, core_text::strtoupper("LISTA DE ALUMNOS"));
-                
-                $left = 15;
-                $top = 16;
-                $pdf->SetFont('Helvetica', '', 8);
-                $pdf->SetXY($left, $top);
-                $pdf->Write(1, core_text::strtoupper("Asignatura: " . $course->fullname));
-                
-                $left = 15;
-                $top = 22;
-                $pdf->SetFont('Helvetica', '', 8);
-                $pdf->SetXY($left, $top);
-                $pdf->Write(1, core_text::strtoupper("N° Inscritos: " . count($studentinfo)));
-                
-                // $year = date("Y");
-                // $month= date("F");
-                // $day= date("m");
-                
-                setlocale(LC_ALL, "es_ES");
-                $left = 15;
-                $top = 28;
-                $pdf->SetFont('Helvetica', '', 8);
-                $pdf->SetXY($left, $top);
-                $pdf->Write(1, core_text::strtoupper("Fecha: " . strftime("%A %d de %B del %Y")));
-                
-                $left = 15;
-                $top = 36;
-                $pdf->SetXY($left, $top);
-                $pdf->Cell(10, 10, "N°", 1, 0, 'L');
-                $pdf->Cell(120, 10, "Nombres", 1, 0, 'L');
-                $pdf->Cell(50, 10, "Firmas", 1, 0, 'L');
-                
-                $t = 0;
-                $t2 = 46;
-                for ($a = 0; $a <= count($studentinfo) - 1; $a ++) {
-                    
-                    if ($n == 24 || $n == 48 || $n == 72 || $n == 96 || $n == 120) {
-                        $pdf->AddPage();
-                        $t = 0;
-                        $t2 = 8;
-                    }
-                    
-                    $top = $t2 + $t;
-                    $n = $a + 1;
-                    $pdf->SetFont('Helvetica', '', 8);
-                    $pdf->SetXY($left, $top);
-                    $pdf->Cell(10, 10, $n . ")", 1, 0, 'L');
-                    $pdf->Cell(120, 10, core_text::strtoupper($studentinfo[$a]->name), 1, 0, 'L');
-                    $pdf->Cell(50, 10, "", 1, 0, 'L');
-                    $t = $t + 10;
+            emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course, $studentinfo);
+            
+            if ($multiplepdfs || $groupid != null) {
+                if ($groupid != null) {
+                    $pdffile = $filedir . "/Lista_de_alumnos_" . "GRUPO_" . $groupid . ".pdf";
+                    $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
+                    $zip->addFile($pdffile, "GRUPO_" . $groupid . ".pdf");
+                } else {
+                    $pdffile = $filedir . "/Lista_de_alumnos_" . emarking_clean_filename($course->shortname, true) . ".pdf";
+                    $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
+                    $zip->addFile($pdffile, "Lista_de_alumnos_" . emarking_clean_filename($course->shortname, true) . ".pdf");
                 }
-                $flag = 1;
-                
-                if ($multiplepdfs || $groupid != null) {
-                    if ($groupid != null) {
-                        $pdffile = $filedir . "/Lista_de_alumnos_" . "GRUPO_" . $groupid . ".pdf";
-                        $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                        $zip->addFile($pdffile, "GRUPO_" . $groupid . ".pdf");
-                    } else {
-                        $pdffile = $filedir . "/Lista_de_alumnos_" . emarking_clean_filename($course->shortname, true) . ".pdf";
-                        $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                        $zip->addFile($pdffile, "Lista_de_alumnos_" . emarking_clean_filename($course->shortname, true) . ".pdf");
-                    }
+            }
+            $printername = explode(',', $CFG->emarking_printername);
+            if ($sendprintorder) {
+                if ($printername[$_POST["printername"]] != "Edificio-C-mesonSecretaria") {
+                    $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $pdffile;
+                } else {
+                    $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $pdffile;
                 }
-                $printername = explode(',', $CFG->emarking_printername);
-                if ($sendprintorder) {
-                    if ($printername[$_POST["printername"]] != "Edificio-C-mesonSecretaria") {
-                        $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $pdffile;
-                    } else {
-                        $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $pdffile;
+                
+                if (! $debugprinting) {
+                    $printresult = exec($command);
+                }
+                if ($CFG->debug || $debugprinting) {
+                    echo "$command <br>";
+                    if (! $debugprinting) {
+                        echo "$printresult <hr>";
                     }
-                    
-                    if(!$debugprinting) {
-                        $printresult = exec($command);
-                    }
-                                    if ($CFG->debug || $debugprinting) {
-                        echo "$command <br>";
-                        if(!$debugprinting) {
-                            echo "$printresult <hr>";
-                        }
-                    }
-                    
                 }
             }
         }
         
-        $k=0;
+        $k = 0;
         // Here we produce a PDF file for each student
         foreach ($studentinfo as $stinfo) {
             
@@ -1454,7 +1541,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             }
             
             $pdf->SetAutoPageBreak(false);
-
+            
             for ($i = 1; $i <= $cp + $downloadexam->extrasheets; $i = $i + 1) {
                 
                 $pdf->AddPage(); // Agrega una nueva página
@@ -1484,11 +1571,11 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                     "param_1_pbar" => $k + 1,
                     "param_2_pbar" => count($studentinfo),
                     "param_3_pbar" => 'Imprimiendo pruebas de ' . core_text::strtoupper($stinfo->name),
-                    "name_job" => $pdffile                 
+                    "name_job" => $pdffile
                 );
             }
             
-            $k++;
+            $k ++;
         }
         
         $printername = explode(',', $CFG->emarking_printername);
@@ -1506,13 +1593,13 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                         $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $valor["name_job"];
                     }
                     
-                    if(!$debugprinting) {
+                    if (! $debugprinting) {
                         $printresult = exec($command);
                     }
                     
                     if ($CFG->debug || $debugprinting) {
                         echo "$command <br>";
-                        if(!$debugprinting) {
+                        if (! $debugprinting) {
                             echo "$printresult <hr>";
                         }
                     }
@@ -1521,99 +1608,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         }
         
         if ($multiplepdfs || $groupid != null) {
-            // Generate Bat File
-            $printerarray = array();
-            foreach (explode(',', $CFG->emarking_printername) as $printer) {
-                $printerarray[] = $printer;
-            }
-            
-            $contenido = "@echo off\r\n";
-            $contenido .= "TITLE Sistema de impresion\r\n";
-            $contenido .= "color ff\r\n";
-            $contenido .= "cls\r\n";
-            $contenido .= ":MENUPPL\r\n";
-            $contenido .= "cls\r\n";
-            $contenido .= "echo #######################################################################\r\n";
-            $contenido .= "echo #                     Sistema de impresion                            #\r\n";
-            $contenido .= "echo #                                                                     #\r\n";
-            $contenido .= "echo # @copyright 2014 Eduardo Miranda                                     #\r\n";
-            $contenido .= "echo # Fecha Modificacion 23-04-2014                                       #\r\n";
-            $contenido .= "echo #                                                                     #\r\n";
-            $contenido .= "echo #   Para realizar la impresion debe seleccionar una de las impresoras #\r\n";
-            $contenido .= "echo #   configuradas.                                                     #\r\n";
-            $contenido .= "echo #                                                                     #\r\n";
-            $contenido .= "echo #                                                                     #\r\n";
-            $contenido .= "echo #######################################################################\r\n";
-            $contenido .= "echo #   Seleccione una impresora:                                         #\r\n";
-            
-            $i = 0;
-            while ($i < count($printerarray)) {
-                $contenido .= "echo #   " . $i . " - " . $printerarray[$i] . "                                                   #\r\n";
-                $i ++;
-            }
-            
-            $contenido .= "echo #   " . $i ++ . " - Cancelar                                                      #\r\n";
-            $contenido .= "echo #                                                                     #\r\n";
-            $contenido .= "echo #######################################################################\r\n";
-            $contenido .= "set /p preg01= Que desea hacer? [";
-            
-            $i = 0;
-            while ($i <= count($printerarray)) {
-                if ($i == count($printerarray)) {
-                    $contenido .= $i;
-                } else {
-                    $contenido .= $i . ",";
-                }
-                
-                $i ++;
-            }
-            $contenido .= "]\r\n";
-            
-            $i = 0;
-            while ($i < count($printerarray)) {
-                
-                $contenido .= "if %preg01%==" . $i . " goto MENU" . $i . "\r\n";
-                $i ++;
-            }
-            
-            $contenido .= "if %preg01%==" . $i ++ . " goto SALIR\r\n";
-            $contenido .= "goto MENU\r\n";
-            $contenido .= "pause\r\n";
-            
-            $i = 0;
-            while ($i < count($printerarray)) {
-                
-                $contenido .= ":MENU" . $i . "\r\n";
-                $contenido .= "cls\r\n";
-                $contenido .= "set N=%Random%%random%\r\n";
-                $contenido .= "plink central.apuntes mkdir -m 0777 ~/pruebas/%N%\r\n";
-                $contenido .= "pscp *.pdf central.apuntes:pruebas/%N%\r\n";
-                $contenido .= "plink central.apuntes cp ~/pruebas/script_pruebas.sh ~/pruebas/%N%\r\n";
-                $contenido .= "plink central.apuntes cd pruebas/%N%;./script_pruebas.sh " . $printerarray[$i] . "\r\n";
-                $contenido .= "plink central.apuntes rm -dfr ~/pruebas/%N%\r\n";
-                $contenido .= "EXIT\r\n";
-                
-                $i ++;
-            }
-            
-            $contenido .= ":SALIR\r\n";
-            $contenido .= "CLS\r\n";
-            $contenido .= "ECHO Cancelando...\r\n";
-            $contenido .= "EXIT\r\n";
-            
-            $random = rand();
-            
-            mkdir($CFG->dataroot . '/temp/emarking/' . $random . '_bat/', 0777);
-            // chmod($random."_bat/", 0777);
-            
-            $fp = fopen($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat", "x");
-            fwrite($fp, $contenido);
-            fclose($fp);
-            // Generate zip file
-            $zip->addFile($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat", "imprimir.bat");
-            $zip->close();
-            unlink($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat");
-            rmdir($CFG->dataroot . "/temp/emarking/" . $random . "_bat");
+
         } else 
             if (! $sendprintorder) {
                 $pdf->Output($file1, "F"); // se genera el nuevo pdf
@@ -1700,16 +1695,15 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                 $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $pdffile;
             }
             
-            if(!$debugprinting) {
-                $printresult = exec ( $command );
+            if (! $debugprinting) {
+                $printresult = exec($command);
             }
-                            if ($CFG->debug || $debugprinting) {
-                        echo "$command <br>";
-                        if(!$debugprinting) {
-                            echo "$printresult <hr>";
-                        }
-                    }
-            
+            if ($CFG->debug || $debugprinting) {
+                echo "$command <br>";
+                if (! $debugprinting) {
+                    echo "$printresult <hr>";
+                }
+            }
             
             if ($pbar != null) {
                 $pbar->update($k, $totalAlumn, '');
@@ -1727,10 +1721,10 @@ function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpat
     global $CFG;
     
     $pdf->SetAutoPageBreak(false);
-
+    
     // For the QR string and get the images
     $qrstring = "$stinfo->id-$course->id-$pagenumber";
-    if($isanswersheet && $attemptid > 0) {
+    if ($isanswersheet && $attemptid > 0) {
         $qrstring .= '-' . $attemptid . '-BB';
     }
     list ($img, $imgrotated) = emarking_create_qr_image($fileimgpath, $qrstring, $stinfo, $pagenumber);
@@ -1899,9 +1893,6 @@ function emarking_send_sms($message, $number)
     
     return false;
 }
-
-
-
 
 /**
  * Replace "acentos", spaces from file names.

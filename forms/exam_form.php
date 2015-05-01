@@ -95,7 +95,7 @@ class emarking_exam_form extends moodleform
             $date->modify('+1 days');
         }
         
-        if($examw == 6) {
+        if ($examw == 6) {
             $date->modify('+2 days');
         }
         
@@ -129,8 +129,33 @@ class emarking_exam_form extends moodleform
         $mform->setType('exam_files', PARAM_FILE);
         $mform->addHelpButton('exam_files', 'pdffile', 'mod_emarking');
         
-        // eMarking configuration
-        $mform->addElement('header', 'emarking_title', get_string('emarking', 'mod_emarking'));
+        // Copy center instructions
+        $mform->addElement('header', 'exam_title', get_string('copycenterinstructions', 'mod_emarking'));
+        
+            // Print Random
+//            $mform->addElement('checkbox', 'printrandom', get_string('printrandom', 'mod_emarking'));
+//            $mform->setType('printrandom', PARAM_BOOL);
+//            $mform->addHelpButton('printrandom', 'printrandom', 'mod_emarking');
+//            $mform->setDefault('printrandom', false);
+        
+        // Numbers from 0 to 14 for extra exams and sheets
+        $numberarray = array();
+        for ($j = 0; $j < 3; $j ++) {
+            $numberarray[$j] = $j;
+        }
+        
+        // Print students list
+        $mform->addElement('checkbox', 'printlist', get_string('printlist', 'mod_emarking'));
+        $mform->setType('printlist', PARAM_BOOL);
+        $mform->addHelpButton('printlist', 'printlist', 'mod_emarking');
+        $mform->setDefault('printlist', false);
+        
+        // print double sided
+        $mform->addElement('checkbox','printdoublesided',get_string('printdoublesided', 'mod_emarking'));
+        // $mform->addElement('hidden', 'printdoublesided');
+        $mform->setType('printdoublesided', PARAM_BOOL);
+        // $mform->addHelpButton('printdoublesided', 'printdoublesided', 'mod_emarking');
+        $mform->setDefault('printdoublesided', false);
         
         // Personalized header (using QR)
         $mform->addElement('checkbox', 'headerqr', get_string('headerqr', 'mod_emarking'));
@@ -138,72 +163,7 @@ class emarking_exam_form extends moodleform
         $mform->setType('headerqr', PARAM_BOOL);
         $mform->addHelpButton('headerqr', 'headerqr', 'mod_emarking');
         $mform->setDefault('headerqr', true);
-        
-        // Enrolment methods to include in printing
-        $enrolcheckboxes = array();
-        $enrolavailables = array();
-        $enrolments = enrol_get_instances($courseid, true);
-        $flag = 0;
-        foreach ($enrolments as $enrolment) {
-            if ($enrolment->enrol == "meta") {
-                if ($flag == 0) {
-                    $flag = 1;
-                    $enrolavailables[] = $enrolment->enrol;
-                    $enrolcheckboxes[] = $mform->createElement('checkbox', $enrolment->enrol, null, get_string('enrol' . $enrolment->enrol, 'mod_emarking'), 'checked');
-                }
-            } else {
-                $enrolavailables[] = $enrolment->enrol;
-                $enrolcheckboxes[] = $mform->createElement('checkbox', $enrolment->enrol, null, get_string('enrol' . $enrolment->enrol, 'mod_emarking'), 'checked');
-            }
-        }
-        
-        $mform->addGroup($enrolcheckboxes, 'enrolments', get_string('includestudentsinexam', 'mod_emarking'), array(
-            '<br/>'
-        ), true);
-        
-        // If we are editing, we use the previous enrolments
-        if ($examid > 0 && isset($exam->enrolments)) {
-            $enrolincludes = explode(",", $exam->enrolments);
-            foreach ($enrolincludes as $enroldefault) {
-                if (in_array($enroldefault, $enrolavailables)) {
-                    $mform->setDefault("enrolments[$enroldefault]", true);
-                }
-            }
-            // If we are creating a new one, the default comes from the plugin settings
-        } else 
-            if ($CFG->emarking_enrolincludes && strlen($CFG->emarking_enrolincludes) > 1) {
-                $enrolincludes = explode(",", $CFG->emarking_enrolincludes);
-                foreach ($enrolincludes as $enroldefault) {
-                    if (in_array($enroldefault, $enrolavailables)) {
-                        $mform->setDefault("enrolments[$enroldefault]", true);
-                    }
-                }
-            }
-        
-        if ($CFG->emarking_enableprintingrandom) {
-            // Print Random
-            $mform->addElement('checkbox', 'printrandom', get_string('printrandom', 'mod_emarking'));
-            $mform->setType('printrandom', PARAM_BOOL);
-            $mform->addHelpButton('printrandom', 'printrandom', 'mod_emarking');
-            $mform->setDefault('printrandom', false);
-        }
-        
-        if ($CFG->emarking_enableprintinglist) {
-            // Print Random
-            $mform->addElement('checkbox', 'printlist', get_string('printlist', 'mod_emarking'));
-            $mform->setType('printlist', PARAM_BOOL);
-            $mform->addHelpButton('printlist', 'printlist', 'mod_emarking');
-            $mform->setDefault('printlist', false);
-        }
-        
-        // Copy center instructions
-        $mform->addElement('header', 'exam_title', get_string('copycenterinstructions', 'mod_emarking'));
-        
-        // Numbers from 0 to 14 for extra exams and sheets
-        $numberarray = array();
-        for ($j = 0; $j < 3; $j ++) {
-            $numberarray[$j] = $j;
-        }
+        $mform->disabledIf('headerqr', 'printdoublesided', 'checked');
         
         // Extra sheets per student
         $mform->addElement('select', 'extrasheets', get_string('extrasheets', 'mod_emarking'), $numberarray, null);
@@ -212,13 +172,6 @@ class emarking_exam_form extends moodleform
         // Extra students
         $mform->addElement('select', 'extraexams', get_string('extraexams', 'mod_emarking'), $numberarray, null);
         $mform->addHelpButton('extraexams', 'extraexams', 'mod_emarking');
-        
-        // print double sided
-        // $mform->addElement('checkbox','printdoublesided',get_string('printdoublesided', 'mod_emarking')));
-        $mform->addElement('hidden', 'printdoublesided');
-        $mform->setType('printdoublesided', PARAM_BOOL);
-        // $mform->addHelpButton('printdoublesided', 'printdoublesided', 'mod_emarking');
-        $mform->setDefault('printdoublesided', false);
         
         // Obtain parallel courses
         if ($seccionesparalelas = emarking_get_parallel_courses($course, null, $CFG->emarking_parallelregex)) {
@@ -268,6 +221,52 @@ class emarking_exam_form extends moodleform
         $mform->addElement('hidden', 'action', 'uploadfile');
         $mform->setType('action', PARAM_ALPHA);
         
+        // Copy center instructions
+        $mform->addElement('header', 'advanced_settings', get_string('advanced', 'mod_emarking'));
+        
+        // Enrolment methods to include in printing
+        $enrolcheckboxes = array();
+        $enrolavailables = array();
+        $enrolments = enrol_get_instances($courseid, true);
+        $flag = 0;
+        foreach ($enrolments as $enrolment) {
+            if ($enrolment->enrol == "meta") {
+                if ($flag == 0) {
+                    $flag = 1;
+                    $enrolavailables[] = $enrolment->enrol;
+                    $enrolcheckboxes[] = $mform->createElement('checkbox', $enrolment->enrol, null, get_string('enrol' . $enrolment->enrol, 'mod_emarking'), 'checked');
+                }
+            } else {
+                $enrolavailables[] = $enrolment->enrol;
+                $enrolcheckboxes[] = $mform->createElement('checkbox', $enrolment->enrol, null, get_string('enrol' . $enrolment->enrol, 'mod_emarking'), 'checked');
+            }
+        }
+        
+        $mform->addGroup($enrolcheckboxes, 'enrolments', get_string('includestudentsinexam', 'mod_emarking'), array(
+            '<br/>'
+        ), true);
+        
+        // If we are editing, we use the previous enrolments
+        if ($examid > 0 && isset($exam->enrolments)) {
+            $enrolincludes = explode(",", $exam->enrolments);
+            foreach ($enrolincludes as $enroldefault) {
+                if (in_array($enroldefault, $enrolavailables)) {
+                    $mform->setDefault("enrolments[$enroldefault]", true);
+                }
+            }
+            // If we are creating a new one, the default comes from the plugin settings
+        } else
+            if ($CFG->emarking_enrolincludes && strlen($CFG->emarking_enrolincludes) > 1) {
+                $enrolincludes = explode(",", $CFG->emarking_enrolincludes);
+                foreach ($enrolincludes as $enroldefault) {
+                    if (in_array($enroldefault, $enrolavailables)) {
+                        $mform->setDefault("enrolments[$enroldefault]", true);
+                    }
+                }
+            }
+        
+        
+        
         // buttons
         $this->add_action_buttons(true, get_string('submit'));
     }
@@ -277,7 +276,7 @@ class emarking_exam_form extends moodleform
         global $CFG;
         
         $errors = array();
-
+        
         // The exam date comes from the date selector
         $examdate = new DateTime();
         $examdate->setTimestamp(usertime($data['examdate']));
@@ -294,7 +293,7 @@ class emarking_exam_form extends moodleform
         
         // If minimum days for printing is enabled
         if (isset($CFG->emarking_minimumdaysbeforeprinting) && $CFG->emarking_minimumdaysbeforeprinting > 0) {
-
+            
             // User date. Important because the user sees a date selector based on her timezone settings, not the server's
             $date = usertime(time());
             
@@ -309,7 +308,7 @@ class emarking_exam_form extends moodleform
             $todayw = date("w", $today->getTimestamp());
             $todayw = $todayw ? $todayw : 7;
             
-            if($todayw > 5) {
+            if ($todayw > 5) {
                 $mindiff += $todayw - 5;
             }
             
@@ -327,18 +326,12 @@ class emarking_exam_form extends moodleform
             }
         }
         
-        if ($CFG->emarking_enableprintingrandom) {
-            if ($data["printrandom"] == 1) {
-                $rs = emarking_get_groups_for_printing($data["course"]);
-                $result = array();
-                
-                foreach ($rs as $r) {
-                    $result[] = $r;
-                }
-                
-                if (empty($result)) {
-                    $errors['printrandom'] = get_string('printrandominvalid', 'mod_emarking');
-                }
+        // If print random order within groups
+        if(isset($data['printrandom']) && $data['printrandom'] === '1') {
+            $groups = groups_get_all_groups($data["course"]);
+            
+            if (count($groups) == 0) {
+                $errors['printrandom'] = get_string('printrandominvalid', 'mod_emarking');
             }
         }
         

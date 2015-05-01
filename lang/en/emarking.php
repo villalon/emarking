@@ -24,6 +24,8 @@
  */
 $string['processomr'] = 'Process OMR';
 
+$string['signature'] = 'Signature';
+$string['advanced'] = 'Advanced';
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
 $string['predefinedcomments'] = 'Predefined comments';
@@ -417,21 +419,21 @@ $string ['parallelregex'] = 'Regex for parallels';
 $string ['parallelregex_help'] = 'Regular expression to extract unit of study code in course shortnames so exams from parallel course can be compared.';
 $string ['pathuserpicture'] = 'Path to users pictures directory';
 $string ['pathuserpicture_help'] = 'Absolute path to directory containing users pictures in PNG format labeled userXXX.png with XXX being the user id';
-$string ['pdffile'] = 'PDF file';
-$string ['pdffile_help'] = 'For the moment the systems supports only PDF files';
+$string ['pdffile'] = 'PDF file(s)';
+$string ['pdffile_help'] = 'You can upload several PDF files if you want to have different forms for each student';
 $string ['pluginadministration'] = 'eMarking administration';
 $string ['pluginname'] = 'eMarking';
 $string ['previewheading'] = 'Preview QR decoding';
 $string ['previewtitle'] = 'Preview QR';
 $string ['printsuccessinstructions'] = 'Instructions for successfull printing';
 $string ['printsuccessinstructionsdesc'] = 'A personalized message to show teachers and admin staff once a successfull print order was sent. For example to pick up the prints from a copy center or to download by themselves.';
-$string ['printdoublesided'] = 'Print double sided';
+$string ['printdoublesided'] = 'Double sided';
 $string ['printexam'] = 'Print exam';
 $string ['printrandom'] = 'Print random';
 $string ['printrandominvalid'] = 'must create a group for using this feature';
 $string ['printrandom_help'] = 'Print random, based in a group of course';
-$string ['printlist'] = 'Print list of students';
-$string ['printlist_help'] = 'It is used to print a list of students from the course';
+$string ['printlist'] = 'Print students list';
+$string ['printlist_help'] = 'Adds a student list';
 $string ['printnotification'] = 'Print notification';
 $string ['printnotificationsent'] = 'Print notification sent';
 $string ['printorders'] = 'Prints orders';

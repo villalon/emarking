@@ -24,6 +24,8 @@
  */
 $string['processomr'] = 'Procesar OMR';
 
+$string['signature'] = 'Firma';
+$string['advanced'] = 'Avanzado';
 
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
@@ -290,7 +292,7 @@ $string ['grade'] = 'Calificación';
 $string ['headerqr'] = 'Encabezado personalizado';
 $string ['headerqr_help'] = 'El encabezado personalizado de eMarking permite imprimir la prueba personalizada para cada estudiante. Esto permite luego procesarla automáticamente para su corrección y entrega usando la actividad eMarking.<br/>
 		Ejemplo de encabezado:<br/>
-		<img src="' . $CFG->wwwroot . '/mod/emarking/img/preview.jpg">
+		<img width="380" src="' . $CFG->wwwroot . '/mod/emarking/img/preview.jpg">
 		<div class="required">Advertencia<ul>
 				<li>Para usar el encabezado la prueba debe tener un margen superior de al menos 3cm</li>
 		</ul></div>';
@@ -419,19 +421,19 @@ $string ['parallelregex'] = 'Regex para secciones paralelas';
 $string ['parallelregex_help'] = 'Expresión regular para extraer el código de la asignatura a partir del nombre corte de un curso, de manera de poder comparar evaluaciones entre cursos paralelos.';
 $string ['pathuserpicture'] = 'Directorio de imágenes de usuarios';
 $string ['pathuserpicture_help'] = 'Direccón absoluta del directorio que contiene las imágenes de los usuarios en formato PNG y cuyo nombre calza con userXXX.png en que XXX es el id de usuario';
-$string ['pdffile'] = 'Archivo PDF';
-$string ['pdffile_help'] = 'Por el momento el sistema solamente acepta archivos PDF';
+$string ['pdffile'] = 'Archivo(s) PDF';
+$string ['pdffile_help'] = 'Si incluye más de un archivo PDF, éstos se utilizarán como formas diferentes a asignar para los estudiantes.';
 $string ['pluginadministration'] = 'Administración de emarking';
 $string ['previewheading'] = 'Visualización de decodificación de códigos QR';
 $string ['previewtitle'] = 'Visualizar errores de QR';
 $string ['printsuccessinstructions'] = 'Instrucciones para orden de impresión exitosa';
 $string ['printsuccessinstructionsdesc'] = 'Mensaje personalizado para mostrar a profesores y administrativo una vez que una orden de impresión fue correctamente enviada. Por ejemplo que retiren las pruebas en un centro de copiado o que descarguen la prueba por si mismos.';
-$string ['printdoublesided'] = 'Imprimir a doble cara';
+$string ['printdoublesided'] = 'Doble cara';
 $string ['printexam'] = 'Imprimir prueba';
 $string ['printrandom'] = 'Impresión aleatoria';
 $string ['printrandominvalid'] = 'Debe crear un grupo para utilizar esta función';
 $string ['printrandom_help'] = 'Impresión aleatoria basada en un grupo creado en un curso especifico';
-$string ['printlist'] = 'Imprimir listado de estudiantes';
+$string ['printlist'] = 'Lista de estudiantes';
 $string ['printlist_help'] = 'Se utiliza para imprimir una lista de los estudiantes del curso';
 $string ['printnotification'] = 'Notificación de impresión';
 $string ['printnotificationsent'] = 'Notificación de impresión enviada';

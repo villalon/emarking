@@ -149,7 +149,7 @@ $examstable->head = array(
 foreach($exams as $exam) {
 	$actions = '';
 	$emarking ='';
-	$headerqr = '';
+	$details = '';
 	$statistics ='';
 
 	list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
@@ -181,9 +181,24 @@ foreach($exams as $exam) {
 
 	$emarking .= $exam->emarking ? get_string('yes') : get_string('no');
 
-	$headerqr .= $exam->headerqr ? get_string('headerqr', 'mod_emarking') . "<br/>" : '';
-	$headerqr .= get_string('enrolments', 'enrol') . ': ' . $exam->enrolments;
-
+	$details .= $exam->headerqr ? $OUTPUT->pix_icon('qr-icon', get_string('headerqr', 'mod_emarking'),'mod_emarking') : '';
+	$enrolments = explode(',', $exam->enrolments);
+	foreach($enrolments as $enrolment) {
+	    if($enrolment === 'manual') {
+	        $details .= $OUTPUT->pix_icon('i/enrolusers', get_string('pluginname', 'enrol_manual'), 'moodle', array('style'=>'margin-left:2px'));
+	    } elseif ($enrolment === 'self') {
+	        $details .= $OUTPUT->pix_icon('i/user', get_string('pluginname', 'enrol_self'), 'moodle', array('style'=>'margin-left:2px'));
+	    } elseif ($enrolment === 'database') {
+	        $details .= $OUTPUT->pix_icon('i/db', get_string('pluginname', 'enrol_database'), 'moodle', array('style'=>'margin-left:2px'));
+	    } elseif ($enrolment === 'meta') {
+	        $details .= $OUTPUT->pix_icon('e/inster_edit_link', get_string('pluginname', 'enrol_meta'), 'moodle', array('style'=>'margin-left:2px'));
+	    } else {
+	        $details .= $OUTPUT->pix_icon('i/cohort', get_string('otherenrolment', 'mod_emarking'), 'moodle', array('style'=>'margin-left:2px'));
+	    }
+	}
+	$details .= $exam->printrandom ? $OUTPUT->pix_icon('shuffle', get_string('printrandom', 'mod_emarking'),'mod_emarking') : '';
+	$details .= $exam->printlist ? $OUTPUT->pix_icon('i/grades', get_string('printlist', 'mod_emarking')) : '';
+	
 	$examstatus = '';
 	switch($exam->status) {
 		case 1:
@@ -200,7 +215,7 @@ foreach($exams as $exam) {
 	$examstable->data[] = array(
 			$exam->name,
 			date("d/m/y H:i", $exam->examdate),
-			$headerqr,
+			$details,
 			date("d/m/y H:i", $exam->timecreated),
 			$examstatus,
 			$multicourse,
