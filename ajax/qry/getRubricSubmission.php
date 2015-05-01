@@ -28,7 +28,8 @@ $rubricdesc = $DB->get_recordset_sql(
         "SELECT
 		d.name AS rubricname,
 		a.id AS criterionid,
-		a.description ,
+		a.description,
+        a.sortorder,
 		b.definition,
 		b.id AS levelid,
 		b.score,
@@ -70,6 +71,7 @@ foreach ($rubricdesc as $rd) {
 		$rubriclevels[$rd->criterionid]->maxscore = $rd->score;
 		$rubriclevels[$rd->criterionid]->rubricname = $rd->rubricname;
 		$rubriclevels[$rd->criterionid]->bonus = $rd->bonus;
+		$rubriclevels[$rd->criterionid]->sortorder = $rd->sortorder;
 		$rubriclevels[$rd->criterionid]->regradeid = $rd->regradeid;
 		$rubriclevels[$rd->criterionid]->motive = $rd->motive;
 		$rubriclevels[$rd->criterionid]->regradecomment = $rd->regradecomment;
