@@ -22,7 +22,7 @@
  * @copyright  2014 Jorge Villalón
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once (dirname ( dirname ( dirname ( dirname(__FILE__ )) ) ) . '/config.php');
+require_once (dirname(dirname(dirname(dirname(__FILE__ )))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/grade/grading/form/rubric/renderer.php");
 require_once ("forms/markers_form.php");
@@ -62,7 +62,7 @@ $PAGE->set_cm($cm);
 $PAGE->set_url ( $url );
 $PAGE->set_heading ( $course->fullname );
 $PAGE->set_pagelayout ( 'incourse' );
-$PAGE->set_title(get_string('markers', 'mod_emarking'));
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('markers','mod_emarking'));
 
 // Verify capability for security issues

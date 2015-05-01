@@ -17,7 +17,7 @@
 /**
  * @package   mod
  * @subpackage emarking
- * @copyright 2013 Jorge Villalón <villalon@gmail.com>
+ * @copyright 2013-2015 Jorge Villalón <villalon@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -25,7 +25,7 @@ $markerscriteria = $DB->get_records('emarking_marker_criterion', array('emarking
 $markersassigned = count($markerscriteria) > 0 && !$readonly && !$issupervisor;
 
 $rubricdesc = $DB->get_recordset_sql(
-		"SELECT
+        "SELECT
 		d.name AS rubricname,
 		a.id AS criterionid,
 		a.description ,
@@ -50,15 +50,15 @@ $rubricdesc = $DB->get_recordset_sql(
 		INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)
 		INNER JOIN {gradingform_rubric_levels} AS b ON (a.id = b.criterionid)
 		LEFT JOIN (
-		SELECT ec.*, 
+		SELECT ec.*,
 			ec.draft AS draftid
 		FROM {emarking_draft} AS es
 		INNER JOIN {emarking_comment} AS ec ON (ec.draft = :draft AND es.id = ec.draft)
 		) AS E ON (E.levelid = b.id)
 		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = a.id AND er.draft = E.draftid)
 		ORDER BY a.sortorder ASC, b.score ASC",
-		array('coursemodule'=>$cm->id, 'draft'=>$draft->id));
-
+        array('coursemodule'=>$cm->id, 'draft'=>$draft->id));
+    
 $rubriclevels = array();
 foreach ($rubricdesc as $rd) {
 	// For each level we check if the criterion was created

@@ -103,6 +103,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 if($cmid > 0)
 	$PAGE->set_cm($cm);
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add(get_string('myexams','mod_emarking'));

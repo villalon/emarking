@@ -45,7 +45,7 @@ $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
-$PAGE->set_title(get_string('justice.peercheck','mod_emarking'));
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_heading(get_string('justice.my.evaluations','mod_emarking'));
 $PAGE->set_url($url);

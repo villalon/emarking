@@ -114,6 +114,7 @@ if ($cmid > 0)
     $PAGE->set_cm($cm);
 $PAGE->set_url($url);
 $PAGE->set_heading($course->fullname);
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->navbar->add(get_string('newprintorder', 'mod_emarking'));
 

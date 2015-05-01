@@ -91,6 +91,7 @@ if($cmid > 0)
 	$PAGE->set_cm($cm);
 $PAGE->set_url($url);
 $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 

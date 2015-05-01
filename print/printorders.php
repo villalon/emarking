@@ -74,7 +74,7 @@ $PAGE->navbar->add ( $category->name, $categoryurl );
 $PAGE->navbar->add ( get_string ( 'printorders', 'mod_emarking' ), $ordersurl );
 $PAGE->navbar->add ( $pagetitle );
 $PAGE->set_heading ( get_site ()->fullname );
-$PAGE->set_title ( $pagetitle );
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 
 require_login ();
 if (isguestuser ()) {

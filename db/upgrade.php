@@ -1125,6 +1125,21 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2015022301, 'emarking');
     }
-        
+    
+    if ($oldversion < 2015050101) {
+        // Define index idx_id_emarking (not unique) to be added to emarking_submission.
+        $table = new xmldb_table ( 'emarking_comment' );
+        $index = new xmldb_index ( 'idx_id_draft', XMLDB_INDEX_NOTUNIQUE, array (
+            'draft'
+        ) );
+    
+        // Conditionally launch add index idx_id_emarking.
+        if (! $dbman->index_exists ( $table, $index )) {
+            $dbman->add_index ( $table, $index );
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint ( true, 2015050101, 'emarking' );
+    }
     return true;
 }

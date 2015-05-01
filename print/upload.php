@@ -70,6 +70,7 @@ $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_heading($course->fullname);
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('uploadanswers', 'mod_emarking'));
 
 // Options for uploading the zip file within the form
