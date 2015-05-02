@@ -94,7 +94,7 @@ $totalsubmissions = $DB->count_records_sql("
 		SELECT COUNT(distinct e.id) AS total
 		FROM {emarking_submission} AS e
         INNER JOIN {emarking_draft} AS d ON (d.submissionid = e.id AND d.qualitycontrol=0)
-		WHERE e.emarking = :emarkingid AND d.status >= " . EMARKING_STATUS_RESPONDED, array(
+		WHERE e.emarking = :emarkingid AND d.status >= " . EMARKING_STATUS_PUBLISHED, array(
     'emarkingid' => $emarking->id
 ));
 

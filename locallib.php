@@ -58,7 +58,7 @@ function emarking_get_icon_status($status)
             return $OUTPUT->pix_icon('i/user', emarking_get_string_for_status($status));
         case EMARKING_STATUS_GRADING:
             return $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status));
-        case EMARKING_STATUS_RESPONDED:
+        case EMARKING_STATUS_PUBLISHED:
             return $OUTPUT->pix_icon('i/grade_correct', emarking_get_string_for_status($status));
         case EMARKING_STATUS_REGRADING:
             return $OUTPUT->pix_icon('i/flagged', emarking_get_string_for_status($status));
@@ -97,7 +97,7 @@ function emarking_get_statuses_as_array()
     $statuses[] = EMARKING_STATUS_ABSENT;
     $statuses[] = EMARKING_STATUS_SUBMITTED;
     $statuses[] = EMARKING_STATUS_GRADING;
-    $statuses[] = EMARKING_STATUS_RESPONDED;
+    $statuses[] = EMARKING_STATUS_PUBLISHED;
     $statuses[] = EMARKING_STATUS_REGRADING;
     $statuses[] = EMARKING_STATUS_ACCEPTED;
     return $statuses;
@@ -308,8 +308,8 @@ function emarking_get_string_for_status($status)
             return get_string('statusmissing', 'mod_emarking');
         case EMARKING_STATUS_REGRADING:
             return get_string('statusregrading', 'mod_emarking');
-        case EMARKING_STATUS_RESPONDED:
-            return get_string('statusresponded', 'mod_emarking');
+        case EMARKING_STATUS_PUBLISHED:
+            return get_string('statuspublished', 'mod_emarking');
         case EMARKING_STATUS_SUBMITTED:
             return get_string('statussubmitted', 'mod_emarking');
         default:

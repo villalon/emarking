@@ -101,7 +101,7 @@ if ($rubriccriteria = $rubriccontroller->get_definition ()) {
 $totalsubmissions = $DB->count_records_sql ( "
 		SELECT COUNT(e.id) AS total
 		FROM {emarking_submission} AS e
-		WHERE e.emarking = ? AND e.grade >= 0 AND e.status >= " . EMARKING_STATUS_RESPONDED, array (
+		WHERE e.emarking = ? AND e.grade >= 0 AND e.status >= " . EMARKING_STATUS_PUBLISHED, array (
 		$emarking->id 
 ) );
 
@@ -432,7 +432,7 @@ if (! $markingstats) {
 }
 
 $totalsubmissions = $markingstats->submitted + $markingstats->grading + $markingstats->graded + $markingstats->regrading;
-$datatable = "['','" . emarking_get_string_for_status ( EMARKING_STATUS_ABSENT ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_SUBMITTED ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_RESPONDED ) . "',	'" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "'],
+$datatable = "['','" . emarking_get_string_for_status ( EMARKING_STATUS_ABSENT ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_SUBMITTED ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "','" . emarking_get_string_for_status ( EMARKING_STATUS_PUBLISHED ) . "',	'" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "'],
 			['',($markingstats->missing) *100/$totalsubmissions, ($markingstats->submitted) *100/$totalsubmissions,($markingstats->grading) *100/$totalsubmissions,($markingstats->graded) *100/$totalsubmissions,($markingstats->regrading)*100/$totalsubmissions]";
 
 $totalprogress = round ( $markingstats->graded / $totalsubmissions * 100, 2 );
@@ -471,7 +471,7 @@ $markingstatspercriterion = $DB->get_records_sql ( $sqlstatscriterion, array (
 		$cm->id 
 ) );
 
-$datatablecriteria = "['Criterio', '" . emarking_get_string_for_status ( EMARKING_STATUS_RESPONDED ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "'],";
+$datatablecriteria = "['Criterio', '" . emarking_get_string_for_status ( EMARKING_STATUS_PUBLISHED ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "'],";
 
 foreach ( $markingstatspercriterion as $statpercriterion ) {
 	$description = trim ( preg_replace ( '/\s\s+/', ' ', $statpercriterion->description ) );
@@ -586,7 +586,7 @@ $markingstatspermarker = $DB->get_recordset_sql ( "
 $datamarkersavailable = false;
 $datatablemarkers = "";
 
-$datatablecontribution = "['Corrector', '" . emarking_get_string_for_status ( EMARKING_STATUS_RESPONDED ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "'],";
+$datatablecontribution = "['Corrector', '" . emarking_get_string_for_status ( EMARKING_STATUS_PUBLISHED ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_REGRADING ) . "', '" . emarking_get_string_for_status ( EMARKING_STATUS_GRADING ) . "'],";
 
 foreach ( $markingstatspermarker as $permarker ) {
 	$description = trim ( preg_replace ( '/\s\s+/', ' ', $permarker->description ) );

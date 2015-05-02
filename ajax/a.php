@@ -176,7 +176,7 @@ if($issupervisor) {
     $markeranonymous = false;
 }
 
-if ($submission->status >= EMARKING_STATUS_RESPONDED && ! $usercanregrade) {
+if ($submission->status >= EMARKING_STATUS_PUBLISHED && ! $usercanregrade) {
     $readonly = true;
 }
 

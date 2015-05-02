@@ -82,7 +82,7 @@ $totalsubmissions = $DB->count_records_sql("
                 SELECT COUNT(DISTINCT s.id) AS total 
                 FROM {emarking_submission} AS s
                 INNER JOIN {emarking_draft} AS d 
-                    ON (s.emarking = :emarking AND d.status >= " . EMARKING_STATUS_RESPONDED . " AND d.submissionid = s.id AND d.grade > 0 AND d.qualitycontrol=0)
+                    ON (s.emarking = :emarking AND d.status >= " . EMARKING_STATUS_PUBLISHED . " AND d.submissionid = s.id AND d.grade > 0 AND d.qualitycontrol=0)
                 ", array('emarking' => $emarking->id));
 
 if(!$totalsubmissions || $totalsubmissions == 0) {
@@ -206,7 +206,7 @@ FROM (
             INNER JOIN {emarking_draft} AS d ON (ss.id = d.submissionid AND d.qualitycontrol=0)
             INNER JOIN {course} AS c ON (a.course = c.id)
             INNER JOIN {course_categories} AS cc ON (c.category = cc.id)
-            WHERE d.grade > 0 AND d.status >= " . EMARKING_STATUS_RESPONDED . "
+            WHERE d.grade > 0 AND d.status >= " . EMARKING_STATUS_PUBLISHED . "
             ORDER BY a.id asc, d.grade asc) AS G
         GROUP BY categoryid, emarkingid
         with rollup) AS T";

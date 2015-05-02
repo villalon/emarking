@@ -89,7 +89,7 @@ $totalsubmissions = $DB->count_records_sql ( "
 		FROM {emarking_draft} AS dr
 		INNER JOIN {emarking_submission} AS e ON (e.emarking = :emarking AND e.id = dr.submissionid AND dr.qualitycontrol=0)
 		WHERE dr.grade >= 0 AND dr.status >= :status", array (
-		'emarking' => $emarking->id , 'status' => EMARKING_STATUS_RESPONDED
+		'emarking' => $emarking->id , 'status' => EMARKING_STATUS_PUBLISHED
 ) );
 
 if (! $totalsubmissions || $totalsubmissions == 0) {

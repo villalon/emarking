@@ -525,7 +525,7 @@ foreach ( $drafts as $draft ) {
         $thisfinalgrade = '-';
         if ($draftstatuses[$current] >= EMARKING_STATUS_GRADING) {
             $thisfinalgrade = $gradevalue;
-            if ($draftstatuses[$current] >= EMARKING_STATUS_RESPONDED) {
+            if ($draftstatuses[$current] >= EMARKING_STATUS_PUBLISHED) {
                 $thisfinalgrade = '<strong>' . $thisfinalgrade . '</strong>';
             }
         }
@@ -551,7 +551,7 @@ foreach ( $drafts as $draft ) {
 	) );
 	
 		// eMarking button
-	if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $thisstatus >= EMARKING_STATUS_RESPONDED) {
+	if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $thisstatus >= EMARKING_STATUS_PUBLISHED) {
 		$pixicon = $usercangrade ? new pix_icon ( 'i/manual_item', get_string ( 'annotatesubmission', 'mod_emarking' ) ) : new pix_icon ( 'i/preview', get_string ( 'viewsubmission', 'mod_emarking' ) );
 		$actions .= $OUTPUT->action_link ( $popup_url, null, new popup_action ( 'click', $popup_url, 'emarking' . $thisid, array (
 				'menubar' => 'no',
@@ -587,7 +587,7 @@ foreach ( $drafts as $draft ) {
 	
 	// Download PDF button
 	if ($emarking->type == EMARKING_TYPE_NORMAL 
-		&& $thisstatus >= EMARKING_STATUS_RESPONDED
+		&& $thisstatus >= EMARKING_STATUS_PUBLISHED
 		&& $draftqcs[$current] == 0 
 		&& ($thisid == $USER->id || is_siteadmin ( $USER ) || $issupervisor)) {
 		$actions .= '&nbsp;&nbsp;' . $OUTPUT->action_link ( $responseurl, null, null, null, new pix_icon ( 'f/pdf', get_string ( 'downloadfeedback', 'mod_emarking' ) ) );
@@ -597,7 +597,7 @@ foreach ( $drafts as $draft ) {
 	if ($emarking->type == EMARKING_TYPE_NORMAL
 		&& $draftqcs[$current] == 0
 		&& $thisstatus >= EMARKING_STATUS_SUBMITTED 
-		&& $thisstatus < EMARKING_STATUS_RESPONDED 
+		&& $thisstatus < EMARKING_STATUS_PUBLISHED 
 		&& $usercangrade) {
 		$unpublishedsubmissions ++;
 		$actions .= '&nbsp;&nbsp;<input type="checkbox" name="publish[]" value="' . $thisid . '">';

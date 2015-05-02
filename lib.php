@@ -48,7 +48,7 @@ define('EMARKING_STATUS_MISSING', 0); // not submitted
 define('EMARKING_STATUS_ABSENT', 5); // absent
 define('EMARKING_STATUS_SUBMITTED', 10); // submitted
 define('EMARKING_STATUS_GRADING', 15); // Feedback generated.
-define('EMARKING_STATUS_RESPONDED', 20); // Feedback generated.
+define('EMARKING_STATUS_PUBLISHED', 20); // Feedback generated.
 define('EMARKING_STATUS_REGRADING', 30); // Student did not accept. asked for regrade
 define('EMARKING_STATUS_REGRADING_RESPONDED', 35); // Regrades were processed
 define('EMARKING_STATUS_ACCEPTED', 40); // Student accepted the submission

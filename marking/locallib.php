@@ -308,8 +308,8 @@ function emarking_publish_grade($draft) {
 
 	$grade_item->update_final_grade ( $submission->student, $draft->grade, 'editgrade', $feedback, FORMAT_HTML, $USER->id );
 
-	if ($draft->status <= EMARKING_STATUS_RESPONDED) {
-		$draft->status = EMARKING_STATUS_RESPONDED;
+	if ($draft->status <= EMARKING_STATUS_PUBLISHED) {
+		$draft->status = EMARKING_STATUS_PUBLISHED;
 	}
 
 	$draft->timemodified = time();
@@ -478,7 +478,7 @@ function emarking_publish_all_grades($emarking) {
 	) );
 
 	foreach ( $studentdrafts as $draft ) {
-		if ($draft->status >= EMARKING_STATUS_RESPONDED)
+		if ($draft->status >= EMARKING_STATUS_PUBLISHED)
 			emarking_publish_grade ( $draft );
 	}
 

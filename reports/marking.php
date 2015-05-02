@@ -141,7 +141,7 @@ $datatable = "['Status', 'Students'],
                 ['".emarking_get_string_for_status(EMARKING_STATUS_ABSENT)."',          $markingstats->missing],
                 ['".emarking_get_string_for_status(EMARKING_STATUS_SUBMITTED)."',               $markingstats->submitted],
                 ['".emarking_get_string_for_status(EMARKING_STATUS_GRADING)."',         $markingstats->grading],
-                ['".emarking_get_string_for_status(EMARKING_STATUS_RESPONDED)."',               $markingstats->graded],
+                ['".emarking_get_string_for_status(EMARKING_STATUS_PUBLISHED)."',               $markingstats->graded],
                 ['".emarking_get_string_for_status(EMARKING_STATUS_REGRADING)."',               $markingstats->regrading],
                 ";
 
