@@ -108,8 +108,9 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->navbar->add(get_string('myexams','mod_emarking'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading($emarking->name);
-
+if($cmid > 0)
+    echo $OUTPUT->heading($emarking->name);
+    
 // If a new exam was recently added, show success message and instructions
 if($newexam) {
 	echo $OUTPUT->notification(get_string('newprintordersuccessinstructions', 'mod_emarking',$newexam),'notifysuccess');
