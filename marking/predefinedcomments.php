@@ -70,12 +70,11 @@ $PAGE->set_course($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking','mod_emarking'));
-$PAGE->set_heading($course->fullname);
 $PAGE->navbar->add(get_string('emarking','mod_emarking'));
 $PAGE->navbar->add(get_string('predefinedcomments', 'mod_emarking'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading_with_help(get_string('emarking','mod_emarking'), 'annotatesubmission', 'mod_emarking');
+echo $OUTPUT->heading($emarking->name);
 //output of the tabtree
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "comment" );
 

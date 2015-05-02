@@ -60,7 +60,6 @@ $PAGE->set_context ( $context );
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url ( $url );
-$PAGE->set_heading ( $course->fullname );
 $PAGE->set_pagelayout ( 'incourse' );
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('markers','mod_emarking'));
@@ -77,7 +76,7 @@ if (! has_capability ( 'mod/emarking:assignmarkers', $context )) {
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading_with_help(get_string('emarking','mod_emarking'), 'annotatesubmission', 'mod_emarking');
+echo $OUTPUT->heading($emarking->name);
 
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "markers" );
 

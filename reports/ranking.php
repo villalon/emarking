@@ -46,8 +46,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->set_pagelayout('incourse');
-$PAGE->set_heading(get_string('justice.my.evaluations','mod_emarking'));
+$PAGE->set_pagelayout('report');
 $PAGE->set_url($url);
 
 
@@ -60,7 +59,7 @@ if(!has_capability('mod/assign:grade', $context) && !$emarking->peervisibility) 
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string("ranking",'mod_emarking'));
+echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'ranking');
 
 // Get the grading manager, then method and finally controller

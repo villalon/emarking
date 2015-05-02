@@ -105,10 +105,10 @@ if($cmid > 0)
 	$PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_heading($course->fullname);
 $PAGE->navbar->add(get_string('myexams','mod_emarking'));
 
 echo $OUTPUT->header();
+echo $OUTPUT->heading($emarking->name);
 
 // If a new exam was recently added, show success message and instructions
 if($newexam) {
@@ -116,7 +116,6 @@ if($newexam) {
 	echo $OUTPUT->notification($CFG->emarking_printsuccessinstructions,'notifysuccess');
 }
 
-echo $OUTPUT->heading_with_help(get_string('myexams', 'mod_emarking'), 'myexams', 'mod_emarking');
 
 if($cmid > 0)
 	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "myexams" );

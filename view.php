@@ -92,7 +92,6 @@ $PAGE->set_course ( $course );
 $PAGE->set_pagelayout ( 'incourse' );
 $PAGE->set_cm ( $cm );
 $PAGE->set_title(get_string ( 'emarking', 'mod_emarking' ));
-$PAGE->set_heading ( $course->fullname );
 $PAGE->navbar->add ( get_string ( 'emarking', 'mod_emarking' ) );
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
@@ -100,10 +99,7 @@ $PAGE->requires->jquery_plugin('ui-css');
 
 // Show header and heading
 echo $OUTPUT->header();
-echo $OUTPUT->heading_with_help ( 
-		get_string ( 'emarking', 'mod_emarking' ), 
-		'annotatesubmission', 'mod_emarking' );
-echo $OUTPUT->heading(get_string_type($emarking->type),4);
+echo $OUTPUT->heading($emarking->name);
 
 // Navigation tabs
 echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), "mark" );

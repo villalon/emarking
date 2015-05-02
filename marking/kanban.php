@@ -80,7 +80,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
-$PAGE->set_heading($course->fullname);
+$PAGE->set_heading($emarking->name);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('emarking','mod_emarking'));
 

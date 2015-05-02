@@ -74,12 +74,11 @@ $PAGE->set_course ( $course );
 $PAGE->set_cm ( $cm );
 $PAGE->set_url ( $url );
 $PAGE->set_pagelayout ( 'incourse' );
-$PAGE->set_heading ( $course->fullname );
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('gradereport', 'grades'));
 
 echo $OUTPUT->header ();
-echo $OUTPUT->heading_with_help ( get_string ( 'gradereport', 'mod_emarking' ), 'gradereport', 'mod_emarking' );
+echo $OUTPUT->heading($emarking->name);
 
 // Print eMarking tabs
 echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), "report" );

@@ -69,7 +69,6 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('uploadanswers', 'mod_emarking'));
 
@@ -141,7 +140,7 @@ if ($mform->is_cancelled()) {
 
 // Display form for uploading zip file
 echo $OUTPUT->header();
-echo $OUTPUT->heading_with_help(get_string('uploadanswers', 'mod_emarking'), 'uploadanswers', 'mod_emarking');
+echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "uploadanswers" );
 $mform->display();
 echo $OUTPUT->footer();

@@ -81,7 +81,6 @@ $PAGE->set_cm($cm);
 $PAGE->set_url($url);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
-$PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
 if($confirm) {
@@ -92,6 +91,7 @@ if($confirm) {
 }
 
 echo $OUTPUT->header();
+echo $OUTPUT->heading($emarking->name);
 
 $draft->newstatus = $newstatus;
 echo $OUTPUT->confirm(get_string('updatesubmissionconfirm', 'mod_emarking', $draft), $continueurl, $cancelurl);

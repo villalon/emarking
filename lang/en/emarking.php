@@ -538,6 +538,7 @@ $string ['advacebycriteria'] = 'Advance by criterion';
 $string ['pointsassignedbymarker'] = 'Points assigned by markers';
 $string ['advancebymarker'] = 'Advance by marker';
 $string ['marker'] = 'Marker';
+$string ['grades'] = 'Grades';
 
 /**
  * Events

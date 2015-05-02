@@ -45,7 +45,7 @@ $rubricdesc = $DB->get_recordset_sql(
 		IFNULL(er.markercomment, '') AS regrademarkercomment,
 		IFNULL(er.accepted,0) AS regradeaccepted
 		FROM {course_modules} AS c
-		INNER JOIN {context} AS mc ON (c.id = :coursemodule AND c.id = mc.instanceid)
+		INNER JOIN {context} AS mc ON (c.id = :coursemodule AND mc.contextlevel = 70 AND c.id = mc.instanceid)
 		INNER JOIN {grading_areas} AS ar ON (mc.id = ar.contextid)
 		INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
 		INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)

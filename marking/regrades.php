@@ -17,7 +17,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
@@ -85,7 +85,6 @@ $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking','mod_emarking'));
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_heading(get_string('justice.my.evaluations','mod_emarking'));
 $PAGE->set_url($url);
 
 $requestswithindate = emarking_is_regrade_requests_allowed($emarking);
@@ -167,7 +166,6 @@ $query = "SELECT
 		FROM {emarking_submission}  AS s
 		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id)
         INNER JOIN {user}  AS u on (s.student = :userid AND s.student = u.id)
-		-- INNER JOIN {grade_items} AS gi ON (gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' AND gi.iteminstance = :emarkingid AND gi.iteminstance = s.emarking)
 		INNER JOIN {grading_instances}  AS i on (s.id = i.itemid AND i.definitionid = :definition)
 		INNER JOIN {gradingform_rubric_fillings}  AS f on (f.instanceid = i.id)
 		INNER JOIN {gradingform_rubric_criteria}  AS a on (a.id = f.criterionid)
@@ -189,7 +187,7 @@ $query = "SELECT
 		INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
 		INNER JOIN {course}  AS co ON (sg.course = co.id)
 		INNER JOIN {emarking_page} AS page ON (page.submission = s.id)
-		INNER JOIN {emarking_comment} AS comment ON (comment.page = page.id AND comment.levelid = b.id)
+		INNER JOIN {emarking_comment} AS comment ON (comment.page = page.id AND comment.draft = dr.id AND comment.levelid = b.id)
 		LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
 		ORDER BY s.student,a.description";
 
@@ -245,7 +243,7 @@ $table->data = $data;
 
 //Form processing and displaying is done here
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('regrades','mod_emarking'));
+echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking),'regrade');
 if($criterionid)
 	echo $OUTPUT->notification($successmessage,'notifysuccess');

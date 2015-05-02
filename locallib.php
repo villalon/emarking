@@ -128,7 +128,7 @@ function emarking_tabs($context, $cm, $emarking)
     $examstab->subtree[] = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/upload.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
     
     // Grade tab
-    $gradetab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('annotatesubmission', 'mod_emarking'));
+    $gradetab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('marking', 'mod_emarking'));
     $gradetab->subtree[] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
     if (! $usercangrade) {
         if ($emarking->peervisibility) {
@@ -146,12 +146,12 @@ function emarking_tabs($context, $cm, $emarking)
     
     
     // Grade report tab
-    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("reports", "mod_emarking"));
+    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}", get_string("reports", "mod_emarking"));
     
-    $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/gradereport.php?id={$cm->id}", get_string("gradereport", "grades"));
-    $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/markingreport.php?id={$cm->id}", get_string("markingreport", 'mod_emarking'));
-    $gradereporttab->subtree[] = new tabobject("comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string("comparativereport", "mod_emarking"));
+    $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}", get_string("grades", "grades"));
     $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
+    $gradereporttab->subtree[] = new tabobject("comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string("comparativereport", "mod_emarking"));
+    $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
     
     // Tabs sequence
     if ($usercangrade) {

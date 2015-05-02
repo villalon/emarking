@@ -204,7 +204,7 @@ $string ['greaterthan'] = 'Mayor {$a}';
 
 $string ['areyousure'] = '¿Está seguro?';
 $string ['actions'] = 'Acciones';
-$string ['annotatesubmission'] = 'Corregir eMarking';
+$string ['annotatesubmission'] = 'Corregir';
 $string ['anonymous'] = 'Corrección anónima';
 $string ['anonymous_help'] = 'Seleccione para que el proceso de corrección sea anónimo, en cuyo caso los nombres de los estudiantes serán escondidos.';
 $string ['anonymousstudent'] = 'Estudiante anónimo';
@@ -538,6 +538,7 @@ $string ['advacebycriteria'] = 'Avance por criterio';
 $string ['pointsassignedbymarker'] = 'Puntajes asignados por corrector';
 $string ['advancebymarker'] = 'Avance por corrector';
 $string ['marker'] = 'Corrector';
+$string ['grades'] = 'Calificaciones';
 
 /**
  * Events

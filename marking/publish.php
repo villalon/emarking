@@ -71,11 +71,10 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->set_heading($course->fullname);
 $PAGE->navbar->add(get_string('publishtitle', 'mod_emarking'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('publishinggrades', 'mod_emarking'));
+echo $OUTPUT->heading($emarking->name);
 
 // Create progress bar
 $pbar = new progress_bar('publish', 500, true);

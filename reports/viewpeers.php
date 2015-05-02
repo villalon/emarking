@@ -47,7 +47,6 @@ $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_heading(get_string('justice.my.evaluations','mod_emarking'));
 $PAGE->set_url($url);
 
 if(!has_capability('mod/emarking:viewpeerstatistics', $context)) {
@@ -140,7 +139,7 @@ foreach($exams as $exam){
 $table->data = $data;
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('justice.peercheck','mod_emarking'));
+echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking),'viewpeers');
 
 echo html_writer::table($table);

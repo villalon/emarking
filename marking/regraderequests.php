@@ -44,13 +44,12 @@ $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking','mod_emarking'));
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_heading(get_string('regrades','mod_emarking'));
 $PAGE->set_url(new moodle_url("/mod/emarking/marking/regraderequests.php?id=$cmid"));
 $PAGE->navbar->add(get_string('regrades', 'mod_emarking'));	
 
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading_with_help(get_string('regrades', 'mod_emarking'), 'regrades', 'mod_emarking');
+echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades" );
 
 $sql = "SELECT

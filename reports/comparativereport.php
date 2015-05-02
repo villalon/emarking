@@ -75,13 +75,12 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('incourse');
-$PAGE->set_heading($course->fullname);
+$PAGE->set_pagelayout('report');
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('comparativereport', 'mod_emarking'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading_with_help(get_string('comparativereport', 'mod_emarking'), 'comparativereport', 'mod_emarking');
+echo $OUTPUT->heading($emarking->name);
 
 // Print eMarking tabs
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "comparison");
