@@ -304,9 +304,9 @@ foreach($emarkingstats as $stats) {
                 }
                 if($i % 2 != 0) {
                         if($i <= 6) {
-                                $histogramlabels[$i] = '<' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
+                                $histogramlabels[$i] = '<' . round($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i, 1);
                         } else {
-                                $histogramlabels[$i] = '>=' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1));
+                                $histogramlabels[$i] = '>=' . round($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1), 1);
                         }
                 } else {
                         $histogramlabels[$i] = '';
