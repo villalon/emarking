@@ -94,7 +94,6 @@ if(!$totalsubmissions || $totalsubmissions == 0) {
 $emarkingids = ''. $emarking->id;
 
 $extracategory = optional_param('categories', 0, PARAM_INT);
-$scale17 = optional_param('scale17', true, PARAM_BOOL);
 
 if($CFG->emarking_parallelregex) {
         $parallels = emarking_get_parallel_courses($course, $extracategory, $CFG->emarking_parallelregex);
@@ -102,7 +101,7 @@ if($CFG->emarking_parallelregex) {
         $parallels = false;
 }
 
-$emarkingsform = new emarking_gradereport_form(null, array('course'=>$course, 'cm'=>$cm, 'parallels'=>$parallels, 'id'=>$emarkingids, 'scale17'=>$scale17));
+$emarkingsform = new emarking_gradereport_form(null, array('course'=>$course, 'cm'=>$cm, 'parallels'=>$parallels, 'id'=>$emarkingids));
 
 $emarkingsform->display();
 
@@ -292,40 +291,20 @@ foreach($emarkingstats as $stats) {
                 }
                 if($i % 2 != 0) {
                         if($i <= 6) {
-                                $histogramlabels[$i] = $scale17 ? '< ' . emarking_scale_grade(1, 7, ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i), $stats->mingradeemarking, $stats->maxgradeemarking) :
-                                '< ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
+                                $histogramlabels[$i] = '< ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
                         } else {
-                                $histogramlabels[$i] = $scale17 ? '>= ' . emarking_scale_grade(1, 7, ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1)), $stats->mingradeemarking, $stats->maxgradeemarking) :
-                                '>= ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1));
+                                $histogramlabels[$i] = '>= ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1));
                         }
                 } else {
                         $histogramlabels[$i] = '';
                 }
         }
 
-        $mingrade = $scale17 ? 1 : $stats->mingradeemarking;
-        $maxgrade = $scale17 ? 7 : $stats->maxgradeemarking;
-        $averages .= $scale17 ?
-        "['$stats->seriesname (N=$stats->students)',".
-        emarking_scale_grade(1, 7, $stats->average, $stats->mingradeemarking, $stats->maxgradeemarking).",".
-        emarking_scale_grade(1, 7, $stats->minimum, $stats->mingradeemarking, $stats->maxgradeemarking).",".
-        emarking_scale_grade(1, 7, $stats->maximum, $stats->mingradeemarking, $stats->maxgradeemarking)."]," :
-        "['$stats->seriesname',$stats->average, $stats->minimum, $stats->maximum],";
+        $mingrade = $stats->mingradeemarking;
+        $maxgrade = $stats->maxgradeemarking;
+        $averages .= "['$stats->seriesname (N=$stats->students)',$stats->average, $stats->minimum, $stats->maximum],";
         $pass_ratio .= "['$stats->seriesname (N=$stats->students)',$stats->rank_1,$stats->rank_2,$stats->rank_3],";
-        $data[] = $scale17 ?
-        array($stats->seriesname, 
-                        $stats->students, 
-                        emarking_scale_grade(1, 7, $stats->average, $stats->mingradeemarking, $stats->maxgradeemarking), 
-                        round($stats->stdev / 10, 1), 
-                        emarking_scale_grade(1, 7, $stats->minimum, $stats->mingradeemarking, $stats->maxgradeemarking),  
-                        emarking_scale_grade(1, 7, $stats->percentile_25, $stats->mingradeemarking, $stats->maxgradeemarking), 
-                        emarking_scale_grade(1, 7, $stats->percentile_50, $stats->mingradeemarking, $stats->maxgradeemarking), 
-                        emarking_scale_grade(1, 7, $stats->percentile_75, $stats->mingradeemarking, $stats->maxgradeemarking), 
-                        emarking_scale_grade(1, 7, $stats->maximum, $stats->mingradeemarking, $stats->maxgradeemarking), 
-                        $stats->rank_1, 
-                        $stats->rank_2, 
-                        $stats->rank_3) :
-        array($stats->seriesname, 
+        $data[] = array($stats->seriesname, 
                         $stats->students, 
                         $stats->average, 
                         $stats->stdev, 

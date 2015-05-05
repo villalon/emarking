@@ -631,25 +631,6 @@ function emarking_get_categories_for_parallels_menu($course)
 }
 
 /**
- *
- *
- *
- * Creates a grade scale.
- *
- * @param unknown_type $min            
- * @param unknown_type $max            
- * @param unknown_type $grade            
- * @param unknown_type $mingrade            
- * @param unknown_type $maxgrade            
- */
-function emarking_scale_grade($min, $max, $grade, $mingrade, $maxgrade)
-{
-    $gradepct = ($grade - $mingrade) / ($maxgrade - $mingrade);
-    
-    return round($min + ($max - $min) * $gradepct, 1);
-}
-
-/**
  * Unzip the source_file in the destination dir
  *
  * @param
