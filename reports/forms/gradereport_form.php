@@ -61,6 +61,8 @@ class emarking_gradereport_form extends moodleform {
 				// Action buttons with no cancel
 				$this->add_action_buttons ( false );
 			}
+			
+			$mform->setExpanded('parallels_title', false);
 		}
 	}
 }

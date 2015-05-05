@@ -526,17 +526,18 @@ $string ['building'] = 'Building';
 $string ['details'] = 'Details';
 
 $string ['gradestats'] = 'Grade stats by course';
-$string ['gradehistogram'] = 'Grade histogram by course';
-$string ['courseaproval'] = 'Course Aproval';
+$string ['gradehistogram'] = 'Grades histogram by course';
+$string ['gradehistogramtotal'] = 'Grades histogram aggregated';
+$string ['courseaproval'] = 'Pass ratio';
 $string ['course'] = 'Course';
 $string ['range'] = 'Range';
 $string ['lessthan3'] = 'Less than 3';
 $string ['between3and4'] = '3 to 4';
 $string ['morethan4'] = 'More than 4';
 
-$string ['advacebycriteria'] = 'Advance by criterion';
-$string ['pointsassignedbymarker'] = 'Points assigned by markers';
-$string ['advancebymarker'] = 'Advance by marker';
+$string ['advacebycriteria'] = 'Advance per criterion';
+$string ['pointsassignedbymarker'] = 'Points assigned per markers';
+$string ['advancebymarker'] = 'Advance per marker';
 $string ['marker'] = 'Marker';
 $string ['grades'] = 'Grades';
 

@@ -263,6 +263,19 @@ $histogramlabels = array();
 $pass_ratio = '';
 
 $data = array();
+$headers = array();
+$headers[] = 'Stats';
+$data[0][] = get_string('students');
+$data[1][] = get_string('average','mod_emarking');
+$data[2][] = get_string('stdev','mod_emarking');
+$data[3][] = get_string('min','mod_emarking');
+$data[4][] = get_string('quartile1','mod_emarking');
+$data[5][] = get_string('median','mod_emarking');
+$data[6][] = get_string('quartile3','mod_emarking');
+$data[7][] = get_string('max','mod_emarking');
+$data[8][] = get_string('lessthan','mod_emarking', 3);
+$data[9][] = get_string('between','mod_emarking', array('min'=>3, 'max'=>4));
+$data[10][] = get_string('greaterthan','mod_emarking', 4);
 foreach($emarkingstats as $stats) {
         if($totalcategories == 1 && !strncmp($stats->seriesname,'SUBTOTAL',8)) {
                 continue;
@@ -291,31 +304,32 @@ foreach($emarkingstats as $stats) {
                 }
                 if($i % 2 != 0) {
                         if($i <= 6) {
-                                $histogramlabels[$i] = '< ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
+                                $histogramlabels[$i] = '<' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
                         } else {
-                                $histogramlabels[$i] = '>= ' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1));
+                                $histogramlabels[$i] = '>=' . ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * ($i - 1));
                         }
                 } else {
                         $histogramlabels[$i] = '';
                 }
+                // $histogramlabels[$i] = ($stats->mingradeemarking + ($stats->maxgradeemarking - $stats->mingradeemarking) / 12 * $i);
         }
 
         $mingrade = $stats->mingradeemarking;
         $maxgrade = $stats->maxgradeemarking;
         $averages .= "['$stats->seriesname (N=$stats->students)',$stats->average, $stats->minimum, $stats->maximum],";
         $pass_ratio .= "['$stats->seriesname (N=$stats->students)',$stats->rank_1,$stats->rank_2,$stats->rank_3],";
-        $data[] = array($stats->seriesname, 
-                        $stats->students, 
-                        $stats->average, 
-                        $stats->stdev, 
-                        $stats->minimum,  
-                        $stats->percentile_25, 
-                        $stats->percentile_50, 
-                        $stats->percentile_75, 
-                        $stats->maximum, 
-                        $stats->rank_1, 
-                        $stats->rank_2, 
-                        $stats->rank_3);
+        $headers[] = $stats->seriesname;
+        $data[0][] = $stats->students; 
+        $data[1][] = $stats->average; 
+        $data[2][] = $stats->stdev;
+        $data[3][] = $stats->minimum;
+        $data[4][] = $stats->percentile_25; 
+        $data[5][] = $stats->percentile_50; 
+        $data[6][] = $stats->percentile_75; 
+        $data[7][] = $stats->maximum;
+        $data[8][] = round($stats->rank_1 * 100, 1)."%"; 
+        $data[9][] = round($stats->rank_2 * 100, 1)."%"; 
+        $data[10][] = round($stats->rank_3 * 100, 1)."%";
 }
 
 $parallels_names_criteria = '';
@@ -329,6 +343,7 @@ foreach($criteriastats as $stats) {
                 $parallels_ids[$stats->courseid] = $stats->fullname;
         }
         $description = trim(preg_replace('/\s\s+/', ' ', $stats->description));
+        $description = preg_replace("/\r?\n/", "\\n", addslashes($description));
         if($lastdescription !== $description) {
                 $effectivenessnum++;
                 if($effectivenessnum > 0) {
@@ -342,47 +357,46 @@ foreach($criteriastats as $stats) {
 if($effectivenessnum >= 0) {
         $effectiveness[$effectivenessnum] .= ']';
 }
-$effectivenessstring = "[\n['Criterio', " . $parallels_names_criteria . "],";
+$effectivenessstring = "[\n['".get_string('criterion', 'mod_emarking')."', " . $parallels_names_criteria . "],";
 foreach($effectiveness as $effectiverow) {
         $effectivenessstring .= "\n" . $effectiverow . ", ";
 }
 $effectivenessstring .= " ] ";
 
 $table = new html_table();
-$table->attributes['style'] = "width: 100%; text-align:center;";
-$table->head = array(
-                strtoupper(get_string('course')), 
-                strtoupper(get_string('students')), 
-                strtoupper(get_string('average','mod_emarking')), 
-                strtoupper(get_string('stdev','mod_emarking')), 
-                strtoupper(get_string('min','mod_emarking')), 
-                strtoupper(get_string('quartile1','mod_emarking')), 
-                strtoupper(get_string('median','mod_emarking')), 
-                strtoupper(get_string('quartile3','mod_emarking')),
-                strtoupper(get_string('max','mod_emarking')), 
-                strtoupper(get_string('lessthan','mod_emarking', 3)), 
-                strtoupper(get_string('between','mod_emarking', array('min'=>3, 'max'=>4))),
-                strtoupper(get_string('greaterthan','mod_emarking', 4)));
+$table->attributes['style'] = "width: 100%; text-align:center; font-size:12px;";
+$table->head = $headers;
 $table->align = array('left', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center');
 $table->data = $data;
 echo $OUTPUT->box_start(null, null, array('style'=>'overflow:scroll'));
 echo html_writer::table($table);
 echo $OUTPUT->box_end();
+
+if($totalemarkings == 1) {
+    $divheight = "height:350px;";
 ?>
-<div
-        id="chart_averages" style="width: 100%; height: 500px;"></div>
-<div
-        id="chart_pass_ratio" style="width: 100%; height: 500px;"></div>
-<div
-        id="chart_histogram" style="width: 100%; height: 500px;"></div>
-<?php if($totalemarkings > 1) { ?>
-<div
-        id="chart_histogram_totals" style="width: 100%; height: 500px;"></div>
-<?php } ?>
-<div
-        id="chart_criteria" style="width: 100%; height: 500px;"></div>
-<script
-        type="text/javascript" src="https://www.google.com/jsapi"></script>
+<table border="0" width="100%">
+<tr>
+<td width="50%"><div id="chart_averages" style="width: 100%; <?php echo $divheight ?>"></div></td>
+<td width="50%"><div id="chart_pass_ratio" style="width: 100%;<?php echo $divheight ?>"></div></td>
+</tr>
+<tr>
+<td width="50%"><div id="chart_histogram" style="width: 100%;<?php echo $divheight ?>"></div></td>
+<td width="50%"><div id="chart_criteria" style="width: 100%;<?php echo $divheight ?>"></div></td>
+</tr>
+</table>
+<?php
+} else {
+?>
+<div id="chart_averages" style="width: 100%; height: 500px;"></div>
+<div id="chart_pass_ratio" style="width: 100%; height: 500px;"></div>
+<div id="chart_histogram" style="width: 100%; height: 500px;"></div>
+<div id="chart_histogram_totals" style="width: 100%; height: 500px;"></div>
+<div id="chart_criteria" style="width: 100%; height: 500px;"></div>
+<?php 
+}
+?>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
           // TODO: Show friendly message when we couldn't load Google's library
       google.load("visualization", "1", {packages:["corechart"]});
@@ -394,8 +408,9 @@ echo $OUTPUT->box_end();
       google.setOnLoadCallback(drawAverages);
       google.setOnLoadCallback(drawCriteria);
       google.setOnLoadCallback(drawPassRatio);
-      
-        function drawHistogram() {
+
+      // Grades histogram
+      function drawHistogram() {
         var data = google.visualization.arrayToDataTable([
           ['Rango', <?php echo $histogram_courses ?>],
           <?php for ($i=1;$i<=12;$i++) { ?>
@@ -405,8 +420,8 @@ echo $OUTPUT->box_end();
 
         var options = {
                         animation: {duration: 500},
-                        title: 'Histograma de notas por curso (escala de <?php echo round($mingrade,0) ?> a <?php echo round($maxgrade,0) ?>)',
-                        hAxis: {title: 'Rango', titleTextStyle: {color: 'black'}},
+                        title: '<?php echo get_string('gradehistogram', 'mod_emarking') ?>',
+                        hAxis: {title: '<?php echo get_string('range', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
                         vAxis: {format:'#'},
                         legend: 'top'
         };
@@ -414,13 +429,14 @@ echo $OUTPUT->box_end();
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_pass_ratio'));
         chart.draw(data, options);
                 }
-        
-        function drawPassRatio() {
+
+      // Pass ratio
+      function drawPassRatio() {
                 var data = new google.visualization.DataTable();
-          data.addColumn({type:'string', role:'domain', label: 'Curso'}); // Implicit domain label col.
-          data.addColumn({type:'number', role:'data', label:'Menor a 3'}); // Implicit series 1 data col.
-          data.addColumn({type:'number', role:'data', label:'3 a 4'}); // Implicit series 1 data col.
-          data.addColumn({type:'number', role:'data', label:'Mayor que 4'}); // Implicit series 1 data col.
+          data.addColumn({type:'string', role:'domain', label: '<?php echo get_string('course') ?>'}); // Implicit domain label col.
+          data.addColumn({type:'number', role:'data', label:'<?php echo get_string('lessthan','mod_emarking', 3) ?>'}); // Implicit series 1 data col.
+          data.addColumn({type:'number', role:'data', label:'<?php echo get_string('between','mod_emarking', array('min'=>3, 'max'=>4)) ?>'}); // Implicit series 1 data col.
+          data.addColumn({type:'number', role:'data', label:'<?php echo get_string('greaterthan','mod_emarking', 4) ?>'}); // Implicit series 1 data col.
           data.addRows([
                           <?php echo $pass_ratio ?>
           ]);
@@ -432,21 +448,23 @@ echo $OUTPUT->box_end();
                 
         var options = {
                         animation: {duration: 500},
-                        title: 'Aprobación por curso',
-                        hAxis: {title: 'Curso', titleTextStyle: {color: 'black'}},
+                        title: '<?php echo get_string('courseaproval', 'mod_emarking') ?>',
+                        vAxis: {title: '<?php echo get_string('course') ?>', titleTextStyle: {color: 'black'}},
                         isStacked: true,
                         series: {0:{color:'red'},1:{color:'#EED1D0'},2:{color:'#57779E'}},
-                        vAxis: {format:'#,###%', minValue:0, maxValue:1},
+                        hAxis: {format:'#,###%', minValue:0, maxValue:1},
                         legend: 'top'
         };
 
-        var chart = new google.visualization.ColumnChart(document.getElementById('chart_histogram'));
+        var chart = new google.visualization.BarChart(document.getElementById('chart_histogram'));
         chart.draw(data, options);
         }
-                <?php if($totalemarkings > 1) { ?>
-                function drawHistogramTotals() {
+
+// Histogram totals
+<?php if($totalemarkings > 1) { ?>
+      function drawHistogramTotals() {
         var data = google.visualization.arrayToDataTable([
-          ['Rango', <?php echo $histogram_totals ?>],
+          ['<?php echo get_string('range', 'mod_emarking') ?>', <?php echo $histogram_totals ?>],
           <?php for ($i=1;$i<=12;$i++) { ?>
           ['<?php echo $histogramlabels[$i] ?>',  <?php echo $histograms_totals[$i] ?>],
           <?php } ?>
@@ -454,8 +472,8 @@ echo $OUTPUT->box_end();
 
         var options = {
                         animation: {duration: 500},
-                        title: 'Histograma de notas agregados (escala de <?php echo round($mingrade,0) ?> a <?php echo round($maxgrade,0) ?>)',
-                        hAxis: {title: 'Rango', titleTextStyle: {color: 'black'}},
+                        title: '<?php echo get_string('gradehistogramtotal', 'mod_emarking') ?>)',
+                        hAxis: {title: '<?php echo get_string('range', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
                         seriesType: "bars",
                         series: {2:{type: "line", pointSize: 5}},
                         vAxis: {format:'#'},
@@ -464,9 +482,10 @@ echo $OUTPUT->box_end();
 
         var chart = new google.visualization.ComboChart(document.getElementById('chart_histogram_totals'));
         chart.draw(data, options);
-                }
-                <?php } ?>
-                
+      }
+<?php } ?>
+
+        // Per criteria effectiveness
         function drawCriteria() {
           var data = google.visualization.arrayToDataTable(<?php echo $effectivenessstring ?>);
 
@@ -478,18 +497,19 @@ echo $OUTPUT->box_end();
           
           var options = {
             title: '<?php echo get_string('criteriaefficiency', 'mod_emarking') ?>',
-            hAxis: {title: 'Criterio', titleTextStyle: {color: 'black'}},
-            vAxis: {format:'#,###%', minValue:0, maxValue:1},
+            vAxis: {title: '<?php echo get_string('criterion', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
+            hAxis: {format:'#,###%', minValue:0, maxValue:1},
                 legend: 'top'
           };
 
-          var chart = new google.visualization.ColumnChart(document.getElementById('chart_criteria'));
+          var chart = new google.visualization.BarChart(document.getElementById('chart_criteria'));
           chart.draw(data, options);
         }
-        
+
+      // Grades average  
       function drawAverages() {
           var data = new google.visualization.DataTable();
-          data.addColumn({type:'string', role:'domain', label: 'Curso'}); // Implicit domain label col.
+          data.addColumn({type:'string', role:'domain', label: '<?php echo get_string('course') ?>'}); // Implicit domain label col.
           data.addColumn({type:'number', role:'data', label:'<?php echo get_string('average', 'mod_emarking') ?>'}); // Implicit series 1 data col.
           data.addColumn({type:'number', role:'interval'}); // Implicit series 1 data col.
           data.addColumn({type:'number', role:'interval'}); // Implicit series 1 data col.
@@ -499,7 +519,7 @@ echo $OUTPUT->box_end();
           
           var options = {
                   animation: {duration:500},
-                title: 'Promedios de notas',
+                title: '<?php echo get_string('average', 'mod_emarking') ?>',
             legend:'none',
                 vAxis: {minValue:<?php echo round($mingrade,0) ?>, maxValue:<?php echo round($maxgrade,0) ?>},
                 pointSize: 10,

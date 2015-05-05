@@ -527,6 +527,7 @@ $string ['details'] = 'Detalles';
 
 $string ['gradestats'] = 'Estadistica de notas por curso';
 $string ['gradehistogram'] = 'Histograma de notas por curso';
+$string ['gradehistogramtotal'] = 'Histograma de notas agregado';
 $string ['courseaproval'] = 'Aprobación de curso';
 $string ['course'] = 'Curso';
 $string ['range'] = 'Rango';
