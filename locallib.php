@@ -273,7 +273,7 @@ function emarking_verify_logo()
  * Verifies if there's a logo for the personalized header, and if there is it copies it to the
  * module
  */
-function emarking_get_logo_file()
+function emarking_get_logo_file($filedir)
 {
     $fs = get_file_storage();
     $syscontext = context_system::instance();
@@ -286,7 +286,7 @@ function emarking_get_logo_file()
                 
                 $existingfile = $fs->get_file($syscontext->id, 'mod_emarking', 'logo', 1, '/', $file->get_filename());
                 if ($existingfile) {
-                    return $existingfile;
+                    return emarking_get_path_from_hash($filedir, $existingfile->get_pathnamehash());
                 }
             }
         }
@@ -441,17 +441,19 @@ function emarking_get_students_for_printing($courseid)
     global $DB;
     
     $query = 'SELECT u.id, u.idnumber, u.firstname, u.lastname, e.enrol
-			FROM {user_enrolments} ue
-			JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
-			JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
-			JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
-			JOIN {user} u ON (ue.userid = u.id)
-			ORDER BY lastname ASC';
+				FROM {user_enrolments} ue
+				JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
+				JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
+				JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
+				JOIN {user} u ON (ue.userid = u.id)
+				ORDER BY lastname ASC';
+    
+    // list($query, $params) = get_enrolled_sql(context_course::instance($courseid), 'mod/emarking:submit', 0 , true);
+
+    $params = array($courseid);
     
     // Se toman los resultados del query dentro de una variable.
-    $rs = $DB->get_recordset_sql($query, array(
-        $courseid
-    ));
+    $rs = $DB->get_recordset_sql($query, $params);
     
     return $rs;
 }
@@ -523,23 +525,20 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
     
     $context = context_course::instance($course->id);
     
+    $userstonotify = array();
     // Notify users that a new exam was sent. First, get all roles that have the capability in this context or higher
     $roles = get_roles_with_cap_in_context($context, 'mod/emarking:receivenotification');
     foreach ($roles[0] as $role) {
-        $needed = $role;
+        // Get all users with any of the needed roles in the course context
+        foreach(get_role_users($role, $context, true, 'u.id, u.username', null, true) as $usertonotify) {
+            $userstonotify[$usertonotify->id] = $usertonotify;
+        }
+    
     }
     $forbidden = $roles[1];
     
-    // Get all users with any of the needed roles in the course context
-    $userstonotify = get_role_users($needed, $context);
-    
     // Get the category context
     $contextcategory = context_coursecat::instance($course->category);
-    
-    // Add all users with needed roles in the course category
-    foreach (get_role_users($needed, $contextcategory) as $userfromcategory) {
-        $userstonotify[] = $userfromcategory;
-    }
     
     // Now get all users that has any of the roles needed, no checking if they have roles forbidden as it is only
     // a notification
@@ -550,10 +549,9 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
         // Downloading predominates over receiving notification
         if (has_capability('mod/emarking:downloadexam', $contextcategory, $user)) {
             $thismessagehtml .= '<p><a href="' . $CFG->wwwroot . '/mod/emarking/print/printorders.php?category=' . $course->category . '">' . get_string('printorders', 'mod_emarking') . '</a></p>';
-        } else 
-            if (has_capability('mod/emarking:receivenotification', $context, $user)) {
+        } else if (has_capability('mod/emarking:receivenotification', $context, $user)) {
                 $thismessagehtml .= '<p><a href="' . $CFG->wwwroot . '/mod/emarking/print/exams.php?course=' . $course->id . '">' . get_string('printorders', 'mod_emarking') . ' ' . $course->fullname . '</a></p>';
-            }
+        }
         
         $eventdata = new stdClass();
         $eventdata->component = 'mod_emarking';
@@ -567,6 +565,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
         $eventdata->smallmessage = $postsubject;
         
         $eventdata->notification = 1;
+        
         message_send($eventdata);
     }
 }

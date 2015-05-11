@@ -158,32 +158,48 @@ function emarking_send_newprintorder_notification($exam, $course)
     
     $pagestoprint = emarking_exam_total_pages_to_print($exam);
     
+    $originals = $exam->totalpages + $exam->extrasheets;
+    $copies = $exam->totalstudents + $exam->extraexams;
+    $totalsheets = $originals * $copies;
+    
+    $teachers = get_enrolled_users(context_course::instance($course->id), 'mod/emarking:receivenotification');
+    
+    $teachersnames = array();
+    foreach ($teachers as $teacher) {
+        $teachersnames[] = $teacher->firstname . ' ' . $teacher->lastname;
+    }
+    $teacherstring = implode(',', $teachersnames);
+    
     // Create the email to be sent
     $posthtml = '';
     $posthtml .= '<table><tr><th colspan="2">' . get_string('newprintorder', 'mod_emarking') . '</th></tr>';
     $posthtml .= '<tr><td>' . get_string('examid', 'mod_emarking') . '</td><td>' . $exam->id . '</td></tr>';
-    $posthtml .= '<tr><td>' . get_string('fullnamecourse') . '</td><td>' . $course->fullname . '</td></tr>';
-    $posthtml .= '<tr><td>' . get_string('shortnamecourse') . '</td><td>' . $course->shortname . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('fullnamecourse') . '</td><td>' . $course->fullname . ' (' . $course->shortname . ')' . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('teacher', 'mod_emarking') . '</td><td>' . $teacherstring . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('requestedby', 'mod_emarking') . '</td><td>' . $USER->lastname . ' ' . $USER->firstname . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('examdate', 'mod_emarking') . '</td><td>' . date("d M Y - H:i", $exam->examdate) . '</td></tr>';
-    $posthtml .= '<tr><td>' . get_string('extrasheets', 'mod_emarking') . '</td><td>' . $exam->extrasheets . '</td></tr>';
-    $posthtml .= '<tr><td>' . get_string('extraexams', 'mod_emarking') . '</td><td>' . $exam->extraexams . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('headerqr', 'mod_emarking') . '</td><td>' . $examhasqr . '</td></tr>';
-    $posthtml .= '<tr><td>' . get_string('totalpagesprint', 'mod_emarking') . '</td><td>' . $pagestoprint . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('doubleside', 'mod_emarking') . '</td><td>' . ($exam->usebackside ? get_string('yes') : get_string('no')) . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('printlist', 'mod_emarking') . '</td><td>' . ($exam->printlist ? get_string('yes') : get_string('no')) . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('originals', 'mod_emarking') . '</td><td>' . $originals . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('copies', 'mod_emarking') . '</td><td>' . $copies . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('totalpagesprint', 'mod_emarking') . '</td><td>' . $totalsheets . '</td></tr>';
     $posthtml .= '</table>';
     $posthtml .= '';
     
     // Create the email to be sent
     $posttext = get_string('newprintorder', 'mod_emarking') . '\n';
     $posttext .= get_string('examid', 'mod_emarking') . ' : ' . $exam->id . '\n';
-    $posttext .= get_string('fullnamecourse') . ': ' . $course->fullname . '\n';
-    $posttext .= get_string('shortnamecourse') . ': ' . $course->shortname . '\n';
+    $posttext .= get_string('fullnamecourse') . ' : ' . $course->fullname . ' (' . $course->shortname . ')' . '\n';
+    $posttext .= get_string('teacher', 'mod_emarking') . ' : ' . $teacherstring . '\n';
     $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $USER->lastname . ' ' . $USER->firstname . '\n';
     $posttext .= get_string('examdate', 'mod_emarking') . ': ' . date("d M Y - H:i", $exam->examdate) . '\n';
-    $posttext .= get_string('extrasheets', 'mod_emarking') . ': ' . $exam->extrasheets . '\n';
-    $posttext .= get_string('extraexams', 'mod_emarking') . ': ' . $exam->extraexams . '\n';
     $posttext .= get_string('headerqr', 'mod_emarking') . ': ' . $examhasqr . '\n';
-    $posttext .= get_string('totalpagesprint', 'mod_emarking') . ': ' . $pagestoprint . '\n';
+    $posttext .= get_string('doubleside', 'mod_emarking') . ' : ' . ($exam->usebackside ? get_string('yes') : get_string('no')) . '\n';
+    $posttext .= get_string('printlist', 'mod_emarking') . ' : ' . ($exam->printlist ? get_string('yes') : get_string('no')) . '\n';
+    $posttext .= get_string('originals', 'mod_emarking') . ' : ' . $originals . '\n';
+    $posttext .= get_string('copies', 'mod_emarking') . ' : ' . $copies . '\n';
+    $posttext .= get_string('totalpagesprint', 'mod_emarking') . ': ' . $totalsheets . '\n';
     
     emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml);
 }
@@ -551,7 +567,8 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     $pdf->SetXY($left, $top);
     $pdf->Cell(10, 10, "N°", 1, 0, 'C');
     $pdf->Cell(20, 10, core_text::strtoupper(get_string('idnumber')), 1, 0, 'C');
-    $pdf->Cell(100, 10, core_text::strtoupper(get_string('name')), 1, 0, 'C');
+    $pdf->Cell(20, 10, core_text::strtoupper(get_string('photo', 'mod_emarking')), 1, 0, 'C');
+    $pdf->Cell(90, 10, core_text::strtoupper(get_string('name')), 1, 0, 'C');
     $pdf->Cell(50, 10, core_text::strtoupper(get_string('signature', 'mod_emarking')), 1, 0, 'C');
     $pdf->Ln();
     
@@ -561,7 +578,12 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
         $current ++;
         $pdf->Cell(10, 10, $current, 1, 0, 'C');
         $pdf->Cell(20, 10, $stlist->idnumber, 1, 0, 'C');
-        $pdf->Cell(100, 10, core_text::strtoupper($stlist->name), 1, 0, 'L');
+        $x = $pdf->GetX();
+        $y = $pdf->GetY();
+        $pdf->Image($stlist->picture, $x + 5, $y, 10, 10, "PNG", null, "T", true);
+        $pdf->SetXY($x, $y);
+        $pdf->Cell(20, 10, "", 1, 0, 'L');
+        $pdf->Cell(90, 10, core_text::strtoupper($stlist->name), 1, 0, 'L');
         $pdf->Cell(50, 10, "", 1, 0, 'L');
         $pdf->Ln();
     }
@@ -627,7 +649,7 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         $file = $pdfFiles[$current];
         
         $filename = explode(".", $file);
-
+        
         $updatemessage = $filename;
         
         if ($progressbar) {
@@ -645,7 +667,6 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         $studentid = $parts[0];
         $courseid = $parts[1];
         $pagenumber = $parts[2];
-        
         
         // Now we process the files according to the emarking type
         if ($emarking->type == EMARKING_TYPE_NORMAL) {
@@ -1325,12 +1346,12 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid)
  * @param unknown $examid            
  * @return NULL
  */
-function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, $pbar = null, $sendprintorder = false, $printername = null, $printanswersheet = false, $debugprinting = false)
+function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, progress_bar $pbar = null, $sendprintorder = false, $printername = null, $printanswersheet = false, $debugprinting = false)
 {
     global $DB, $CFG, $USER, $OUTPUT;
     require_once ($CFG->dirroot . '/mod/emarking/lib/openbub/ans_pdf_open.php');
     
-    // Se obtiene el examen
+    // Validate emarking exam object
     if (! $downloadexam = $DB->get_record('emarking_exams', array(
         'id' => $examid
     ))) {
@@ -1349,26 +1370,48 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         throw new Exception('Printing is not enabled or printername was absent ' . $printername);
     }
     
-    $course = $DB->get_record('course', array(
+    // Validate course
+    if (! $course = $DB->get_record('course', array(
         'id' => $downloadexam->course
-    ));
-    $coursecat = $DB->get_record('course_categories', array(
-        'id' => $course->category
-    ));
-    
-    if ($downloadexam->printrandom == 1) {
-        $enrolincludes = 'manual,self,meta';
-    } else {
-        $enrolincludes = 'manual,self';
+    ))) {
+        throw new Exception('Invalid course');
     }
     
+    // Validate course category
+    if (! $coursecat = $DB->get_record('course_categories', array(
+        'id' => $course->category
+    ))) {
+        throw new Exception('Invalid course category');
+    }
+    
+    // We tell the user we are setting up the printing
+    if ($pbar) {
+        $pbar->update(0, 1, get_string('settingupprinting', 'mod_emarking'));
+    }
+    
+    // Default value for enrols that will be included
     if ($CFG->emarking_enrolincludes && strlen($CFG->emarking_enrolincludes) > 1) {
         $enrolincludes = $CFG->emarking_enrolincludes;
     }
+    
+    // If the exam sets enrolments, we use those
     if (isset($downloadexam->enrolments) && strlen($downloadexam->enrolments) > 1) {
         $enrolincludes = $downloadexam->enrolments;
     }
+    
+    // Convert enrolments to array
     $enrolincludes = explode(",", $enrolincludes);
+    
+    // Produce all PDFs first separatedly
+    $filedir = $CFG->dataroot . "/temp/emarking/$context->id";
+    $fileimg = $filedir . "/qr";
+    $userimgdir = $filedir . "/u";
+    $pdfdir = $filedir . "/pdf";
+    
+    emarking_initialize_directory($filedir, true);
+    emarking_initialize_directory($fileimg, true);
+    emarking_initialize_directory($userimgdir, true);
+    emarking_initialize_directory($pdfdir, true);
     
     // Get all the files uploaded as forms for this exam
     $fs = get_file_storage();
@@ -1380,7 +1423,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         if ($filepdf->get_mimetype() === 'application/pdf') {
             $pdffileshash[] = array(
                 'hash' => $filepdf->get_pathnamehash(),
-                'filename' => $filepdf->get_filename()
+                'filename' => $filepdf->get_filename(),
+                'path' => emarking_get_path_from_hash($filedir, $filepdf->get_pathnamehash())
             );
         }
     }
@@ -1390,331 +1434,290 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         throw new Exception('Exam id has no PDF associated. This is a terrible error, please notify the administrator.');
     }
     
-    if ($downloadexam->headerqr == 1) {
-        if ($groupid != null) {
-            $filedir = $CFG->dataroot . "/temp/emarking/$context->id" . "/group_" . $groupid;
-        } else {
-            $filedir = $CFG->dataroot . "/temp/emarking/$context->id";
-        }
-        $fileimg = $CFG->dataroot . "/temp/emarking/$context->id/qr";
-        $userimgdir = $CFG->dataroot . "/temp/emarking/$context->id/u";
+    $students = emarking_get_students_for_printing($downloadexam->course);
+    
+    $studentinfo = array();
+    
+    $current = 0;
+    // Fill studentnames with student info (name, idnumber, id and picture)
+    foreach ($students as $student) {
         
-        emarking_initialize_directory($filedir, true);
-        emarking_initialize_directory($fileimg, true);
-        emarking_initialize_directory($userimgdir, true);
-        
-        if ($groupid != null) {
-            // Se toman los resultados del query dentro de una variable.
-            $students = emarking_get_students_of_groups($downloadexam->course, $groupid);
-        } else {
-            // Se toman los resultados del query dentro de una variable.
-            $students = emarking_get_students_for_printing($downloadexam->course);
+        // Verifies that the student is enrolled through a valid enrolment and that we haven't added her yet
+        if (array_search($student->enrol, $enrolincludes) === false || isset($studentinfo[$student->id])) {
+            continue;
         }
         
-        $studentinfo = array();
+        // We create a student info object
+        $stinfo = new stdClass();
+        $stinfo->name = substr("$student->lastname, $student->firstname", 0, 65);
+        $stinfo->idnumber = $student->idnumber;
+        $stinfo->id = $student->id;
+        $stinfo->picture = emarking_get_student_picture($student, $userimgdir);
         
-        $current = 0;
-        // Fill studentnames with student info (name, idnumber, id and picture)
-        foreach ($students as $student) {
-            if (array_search($student->enrol, $enrolincludes) === false || isset($studentinfo[$student->id])) {
-                continue;
-            }
-            
-            $stinfo = new stdClass();
-            $stinfo->name = substr("$student->lastname, $student->firstname", 0, 65);
-            $stinfo->idnumber = $student->idnumber;
-            $stinfo->id = $student->id;
-            $stinfo->picture = emarking_get_student_picture($student, $userimgdir);
-            
-            // Store student info
-            $studentinfo[$student->id] = $stinfo;
-        }
-        $numberstudents = count($studentinfo);
-        
-        if ($numberstudents == 0) {
-            throw new Exception('No students to print/create the exam');
-        }
-        // Add the extra students to the list
-        for ($i = $numberstudents; $i < $numberstudents + $downloadexam->extraexams; $i ++) {
-            $stinfo = new stdClass();
-            $stinfo->name = '..............................................................................';
-            $stinfo->idnumber = 0;
-            $stinfo->id = 0;
-            $stinfo->picture = $CFG->dirroot . "/pix/u/f1.png";
-            $studentinfo[] = $stinfo;
-        }
-        
-        // Create filename for the download
-        $newfile = emarking_get_path_from_hash($filedir, $pdffileshash[$current]['hash']);
-        $path = $filedir . "/" . str_replace(' ', '-', $pdffileshash[$current]['filename']);
-        $hash = hash_file('md5', $path);
-        
-        // Check if there is a logo file
-        $logoisconfigured = false;
-        $logofilepath = null;
-        if ($logofile = emarking_get_logo_file()) {
-            $logofilepath = emarking_get_path_from_hash($filedir, $logofile->get_pathnamehash());
-            $logoisconfigured = true;
-        }
-        
-        $file1 = $filedir . "/" . emarking_clean_filename($course->shortname, true) . "_" . emarking_clean_filename($downloadexam->name, true) . ".pdf";
-        
+        // Store student info
+        $studentinfo[$student->id] = $stinfo;
+    }
+    
+    // We validate the number of students as we are filtering by enrolment
+    // type after getting the data
+    $numberstudents = count($studentinfo);
+    
+    if ($numberstudents == 0) {
+        throw new Exception('No students to print/create the exam');
+    }
+    
+    // Add the extra students to the list
+    for ($i = $numberstudents; $i < $numberstudents + $downloadexam->extraexams; $i ++) {
+        $stinfo = new stdClass();
+        $stinfo->name = '..............................................................................';
+        $stinfo->idnumber = 0;
+        $stinfo->id = 0;
+        $stinfo->picture = $CFG->dirroot . "/pix/u/f1.png";
+        $studentinfo[] = $stinfo;
+    }
+    
+    // Check if there is a logo file
+    $logofilepath = emarking_get_logo_file($filedir);
+    
+    // If asked to do so we create a PDF witht the students list
+    if ($downloadexam->printlist == 1) {
         $pdf = new FPDI();
         $pdf->SetPrintHeader(false);
         $pdf->SetPrintFooter(false);
-        $cp = $pdf->setSourceFile($path);
-        if ($cp > 99) {
-            print_error(get_string('page', 'mod_emarking'));
+        emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course, $studentinfo);
+        $studentlistpdffile = $pdfdir . "/000-studentslist.pdf";
+        $pdf->Output($studentlistpdffile, "F"); // se genera el nuevo pdf
+        $pdf = null;
+    }
+    
+    // Here we produce a PDF file for each student
+    $currentstudent = 0;
+    foreach ($studentinfo as $stinfo) {
+        
+        // If we have a progress bar, we notify the new PDF being created
+        if ($pbar) {
+            $pbar->update($currentstudent + 1, count($studentinfo), $stinfo->name);
         }
         
-        if ($multiplepdfs || $groupid != null) {
-            $zip = new ZipArchive();
-            if ($groupid != null) {
-                $file1 = $filedir . "/" . emarking_clean_filename($course->shortname, true) . "_" . "GRUPO_" . $groupid . "_" . emarking_clean_filename($downloadexam->name, true) . ".zip";
-            } else {
-                $file1 = $filedir . "/" . emarking_clean_filename($course->shortname, true) . "_" . emarking_clean_filename($downloadexam->name, true) . ".zip";
+        // We create the PDF file
+        $pdf = new FPDI();
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        
+        // We use the next form available from the list of PDF forms sent
+        if ($current >= count($pdffileshash) - 1) {
+            $current = 0;
+        } else {
+            $current ++;
+        }
+        
+        // Load the PDF from the filesystem as template
+        $path = $pdffileshash[$current]['path'];
+        $originalpdfpages = $pdf->setSourceFile($path);
+        
+        $pdf->SetAutoPageBreak(false);
+        
+        // Add all pages in the template, adding the header if it corresponds
+        for ($pagenumber = 1; $pagenumber <= $originalpdfpages + $downloadexam->extrasheets; $pagenumber ++) {
+            
+            // Adding a page
+            $pdf->AddPage();
+            
+            // If the page is not an extra page, we import the page from the template
+            if ($pagenumber <= $originalpdfpages) {
+                $template = $pdf->importPage($pagenumber);
+                $pdf->useTemplate($template, 0, 0, 0, 0, true);
             }
             
-            if ($zip->open($file1, ZipArchive::CREATE) !== true) {
-                return null;
+            // If we have a personalized header, we add it
+            if ($downloadexam->headerqr) {
+                emarking_draw_header($pdf, $stinfo, $downloadexam->name, $pagenumber, $fileimg, $logofilepath, $course, $originalpdfpages);
             }
         }
         
-        if ($sendprintorder) {
-            if ($pbar != null) {
-                $pbar->update(0, count($studentinfo), '');
-            }
-        }
+        // The filename will be the student id - course id - page number
+        $qrstringtmp = "$stinfo->id-$course->id-$pagenumber";
         
-        $jobs = array();
+        // Create the PDF file for the student
+        $pdffile = $pdfdir . "/" . $qrstringtmp . ".pdf";
+        $pdf->Output($pdffile, "F");
         
+        // Store the exam file for printing later
+        $stinfo->examfile = $pdffile;
+        $stinfo->number = $currentstudent + 1;
+        $stinfo->pdffilename = $qrstringtmp;
+        
+        $currentstudent ++;
+    }
+    
+    // If we have to print directly
+    $debugprintingmsg = '';
+    if ($sendprintorder) {
+        
+        // Check if we have to print the students list
         if ($downloadexam->printlist == 1) {
-            
-            emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course, $studentinfo);
-            
-            if ($multiplepdfs || $groupid != null) {
-                if ($groupid != null) {
-                    $pdffile = $filedir . "/Lista_de_alumnos_" . "GRUPO_" . $groupid . ".pdf";
-                    $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                    $zip->addFile($pdffile, "GRUPO_" . $groupid . ".pdf");
-                } else {
-                    $pdffile = $filedir . "/Lista_de_alumnos_" . emarking_clean_filename($course->shortname, true) . ".pdf";
-                    $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                    $zip->addFile($pdffile, "Lista_de_alumnos_" . emarking_clean_filename($course->shortname, true) . ".pdf");
-                }
-            }
-            $printername = explode(',', $CFG->emarking_printername);
-            if ($sendprintorder) {
-                if ($printername[$_POST["printername"]] != "Edificio-C-mesonSecretaria") {
-                    $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $pdffile;
-                } else {
-                    $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $pdffile;
-                }
-                
-                if (! $debugprinting) {
-                    $printresult = exec($command);
-                }
-                if ($CFG->debug || $debugprinting) {
-                    echo "$command <br>";
-                    if (! $debugprinting) {
-                        echo "$printresult <hr>";
-                    }
-                }
+            $printresult = emarking_print_file($printername, $studentlistpdffile, $debugprinting);
+            if (! $printresult) {
+                $debugprintingmsg .= 'Problems printing ' . $studentlistpdffile . '<hr>';
+            } else {
+                $debugprintingmsg .= $printresult . '<hr>';
             }
         }
         
-        $k = 0;
-        // Here we produce a PDF file for each student
+        // Print each student
+        $currentstudent = 0;
         foreach ($studentinfo as $stinfo) {
+            $currentstudent ++;
             
-            // If there are multiplepdfs we have to produce one per student
-            if ($multiplepdfs || $sendprintorder || $groupid != null) {
-                $pdf = new FPDI();
-                $pdf->SetPrintHeader(false);
-                $pdf->SetPrintFooter(false);
+            if ($pbar != null) {
+                $pbar->update($currentstudent, count($studentinfo), get_string('printing', 'mod_emarking') . ' ' . $stinfo->name);
             }
             
-            if ($multiplepdfs || $sendprintorder || $groupid != null || count($pdffileshash) > 1) {
-                $current ++;
-                if ($current > count($pdffileshash) - 1)
-                    $current = 0;
-                $newfile = emarking_get_path_from_hash($filedir, $pdffileshash[$current]['hash']);
-                $path = $filedir . "/" . str_replace(' ', '-', $pdffileshash[$current]['filename']);
-                $cp = $pdf->setSourceFile($path);
+            if (! isset($stinfo->examfile) || ! file_exists($stinfo->examfile)) {
+                continue;
             }
             
-            $pdf->SetAutoPageBreak(false);
-            
-            for ($i = 1; $i <= $cp + $downloadexam->extrasheets; $i = $i + 1) {
-                
-                $pdf->AddPage(); // Agrega una nueva página
-                if ($i <= $cp) {
-                    $tplIdx = $pdf->importPage($i); // Se importan las páginas del documento pdf.
-                    $pdf->useTemplate($tplIdx, 0, 0, 0, 0, $adjustPageSize = true); // se inserta como template el archivo pdf subido
-                }
-                
-                emarking_draw_header($pdf, $stinfo, $downloadexam->name, $i, $fileimg, $logofilepath, $course, $cp);
-            }
-            
-            if ($multiplepdfs || $sendprintorder || $groupid != null) {
-                $qrstringtmp = emarking_clean_filename("$stinfo->id-$course->id-$i");
-                $pdffile = $filedir . "/" . $qrstringtmp . ".pdf";
-                
-                if (file_exists($pdffile)) {
-                    $pdffile = $filedir . "/" . $qrstringtmp . "_" . $k . ".pdf";
-                    $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                    $zip->addFile($pdffile, $qrstringtmp . "_" . $k . ".pdf");
-                } else {
-                    $pdffile = $filedir . "/" . $qrstringtmp . ".pdf";
-                    $pdf->Output($pdffile, "F"); // se genera el nuevo pdf
-                    $zip->addFile($pdffile, $qrstringtmp . ".pdf");
-                }
-                
-                $jobs[] = array(
-                    "param_1_pbar" => $k + 1,
-                    "param_2_pbar" => count($studentinfo),
-                    "param_3_pbar" => 'Imprimiendo pruebas de ' . core_text::strtoupper($stinfo->name),
-                    "name_job" => $pdffile
-                );
-            }
-            
-            $k ++;
-        }
-        
-        $printername = explode(',', $CFG->emarking_printername);
-        
-        if ($sendprintorder) {
-            foreach ($jobs as &$valor) {
-                if (! empty($valor)) {
-                    if ($pbar != null) {
-                        $pbar->update($valor["param_1_pbar"], $valor["param_2_pbar"], $valor["param_3_pbar"]);
-                    }
-                    
-                    if ($printername[$_POST["printername"]] != "Edificio-C-mesonSecretaria") {
-                        $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $valor["name_job"];
-                    } else {
-                        $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $valor["name_job"];
-                    }
-                    
-                    if (! $debugprinting) {
-                        $printresult = exec($command);
-                    }
-                    
-                    if ($CFG->debug || $debugprinting) {
-                        echo "$command <br>";
-                        if (! $debugprinting) {
-                            echo "$printresult <hr>";
-                        }
-                    }
-                }
+            $printresult = emarking_print_file($printername, $stinfo->examfile, $debugprinting);
+            if (! $printresult) {
+                $debugprintingmsg .= 'Problems printing ' . $stinfo->examfile . '<hr>';
+            } else {
+                $debugprintingmsg .= $printresult . '<hr>';
             }
         }
         
-        if ($multiplepdfs || $groupid != null) {} else 
-            if (! $sendprintorder) {
-                $pdf->Output($file1, "F"); // se genera el nuevo pdf
-            }
+        if ($CFG->debug || $debugprinting) {
+            echo $debugprintingmsg;
+        }
         
         $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
         $downloadexam->printdate = time();
         $DB->update_record('emarking_exams', $downloadexam);
         
-        if ($sendprintorder) {
-            $pbar->update_full(100, 'Impresión completada exitosamente');
-            return $filedir;
-        }
-        
-        if ($groupid != null) {
-            unlink($file1);
-            return $filedir;
-        } else {
-            ob_start(); // modificaciÃ³n: ingreso de esta linea, ya que anterior revisiÃ³n mostraba error en el archivo
-            
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/x-download');
-            header('Content-Disposition: attachment; filename=' . basename($file1));
-            header('Content-Transfer-Encoding: binary');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            ob_clean();
-            flush();
-            
-            readfile($file1);
-            unlink($file1); // borra archivo temporal en moodledata
-            exit();
-        }
-        
-        return false;
-    } else {
-        $students = emarking_get_students_for_printing($downloadexam->course);
-        $filedir = $CFG->dataroot . "/temp/emarking/$context->id";
-        emarking_initialize_directory($filedir, true);
-        $printername = explode(',', $CFG->emarking_printername);
-        $totalAlumn = 0;
-        $pdffiles = array();
-        
-        for ($current = 0; $current < count($pdffileshash); $current ++) {
-            $newfile = emarking_get_path_from_hash($filedir, $pdffileshash[$current]['hash']);
-            $path = $filedir . "/" . str_replace(' ', '-', $pdffileshash[$current]['filename']);
-            
-            $pdf = new FPDI();
-            $cp = $pdf->setSourceFile($path);
-            if ($cp > 99) {
-                print_error(get_string('page', 'mod_emarking'));
-            }
-            
-            $pdf->SetAutoPageBreak(false);
-            
-            $s = 1;
-            
-            while ($s <= $cp + $downloadexam->extrasheets) {
-                $pdf->AddPage();
-                if ($s <= $cp) {
-                    $tplIdx = $pdf->importPage($s); // Se importan las páginas del documento pdf.
-                    $pdf->useTemplate($tplIdx, 0, 0, 0, 0, $adjustPageSize = true); // se inserta como template el archivo pdf subido
-                }
-                $s ++;
-            }
-            
-            $pdffile = $filedir . "/" . $current . emarking_clean_filename($file->filename);
-            $pdf->Output($pdffile, "F");
-            $pdffiles[] = $pdffile;
-        }
-        
-        $totalAlumn = count($students);
-        
-        if ($pbar != null) {
-            $pbar->update(0, $totalAlumn, '');
-        }
-        
-        for ($k = 0; $k <= $totalAlumn + $downloadexam->extraexams - 1; $k ++) {
-            $pdffile = $pdffiles[$k % count($pdffileshash)];
-            if ($printername[$_POST["printername"]] != "Edificio-C-mesonSecretaria") {
-                $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $pdffile;
-            } else {
-                $command = "lp -d " . $printername[$_POST["printername"]] . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $pdffile;
-            }
-            
-            if (! $debugprinting) {
-                $printresult = exec($command);
-            }
-            if ($CFG->debug || $debugprinting) {
-                echo "$command <br>";
-                if (! $debugprinting) {
-                    echo "$printresult <hr>";
-                }
-            }
-            
-            if ($pbar != null) {
-                $pbar->update($k, $totalAlumn, '');
-            }
-        }
-        
-        $pbar->update_full(100, 'Impresión completada exitosamente');
-        
         return true;
     }
+    
+    $examfilename = emarking_clean_filename($course->shortname, true) . "_" . emarking_clean_filename($downloadexam->name, true);
+    
+    $zipdebugmsg = '';
+    if ($multiplepdfs) {
+        $zip = new ZipArchive();
+        $zipfilename = $filedir . "/" . $examfilename . ".zip";
+        
+        if ($zip->open($zipfilename, ZipArchive::CREATE) !== true) {
+            throw new Exception('Could not create zip file');
+        }
+        
+        // Check if we have to print the students list
+        if ($downloadexam->printlist == 1) {
+            $zip->addFile($studentlistpdffile);
+        }
+        
+        // Add every student PDF to zip file
+        $currentstudent = 0;
+        foreach ($studentinfo as $stinfo) {
+            $currentstudent ++;
+            
+            if ($pbar != null) {
+                $pbar->update($currentstudent, count($studentinfo), get_string('printing', 'mod_emarking') . ' ' . $stinfo->name);
+            }
+            
+            if (! isset($stinfo->examfile) || ! file_exists($stinfo->examfile)) {
+                continue;
+            }
+            
+            if (! $zip->addFile($stinfo->examfile, $stinfo->pdffilename . '.pdf')) {
+                $zipdebugmsg .= "Problems adding $stinfo->examfile to ZIP file using name $stinfo->pdffilename <hr>";
+            }
+        }
+
+        $zip->close();
+        
+        if ($CFG->debug || $debugprinting) {
+            echo $zipdebugmsg;
+        }
+        
+        $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
+        $downloadexam->printdate = time();
+        $DB->update_record('emarking_exams', $downloadexam);
+        
+        // Read zip file from disk and send to the browser
+        $file_name = basename($zipfilename);
+        
+        header("Content-Type: application/zip");
+        header("Content-Disposition: attachment; filename=". $examfilename . ".zip");
+        header("Content-Length: " . filesize($zipfilename));
+        
+        readfile($zipfilename);
+        exit;
+    }
+    
+    // We create the final big PDF file
+    $pdf = new FPDI();
+    $pdf->SetPrintHeader(false);
+    $pdf->SetPrintFooter(false);
+
+    // We import the students list if required
+    if($downloadexam->printlist) {
+        emarking_import_pdf_into_pdf($pdf, $studentlistpdffile);
+    }
+    
+    // Add every student PDF to zip file
+    $currentstudent = 0;
+    foreach ($studentinfo as $stinfo) {
+        $currentstudent ++;
+
+        if (! isset($stinfo->examfile) || ! file_exists($stinfo->examfile)) {
+            continue;
+        }
+        
+        emarking_import_pdf_into_pdf($pdf, $stinfo->examfile);
+    }
+    
+    $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
+    $downloadexam->printdate = time();
+    $DB->update_record('emarking_exams', $downloadexam);
+    
+    $pdf->Output($examfilename . '.pdf', 'D');
+}
+
+function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport) {
+    
+    $originalpdfpages = $pdf->setSourceFile($pdftoimport);
+    
+    $pdf->SetAutoPageBreak(false);
+    
+    // Add all pages in the template, adding the header if it corresponds
+    for ($pagenumber = 1; $pagenumber <= $originalpdfpages; $pagenumber ++) {
+        // Adding a page
+        $pdf->AddPage();
+        $template = $pdf->importPage($pagenumber);
+        $pdf->useTemplate($template, 0, 0, 0, 0, true);
+    }
+}
+
+function emarking_print_file($printername, $file, $debugprinting)
+{
+    global $CFG;
+    
+    if (! $printername)
+        return null;
+    
+    if ($printername === "Edificio-C-mesonSecretaria") {
+        $command = "lp -d " . $printername . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $file;
+    } else {
+        $command = "lp -d " . $printername . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $file;
+    }
+    
+    $printresult = null;
+    if (! $debugprinting) {
+        $printresult = exec($command);
+    }
+    
+    if ($CFG->debug || $debugprinting) {
+        $printresult .= "$command <br>";
+    }
+    
+    return $printresult;
 }
 
 function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true, $isanswersheet = false, $attemptid = 0)
@@ -1920,7 +1923,8 @@ function emarking_clean_filename($filename, $slash = false)
         'Ó',
         'Ú',
         '(',
-        ')'
+        ')',
+        ','
     );
     $replacefor = array(
         '-',
@@ -1936,6 +1940,7 @@ function emarking_clean_filename($filename, $slash = false)
         'I',
         'O',
         'U',
+        '-',
         '-',
         '-'
     );

@@ -146,13 +146,22 @@ $examstable->head = array(
 		get_string('actions', 'mod_emarking')
 );
 
+$examstable->colclasses = array(
+    'exams_examname',
+    null,    
+    null,    
+    null,    
+    null,    
+    null,    
+    null
+);
+
 // Now fill the table with exams data
 foreach($exams as $exam) {
-	$actions = '';
 	$emarking ='';
-	$details = '';
 	$statistics ='';
 
+	$actions = '<table class="detailstable"><tr>';
 	list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 
 	// Show download button if the user has capability for downloading in the category or if she is a teacher
@@ -160,7 +169,7 @@ foreach($exams as $exam) {
 	if (has_capability ( 'mod/emarking:downloadexam', $contextcat )
 	    || ($CFG->emarking_teachercandownload
 	        && has_capability ( 'mod/emarking:downloadexam', $contextcourse ))) {
-		$actions .= '<a href="#">'.$OUTPUT->pix_icon('i/down', get_string('download'),null,array("examid"=>$exam->id,"class"=>"downloademarking")).'</a>&nbsp;&nbsp;';
+		$actions .= '<td><a href="#">'.$OUTPUT->pix_icon('i/down', get_string('download'),null,array("examid"=>$exam->id,"class"=>"downloademarking")).'</a></td>';
 	}
 
 	// Check if exam can be deleted
@@ -176,29 +185,33 @@ foreach($exams as $exam) {
 			// Url for exam deletion
 			$urledit = new moodle_url('/mod/emarking/print/newprintorder.php',array('id'=>$exam->id,'course'=>$course->id));
 		}
-		$actions .= '<a href="'.$urledit.'">'.$OUTPUT->pix_icon('t/edit', get_string('editorder', 'mod_emarking'));
-		$actions .= '&nbsp;&nbsp;<a href="'.$urldelete.'">'.$OUTPUT->pix_icon('t/delete', get_string('cancelorder', 'mod_emarking'));
+		$actions .= '<td><a href="'.$urledit.'">'.$OUTPUT->pix_icon('t/edit', get_string('editorder', 'mod_emarking')).'</a></td>';
+		$actions .= '<td><a href="'.$urldelete.'">'.$OUTPUT->pix_icon('t/delete', get_string('cancelorder', 'mod_emarking')).'</td>';
 	}
+	
+	$actions .= '</tr></table>';
 
 	$emarking .= $exam->emarking ? get_string('yes') : get_string('no');
 
-	$details .= $exam->headerqr ? $OUTPUT->pix_icon('qr-icon', get_string('headerqr', 'mod_emarking'),'mod_emarking') : '';
+	$details = '<table class="detailstable"><tr>';
+	$details .= $exam->headerqr ? '<td>'.$OUTPUT->pix_icon('qr-icon', get_string('headerqr', 'mod_emarking'),'mod_emarking').'</td>' : '';
 	$enrolments = explode(',', $exam->enrolments);
 	foreach($enrolments as $enrolment) {
 	    if($enrolment === 'manual') {
-	        $details .= $OUTPUT->pix_icon('i/enrolusers', get_string('pluginname', 'enrol_manual'), 'moodle', array('style'=>'margin-left:2px'));
+	        $details .= '<td>'.$OUTPUT->pix_icon('i/enrolusers', get_string('pluginname', 'enrol_manual'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
 	    } elseif ($enrolment === 'self') {
-	        $details .= $OUTPUT->pix_icon('i/user', get_string('pluginname', 'enrol_self'), 'moodle', array('style'=>'margin-left:2px'));
+	        $details .= '<td>'.$OUTPUT->pix_icon('i/user', get_string('pluginname', 'enrol_self'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
 	    } elseif ($enrolment === 'database') {
-	        $details .= $OUTPUT->pix_icon('i/db', get_string('pluginname', 'enrol_database'), 'moodle', array('style'=>'margin-left:2px'));
+	        $details .= '<td>'.$OUTPUT->pix_icon('i/db', get_string('pluginname', 'enrol_database'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
 	    } elseif ($enrolment === 'meta') {
-	        $details .= $OUTPUT->pix_icon('e/inster_edit_link', get_string('pluginname', 'enrol_meta'), 'moodle', array('style'=>'margin-left:2px'));
+	        $details .= '<td>'.$OUTPUT->pix_icon('e/inster_edit_link', get_string('pluginname', 'enrol_meta'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
 	    } else {
-	        $details .= $OUTPUT->pix_icon('i/cohort', get_string('otherenrolment', 'mod_emarking'), 'moodle', array('style'=>'margin-left:2px'));
+	        $details .= '<td>'.$OUTPUT->pix_icon('i/cohort', get_string('otherenrolment', 'mod_emarking'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
 	    }
 	}
-	$details .= $exam->printrandom ? $OUTPUT->pix_icon('shuffle', get_string('printrandom', 'mod_emarking'),'mod_emarking') : '';
-	$details .= $exam->printlist ? $OUTPUT->pix_icon('i/grades', get_string('printlist', 'mod_emarking')) : '';
+	$details .= $exam->printrandom ? '<td>'.$OUTPUT->pix_icon('shuffle', get_string('printrandom', 'mod_emarking'),'mod_emarking').'</td>' : '';
+	$details .= $exam->printlist ? '<td>'.$OUTPUT->pix_icon('i/grades', get_string('printlist', 'mod_emarking')).'</td>' : '';
+	$details .= '</tr></table>';
 	
 	$examstatus = '';
 	switch($exam->status) {
@@ -249,15 +262,15 @@ $multipdfs = $CFG->emarking_multiplepdfs;
 <!-- The panel DIV goes at the end to make sure it is loaded before javascript starts -->
 <div id="panelContent">
 	<div class="yui3-widget-bd">
-		<form>
+		<form style="width: 100%">
 			<fieldset>
 				<p>
 					<label for="id"><?php echo $message ?></label><br /> 
 					<input type="text" name="sms"
 						id="sms" placeholder="">
 					<select onchange="change(this.value);">
-					  <option value="0">pdf unico</option>
-					  <option value="1">pdf multiple</option>
+						<option value="0"><?php echo get_string('singlepdf', 'mod_emarking') ?></option>
+						<option value="1"><?php echo get_string('multiplepdfs', 'mod_emarking') ?></option>
 					</select>
 				</p>
 			</fieldset>

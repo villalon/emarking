@@ -30,7 +30,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
     panel = new Y.Panel({
         srcNode      : '#panelContent',
         headerContent: 'Descargar prueba',
-        width        : 250,
+        width        : 350,
         zIndex       : 5,
         centered     : true,
         modal        : true,

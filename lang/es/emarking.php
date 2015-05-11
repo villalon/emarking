@@ -26,6 +26,9 @@ $string['processomr'] = 'Procesar OMR';
 
 $string['signature'] = 'Firma';
 $string['advanced'] = 'Avanzado';
+$string['photo'] = 'Fotografía';
+$string['settingupprinting'] = 'Configurando impresiones';
+$string['printing'] = 'Imprimiendo';
 
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
@@ -377,7 +380,8 @@ $string ['motive'] = 'Motivo';
 $string ['motive_help'] = 'Indique el motivo de su recorrección para este criterio';
 $string ['multicourse'] = 'Multicurso';
 $string ['multicourse_help'] = 'Select other course for which this exam will also be printed';
-$string ['multiplepdfs'] = 'Generar múltiples pdfs';
+$string ['singlepdf'] = 'PDF único con todos los estudiantes';
+$string ['multiplepdfs'] = 'Múltiples pdfs en un archivo zip';
 $string ['multiplepdfs_help'] = 'Si se selecciona, eMarking generará un archivo zip que contendrá un pdf personalizado por cada estudiante, si no se generará un solo pdf con todas las pruebas.';
 $string ['myexams'] = 'Mis pruebas';
 $string ['myexams_help'] = 'Esta página muestra todas las pruebas que han sido enviadas a imprimir para este curso. Usted puede editarlas o incluso cancelarlas mientras no hayan sido descargadas por el centro de copiado.';
@@ -524,6 +528,9 @@ $string ['questiondeletecomment'] = '¿Desea borrar el comentario?';
 $string ['creator'] = 'Creador';
 $string ['building'] = 'Edificio';
 $string ['details'] = 'Detalles';
+$string ['originals'] = 'Originales';
+$string ['copies'] = 'Copias';
+$string ['teacher'] = 'Profesor';
 
 $string ['gradestats'] = 'Estadistica de notas por curso';
 $string ['gradehistogram'] = 'Histograma de notas por curso';

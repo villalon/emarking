@@ -220,12 +220,10 @@ else
         $exam->printrandom = isset($mform->get_data()->printrandom) ? 1 : 0;
         $exam->printlist = isset($mform->get_data()->printlist) ? 1 : 0;
         
-        if (! isset($mform->get_data()->printdoublesided))
-            $mform->get_data()->printdoublesided = false;
-        
         $exam->extrasheets = $mform->get_data()->extrasheets;
         $exam->extraexams = $mform->get_data()->extraexams;
-        $exam->usebackside = $mform->get_data()->printdoublesided;
+        $exam->usebackside = isset($mform->get_data()->printdoublesided) ? 1 : 0;
+        
         if ($examid == 0)
             $exam->timecreated = time();
         $exam->timemodified = time();

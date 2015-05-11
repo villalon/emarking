@@ -536,11 +536,12 @@ foreach ( $drafts as $draft ) {
 	}
 	
 	// Action buttons
-	$actions = '<div width="100%" style="white-space:nowrap;">';
+	$actions = '<table class="detailstable">';
 	
 	$current=0;
 	foreach($draftids as $d) {
 		
+	    $actions .= '<tr>';
 		$thisstatus = $draftstatuses[$current];
 		$thisid = $d;
 		
@@ -553,14 +554,14 @@ foreach ( $drafts as $draft ) {
 		// eMarking button
 	if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $thisstatus >= EMARKING_STATUS_PUBLISHED) {
 		$pixicon = $usercangrade ? new pix_icon ( 'i/manual_item', get_string ( 'annotatesubmission', 'mod_emarking' ) ) : new pix_icon ( 'i/preview', get_string ( 'viewsubmission', 'mod_emarking' ) );
-		$actions .= $OUTPUT->action_link ( $popup_url, null, new popup_action ( 'click', $popup_url, 'emarking' . $thisid, array (
+		$actions .= '<td>'.$OUTPUT->action_link ( $popup_url, null, new popup_action ( 'click', $popup_url, 'emarking' . $thisid, array (
 				'menubar' => 'no',
 				'titlebar' => 'no',
 				'status' => 'no',
 				'toolbar' => 'no',
 		        'width' => 860,
 		        'height' => 600
-		) ), null, $pixicon );
+		) ), null, $pixicon ).'</td>';
 	}
 	
 	// Mark draft as absent/sent
@@ -579,7 +580,7 @@ foreach ( $drafts as $draft ) {
 		
 		$pixicon = $thisstatus >= EMARKING_STATUS_SUBMITTED ? new pix_icon ( 't/delete', get_string ( 'setasabsent', 'mod_emarking' ) ) : new pix_icon ( 'i/checkpermissions', get_string ( 'setassubmitted', 'mod_emarking' ) );
 		
-		$actions .= '&nbsp;&nbsp;' . $OUTPUT->action_link ( $deletesubmissionurl, null, null, null, $pixicon );
+		$actions .= '<td>' . $OUTPUT->action_link ( $deletesubmissionurl, null, null, null, $pixicon ).'</td>';
 	}
 	
 	// Url for downloading PDF feedback
@@ -590,7 +591,7 @@ foreach ( $drafts as $draft ) {
 		&& $thisstatus >= EMARKING_STATUS_PUBLISHED
 		&& $draftqcs[$current] == 0 
 		&& ($thisid == $USER->id || is_siteadmin ( $USER ) || $issupervisor)) {
-		$actions .= '&nbsp;&nbsp;' . $OUTPUT->action_link ( $responseurl, null, null, null, new pix_icon ( 'f/pdf', get_string ( 'downloadfeedback', 'mod_emarking' ) ) );
+		$actions .= '<td>' . $OUTPUT->action_link ( $responseurl, null, null, null, new pix_icon ( 'f/pdf', get_string ( 'downloadfeedback', 'mod_emarking' ) ) ) . '</td>';
 	}
 	
 	// Checkbox for publishing grade
@@ -600,14 +601,14 @@ foreach ( $drafts as $draft ) {
 		&& $thisstatus < EMARKING_STATUS_PUBLISHED 
 		&& $usercangrade) {
 		$unpublishedsubmissions ++;
-		$actions .= '&nbsp;&nbsp;<input type="checkbox" name="publish[]" value="' . $thisid . '">';
+		$actions .= '<td><input type="checkbox" name="publish[]" value="' . $thisid . '"></td>';
 	}
 	
-	$actions .= '<br/>';
+	$actions .= '</tr>';
 	$current++;
 	}
 	
-	$actions .= '</div>';
+	$actions .= '</table>';
 	
 	// Feedback
 	$feedbacks = explode('#', $draft->feedback);

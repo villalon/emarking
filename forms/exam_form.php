@@ -215,7 +215,14 @@ class emarking_exam_form extends moodleform
                 }
             }
             
-            $this->extraScript .= "<script>function selectAllCheckboxes(form,checked) { " . "for (var i = 0; i < form.elements.length; i++ ) { " . "    if (form.elements[i].type == 'checkbox' && form.elements[i].id.indexOf('multiseccion') > 0) { " . "        form.elements[i].checked = checked; " . "    } " . "} " . "}</script>";
+            $this->extraScript .= 
+                "<script>function selectAllCheckboxes(form,checked) { " . 
+                    "for (var i = 0; i < form.elements.length; i++ ) { " . 
+                    "    if (form.elements[i].type == 'checkbox' && form.elements[i].id.indexOf('multiseccion') > 0) { " . 
+                    "        form.elements[i].checked = checked; " . 
+                    "    } " . 
+                    "} " . 
+                "}</script>";
         }
         
         $mform->addElement('hidden', 'action', 'uploadfile');

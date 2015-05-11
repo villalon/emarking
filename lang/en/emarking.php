@@ -26,6 +26,9 @@ $string['processomr'] = 'Process OMR';
 
 $string['signature'] = 'Signature';
 $string['advanced'] = 'Advanced';
+$string['photo'] = 'Photo';
+$string['settingupprinting'] = 'Setting up printing';
+$string['printing'] = 'Printing';
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
 $string['predefinedcomments'] = 'Predefined comments';
@@ -374,7 +377,8 @@ $string ['motive'] = 'Motive';
 $string ['motive_help'] = 'Please indicate the motive for your requesting a regrade in this criterion';
 $string ['multicourse'] = 'Multicourse';
 $string ['multicourse_help'] = 'Aquí puede seleccionar otros cursos para los que también se enviará la orden de impresión';
-$string ['multiplepdfs'] = 'Generate multiple pdfs';
+$string ['singlepdf'] = 'Single PDF with all students';
+$string ['multiplepdfs'] = 'Multiple pdfs in a zip file';
 $string ['multiplepdfs_help'] = 'If selected eMarking generates a zip file containing a personalized version for the exam for each student, otherwise a single large pdf file will be generated.';
 $string ['myexams'] = 'My exams';
 $string ['myexams_help'] = 'This page shows all the exam papers that have been sent for printing in this course. You can edit and cancel a submission as long as it has not been downloaded from the copy center.';
@@ -524,6 +528,9 @@ $string ['questiondeletecomment'] = 'Do you want to delete the comment?';
 $string ['creator'] = 'Creator';
 $string ['building'] = 'Building';
 $string ['details'] = 'Details';
+$string ['originals'] = 'Originals';
+$string ['copies'] = 'Copies';
+$string ['teacher'] = 'Teacher';
 
 $string ['gradestats'] = 'Grade stats by course';
 $string ['gradehistogram'] = 'Grades histogram by course';

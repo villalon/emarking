@@ -48,6 +48,8 @@ if (! $category = $DB->get_record ( 'course_categories', array (
 
 $context = context_coursecat::instance ( $categoryid );
 
+require_login();
+
 $url = new moodle_url ( '/mod/emarking/print/statistics.php', array (
 		'category' => $categoryid 
 ) );
@@ -89,7 +91,7 @@ if ($status == 1) {
 			get_string ( 'examdate', 'mod_emarking' ),
 			get_string ( 'examname', 'mod_emarking' ),
 			get_string ( 'course' ),
-			get_string ( 'building', 'mod_emarking' ),
+			get_string ( 'details', 'mod_emarking' ),
 			get_string ( 'requestedby', 'mod_emarking' ),
 			get_string ( 'examdatesent', 'mod_emarking' ),
 			ucfirst ( get_string ( 'pages', 'mod_emarking' ) ),
@@ -155,13 +157,6 @@ $params = array (
 		$statussql 
 );
 
-/*
- * $sqlcount = " SELECT count(*)
- * FROM {emarking_exams} as e
- * INNER JOIN {course} as c ON (e.course = c.id)
- * WHERE c.category = ? AND e.status in (?)";
- */
-
 $sqlcount = " SELECT count(*)
  FROM {emarking_exams} as e
 INNER JOIN {course} as c ON (e.course = c.id)
@@ -170,18 +165,6 @@ WHERE c.category in ($ids_children) AND e.status in (?)";
 // Get the count so we can use pagination
 $examscount = $DB->count_records_sql ( $sqlcount, $params );
 
-/*
- * $sql = "SELECT e.*,
- * c.id as courseid,
- * c.fullname as coursefullname,
- * u.id as userid,
- * CONCAT(u.firstname, ' ', u.lastname) as userfullname
- * FROM {emarking_exams} as e
- * INNER JOIN {course} as c ON (e.course = c.id)
- * INNER JOIN {user} as u ON (e.requestedby = u.id)
- * WHERE c.category = ? AND e.status in (?)
- * ORDER BY e.examdate asc, c.shortname ASC ";
- */
 $sql = "SELECT e.*,
 			c.id as courseid,
 			c.fullname as coursefullname,
@@ -241,25 +224,28 @@ foreach ( $exams as $exam ) {
 		$pagestoprint = ceil ( ($exam->totalpages + $exam->extrasheets) / 2 ) * ($exam->totalstudents + $exam->extraexams);
 	}
 	
+	$actions = '<table><tr>';
 	// Download exam link
-	$actions = '<a href="#">' . $OUTPUT->pix_icon ( 'i/down', get_string ( 'download' ), null, array (
+	$actions .= '<td style="border:solid 0px #fff; max-width:18px;"><a href="#">' . $OUTPUT->pix_icon ( 'i/down', get_string ( 'download' ), null, array (
 			"examid" => $exam->id,
 			"class" => "downloademarking" 
-	) ) . '</a>';
+	) ) . '</a></td>';
 	
 	// Print directly
 	if ($CFG->emarking_enableprinting) {
-		$actions .= '&nbsp;&nbsp;' . $OUTPUT->action_icon ( new moodle_url ( '/mod/emarking/print/printexam.php', array (
+		$actions .= '<td style="border:solid 0px #fff; max-width:18px;">' . $OUTPUT->action_icon ( new moodle_url ( '/mod/emarking/print/printexam.php', array (
 				'exam' => $exam->id 
-		) ), new pix_icon ( 't/print', get_string ( 'printexam', 'mod_emarking' ) ) ) . '</a>&nbsp;&nbsp;';
+		) ), new pix_icon ( 't/print', get_string ( 'printexam', 'mod_emarking' ) ) ) . '</a></td>';
 	}
 	
 	// Download print form
-	$actions .= '&nbsp;&nbsp;' . $OUTPUT->action_icon ( new moodle_url ( '/mod/emarking/print/exams.php', array (
+	$actions .= '<td style="border:solid 0px #fff; max-width:18px;">' . $OUTPUT->action_icon ( new moodle_url ( '/mod/emarking/print/exams.php', array (
 			'course' => $exam->course,
 			'examid' => $exam->id,
 			'downloadform' => 'true' 
-	) ), new pix_icon ( 'i/report', get_string ( 'downloadform', 'mod_emarking' ) ) ) . '</a>&nbsp;&nbsp;';
+	) ), new pix_icon ( 'i/report', get_string ( 'downloadform', 'mod_emarking' ) ) ) . '</a></td>';
+	
+	$actions .= '</tr></table>';
 	
 	// Calculating date differences to identify exams that are late, are for today and so on
 	if (date ( "d/m/y", $exam->examdate ) === date ( "d/m/y", $currentdate )) {
@@ -341,8 +327,8 @@ $multipdfs = $CFG->emarking_multiplepdfs;
 					<label for="id"><?php echo $message ?></label><br /> <input
 						type="text" name="sms" id="sms" placeholder=""> <select
 						onchange="change(this.value);">
-						<option value="0">pdf unico</option>
-						<option value="1">pdf multiple</option>
+						<option value="0"><?php echo get_string('singlepdf', 'mod_emarking') ?></option>
+						<option value="1"><?php echo get_string('multiplepdfs', 'mod_emarking') ?></option>
 					</select>
 				</p>
 			</fieldset>

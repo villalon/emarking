@@ -25,7 +25,7 @@
  * Moodle is performing actions across all modules.
  *
  * @package mod_emarking
- * @copyright 2013 Jorge Villalón
+ * @copyright 2013-2015 Jorge Villalón
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -384,6 +384,7 @@ function emarking_print_recent_mod_activity($activity, $courseid, $detail, $modn
  *
  *
  *
+ *
  * ..
  *
  * @return boolean
@@ -665,42 +666,9 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     $contextcategory = context_coursecat::instance($course->category);
     $contextcourse = context_course::instance($course->id);
     
-    $examid = 0;
-    // Security!
+    // Security! We always protect the exams filearea
     if ($filearea === 'exams') {
-        
-        if (! has_capability('mod/emarking:downloadexam', $contextcategory) && ! ($CFG->emarking_teachercandownload && has_capability('mod/emarking:downloadexam', $contextcourse))) {
-            send_file_not_found();
-        }
-        
-        $sesskey = required_param('sesskey', PARAM_ALPHANUM);
-        $token = optional_param('token', 0, PARAM_INT);
-        
-        // Validate session key
-        if ($sesskey != $USER->sesskey) {
-            send_file_not_found();
-        }
-        
-        if ($token > 9999) {
-            $examid = $_SESSION[$USER->sesskey . 'examid'];
-        }
-        
-        // A token was sent to validate download
-        if ($token > 9999) {
-            if ($_SESSION[$USER->sesskey . 'smstoken'] === $token) {
-                $now = new DateTime();
-                $tokendate = new DateTime();
-                $tokendate->setTimestamp($_SESSION[$USER->sesskey . 'smsdate']);
-                $diff = $now->diff($tokendate);
-                if ($diff->i > 5) {
-                    send_file_not_found();
-                }
-            } else {
-                send_file_not_found();
-            }
-        } elseif ($token > 0) {
-            send_file_not_found();
-        }
+        send_file_not_found();
     }
     
     if ($filearea === 'pages') {
@@ -719,11 +687,11 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
         
         $bothenrolled = is_enrolled($contextcourse) && is_enrolled($contextcourse, $imageuser);
         
-        if ($USER->id != $imageuser && // If user does not owns the image
-! $usercangrade && // And can not grade
-! $isanonymous && // And we are not in anonymous mode
-! is_siteadmin($USER) && // And the user is not admin
-! $bothenrolled) {
+        if ($USER->id != $imageuser // If user does not owns the image
+             && ! $usercangrade // And can not grade
+             && ! $isanonymous // And we are not in anonymous mode
+             && ! is_siteadmin($USER)// And the user is not admin 
+             && ! $bothenrolled) {
             send_file_not_found();
         }
     }
@@ -759,18 +727,6 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
         echo $context->id . ".." . $filearea . ".." . $arg0 . ".." . $filename;
         echo "File really not found";
         send_file_not_found();
-    }
-    
-    if ($examid > 0) {
-        if (! $exam = $DB->get_record('emarking_exams', array(
-            'id' => $examid
-        ))) {
-            echo "Exam not found";
-            send_file_not_found();
-        }
-        
-        $exam->status = EMARKING_EXAM_SENT_TO_PRINT;
-        $DB->update_record('emarking_exams', $exam);
     }
     
     send_file($file, $filename);

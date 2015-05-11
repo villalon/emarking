@@ -83,24 +83,29 @@ $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_heading ( $course->fullname );
 $PAGE->navbar->add ( get_string ( 'printexam', 'mod_emarking' ) );
 
-$form = new emarking_printexam_form ( null, array (
+$form = new emarking_printexam_form( null, array (
 		'examid' => $exam->id, 'debug' => $debugprinting 
-) );
+), 'get' );
 
 if ($form->is_cancelled ()) {
 	$continue_url = new moodle_url ( '/mod/emarking/print/printorders.php', array (
 			'category' => $course->category 
 	) );
 	redirect ( $continue_url );
+	die();
 }
+
 echo $OUTPUT->header ();
 echo $OUTPUT->heading ( get_string ( 'printexam', 'mod_emarking' ) );
 
 $result = exec ( 'lpstat -p -d' );
 $parts = explode ( ":", $result );
+
 if(!$debugprinting) {
 if (count ( $parts ) != 2) {
-	print_error ( 'Invalid printer setup. You must install cups and set a default printer for eMarking to be able to print.' );
+	echo $OUTPUT->notification('Invalid printer setup. You must install cups and set a default printer for eMarking to be able to print.', 'notifyproblem');
+	echo $OUTPUT->footer ();
+	die();
 } else  {
 	$printer = strtoupper ( trim ( $parts [1] ) );
 	echo $OUTPUT->box ( 'Default printer: ' . $printer );
