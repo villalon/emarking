@@ -290,8 +290,7 @@ else
             foreach ($multisecciones as $key => $multiseccion) {
                 if (! empty($multiseccion)) {
                     if ($thiscourse = $DB->get_record('course', array(
-                        'shortname' => $key
-                    ))) {
+                        'shortname' => $key))) {
                         
                         $studentsnumber = emarking_get_students_count_for_printing($thiscourse->id);
                         
@@ -301,13 +300,15 @@ else
                         $newexam->course = $thiscourse->id;
                         $newexam->id = $DB->insert_record('emarking_exams', $newexam);
 
+                        $thiscontext = context_course::instance($thiscourse->id);
+                        
                         // Create file records for all new exams
                         foreach ($exampdfs as $exampdf) {
                             // Save the submitted file to check if it's a PDF
                             $filerecord = array(
                                 'component' => 'mod_emarking',
                                 'filearea' => 'exams',
-                                'contextid' => $context->id,
+                                'contextid' => $thiscontext->id,
                                 'itemid' => $newexam->id,
                                 'filepath' => '/',
                                 'filename' => $exampdf['filename']
