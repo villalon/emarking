@@ -269,7 +269,7 @@ foreach ( $exams as $exam ) {
 		);
 	} else {
 		
-		$notification = $exam->notified ? $OUTPUT->pix_icon ( 't/approve', get_string ( 'printnotificationsent', 'mod_emarking' ) ) : '<a href="' . $CFG->wwwroot . '/mod/emarking/sendprintnotification.php?id=' . $exam->id . '">' . $OUTPUT->pix_icon ( 'i/email', get_string ( 'printsendnotification', 'mod_emarking' ) ) . '</a>';
+		$notification = $exam->notified ? $OUTPUT->pix_icon ( 't/approve', get_string ( 'printnotificationsent', 'mod_emarking' ) ) : '<a href="' . $CFG->wwwroot . '/mod/emarking/print/sendprintnotification.php?id=' . $exam->id . '">' . $OUTPUT->pix_icon ( 'i/email', get_string ( 'printsendnotification', 'mod_emarking' ) ) . '</a>';
 		
 		$examstable->data [] = array (
 				date ( "d M H:i", $exam->examdate ),
