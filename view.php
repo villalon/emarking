@@ -266,6 +266,7 @@ LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.draft = d.id AND c.lev
 LEFT JOIN {gradingform_rubric_levels} as l ON (c.levelid = l.id)
 LEFT JOIN {emarking_regrade} as r ON (r.draft = d.id AND r.criterion = l.criterionid AND r.accepted = 0)
 LEFT JOIN {emarking_marker_criterion} AS mc ON (mc.criterion = l.criterionid AND mc.emarking = nm.id AND mc.marker=?)
+WHERE l.id is not null
 GROUP BY d.id
 ) AS NM ON (u.id = NM.student AND e.courseid = NM.course)
 LEFT JOIN {user} as um ON (NM.marker = um.id)

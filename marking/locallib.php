@@ -197,6 +197,7 @@ function emarking_get_comments_page($pageno, $draftid, $winwidth, $winheight) {
 			GROUP BY grl.criterionid
 		) AS grm ON (grc.id = grm.criterionid)
 		LEFT JOIN {emarking_regrade} AS er ON (er.criterion = grc.id AND er.draft = es.id)
+        WHERE aec.levelid = 0 OR grl.id is not null
 		ORDER BY aec.levelid DESC";
     $params = array('pageno'=>$pageno, 'draft'=>$draftid);
     
@@ -524,6 +525,7 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
 			LEFT JOIN {gradingform_rubric_levels} AS rl ON (ec.levelid = rl.id)
 			$filter
 			AND d.status >= 10
+	        WHERE rl.id IS NOT NULL
 			GROUP BY es.emarking, es.id", array (
 					'emarking' => $emarking->id
 			) );
