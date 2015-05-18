@@ -185,7 +185,6 @@ if ($cm->groupmode == SEPARATEGROUPS
 					)";
 }
 
-
 // Get submissions with extra info to show
 $sqlstudents = "
 SELECT  u.id,
@@ -266,7 +265,7 @@ LEFT JOIN {emarking_comment} as c on (c.page = p.id AND c.draft = d.id AND c.lev
 LEFT JOIN {gradingform_rubric_levels} as l ON (c.levelid = l.id)
 LEFT JOIN {emarking_regrade} as r ON (r.draft = d.id AND r.criterion = l.criterionid AND r.accepted = 0)
 LEFT JOIN {emarking_marker_criterion} AS mc ON (mc.criterion = l.criterionid AND mc.emarking = nm.id AND mc.marker=?)
-WHERE l.id is not null
+WHERE c.levelid is null OR c.levelid = 0 OR l.id is not null
 GROUP BY d.id
 ) AS NM ON (u.id = NM.student AND e.courseid = NM.course)
 LEFT JOIN {user} as um ON (NM.marker = um.id)
@@ -358,12 +357,13 @@ GROUP BY es.student
 
 if($emarking->type == EMARKING_TYPE_NORMAL) {
 
-// Run the query on the database
-$drafts = $DB->get_recordset_sql ( $sqlstudents, array (
+    $params = array (
 		$course->id,
 		$emarking->id,
 		$USER->id
-), $page * $perpage, $perpage );
+);
+// Run the query on the database
+$drafts = $DB->get_recordset_sql ( $sqlstudents, $params, $page * $perpage, $perpage );
 
 } else {
 
@@ -553,9 +553,12 @@ foreach ( $drafts as $draft ) {
 	) );
 	
 		// eMarking button
-	if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $thisstatus >= EMARKING_STATUS_PUBLISHED) {
-		$pixicon = $usercangrade ? new pix_icon ( 'i/manual_item', get_string ( 'annotatesubmission', 'mod_emarking' ) ) : new pix_icon ( 'i/preview', get_string ( 'viewsubmission', 'mod_emarking' ) );
-		$actions .= '<td>'.$OUTPUT->action_link ( $popup_url, null, new popup_action ( 'click', $popup_url, 'emarking' . $thisid, array (
+	if (($usercangrade 
+	    && $thisstatus >= EMARKING_STATUS_SUBMITTED 
+	    && $numcriteria > 0) 
+	    || $thisstatus >= EMARKING_STATUS_PUBLISHED) {
+		  $pixicon = $usercangrade ? new pix_icon ( 'i/manual_item', get_string ( 'annotatesubmission', 'mod_emarking' ) ) : new pix_icon ( 'i/preview', get_string ( 'viewsubmission', 'mod_emarking' ) );
+		  $actions .= '<td>'.$OUTPUT->action_link ( $popup_url, null, new popup_action ( 'click', $popup_url, 'emarking' . $thisid, array (
 				'menubar' => 'no',
 				'titlebar' => 'no',
 				'status' => 'no',
