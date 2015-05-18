@@ -82,25 +82,55 @@ function emarking_import_omr_fonts($echo = false)
     return true;
 }
 
+/**
+ * Returns the path for a student picture.
+ * The path is the directory plus
+ * two subdirs based on the last two digits of the user idnumber,
+ * e.g: user idnumber 12345 will be stored in
+ * $CFG->emarking_pathuserpicture/5/4/user12345.png
+ *
+ * If the directory path is not configured or does not exist returns false
+ * 
+ * @param unknown $studentidnumber            
+ * @return string|boolean false if user pictures are not configured or invalid idnumber (length < 2)
+ */
+function emarking_get_student_picture_path($studentidnumber)
+{
+    global $CFG;
+    
+    // If the length of the idnumber is less than 2 returns false
+    if (strlen(trim($studentidnumber)) < 2)
+        return false;
+        
+        // If the directory for user pictures is configured and exists
+    if (isset($CFG->emarking_pathuserpicture) && $CFG->emarking_pathuserpicture && is_dir($CFG->emarking_pathuserpicture)) {
+        // Reverse the id number
+        $idstring = "" . $studentidnumber;
+        $revid = strrev($idstring);
+        
+        // The path is the directory plus two subdirs based on the last two digits
+        // of the user idnumber, e.g: user idnumber 12345 will be stored in
+        // $CFG->emarking_pathuserpicture/5/4/user12345.png
+        $idpath = $CFG->emarking_pathuserpicture;
+        $idpath .= "/" . substr($revid, 0, 1);
+        $idpath .= "/" . substr($revid, 1, 1);
+        
+        return $idpath . "/user$idstring.png";
+    }
+    
+    return false;
+}
+
 function emarking_get_student_picture($student, $userimgdir)
 {
     global $CFG, $DB;
     
-    // Get the image file for student
-    $imgfound = false;
-    // If we have the student photos path set we search for its picture there
-    if ($CFG->emarking_pathuserpicture && is_dir($CFG->emarking_pathuserpicture)) {
-        $idstring = "" . $student->idnumber;
-        $revid = strrev($idstring);
-        $idpath = $CFG->emarking_pathuserpicture;
-        $idpath .= "/" . substr($revid, 0, 1);
-        $idpath .= "/" . substr($revid, 1, 1);
-        if (file_exists($idpath . "/user$idstring.png")) {
-            return $stinfo->picture = $idpath . "/user$idstring.png";
-        }
-    }
-    
-    // If no picture was found in the pictures repo try to use the Moodle one or default on the anonymous
+    // Get the image file for student if user pictures are configured
+    if ($studentimage = emarking_get_student_picture_path($student->idnumber) && file_exists($studentimage))
+        return $studentimage;
+        
+    // If no picture was found in the pictures repo try to use the
+    // Moodle one or default on the anonymous
     $usercontext = context_user::instance($student->id);
     $imgfile = $DB->get_record('files', array(
         'contextid' => $usercontext->id,
@@ -108,6 +138,7 @@ function emarking_get_student_picture($student, $userimgdir)
         'filearea' => 'icon',
         'filename' => 'f1.png'
     ));
+    
     if ($imgfile)
         return emarking_get_path_from_hash($userimgdir, $imgfile->pathnamehash, "u" . $student->id, true);
     else
@@ -1629,7 +1660,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                 $zipdebugmsg .= "Problems adding $stinfo->examfile to ZIP file using name $stinfo->pdffilename <hr>";
             }
         }
-
+        
         $zip->close();
         
         if ($CFG->debug || $debugprinting) {
@@ -1644,20 +1675,20 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $file_name = basename($zipfilename);
         
         header("Content-Type: application/zip");
-        header("Content-Disposition: attachment; filename=". $examfilename . ".zip");
+        header("Content-Disposition: attachment; filename=" . $examfilename . ".zip");
         header("Content-Length: " . filesize($zipfilename));
         
         readfile($zipfilename);
-        exit;
+        exit();
     }
     
     // We create the final big PDF file
     $pdf = new FPDI();
     $pdf->SetPrintHeader(false);
     $pdf->SetPrintFooter(false);
-
+    
     // We import the students list if required
-    if($downloadexam->printlist) {
+    if ($downloadexam->printlist) {
         emarking_import_pdf_into_pdf($pdf, $studentlistpdffile);
     }
     
@@ -1665,7 +1696,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     $currentstudent = 0;
     foreach ($studentinfo as $stinfo) {
         $currentstudent ++;
-
+        
         if (! isset($stinfo->examfile) || ! file_exists($stinfo->examfile)) {
             continue;
         }
@@ -1680,8 +1711,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     $pdf->Output($examfilename . '.pdf', 'D');
 }
 
-function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport) {
-    
+function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport)
+{
     $originalpdfpages = $pdf->setSourceFile($pdftoimport);
     
     $pdf->SetAutoPageBreak(false);

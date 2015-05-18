@@ -152,44 +152,42 @@ $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
 $definition = $rubriccontroller->get_definition();
 
 $query = "SELECT
-		a.id AS id,
-		a.description AS description,
-		round(b.score + comment.bonus,2) AS score,
-		round(T.maxscore,2) AS maxscore,
-		f.remark AS feedback,
-		rg.id AS regradeid,
-		rg.markercomment AS markercomment,
-		rg.accepted AS rgaccepted,
-		rg.motive,
-		rg.comment,
-		comment.bonus
-		FROM {emarking_submission}  AS s
-		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id)
-        INNER JOIN {user}  AS u on (s.student = :userid AND s.student = u.id)
-		INNER JOIN {grading_instances}  AS i on (s.id = i.itemid AND i.definitionid = :definition)
-		INNER JOIN {gradingform_rubric_fillings}  AS f on (f.instanceid = i.id)
-		INNER JOIN {gradingform_rubric_criteria}  AS a on (a.id = f.criterionid)
-		INNER JOIN {gradingform_rubric_levels}  AS b on (b.id = f.levelid)
-		INNER JOIN (
-			SELECT
-			s.id AS emarkingid,
-			a.id AS criterionid,
-			MAX(l.score) AS maxscore
-			FROM {emarking} AS s
-			INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
-			INNER JOIN {context}  AS c on (c.instanceid = cm.id)
-			INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
-			INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
-			INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
-			INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
-			GROUP BY s.id, criterionid
-		) AS T ON (s.emarking = T.emarkingid AND T.criterionid = a.id)
-		INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
-		INNER JOIN {course}  AS co ON (sg.course = co.id)
-		INNER JOIN {emarking_page} AS page ON (page.submission = s.id)
-		INNER JOIN {emarking_comment} AS comment ON (comment.page = page.id AND comment.draft = dr.id AND comment.levelid = b.id)
-		LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
-		ORDER BY s.student,a.description";
+                a.id AS id,
+                a.description AS description,
+                round(b.score + comment.bonus,2) AS score,
+                round(T.maxscore,2) AS maxscore,
+                comment.rawtext AS feedback,
+                rg.id AS regradeid,
+                rg.markercomment AS markercomment,
+                rg.accepted AS rgaccepted,
+                rg.motive,
+                rg.comment,
+                comment.bonus
+                FROM {emarking_submission}  AS s
+                INNER JOIN {emarking_draft} AS dr ON (s.emarking = :emarkingid AND dr.submissionid = s.id)
+                INNER JOIN {user}  AS u on (s.student = :userid AND s.student = u.id)
+                INNER JOIN {emarking_page} AS page ON (page.submission = s.id)
+                INNER JOIN {emarking_comment} AS comment ON (comment.page = page.id AND comment.draft = dr.id)
+                INNER JOIN {gradingform_rubric_levels}  AS b on (b.id = comment.levelid)
+                INNER JOIN {gradingform_rubric_criteria}  AS a on (a.id = b.criterionid)
+                INNER JOIN (
+                        SELECT
+                        s.id AS emarkingid,
+                        a.id AS criterionid,
+                        MAX(l.score) AS maxscore
+                        FROM {emarking} AS s
+                        INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
+                        INNER JOIN {context}  AS c on (c.instanceid = cm.id)
+                        INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
+                        INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
+                        INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
+                        INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
+                        GROUP BY s.id, criterionid
+                ) AS T ON (s.emarking = T.emarkingid AND T.criterionid = b.criterionid)
+                INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
+                INNER JOIN {course}  AS co ON (sg.course = co.id)
+                LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
+                ORDER BY s.student,a.description";
 
 $questions = $DB->get_records_sql($query,
 		array('userid'=>$USER->id, 'emarkingid'=>$emarking->id, 'definition'=>$definition->id, 'emarkingid2'=>$emarking->id));
@@ -217,7 +215,7 @@ foreach($questions as $question){
 		} else {
 			$linktext = '&nbsp;';
 		}
-		$status = $question->rgaccepted ? "Aceptada":"Solicitada";
+		$status = $question->rgaccepted ? "Aceptada:":"Solicitada:";
 		$status .= '<br/>'. get_string_status($question->motive);
 		$status .= '<br/>'. substr($question->comment, 0 , min(strlen($question->comment), 25));
 		if(strlen($question->comment) > 25)
