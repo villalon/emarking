@@ -525,7 +525,7 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
 			LEFT JOIN {gradingform_rubric_levels} AS rl ON (ec.levelid = rl.id)
 			$filter
 			AND d.status >= 10
-	        WHERE rl.id IS NOT NULL
+	        AND rl.id IS NOT NULL
 			GROUP BY es.emarking, es.id", array (
 					'emarking' => $emarking->id
 			) );
