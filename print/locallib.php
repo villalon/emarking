@@ -1469,7 +1469,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     
     $studentinfo = array();
     
-    $current = 0;
+    $currenttemplate = 0;
     // Fill studentnames with student info (name, idnumber, id and picture)
     foreach ($students as $student) {
         
@@ -1485,7 +1485,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $stinfo->id = $student->id;
         $stinfo->picture = emarking_get_student_picture($student, $userimgdir);
         
-        // Store student info
+        // Store student info in hash so every student is stored once
         $studentinfo[$student->id] = $stinfo;
     }
     
@@ -1536,14 +1536,14 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $pdf->SetPrintFooter(false);
         
         // We use the next form available from the list of PDF forms sent
-        if ($current >= count($pdffileshash) - 1) {
-            $current = 0;
+        if ($currenttemplate >= count($pdffileshash) - 1) {
+            $currenttemplate = 0;
         } else {
-            $current ++;
+            $currenttemplate ++;
         }
         
         // Load the PDF from the filesystem as template
-        $path = $pdffileshash[$current]['path'];
+        $path = $pdffileshash[$currenttemplate]['path'];
         $originalpdfpages = $pdf->setSourceFile($path);
         
         $pdf->SetAutoPageBreak(false);
@@ -1562,12 +1562,12 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             
             // If we have a personalized header, we add it
             if ($downloadexam->headerqr) {
-                emarking_draw_header($pdf, $stinfo, $downloadexam->name, $pagenumber, $fileimg, $logofilepath, $course, $originalpdfpages);
+                emarking_draw_header($pdf, $stinfo, $downloadexam->name, $pagenumber, $fileimg, $logofilepath, $course, $originalpdfpages + $downloadexam->extrasheets);
             }
         }
         
         // The filename will be the student id - course id - page number
-        $qrstringtmp = "$stinfo->id-$course->id-$pagenumber";
+        $qrstringtmp = $stinfo->id > 0 ? "$stinfo->id-$course->id-$pagenumber" : "NN$currentstudent+1-$course->id-$pagenumber";
         
         // Create the PDF file for the student
         $pdffile = $pdfdir . "/" . $qrstringtmp . ".pdf";
