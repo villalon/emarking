@@ -152,6 +152,7 @@ if ($status == 1) {
 
 // Parameters for SQL calls
 $statussql = $status == 1 ? EMARKING_EXAM_UPLOADED : EMARKING_EXAM_SENT_TO_PRINT . "," . EMARKING_EXAM_PRINTED;
+$order = $status == 1 ? "e.examdate asc, c.shortname ASC" : "e.examdate desc, c.shortname ASC";
 $ids_children = emarking_get_categories_childs ( $categoryid );
 $params = array (
 		$statussql 
@@ -175,15 +176,15 @@ $sql = "SELECT e.*,
 		INNER JOIN {course} as c ON (e.course = c.id)
 		INNER JOIN {user} as u ON (e.requestedby = u.id)
 		INNER JOIN {course_categories} as cc ON (cc.id = c.category)
-		WHERE c.category in ($ids_children) AND e.status in (?)
-		ORDER BY e.examdate asc, c.shortname ASC ";
+		WHERE c.category in ($ids_children) AND e.status in ($statussql)
+		ORDER BY " . $order;
 
 
 	
 
 // Getting all print orders
 
-$exams = $DB->get_records_sql ( $sql, $params, $page * $perpage, ($page + 1) * $perpage ); // status = 1 means still not downloaded
+$exams = $DB->get_records_sql ( $sql, null, $page * $perpage, ($page + 1) * $perpage ); // status = 1 means still not downloaded
 
 $currentdate = time ();
 $current = 0;

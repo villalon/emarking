@@ -30,6 +30,7 @@ $string['photo'] = 'Photo';
 $string['settingupprinting'] = 'Setting up printing';
 $string['printing'] = 'Printing';
 $string['tokenexpired'] = 'Security token has expired. Please get a new one.';
+$string['otherenrolment'] = 'Other enrolment types.';
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
 $string['predefinedcomments'] = 'Predefined comments';
