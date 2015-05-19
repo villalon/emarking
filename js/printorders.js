@@ -57,7 +57,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
         	
         	 e.preventDefault();
              panel.hide();
-             var url = downloadurl+'?sesskey='+sessionkey+'&token=' + smsField.get('value') + '&multi='+multipdfs;
+             var url = downloadurl+'?sesskey='+sessionkey+'&token=' + smsField.get('value') + '&multi='+multipdfs + '&incourse=' + incourse;
              Y.log(url);
              Y.config.win.open(url);
              // Y.config.win.location.reload();

@@ -51,6 +51,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 $examid = optional_param('examid', 0, PARAM_INT);
 $token = optional_param('token', 0, PARAM_INT);
 $multiplepdfs = optional_param('multi', false, PARAM_BOOL);
+$incourse = optional_param('incourse', false, PARAM_BOOL);
 
 // Validate session key
 if ($sesskey != $USER->sesskey) {
@@ -86,7 +87,9 @@ if (! $course = $DB->get_record('course', array(
 $contextcat = context_coursecat::instance($course->category);
 $contextcourse = context_course::instance($course->id);
 
-$url = '/mod/emarking/print/download.php?examid=' . $exam->id . '&token=' . $token . '&sesskey=' . $sesskey;
+$url = new moodle_url('/mod/emarking/print/download.php', array('examid'=>$exam->id, 'token' => $token, 'sesskey' => $sesskey));
+$coursecategoryurl = new moodle_url('/mod/emarking/print/printorders.php', array('category'=>$course->category));
+$courseurl = new moodle_url('/mod/emarking/print/exams.php', array('course'=>$course->id));
 
 // Validate capability in the category context
 if (! (has_capability('mod/emarking:downloadexam', $contextcat) || ($CFG->emarking_teachercandownload && has_capability('mod/emarking:downloadexam', $contextcourse)))) {
@@ -109,9 +112,14 @@ if ($token > 9999 && $_SESSION[$USER->sesskey . 'smstoken'] !== $token) {
     // Add to Moodle log so some auditing can be done
     \mod_emarking\event\invalidtoken_granted::create($item)->trigger();
     
-    echo json_encode(array(
-        'error' => get_string('eventinvalidtokengranted', 'mod_emarking')
-    ));
+    $PAGE->set_context($contextcourse);
+    $PAGE->set_url($url);
+    
+    echo $OUTPUT->header();
+    echo $OUTPUT->notification(get_string('eventinvalidtokengranted', 'mod_emarking'), 'notifyproblem');
+    $buttonurl = $incourse ? $courseurl : $coursecategoryurl;
+    echo $OUTPUT->single_button($buttonurl, get_string('back'), 'get');
+    echo $OUTPUT->footer();
     die();
 }
 
@@ -122,9 +130,14 @@ if ($token > 9999 && $_SESSION[$USER->sesskey . 'smstoken'] === $token) {
     $tokendate->setTimestamp($_SESSION[$USER->sesskey . 'smsdate']);
     $diff = $now->diff($tokendate);
     if ($diff->i > 5 && false) {
-        echo json_encode(array(
-            'error' => 'The time to download the exam expired, please try again.'
-        ));
+        $PAGE->set_context($contextcourse);
+        $PAGE->set_url($url);
+        
+        echo $OUTPUT->header();
+        echo $OUTPUT->notification(get_string('tokenexpired', 'mod_emarking'), 'notifyproblem');
+        $buttonurl = $incourse ? $courseurl : $coursecategoryurl;
+        echo $OUTPUT->single_button($buttonurl, get_string('back'), 'get');
+        echo $OUTPUT->footer();
         die();
     }
     $item = array(

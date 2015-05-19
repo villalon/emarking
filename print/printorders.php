@@ -316,6 +316,7 @@ $multipdfs = $CFG->emarking_multiplepdfs;
 	var downloadurl = '<?php echo $downloadurl ?>';
 	var sessionkey = '<?php echo sesskey() ?>';
 	var multipdfs = '0';
+	var incourse = '0';
 </script>
 <div id="loadingPanel"></div>
 <!-- The panel DIV goes at the end to make sure it is loaded before javascript starts -->

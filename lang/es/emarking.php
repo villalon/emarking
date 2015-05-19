@@ -29,6 +29,7 @@ $string['advanced'] = 'Avanzado';
 $string['photo'] = 'Fotografía';
 $string['settingupprinting'] = 'Configurando impresiones';
 $string['printing'] = 'Imprimiendo';
+$string['tokenexpired'] = 'El código de seguridad ha expirado. Obtenga uno nuevo.';
 
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
