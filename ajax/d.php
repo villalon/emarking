@@ -26,6 +26,7 @@ define('NO_DEBUG_DISPLAY', true);
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once $CFG->dirroot.'/mod/emarking/locallib.php';
+require_once $CFG->libdir.'/accesslib.php';
 
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 
@@ -54,7 +55,8 @@ if($action === 'students') {
 	}
 	emarking_json_resultset($results);
 } else if($action === 'courses') {
-	$rs = emarking_get_courses_student($user->id);
+    
+	$rs = get_user_capability_course($capability, $user->id);
 	$results = array();
 	foreach($rs as $r) {
 		$results[] = $r;
@@ -64,7 +66,7 @@ if($action === 'students') {
 	if(!$course = $DB->get_record('course', array('id'=>$courseid)))
 		emarking_json_error('Invalid course id');
 	
-	$rs = emarking_get_activities_course($course->id);
+	$rs = get_coursemodules_in_course('emarking', $course->id);
 	$results = array();
 	foreach($rs as $r) {
 		$results[] = $r;

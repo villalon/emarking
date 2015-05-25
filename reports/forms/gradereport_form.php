@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 require_once ($CFG->libdir . '/formslib.php'); // putting this is as a safety as i got a class not found error.
 require_once ($CFG->dirroot . '/course/lib.php');
-
 /**
  *
  * @package mod
@@ -46,7 +44,6 @@ class emarking_gradereport_form extends moodleform {
 		if ($parallelcourses && count ( $parallelcourses ) > 0) {
 			
 			$mform->addElement ( 'header', 'parallels_title', get_string ( 'parallelcourses', 'mod_emarking' ) );
-			$categories_list = emarking_get_categories_for_parallels_menu ( $course );
 			
 			if ($parallelcourses) {
 				foreach ( $parallelcourses as $pcourse ) {

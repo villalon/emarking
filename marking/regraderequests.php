@@ -57,11 +57,11 @@ $sql = "SELECT
 			u.id AS userid,
 			u.firstname,
 			u.lastname,
-			c.description AS criterio,
+			c.description AS criterion,
 			d.id AS ids,
 			d.status AS status
 		FROM {emarking_submission} AS s 
-		INNER JOIN {emarking_draft} AS d ON (s.emarking = :emarking AND d.submissionid = s.id) 
+		INNER JOIN {emarking_draft} AS d ON (s.emarking = :emarking AND d.submissionid = s.id AND d.qualitycontrol = 0) 
 		INNER JOIN {emarking_regrade} as rg ON (d.id = rg.draft)
 		INNER JOIN {user} AS u ON (u.id = s.student)
 		INNER JOIN {gradingform_rubric_criteria} as c ON (c.id = rg.criterion)
@@ -80,8 +80,8 @@ $table->head = array(
     get_string('criterion', 'mod_emarking'),
     get_string('motive', 'mod_emarking'),
     get_string('comment', 'mod_emarking'),
-    get_string('regradedatecreated', 'mod_emarking'),
-    get_string('regradelastchange', 'mod_emarking'),
+    get_string('sent', 'mod_emarking'),
+    get_string('lastmodification', 'mod_emarking'),
     get_string('status', 'mod_emarking'),
     get_string('actions', 'mod_emarking')
 );
@@ -91,19 +91,20 @@ foreach($records as $record){
 
     $array = array();
     $url = new moodle_url('/user/view.php',array('id'=>$record->userid,'course'=>$course->id));
-    $urlsub = new moodle_url('/mod/emarking/ajax/a.php',array('ids'=>$record->ids,'action'=>"emarking"));
-    $array[] = '<a href="'.$url.'">'.$record->firstname.' '.$record->lastname.'</a>';
-    $array[] = $record->criterio;
-    //Stepstaken = 0 if no steps are taken, 1, if only first is taken, 2 if we are done.
-    $stepstaken=0;
-    $array[] = get_string_status($record->motive);
+    $urlsub = new moodle_url('/mod/emarking/marking/index.php',array('id'=>$record->ids));
+    $array[] = $OUTPUT->action_link($url, $record->firstname.' '.$record->lastname);
+    $array[] = $record->criterion;
+    $array[] = emarking_get_regrade_type_string($record->motive);
     $array[] = $record->comment;
-    $array[] = date("d/m/y H:i", $record->timecreated);
-    $array[] = date("d/m/y H:i", $record->timemodified);
-    $status = 'Solicitada';
-    if($record->accepted)
-    	$status = 'Contestada';
-
+    $array[] = emarking_time_ago($record->timecreated);
+    $array[] = emarking_time_ago($record->timemodified);
+    
+    if($record->accepted) {
+    	$status = $OUTPUT->pix_icon("i/valid", get_string('replied', 'mod_emarking'));
+    } else {
+        $status = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
+    }
+    
     $array[] = $status;
     $array[] = $OUTPUT->action_link($urlsub, null,
 			new popup_action ( 'click', $urlsub, 'emarking' . $record->ids, array (

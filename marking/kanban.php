@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname ( dirname ( dirname ( dirname(__FILE__ )) ) ) . '/config.php');
-require_once("lib.php");
+require_once("../lib.php");
 require_once($CFG->libdir.'/tablelib.php');
 require_once($CFG->dirroot."/mod/emarking/locallib.php");
 require_once($CFG->dirroot."/lib/externallib.php");
@@ -69,8 +69,7 @@ if (isguestuser()) {
 // Check if user has an editingteacher role
 require_capability ( 'mod/emarking:grade', $context );
 
-$useristeacher = emarking_user_is_teacher($course->id);
-if($useristeacher || is_siteadmin($USER)) {
+if(has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER)) {
 	$emarking->anonymous = false;
 }
 
@@ -91,24 +90,12 @@ echo $OUTPUT->heading_with_help(get_string('emarking','mod_emarking'), 'annotate
 // Navigation tabs
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark" );
 
-// Get rubric instance
-$gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
-$gradingmethod = $gradingmanager->get_active_method();
-
-// Validate that activity has a rubric ready
-if($gradingmethod !== 'rubric') {
-	$managerubricurl = new moodle_url('/grade/grading/manage.php', 
-			array('contextid'=>$context->id, 'component'=>'mod_emarking', 'area'=>'attempt'));
-	echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
-	echo $OUTPUT->single_button($managerubricurl, get_string('createrubric','mod_emarking'));
-	echo $OUTPUT->footer();
-	die();
-}
+list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
 
 // User filter checking capabilities. If user can not grade, then she can not
 // see other users
 $userfilter = 'WHERE 1=1 ';
-if(!$usercangrade) {
+if(!has_capability('mod/emarking:grade', $context)) {
 	$userfilter.= 'AND ue.userid = ' . $USER->id;
 }
 
@@ -148,6 +135,7 @@ $criteriafilter = "
 	s.sort,
 	s.status
 	FROM {emarking_submission} AS s
+	INNER JOIN {emarking_draft} as d ON (d.submissionid = s.id AND d.qualitycontrol = 0)
 	INNER JOIN {emarking_page} AS p ON (s.emarking = $emarking->id AND p.submission = s.id)
 	LEFT JOIN {emarking_comment} AS ec ON (ec.page = p.id AND ec.levelid IN ($levels))
 	GROUP BY s.id) AS S
@@ -213,9 +201,8 @@ foreach($emarkingpages as $pageinfo ){
 			$pageinfo->firstname.' '.$pageinfo->lastname . '</a>';
 	
 	// eMarking popup url
-	$popup_url = new moodle_url ( '/mod/emarking/ajax/a.php', array (
-					'ids' => $pageinfo->submission,
-					'action' => 'emarking'));
+	$popup_url = new moodle_url ( '/mod/emarking/marking/index.php', array (
+					'id' => $pageinfo->submission));
 	
 	$actions = $OUTPUT->action_link($popup_url, $userinfo,
 			new popup_action ( 'click', $popup_url, 'emarking' . $pageinfo->submission, array (

@@ -20,8 +20,9 @@
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_emarking
- * @copyright  Nicolas Perez (niperez@alumnos.uai.cl)
+ * @package    mod
+ * @subpackage emarking
+ * @copyright  2014-2015 Nicolas Perez (niperez@alumnos.uai.cl)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,6 +31,8 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once($CFG->dirroot."/mod/emarking/locallib.php");
 require_once($CFG->dirroot."/mod/emarking/lib.php");
 require_once($CFG->dirroot."/mod/emarking/marking/form.php");
+require_once($CFG->dirroot."/mod/emarking/forms/predefined_comments_form.php");
+require_once ($CFG->libdir . '/csvlib.class.php');
 
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
 
@@ -75,6 +78,7 @@ $PAGE->navbar->add(get_string('predefinedcomments', 'mod_emarking'));
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
+
 //output of the tabtree
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "comment" );
 
@@ -122,22 +126,6 @@ if($action=="edit") {
 //action actions on "list"
 if($action=='list'){
     
-    //Creating form
-    $newcommentform = new CommentForm('predefinedcomments.php', array('cmid'=>$cmid));
-    
-    if($newcommentform->get_data()) {
-        $newcomment = new stdClass();
-        //Giving var record the necesary parameters
-        $newcomment->text = $newcommentform->get_data()->comment['text'];
-        $newcomment->emarkingid = $emarking->id;
-        $newcomment->markerid = $USER->id;
-    
-        //Creating record in moodle DB
-        $DB->insert_record('emarking_predefined_comment', $newcomment);
-        
-        echo $OUTPUT->notification(get_string('changessaved', 'mod_emarking'), 'notifysuccess');
-    }
-    
 	// Create Button url
 	$urlcreate = new moodle_url('/mod/emarking/marking/predefinedcomments.php', array('id'=>$cm->id, 'action'=>'create'));
 
@@ -163,7 +151,40 @@ if($action=='list'){
 	echo html_writer::table($table);
 
     //Form Display
-    $newcommentform->display();
+    $predefinedform = new emarking_predefined_comments_form(null, array('cmid'=>$cm->id));
+    
+    if ($predefinedform->get_data()) {
+        // Use csv importer from Moodle
+        $iid = csv_import_reader::get_new_iid('emarking-predefined-comments');
+        $reader = new csv_import_reader($iid, 'emarking-predefined-comments');
+        $content = $predefinedform->get_data()->comments;
+        $reader->load_csv_content($content, 'utf8', "tab");
+        
+        $columns = $reader->get_columns()[0];
+        
+        $data = array();
+        $reader->init();
+        $current = 0;
+        while($line = $reader->next()) {
+            if(count(line)>0) {
+                $data[] = $line[0];
+            }
+            $current++;
+        }
+
+        $table = new html_table();
+        $table->data = $data;
+        $table->head = $columns;
+        
+        $cancel = new moodle_url("/mdo/emarking/marking/predefinedcomments.php", array("id"=>$cm->id));
+        $continue = new moodle_url("/mdo/emarking/marking/predefinedcomments.php", array("id"=>$cm->id));
+
+        echo $OUTPUT->notification("Only the first column will be imported. A sample of the data is shown below:");
+        echo html_writer::table($table);
+        echo $OUTPUT->single_button($url, $label);
+    } else {
+        $predefinedform->display();
+    }
 }
 
 

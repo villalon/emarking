@@ -124,7 +124,7 @@ foreach($exams as $exam){
 	}else if(isset($exam->grade)){
 		$grade = round($exam->grade,2);
 	}
-	$downloadurl = new moodle_url('/mod/emarking/ajax/a.php',array('action'=>'emarking','ids'=>$exam->draftid));
+	$downloadurl = new moodle_url('/mod/emarking/marking/index.php',array('id'=>$exam->draftid));
 	$examarray[] = $exam->userid == $USER->id ? $exam->firstname." ".$exam->lastname : "NN";
 	$examarray[] = $grade;
 	$examarray[] = $OUTPUT->action_link($downloadurl, null,

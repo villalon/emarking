@@ -52,7 +52,7 @@ if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
 }
 
 // Get the course module for the emarking, to build the emarking url
-$url = new moodle_url('/mod/emarking/print/upload.php', array('id'=>$cm->id));
+$url = new moodle_url('/mod/emarking/print/uploadanswers.php', array('id'=>$cm->id));
 $urlemarking = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id));
 
 $context = context_module::instance($cm->id);
@@ -125,7 +125,7 @@ if ($mform->is_cancelled()) {
 	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "uploadanswers" );
 	echo $OUTPUT->box_start('generalbox');
 	// If the user confirms it goes to process.php
-	$confirmurl = new moodle_url('/mod/emarking/print/process.php',
+	$confirmurl = new moodle_url('/mod/emarking/print/processanswers.php',
 			array('merge'=>$merge, 'file'=>$file->get_pathnamehash(),
 					'emarkingid'=>$emarking->id));
 	// Message changes if it will be merged

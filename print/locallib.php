@@ -83,6 +83,44 @@ function emarking_import_omr_fonts($echo = false)
 }
 
 /**
+ * Returns the HTML of a set of divs for the list of enrolments
+ * configured for an exam
+ * 
+ * @param unknown $exam
+ * @return string
+ */
+function emarking_enrolments_div($exam) {
+    global $OUTPUT;
+    
+    $output = "";
+    $enrolments = explode(',', $exam->enrolments);
+    foreach($enrolments as $enrolment) {
+        if($enrolment === 'manual') {
+            $output .= html_writer::start_tag("div");
+            $output .= $OUTPUT->pix_icon('t/enrolusers', get_string('pluginname', 'enrol_manual'));
+            $output .= html_writer::end_tag("div");
+        } elseif ($enrolment === 'self') {
+            $output .= html_writer::start_tag("div");
+            $output .= $OUTPUT->pix_icon('t/user', get_string('pluginname', 'enrol_self'));
+            $output .= html_writer::end_tag("div");
+        } elseif ($enrolment === 'database') {
+            $output .= html_writer::start_tag("div");
+            $output .= $OUTPUT->pix_icon('i/db', get_string('pluginname', 'enrol_database'));
+            $output .= html_writer::end_tag("div");
+        } elseif ($enrolment === 'meta') {
+            $output .= html_writer::start_tag("div");
+            $output .= $OUTPUT->pix_icon('e/inster_edit_link', get_string('pluginname', 'enrol_meta'));
+            $output .= html_writer::end_tag("div");
+        } else {
+            $output .= html_writer::start_tag("div");
+            $output .= $OUTPUT->pix_icon('i/cohort', get_string('otherenrolment', 'mod_emarking'));
+            $output .= html_writer::end_tag("div");
+        }
+    }
+    return $output;
+}
+
+/**
  * Returns the path for a student picture.
  * The path is the directory plus
  * two subdirs based on the last two digits of the user idnumber,
@@ -90,7 +128,7 @@ function emarking_import_omr_fonts($echo = false)
  * $CFG->emarking_pathuserpicture/5/4/user12345.png
  *
  * If the directory path is not configured or does not exist returns false
- * 
+ *
  * @param unknown $studentidnumber            
  * @return string|boolean false if user pictures are not configured or invalid idnumber (length < 2)
  */
@@ -129,8 +167,8 @@ function emarking_get_student_picture($student, $userimgdir)
     if ($studentimage = emarking_get_student_picture_path($student->idnumber) && file_exists($studentimage))
         return $studentimage;
         
-    // If no picture was found in the pictures repo try to use the
-    // Moodle one or default on the anonymous
+        // If no picture was found in the pictures repo try to use the
+        // Moodle one or default on the anonymous
     $usercontext = context_user::instance($student->id);
     $imgfile = $DB->get_record('files', array(
         'contextid' => $usercontext->id,
@@ -1049,10 +1087,12 @@ function emarking_exam_get_parallels($exam)
             $shortname = $DB->get_record('course', array(
                 'id' => $mult->course
             ));
-            $courses[] = $shortname->shortname;
+            list ($academicperiod, $campus, $coursecode, $section, $term, $year) = 
+                emarking_parse_shortname($shortname->shortname);
+            $courses[] = html_writer::div("$campus-$section", null, array("title"=>"$shortname->fullname"));
         }
     }
-    $multicourse = implode(", ", $courses);
+    $multicourse = implode("<br/>", $courses);
     
     return array(
         $canbedeleted,

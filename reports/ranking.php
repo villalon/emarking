@@ -153,9 +153,13 @@ $height = $totalstudents * 25;
 $current=0;
 $datajs = "[";
 foreach($data as $d) {
-	if($current == 0)
-		$datajs .= "['". implode("','", $d) . "'],\n";
-	else {
+	if($current == 0) {
+	    $criteria = array();
+	    foreach ($d as $criterion) {
+	        $criteria[] = preg_replace("/\r?\n/", "\\n", addslashes($criterion));
+	    }
+		$datajs .= "['". implode("','", $criteria) . "'],\n";
+	} else {
 		$datajs .= "['";
 		for($i=0; $i<count($d); $i++) {
 			if($i==0)

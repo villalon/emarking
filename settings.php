@@ -136,6 +136,11 @@ $settings->add(new admin_setting_configcheckbox('emarking_usesms',
 		get_string('usesms_help', 'mod_emarking'),
 		0, PARAM_BOOL));
 
+$settings->add(new admin_setting_configtext('emarking_mobilephoneregex',
+		get_string('mobilephoneregex','mod_emarking'),
+		get_string('mobilephoneregex_help','mod_emarking'),
+        '', PARAM_RAW));
+
 // EXPERIMENTAL FEATURES
 
 // Experimental header

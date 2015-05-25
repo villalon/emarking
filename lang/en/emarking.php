@@ -22,6 +22,11 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['mobilephoneregex'] = 'Mobile phone regex';
+$string['mobilephoneregex_help'] = 'A regular expression to validate a correct mobile phone';
+$string['invalidphonenumber'] = 'Invalid phone number, we expect a full international number (ex: +56912345678)';
+$string['errorsendingemail'] = 'An error ocurred while sending the email';
+
 $string['processomr'] = 'Process OMR';
 
 $string['signature'] = 'Signature';
@@ -31,6 +36,9 @@ $string['settingupprinting'] = 'Setting up printing';
 $string['printing'] = 'Printing';
 $string['tokenexpired'] = 'Security token has expired. Please get a new one.';
 $string['otherenrolment'] = 'Other enrolment types.';
+$string['sent'] = 'Sent';
+$string['replied'] = 'Replied';
+
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
 $string['predefinedcomments'] = 'Predefined comments';
@@ -177,15 +185,15 @@ $string ['uploadanswers_help'] = 'In this page you can upload the digitized answ
 $string ['gradescale'] = 'Grades scale';
 $string ['rubricscores'] = 'Max score';
 
-$string ['justiceinstructions'] = 'Considering a -4 to 4 scale in which -4 means very unfair and 4 very fair, please answer the following questions regarding the evaluation:';
-$string ['justiceperceptionprocess'] = 'How fair was the evaluation process?';
-$string ['justiceperceptionexpectation'] = 'How does the result compares to what you expected?';
+$string ['justiceinstructions'] = 'Considering a -4 to 4 scale in which -4 means Strongly Disagree and 4 Strongly Agree, please mark the extent to which you agree on each statement:';
+$string ['justiceperceptionprocess'] = 'The evaluation process was fair';
+$string ['justiceperceptionexpectation'] = 'My result was what I expected';
 $string ['thanksforjusticeperception'] = 'Thanks for expressing your opinion';
 $string ['ranking'] = 'Ranking';
 
 $string ['noregraderequests'] = 'There are no regrade requests';
 $string ['regradedatecreated'] = 'Date created';
-$string ['regradelastchange'] = 'Date created';
+$string ['regradelastchange'] = 'Last change';
 
 $string ['score'] = 'Score';
 $string ['markingcomment'] = 'Marking comment';
@@ -342,7 +350,7 @@ $string ["justice.form.header"] = "My evaluations";
 $string ["justice.graph.student.name"] = "Name";
 $string ["justice.graph.test.performance"] = "Test performance";
 $string ["justice.my.evaluations"] = "My evaluations";
-$string ["justice.peercheck"] = "Peer check";
+$string ["justice.peercheck"] = "Review peers";
 $string ["justice.question.unavailable"] = "No disponible";
 $string ["justice.question.not.answered"] = "No Entregado";
 $string ["justice.question.modify"] = "Modificar";
@@ -366,7 +374,7 @@ $string ['justiceexperiment'] = 'Experiment in justice perception';
 $string ['justiceexperiment_help'] = 'Show half the students evaluation statistics to have experimental and control groups for measuring justice perception';
 $string ['justification'] = 'Justification';
 $string ['justification_help'] = 'You must justify your regrade request';
-$string ['lastmodification'] = 'Last Modification';
+$string ['lastmodification'] = 'Last modification';
 $string ['logo'] = 'Logo for header';
 $string ['logodesc'] = 'Logo to include in personalized exam headers';
 $string ['marking'] = 'Marking';
@@ -440,7 +448,7 @@ $string ['printrandominvalid'] = 'must create a group for using this feature';
 $string ['printrandom_help'] = 'Print random, based in a group of course';
 $string ['printlist'] = 'Print students list';
 $string ['printlist_help'] = 'Adds a student list';
-$string ['printnotification'] = 'Print notification';
+$string ['printnotification'] = 'Notification';
 $string ['printnotificationsent'] = 'Print notification sent';
 $string ['printorders'] = 'Prints orders';
 $string ['printsendnotification'] = 'Send print notification';
@@ -463,7 +471,7 @@ $string ['qrnotidentified'] = 'QR could not be identified';
 $string ['qrprocessingtitle'] = 'Answers processing software';
 $string ['qrprocessing'] = 'Download answers processing software';
 $string ['records'] = 'History';
-$string ['regrades'] = 'Regrading';
+$string ['regrades'] = 'Regrade';
 $string ['regraderequest'] = 'Request regrading';
 $string ['requestedby'] = 'Requested by';
 $string ['results'] = 'Results';
@@ -483,6 +491,7 @@ $string ['settingssms_help'] = 'SMS settings to use an SMS service for validatin
 $string ['smsinstructions'] = 'Please enter the security code sent to the mobile number: {$a->phone2}';
 $string ['smspassword'] = 'SMS provider password';
 $string ['smspassword_help'] = 'Password of the SMS sending provider';
+$string ['smsserverproblem'] = 'Error connecting to SMS';
 $string ['smsurl'] = 'SMS provider URL';
 $string ['smsurl_help'] = 'URL of the SMS sending provider';
 $string ['smsuser'] = 'SMS provider user';
@@ -497,6 +506,7 @@ $string ['statusaccepted'] = 'Accepted';
 $string ['statusabsent'] = 'Absent';
 $string ['statusgrading'] = 'Grading';
 $string ['statusmissing'] = 'Missing';
+$string ['statusnotsent'] = 'Not sent';
 $string ['statusregrading'] = 'Regrading';
 $string ['statuspublished'] = 'Published';
 $string ['statussubmitted'] = 'Submitted';

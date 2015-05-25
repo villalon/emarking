@@ -207,7 +207,7 @@ foreach($questions as $question){
 	$urledit = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id));
 	$urldelete = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id,'delete'=>'true'));
 
-	$status = 'No solicitada';
+	$status = get_string("statusnotsent", "mod_emarking");
 	if($question->regradeid!=null) {
 		if($requestswithindate) {
 			$linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('i/manual_item', get_string('edit')));
@@ -215,8 +215,8 @@ foreach($questions as $question){
 		} else {
 			$linktext = '&nbsp;';
 		}
-		$status = $question->rgaccepted ? "Aceptada:":"Solicitada:";
-		$status .= '<br/>'. get_string_status($question->motive);
+		$status = $question->rgaccepted ? get_string("statusaccepted", "mod_emarking") : get_string("statussubmitted", "mod_emarking");
+		$status .= '<br/>'. emarking_get_regrade_type_string($question->motive);
 		$status .= '<br/>'. substr($question->comment, 0 , min(strlen($question->comment), 25));
 		if(strlen($question->comment) > 25)
 			$status .= '...';

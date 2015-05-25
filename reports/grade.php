@@ -95,11 +95,7 @@ $emarkingids = ''. $emarking->id;
 
 $extracategory = optional_param('categories', 0, PARAM_INT);
 
-if($CFG->emarking_parallelregex) {
-        $parallels = emarking_get_parallel_courses($course, $extracategory, $CFG->emarking_parallelregex);
-} else {
-        $parallels = false;
-}
+$parallels = emarking_get_parallel_courses($course);
 
 $emarkingsform = new emarking_gradereport_form(null, array('course'=>$course, 'cm'=>$cm, 'parallels'=>$parallels, 'id'=>$emarkingids));
 

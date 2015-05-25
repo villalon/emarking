@@ -1,8 +1,45 @@
 .exams_examname {
-    min-width: 250px;
+    min-width: 200px;
 }
 
-.detailstable td {
-	border: solid 0px;
-	border-collapse: collapse;
+.actionscolumn {
+	min-width: 90px;
+}
+
+.printactions div, .printdetails div  {
+	display: table-cell;
+	padding-right: 5px;
+}
+
+.printactions i, .printdetails i {
+	font-size: 16px;
+}
+
+.printdetails img, .printactions img {
+	width: 16px;
+	height: 16px;
+}
+
+.downloademarking {
+	cursor: pointer;
+}
+
+.newprintorder input {
+  color: #fff;
+  background-color: #0038a8;
+  background-image: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.examisok {
+    border-left: 4px solid lightblue;
+}
+
+.examislate {
+    border-left: 4px solid red;
+}
+
+.examtoday {
+    border-left: 4px solid green;
 }

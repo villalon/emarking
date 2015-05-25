@@ -174,10 +174,10 @@ class emarking_exam_form extends moodleform
         $mform->addHelpButton('extraexams', 'extraexams', 'mod_emarking');
         
         // Obtain parallel courses
-        if ($seccionesparalelas = emarking_get_parallel_courses($course, null, $CFG->emarking_parallelregex)) {
+        if ($parallelcourses = emarking_get_parallel_courses($course)) {
             // Add a checkbox for each parallel course
             $checkboxes = array();
-            foreach ($seccionesparalelas as $cid => $course) {
+            foreach ($parallelcourses as $course) {
                 $checkboxes[] = $mform->createElement('checkbox', $course->shortname, null, $course->fullname, 'checked');
             }
             

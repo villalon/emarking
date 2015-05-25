@@ -65,6 +65,13 @@ if ($action === 'heartbeat') {
     die();
 }
 
+// Verify that user is logged in, otherwise return error
+if (! isloggedin() && ! $testingmode) {
+    emarking_json_error('User is not logged in', array(
+        'url' => $CFG->wwwroot . '/login/index.php'
+    ));
+}
+    
 // A valid submission is required
 if (! $draft = $DB->get_record('emarking_draft', array(
     'id' => $ids
@@ -153,11 +160,6 @@ if (! $cm = get_coursemodule_from_instance("emarking", $emarking->id, $course->i
     emarking_json_error('Invalid emarking course module');
 }
 
-// Verify that user is logged in, otherwise return error
-if (! isloggedin() && ! $testingmode)
-    emarking_json_error('User is not logged in', array(
-        'url' => $CFG->wwwroot . '/login/index.php'
-    ));
     
     // Create the context within the course module
 $context = context_module::instance($cm->id);

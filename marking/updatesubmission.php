@@ -65,9 +65,7 @@ if (isguestuser()) {
 	die();
 }
 
-$useristeacher = emarking_user_is_teacher($course->id);
-
-if(!is_siteadmin($USER) && (!$useristeacher || !has_capability('mod/assign:grade', $context))) {
+if(!is_siteadmin($USER) && (!has_capability('mod/emarking:supervisegrading', $context) || !has_capability('mod/emarking:grade', $context))) {
 	print_error('Invalid access, this will be notified!');
 }
 

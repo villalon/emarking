@@ -101,7 +101,7 @@ if($confirm) {
 	$fs->delete_area_files($context->id, 'emarking', 'exams', $exam->id);
 	$DB->delete_records('emarking_exams',array('file'=>$exam->file));
 
-	redirect($cancelurl, get_string('examdeleted', 'mod_emarking'),2);
+	redirect($cancelurl, get_string('examdeleted', 'mod_emarking'), 2);
 
 	echo $OUTPUT->header();
 	echo $OUTPUT->footer();

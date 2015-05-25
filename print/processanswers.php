@@ -63,7 +63,7 @@ if (isguestuser()) {
 	die();
 }
 
-$url = new moodle_url('/mod/emarking/print/process.php',  array('emarkingid'=>$emarking->id, 'file'=>$fileid, 'merge'=>$merge));
+$url = new moodle_url('/mod/emarking/print/processanswers.php',  array('emarkingid'=>$emarking->id, 'file'=>$fileid, 'merge'=>$merge));
 $urlassignment = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id));
 
 $PAGE->set_pagelayout('incourse');
@@ -116,6 +116,6 @@ if(!$result) {
 echo "<br/>";
 echo html_writer::table($table);
 
-$continue_url = new moodle_url('/mod/emarking/print/upload.php', array('id'=>$cm->id));
+$continue_url = new moodle_url('/mod/emarking/print/uploadanswers.php', array('id'=>$cm->id));
 echo $OUTPUT->continue_button($continue_url);
 echo $OUTPUT->footer();

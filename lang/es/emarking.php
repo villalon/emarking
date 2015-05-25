@@ -22,6 +22,11 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['mobilephoneregex'] = 'Expresión regular de celulares';
+$string['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
+$string['invalidphonenumber'] = 'Número de celular inválido, se requiere un teléfono completo en formato internacional (ej: +56912345678)';
+$string['errorsendingemail'] = 'Se produjo un error con el servidor de correo';
+
 $string['processomr'] = 'Procesar OMR';
 
 $string['signature'] = 'Firma';
@@ -31,6 +36,9 @@ $string['settingupprinting'] = 'Configurando impresiones';
 $string['printing'] = 'Imprimiendo';
 $string['tokenexpired'] = 'El código de seguridad ha expirado. Obtenga uno nuevo.';
 $string['otherenrolment'] = 'Otro método de matriculación.';
+$string['sent'] = 'Enviada';
+$string['replied'] = 'Contestada';
+
 
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
@@ -441,7 +449,7 @@ $string ['printrandominvalid'] = 'Debe crear un grupo para utilizar esta funció
 $string ['printrandom_help'] = 'Impresión aleatoria basada en un grupo creado en un curso especifico';
 $string ['printlist'] = 'Lista de estudiantes';
 $string ['printlist_help'] = 'Se utiliza para imprimir una lista de los estudiantes del curso';
-$string ['printnotification'] = 'Notificación de impresión';
+$string ['printnotification'] = 'Notificación';
 $string ['printnotificationsent'] = 'Notificación de impresión enviada';
 $string ['printorders'] = 'Órdenes de impresión';
 $string ['printsendnotification'] = 'Enviar notificación de impresión';
@@ -484,6 +492,7 @@ $string ['settingssms_help'] = 'Configuración de un servicio SMS para validar l
 $string ['smsinstructions'] = 'Ingrese el código de seguridad enviado al teléfono: {$a->phone2}';
 $string ['smspassword'] = 'Contraseña SMS';
 $string ['smspassword_help'] = 'Contraseña del servicio de SMS';
+$string ['smsserverproblem'] = 'Error conectándose con servidor SMS';
 $string ['smsurl'] = 'URL servicio SMS';
 $string ['smsurl_help'] = 'URL del proveedor de servicio SMS';
 $string ['smsuser'] = 'Nombre usuario SMS';
@@ -497,6 +506,7 @@ $string ['statusaccepted'] = 'Aceptada';
 $string ['statusabsent'] = 'Ausente';
 $string ['statusgrading'] = 'En corrección';
 $string ['statusmissing'] = 'No entregada';
+$string ['statusnotsent'] = 'No enviada';
 $string ['statusregrading'] = 'En recorrección';
 $string ['statuspublished'] = 'Publicada';
 $string ['statussubmitted'] = 'Enviada';

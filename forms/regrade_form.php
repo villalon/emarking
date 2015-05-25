@@ -43,13 +43,17 @@ class emarking_justice_regrade_form extends moodleform {
         // Array of motives for regrading
         $motives=array();
         $motives[] =& $mform->createElement('radio', 'motive', '', 
-        		get_string_status(EMARKING_REGRADE_MISASSIGNED_SCORE), EMARKING_REGRADE_MISASSIGNED_SCORE);
+        		emarking_get_regrade_type_string(EMARKING_REGRADE_MISASSIGNED_SCORE), 
+                EMARKING_REGRADE_MISASSIGNED_SCORE);
         $motives[] =& $mform->createElement('radio', 'motive', '', 
-        		get_string_status(EMARKING_REGRADE_UNCLEAR_FEEDBACK), EMARKING_REGRADE_UNCLEAR_FEEDBACK);
+        		emarking_get_regrade_type_string(EMARKING_REGRADE_UNCLEAR_FEEDBACK), 
+                EMARKING_REGRADE_UNCLEAR_FEEDBACK);
         $motives[] =& $mform->createElement('radio', 'motive', '', 
-        		get_string_status(EMARKING_REGRADE_STATEMENT_PROBLEM), EMARKING_REGRADE_STATEMENT_PROBLEM);
+        		emarking_get_regrade_type_string(EMARKING_REGRADE_STATEMENT_PROBLEM), 
+                EMARKING_REGRADE_STATEMENT_PROBLEM);
         $motives[] =& $mform->createElement('radio', 'motive', '', 
-        		get_string_status(EMARKING_REGRADE_OTHER), EMARKING_REGRADE_OTHER);
+        		emarking_get_regrade_type_string(EMARKING_REGRADE_OTHER), 
+                EMARKING_REGRADE_OTHER);
 
         // Add motives group as radio buttons
         $mform->addGroup($motives, 'radioar', get_string('motive', 'mod_emarking'), array('<br />'), false);

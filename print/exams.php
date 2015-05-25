@@ -22,49 +22,22 @@
  * 
  * @package mod
  * @subpackage emarking
- * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
+require_once(dirname(dirname(dirname(dirname(__FILE__))))."/config.php");
 require_once($CFG->dirroot."/mod/emarking/locallib.php");
 require_once($CFG->dirroot."/mod/emarking/print/locallib.php");
 
 global $DB, $USER, $CFG;
 
 // Course module id if the user comes from an eMarking module
-$cmid = optional_param('id', 0, PARAM_INT);
+$cmid = optional_param("id", 0, PARAM_INT);
 // Course id, if the user comes from a course
-$courseid = optional_param('course', 0, PARAM_INT);
-$examid = optional_param('examid', 0, PARAM_INT);
-$downloadform = optional_param('downloadform', false, PARAM_BOOL);
+$courseid = optional_param("course", 0, PARAM_INT);
 
-if($cmid > 0) {
-	if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-		print_error(get_string('invalidid', 'mod_emarking'));
-	}
-
-	if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-		print_error(get_string('invalidid', 'mod_emarking'));
-	}
-
-	$courseid = $cm->course;
-}
-
-// Validate that the parameter corresponds to a course
-if(!$course = $DB->get_record('course', array('id'=>$courseid))) {
-	print_error(get_string('invalidcourseid', 'mod_emarking'));
-}
-
-$contextcourse = context_course::instance($course->id);
-$contextcat = context_coursecat::instance($course->category);
-
-// The context for the page is a course
-if($cmid > 0) {
-	$context = context_module::instance($cm->id);
-}
-else {
-	$context = $contextcourse;
-}
+$examid = optional_param("examid", 0, PARAM_INT);
+$downloadform = optional_param("downloadform", false, PARAM_BOOL);
 
 // First check that the user is logged in
 require_login();
@@ -72,11 +45,43 @@ if (isguestuser()) {
 	die();
 } 
 
-$newexam = $DB->get_record('emarking_exams', array('id'=>$examid));
+// If the user comes from a course module, we get the course id from it
+if($cmid > 0) {
+    // Get the course module
+	if(!$cm = get_coursemodule_from_id("emarking", $cmid)) {
+		print_error(get_string("invalidid", "mod_emarking"));
+	}
 
-if($newexam && $downloadform) {
-	$coursecat = $DB->get_record('course_categories', array('id'=>$course->category));
-	$requestedbyuser = $DB->get_record('user', array('id'=>$newexam->requestedby));
+	// Get the emarking object
+	if(!$emarking = $DB->get_record("emarking", array("id"=>$cm->instance))) {
+		print_error(get_string("invalidid", "mod_emarking"));
+	}
+
+	$courseid = $cm->course;
+}
+
+// Validate that the parameter corresponds to a course
+if(!$course = $DB->get_record("course", array("id"=>$courseid))) {
+	print_error(get_string("invalidcourseid", "mod_emarking"));
+}
+
+// Both contexts, from course and category, for permissions later
+$contextcourse = context_course::instance($course->id);
+$contextcat = context_coursecat::instance($course->category);
+
+// The context for the page is the course or the module
+$context = $cmid > 0 ? context_module::instance($cm->id) : $context = $contextcourse;
+
+// An exam id means either a new exam was sent, or a a download form
+// was requested
+if($examid) {
+    $newexam = $DB->get_record("emarking_exams", array("id"=>$examid));
+}
+
+// If a download form was requested
+if($examid && $downloadform) {
+	$coursecat = $DB->get_record("course_categories", array("id"=>$course->category));
+	$requestedbyuser = $DB->get_record("user", array("id"=>$newexam->requestedby));
 
 	emarking_create_printform($context,
 		$newexam,
@@ -88,46 +93,48 @@ if($newexam && $downloadform) {
 	die();
 }
 
-require_capability ( 'mod/emarking:grade', $context );
+// Ony users that can grade can see exams
+require_capability ( "mod/emarking:grade", $context );
 
-// URL for current page and eMarking home
-$url = new moodle_url('/mod/emarking/print/exams.php', array('id'=>$cmid, 'course'=>$course->id));
-if($cmid > 0)
-	$urladd = new moodle_url('/mod/emarking/print/newprintorder.php',array('cm'=>$cm->id));
-else
-	$urladd = new moodle_url('/mod/emarking/print/newprintorder.php',array('course'=>$course->id));
+// URL for current page
+$url = new moodle_url("/mod/emarking/print/exams.php", array("id"=>$cmid, "course"=>$course->id));
+// URL for adding a new print order
+$params = $cmid > 0 ? array("cm"=>$cm->id) : array("course"=>$course->id);
+$urladd = new moodle_url("/mod/emarking/print/newprintorder.php", $params);
 
 $PAGE->set_url($url);
-$PAGE->requires->js('/mod/emarking/js/printorders.js');
+$PAGE->requires->js("/mod/emarking/js/printorders.js");
 $PAGE->set_context($context);
 $PAGE->set_course($course);
-if($cmid > 0)
+if($cmid > 0) {
 	$PAGE->set_cm($cm);
-$PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->set_pagelayout('incourse');
-$PAGE->navbar->add(get_string('myexams','mod_emarking'));
+}
+$PAGE->set_title(get_string("emarking", "mod_emarking"));
+$PAGE->set_pagelayout("incourse");
+$PAGE->navbar->add(get_string("myexams","mod_emarking"));
 
 echo $OUTPUT->header();
-if($cmid > 0)
+
+// Heading and tabs if we are within a course module
+if($cmid > 0) {
     echo $OUTPUT->heading($emarking->name);
-    
-// If a new exam was recently added, show success message and instructions
-if($newexam) {
-	echo $OUTPUT->notification(get_string('newprintordersuccessinstructions', 'mod_emarking',$newexam),'notifysuccess');
-	echo $OUTPUT->notification($CFG->emarking_printsuccessinstructions,'notifysuccess');
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "myexams");
 }
 
-
-if($cmid > 0)
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "myexams" );
-
+// If a new exam was recently added, show success message and instructions
+if($examid) {
+	echo $OUTPUT->notification(get_string("newprintordersuccessinstructions", "mod_emarking",$newexam),"notifysuccess");
+	if($CFG->emarking_printsuccessinstructions)
+	   echo $OUTPUT->notification($CFG->emarking_printsuccessinstructions,"notifysuccess");
+}
 
 // Retrieve all exams for this course
-$exams = $DB->get_records('emarking_exams', array('course'=>$course->id), 'examdate DESC');
+$exams = $DB->get_records("emarking_exams", array("course"=>$course->id), "examdate DESC");
 
+// If there are no exams to show
 if(count($exams) == 0) {
-	echo $OUTPUT->notification(get_string('noprintorders', 'mod_emarking'));
-	echo $OUTPUT->single_button($urladd, get_string('newprintorder', 'mod_emarking'));
+	echo $OUTPUT->notification(get_string("noprintorders", "mod_emarking"));
+	echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), 'get', array("class"=>"submitbutton"));
 	echo $OUTPUT->footer();
 	die();
 }
@@ -137,17 +144,17 @@ $examstable = new html_table();
 
 // Table header
 $examstable->head = array(
-		get_string('examname', 'mod_emarking'),
-		get_string('examdate', 'mod_emarking'),
-		get_string('details', 'mod_emarking'),
-		get_string('examdatesent', 'mod_emarking'),
-		get_string('status', 'mod_emarking'),
-		get_string('multicourse', 'mod_emarking'),
-		get_string('actions', 'mod_emarking')
+		get_string("exam", "mod_emarking"),
+		get_string("date"),
+		get_string("details", "mod_emarking"),
+		get_string("sent", "mod_emarking"),
+		get_string("status", "mod_emarking"),
+		get_string("multicourse", "mod_emarking"),
+		get_string("actions", "mod_emarking")
 );
 
 $examstable->colclasses = array(
-    'exams_examname',
+    "exams_examname",
     null,    
     null,    
     null,    
@@ -158,61 +165,63 @@ $examstable->colclasses = array(
 
 // Now fill the table with exams data
 foreach($exams as $exam) {
-	$emarking ='';
-	$statistics ='';
+	$actions = html_writer::start_tag("div", array("class"=>"printactions"));
+	
+	// Show download button if the user has capability for downloading within 
+	// the category or if she is a teacher and has download capability for the 
+	// course and teacher downloads are allowed in the system
+	if (has_capability ( "mod/emarking:downloadexam", $contextcat )
+	    || ($CFG->emarking_teachercandownload
+	        && has_capability ( "mod/emarking:downloadexam", $contextcourse ))) {
+		$actions .= html_writer::div($OUTPUT->pix_icon("t/down", get_string("download"), null,
+		    array("examid"=>$exam->id,"class"=>"downloademarking")));
+    }
 
-	$actions = '<table class="detailstable"><tr>';
 	list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 
-	// Show download button if the user has capability for downloading in the category or if she is a teacher
-	// and has download capability for the course and teacher downloads are allowed
-	if (has_capability ( 'mod/emarking:downloadexam', $contextcat )
-	    || ($CFG->emarking_teachercandownload
-	        && has_capability ( 'mod/emarking:downloadexam', $contextcourse ))) {
-		$actions .= '<td><a href="#">'.$OUTPUT->pix_icon('i/down', get_string('download'),null,array("examid"=>$exam->id,"class"=>"downloademarking")).'</a></td>';
-	}
-
-	// Check if exam can be deleted
+    // Check if exam can be deleted
 	if($canbedeleted) {
-		if($cmid > 0) {
-			// Url for exam deletion
-			$urldelete = new moodle_url('/mod/emarking/print/deleteexam.php',array('id'=>$exam->id,'cm'=>$cm->id));
-			// Url for exam deletion
-			$urledit = new moodle_url('/mod/emarking/print/newprintorder.php',array('id'=>$exam->id,'cm'=>$cm->id));
-		} else {
-			// Url for exam deletion
-			$urldelete = new moodle_url('/mod/emarking/print/deleteexam.php',array('id'=>$exam->id,'course'=>$course->id));
-			// Url for exam deletion
-			$urledit = new moodle_url('/mod/emarking/print/newprintorder.php',array('id'=>$exam->id,'course'=>$course->id));
-		}
-		$actions .= '<td><a href="'.$urledit.'">'.$OUTPUT->pix_icon('t/edit', get_string('editorder', 'mod_emarking')).'</a></td>';
-		$actions .= '<td><a href="'.$urldelete.'">'.$OUTPUT->pix_icon('t/delete', get_string('cancelorder', 'mod_emarking')).'</td>';
+	    // Add exam id to URL params
+	    $params["id"] = $exam->id;
+
+		// Url for exam deletion and editing
+		$urldelete = new moodle_url('/mod/emarking/print/deleteexam.php', $params);
+		$urledit = new moodle_url('/mod/emarking/print/newprintorder.php', $params);
+
+		// Edit icon
+		$actions .= html_writer::div($OUTPUT->action_icon($urledit, 
+		    new pix_icon("t/edit", get_string("editorder", "mod_emarking"), null,
+		    array("examid"=>$exam->id,"class"=>"downloademarking"))));
+
+		// Delete icon
+		$actions .= html_writer::div($OUTPUT->action_icon($urldelete, 
+		    new pix_icon("t/delete", get_string("cancelorder", "mod_emarking"), null,
+		    array("examid"=>$exam->id,"class"=>"downloademarking"))));
 	}
 	
-	$actions .= '</tr></table>';
-
-	$emarking .= $exam->emarking ? get_string('yes') : get_string('no');
-
-	$details = '<table class="detailstable"><tr>';
-	$details .= $exam->headerqr ? '<td>'.$OUTPUT->pix_icon('qr-icon', get_string('headerqr', 'mod_emarking'),'mod_emarking').'</td>' : '';
-	$enrolments = explode(',', $exam->enrolments);
-	foreach($enrolments as $enrolment) {
-	    if($enrolment === 'manual') {
-	        $details .= '<td>'.$OUTPUT->pix_icon('i/enrolusers', get_string('pluginname', 'enrol_manual'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
-	    } elseif ($enrolment === 'self') {
-	        $details .= '<td>'.$OUTPUT->pix_icon('i/user', get_string('pluginname', 'enrol_self'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
-	    } elseif ($enrolment === 'database') {
-	        $details .= '<td>'.$OUTPUT->pix_icon('i/db', get_string('pluginname', 'enrol_database'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
-	    } elseif ($enrolment === 'meta') {
-	        $details .= '<td>'.$OUTPUT->pix_icon('e/inster_edit_link', get_string('pluginname', 'enrol_meta'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
-	    } else {
-	        $details .= '<td>'.$OUTPUT->pix_icon('i/cohort', get_string('otherenrolment', 'mod_emarking'), 'moodle', array('style'=>'margin-left:2px')).'</td>';
-	    }
-	}
-	$details .= $exam->printrandom ? '<td>'.$OUTPUT->pix_icon('shuffle', get_string('printrandom', 'mod_emarking'),'mod_emarking').'</td>' : '';
-	$details .= $exam->printlist ? '<td>'.$OUTPUT->pix_icon('i/grades', get_string('printlist', 'mod_emarking')).'</td>' : '';
-	$details .= '</tr></table>';
+	$actions .= html_writer::end_tag("div");
+	$details = html_writer::start_tag("div", array("class"=>"printdetails"));
 	
+	if($exam->headerqr) {
+	    $details .= html_writer::div($OUTPUT->pix_icon('qr-icon', 
+	        get_string('headerqr', 'mod_emarking'),'mod_emarking'));
+	}
+
+	if($exam->printlist) {
+	    $details .= html_writer::div($OUTPUT->pix_icon('i/grades', 
+	        get_string('printlist', 'mod_emarking')));
+	}
+
+	if($exam->printrandom) {
+	    $details .= html_writer::div($OUTPUT->pix_icon('shuffle', 
+	        get_string('printrandom', 'mod_emarking'),'mod_emarking'));
+	}
+	
+
+	$details.= emarking_enrolments_div($exam);
+	
+	$details .= html_writer::end_tag("div");
+		
 	$examstatus = '';
 	switch($exam->status) {
 		case 1:
@@ -228,9 +237,9 @@ foreach($exams as $exam) {
 
 	$examstable->data[] = array(
 			$exam->name,
-			date("d/m/y H:i", $exam->examdate),
+			date("l jS F g:ia", $exam->examdate),
 			$details,
-			date("d/m/y H:i", $exam->timecreated),
+			emarking_time_ago($exam->timecreated),
 			$examstatus,
 			$multicourse,
 			$actions
@@ -239,7 +248,8 @@ foreach($exams as $exam) {
 
 echo html_writer::table($examstable);
 
-echo $OUTPUT->single_button($urladd, get_string('newprintorder', 'mod_emarking'));
+echo $OUTPUT->single_button($urladd, get_string('newprintorder', 'mod_emarking'), 
+    'get', array("class"=>"newprintorder"));
 
 $downloadurl = new moodle_url('/mod/emarking/print/download.php');
 

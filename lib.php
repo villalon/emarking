@@ -713,9 +713,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
             send_file_not_found();
         }
         
-        $useristeacher = emarking_user_is_teacher($emarking->course);
-        
-        if ($studentid != $USER->id && ! is_siteadmin($USER) && ! $useristeacher) {
+        if ($studentid != $USER->id && ! is_siteadmin($USER) && !has_capability('mod/emarking:supervisegrading', $context)) {
             send_file_not_found();
         }
     }

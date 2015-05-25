@@ -38,14 +38,12 @@ global $USER;
 
 // We validate login first as this page can be reached by the copy center
 // whom will not be logged in the course for downloading
-if (! isloggedin()) {
+if (!isloggedin() || isguestuser()) {
     echo json_encode(array(
         'error' => 'User is not logged in'
     ));
     die();
 }
-
-require_login();
 
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 $examid = optional_param('examid', 0, PARAM_INT);
@@ -162,9 +160,9 @@ $_SESSION[$USER->sesskey . "examid"] = $examid; // Save exam id for extra securi
 if ($CFG->emarking_usesms) {
     
     // Validate mobile phone number
-    if (! preg_match('/^\+569\d{8}$/', $USER->phone2)) {
+    if ($CFG->emarking_mobilephoneregex && ! preg_match('/^'.$CFG->emarking_mobilephoneregex.'$/', $USER->phone2)) {
         echo json_encode(array(
-            'error' => 'Invalid phone number, we expect a full international number (ex: +56912345678)'
+            'error' => get_string("invalidphonenumber", "mod_emarking")
         ));
         die();
     }
@@ -177,7 +175,7 @@ if ($CFG->emarking_usesms) {
         ));
     } else {
         echo json_encode(array(
-            'error' => 'Could not connect to SMS server',
+            'error' => get_string("smsserverproblem", "mod_emarking"),
             'message' => ''
         ));
     }
@@ -189,7 +187,7 @@ if ($CFG->emarking_usesms) {
         ));
     } else {
         echo json_encode(array(
-            'error' => 'Could not connect to email server',
+            'error' => get_string("errorsendingemail", "mod_emarking"),
             'message' => ''
         ));
     }
