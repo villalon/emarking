@@ -209,7 +209,7 @@ foreach($questions as $question){
 
 	$status = get_string("statusnotsent", "mod_emarking");
 	if($question->regradeid!=null) {
-		if($requestswithindate) {
+		if($requestswithindate && !$question->rgaccepted) {
 			$linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('i/manual_item', get_string('edit')));
 			$linktext .= '&nbsp;' . $OUTPUT->action_link($urldelete, null, null, null, new pix_icon('t/delete', get_string('delete')));
 		} else {
