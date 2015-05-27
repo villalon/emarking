@@ -69,7 +69,7 @@ function emarking_time_ago($time)
         86400 => get_string('day'),
         3600 => get_string('hour'),
         60 => get_string('minute'),
-        1 => get_string('seconds')
+        1 => get_string('second', 'mod_emarking')
     );
     
     foreach ($tokens as $unit => $text) {
@@ -239,14 +239,17 @@ function emarking_verify_logo()
             $filename = $file->get_filename();
             if ($filename !== '.') {
                 
-                $existingfile = $fs->get_file($syscontext->id, 'mod_emarking', 'logo', 1, '/', $file->get_filename());
+                $existingfiles = $fs->get_area_files($syscontext->id, 'mod_emarking', 'logo', 1, "filename", false);
                 
-                if ($existingfile && $existingfile->get_timemodified() < $file->get_timemodified()) {
-                    $existingfile->delete();
-                    $existingfile = null;
+                $replace = false;
+                foreach($existingfiles as $existingfile) {
+                    if ($existingfile->get_timemodified() < $file->get_timemodified()) {
+                        $existingfile->delete();
+                        $replace = true;
+                    }
                 }
                 
-                if (! $existingfile) {
+                if ($replace) {
                     $newrecord = new stdClass();
                     $newrecord->contextid = $syscontext->id;
                     $newrecord->itemid = 1;

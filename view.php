@@ -117,7 +117,7 @@ list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true
 // see other users
 $userfilter = 'WHERE 1=1 ';
 if (! $usercangrade) {
-    $userfilter .= 'AND ue.userid = ' . $USER->id;
+    $userfilter .= 'AND u.id = ' . $USER->id;
 } else 
     if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING && ! is_siteadmin($USER->id) && ! $issupervisor) {
         $userfilter .= 'AND um.id = ' . $USER->id;
@@ -142,7 +142,7 @@ if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL) {
 }
 
 // Only when marking normally for a grade we can publish grades
-if ($emarking->type == EMARKING_TYPE_NORMAL) {
+if ($emarking->type == EMARKING_TYPE_NORMAL && has_capability("mod/emarking:supervisegrading", $context)) {
     echo "<form id='publishgrades' action='marking/publish.php' method='post'>";
     echo "<input type='hidden' name='id' value='$cm->id'>";
 }
@@ -231,12 +231,14 @@ GROUP_CONCAT(IFNULL(um.picture, '') SEPARATOR '#') as markerpicture,
 GROUP_CONCAT(IFNULL(um.lastname, '') SEPARATOR '#') as markerlast,
 GROUP_CONCAT(IFNULL(um.firstname, '') SEPARATOR '#') as markerfirst,
 GROUP_CONCAT(IFNULL(um.id, 0) SEPARATOR '#') as markerid
-FROM {user_enrolments} ue
-INNER JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
-INNER JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
-INNER JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.userid = ue.userid)
-INNER JOIN {role} as r on (r.id = ra.roleid AND r.shortname = 'student')
-INNER JOIN {user} u ON (ue.userid = u.id)
+FROM (
+SELECT u.*, e.courseid FROM {user_enrolments} AS ue
+INNER JOIN {enrol} AS e ON (e.id = ue.enrolid AND e.courseid = ?)
+INNER JOIN {context} AS c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
+INNER JOIN {role_assignments} AS ra ON (ra.contextid = c.id AND ra.userid = ue.userid)
+INNER JOIN {role} AS r on (r.id = ra.roleid AND r.shortname = 'student')
+INNER JOIN {user} AS u ON (ue.userid = u.id)
+GROUP BY u.id) as u
 LEFT JOIN (
 SELECT s.student,
 d.id as draftid,
@@ -271,7 +273,7 @@ LEFT JOIN {gradingform_rubric_levels} as l ON (c.levelid = l.id)
 LEFT JOIN {emarking_regrade} as r ON (r.draft = d.id AND r.criterion = l.criterionid AND r.accepted = 0)
 LEFT JOIN {emarking_marker_criterion} AS mc ON (mc.criterion = l.criterionid AND mc.emarking = nm.id AND mc.marker=?)
 GROUP BY d.id
-) AS NM ON (u.id = NM.student AND e.courseid = NM.course)
+) AS NM ON (u.id = NM.student AND u.courseid = NM.course)
 LEFT JOIN {user} as um ON (NM.marker = um.id)
 $userfilter
 GROUP BY u.id
@@ -382,7 +384,9 @@ if ($emarking->type == EMARKING_TYPE_NORMAL) {
 $totalstudents = count($drafts);
 
 $actionsheader = get_string('actions', 'mod_emarking');
-$actionsheader .= $usercangrade ? '&nbsp;<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
+if(has_capability("mod/emarking:supervisegrading", $context)) {
+    $actionsheader .= $usercangrade ? '&nbsp;<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
+}
 
 $headers = array();
 $headers[] = get_string('names', 'mod_emarking');
@@ -599,7 +603,9 @@ foreach ($drafts as $draft) {
         }
         
         // Checkbox for publishing grade
-        if ($emarking->type == EMARKING_TYPE_NORMAL && $draftqcs[$current] == 0 && $thisstatus >= EMARKING_STATUS_SUBMITTED && $thisstatus < EMARKING_STATUS_PUBLISHED && $usercangrade) {
+        if ($emarking->type == EMARKING_TYPE_NORMAL && $draftqcs[$current] == 0 
+            && $thisstatus >= EMARKING_STATUS_SUBMITTED && $thisstatus < EMARKING_STATUS_PUBLISHED && $usercangrade
+            && has_capability("mod/emarking:supervisegrading", $context)) {
             $unpublishedsubmissions ++;
             $actions .= html_writer::div('<input type="checkbox" name="publish[]" value="' . $thisid . '">');
         }
@@ -620,7 +626,7 @@ foreach ($drafts as $draft) {
     $timesmodified = explode('#', $draft->timemodified);
     $timemodified = '';
     foreach ($timesmodified as $t) {
-        $timemodified .= $t > 0 ? emarking_time_ago($t) : '';
+        $timemodified .= $t > 0 ? core_text::strtolower(emarking_time_ago($t)) : '';
     }
     // If there's a draft show total pages
     if ($draft->status >= EMARKING_STATUS_SUBMITTED) {

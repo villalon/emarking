@@ -286,19 +286,20 @@ function emarking_publish_grade($draft) {
 	require_once ($CFG->libdir . '/gradelib.php');
 
 	if(!$submission = $DB->get_record('emarking_submission', array('id'=>$draft->submissionid))) {
-		return;
+		throw new Exception("Invalid submission for draft");
 	}
 	
 	if(!$emarking = $DB->get_record('emarking', array('id'=>$submission->emarking))) {
-		return;
+		throw new Exception("Invalid emarking in submission");
 	}
 
 	if($emarking->type != EMARKING_TYPE_NORMAL)
-		return;
+		throw new Exception("Invalid emarking type for publishing");
+	    
 	
-	if ($submission->status <= EMARKING_STATUS_ABSENT)
-		return;
-
+	if ($draft->status <= EMARKING_STATUS_ABSENT)
+		throw new Exception("Invalid draft status for publishing");
+	    
 	// Copy final grade to gradebook
 	$grade_item = grade_item::fetch ( array (
 			'itemmodule' => 'emarking',

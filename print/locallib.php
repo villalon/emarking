@@ -628,7 +628,7 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     // Write date
     $top += 4;
     $pdf->SetXY($left, $top);
-    $pdf->Write(1, core_text::strtoupper(get_string('date') . ': ' . userdate($downloadexam->examdate, get_string('strftimedatefullshort', 'langconfig'))));
+    $pdf->Write(1, core_text::strtoupper(get_string('date') . ': ' . date("l jS F g:ia", $downloadexam->examdate)));
     
     // Write the table header
     $left = 10;
@@ -644,6 +644,10 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     // Write each student
     $current = 0;
     foreach ($studentinfo as $stlist) {
+        if(!$stlist->idnumber && $downloadexam->extraexams > 0) {
+            error_log(print_r($stlist, true));
+            continue;
+        }
         $current ++;
         $pdf->Cell(10, 10, $current, 1, 0, 'C');
         $pdf->Cell(20, 10, $stlist->idnumber, 1, 0, 'C');

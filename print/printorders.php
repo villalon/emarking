@@ -35,6 +35,8 @@ $status = optional_param('status', 1, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = 10;
 
+emarking_verify_logo();
+
 // Validate status (print orders or history)
 if ($status < 1 || $status > 2) {
     print_error('Invalid status');

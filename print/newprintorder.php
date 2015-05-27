@@ -121,8 +121,7 @@ $PAGE->navbar->add(get_string('newprintorder', 'mod_emarking'));
 // Verify capability for security issues
 if (! has_capability('mod/emarking:uploadexam', $context)) {
     $item = array(
-        'context' => context_module::instance($cm->id),
-        'objectid' => $cm->id
+        'context' => $context
     );
     // Add to Moodle log so some auditing can be done
     \mod_emarking\event\invalidaccess_granted::create($item)->trigger();

@@ -26,6 +26,7 @@ $string['mobilephoneregex'] = 'Expresión regular de celulares';
 $string['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
 $string['invalidphonenumber'] = 'Número de celular inválido, se requiere un teléfono completo en formato internacional (ej: +56912345678)';
 $string['errorsendingemail'] = 'Se produjo un error con el servidor de correo';
+$string['second'] = 'Segundo';
 
 $string['processomr'] = 'Procesar OMR';
 

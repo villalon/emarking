@@ -26,6 +26,7 @@ $string['mobilephoneregex'] = 'Mobile phone regex';
 $string['mobilephoneregex_help'] = 'A regular expression to validate a correct mobile phone';
 $string['invalidphonenumber'] = 'Invalid phone number, we expect a full international number (ex: +56912345678)';
 $string['errorsendingemail'] = 'An error ocurred while sending the email';
+$string['second'] = 'Second';
 
 $string['processomr'] = 'Process OMR';
 
