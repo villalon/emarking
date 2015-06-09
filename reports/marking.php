@@ -193,6 +193,7 @@ $markingstatspercriterion = $DB->get_records_sql("
 $datatablecriteria = "['Criterio', 'Corregido', 'Por recorregir', 'Por corregir'],";
 foreach($markingstatspercriterion as $statpercriterion) {
         $description = trim(preg_replace('/\s\s+/', ' ', $statpercriterion->description));
+        $description = preg_replace("/\r?\n/", "\\n", addslashes($description));
         $datatablecriteria .= "['$description', ".($statpercriterion->comments - $statpercriterion->regrades).", $statpercriterion->regrades, ".($statpercriterion->submissions - $statpercriterion->comments)."],";
 }
 

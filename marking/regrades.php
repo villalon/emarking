@@ -215,7 +215,11 @@ foreach($questions as $question){
 		} else {
 			$linktext = '&nbsp;';
 		}
-		$status = $question->rgaccepted ? get_string("statusaccepted", "mod_emarking") : get_string("statussubmitted", "mod_emarking");
+		if($question->rgaccepted) {
+		    $status = $OUTPUT->pix_icon("i/valid", get_string('replied', 'mod_emarking'));
+		} else {
+		    $status = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
+		}
 		$status .= '<br/>'. emarking_get_regrade_type_string($question->motive);
 		$status .= '<br/>'. substr($question->comment, 0 , min(strlen($question->comment), 25));
 		if(strlen($question->comment) > 25)
