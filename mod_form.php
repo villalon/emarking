@@ -87,7 +87,8 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$mform->addHelpButton ( 'name', 'modulename', 'mod_emarking' );
 		
 		// Adding the standard "intro" and "introformat" fields
-		$this->add_intro_editor ();
+		moodleform_mod::standard_intro_elements();
+		// $this->add_intro_editor ();
 
 		// -------------------------------------------------------------------------------
 		// Experimental features
@@ -347,6 +348,7 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$adjustslopescore = isset($data ['adjustslopescore']) ? $data ['adjustslopescore'] : 0;
 		$adjustslopegrade = isset($data ['adjustslopegrade']) ? $data ['adjustslopegrade'] : 0;
 		$grademin = $data ['grademin'];
+		$grademax = $data ['grade'];
 
 		// If we are adjusting the slope
 		if($adjustslope) {
