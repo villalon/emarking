@@ -35,8 +35,9 @@ global $DB, $USER, $CFG;
 $cmid = optional_param("id", 0, PARAM_INT);
 // Course id, if the user comes from a course
 $courseid = optional_param("course", 0, PARAM_INT);
-
+// Exam id in case an exam was just created
 $examid = optional_param("examid", 0, PARAM_INT);
+// If the user is downloading a print form
 $downloadform = optional_param("downloadform", false, PARAM_BOOL);
 
 // First check that the user is logged in
@@ -88,7 +89,6 @@ if($examid && $downloadform) {
 		$USER,
 		$requestedbyuser,
 		$coursecat,
-		emarking_exam_total_pages_to_print($newexam),
 		$course);
 	die();
 }
@@ -134,7 +134,7 @@ $exams = $DB->get_records("emarking_exams", array("course"=>$course->id), "examd
 // If there are no exams to show
 if(count($exams) == 0) {
 	echo $OUTPUT->notification(get_string("noprintorders", "mod_emarking"));
-	echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), 'get', array("class"=>"submitbutton"));
+	echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), "get", array("class"=>"submitbutton"));
 	echo $OUTPUT->footer();
 	die();
 }
@@ -153,6 +153,7 @@ $examstable->head = array(
 		get_string("actions", "mod_emarking")
 );
 
+// CSS classes for each column in the table
 $examstable->colclasses = array(
     "exams_examname",
     null,    
@@ -185,8 +186,8 @@ foreach($exams as $exam) {
 	    $params["id"] = $exam->id;
 
 		// Url for exam deletion and editing
-		$urldelete = new moodle_url('/mod/emarking/print/deleteexam.php', $params);
-		$urledit = new moodle_url('/mod/emarking/print/newprintorder.php', $params);
+		$urldelete = new moodle_url("/mod/emarking/print/deleteexam.php", $params);
+		$urledit = new moodle_url("/mod/emarking/print/newprintorder.php", $params);
 
 		// Edit icon
 		$actions .= html_writer::div($OUTPUT->action_icon($urledit, 
@@ -203,18 +204,18 @@ foreach($exams as $exam) {
 	$details = html_writer::start_tag("div", array("class"=>"printdetails"));
 	
 	if($exam->headerqr) {
-	    $details .= html_writer::div($OUTPUT->pix_icon('qr-icon', 
-	        get_string('headerqr', 'mod_emarking'),'mod_emarking'));
+	    $details .= html_writer::div($OUTPUT->pix_icon("qr-icon", 
+	        get_string("headerqr", "mod_emarking"),"mod_emarking"));
 	}
 
 	if($exam->printlist) {
-	    $details .= html_writer::div($OUTPUT->pix_icon('i/grades', 
-	        get_string('printlist', 'mod_emarking')));
+	    $details .= html_writer::div($OUTPUT->pix_icon("i/grades", 
+	        get_string("printlist", "mod_emarking")));
 	}
 
 	if($exam->printrandom) {
-	    $details .= html_writer::div($OUTPUT->pix_icon('shuffle', 
-	        get_string('printrandom', 'mod_emarking'),'mod_emarking'));
+	    $details .= html_writer::div($OUTPUT->pix_icon("shuffle", 
+	        get_string("printrandom", "mod_emarking"),"mod_emarking"));
 	}
 	
 
@@ -222,16 +223,16 @@ foreach($exams as $exam) {
 	
 	$details .= html_writer::end_tag("div");
 		
-	$examstatus = '';
+	$examstatus = "";
 	switch($exam->status) {
 		case 1:
-			$examstatus = get_string('examstatussent', 'mod_emarking');
+			$examstatus = get_string("examstatussent", "mod_emarking");
 			break;
 		case 2:
-			$examstatus = get_string('examstatusdownloaded', 'mod_emarking');
+			$examstatus = get_string("examstatusdownloaded", "mod_emarking");
 			break;
 		case 3:
-			$examstatus = get_string('examstatusprinted', 'mod_emarking');
+			$examstatus = get_string("examstatusprinted", "mod_emarking");
 			break;
 	}
 
@@ -248,26 +249,26 @@ foreach($exams as $exam) {
 
 echo html_writer::table($examstable);
 
-echo $OUTPUT->single_button($urladd, get_string('newprintorder', 'mod_emarking'), 
-    'get', array("class"=>"newprintorder"));
+echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), 
+    "get", array("class"=>"newprintorder"));
 
-$downloadurl = new moodle_url('/mod/emarking/print/download.php');
+$downloadurl = new moodle_url("/mod/emarking/print/download.php");
 
 if($CFG->emarking_usesms) {
-	$message = get_string('smsinstructions', 'mod_emarking', $USER);
+	$message = get_string("smsinstructions", "mod_emarking", $USER);
 } else {
-	$message = get_string('emailinstructions', 'mod_emarking', $USER);
+	$message = get_string("emailinstructions", "mod_emarking", $USER);
 }
 
 $multipdfs = $CFG->emarking_multiplepdfs;
 
 ?>
 <script type="text/javascript">
-	var wwwroot = '<?php echo $CFG->wwwroot ?>';
-	var downloadurl = '<?php echo $downloadurl ?>';
-	var sessionkey = '<?php echo sesskey() ?>';
-	var multipdfs = '0';
-	var incourse = '1';
+	var wwwroot = "<?php echo $CFG->wwwroot ?>";
+	var downloadurl = "<?php echo $downloadurl ?>";
+	var sessionkey = "<?php echo sesskey() ?>";
+	var multipdfs = "0";
+	var incourse = "1";
 </script>
 <div id="loadingPanel"></div>
 <!-- The panel DIV goes at the end to make sure it is loaded before javascript starts -->
@@ -280,8 +281,8 @@ $multipdfs = $CFG->emarking_multiplepdfs;
 					<input type="text" name="sms"
 						id="sms" placeholder="">
 					<select onchange="change(this.value);">
-						<option value="0"><?php echo get_string('singlepdf', 'mod_emarking') ?></option>
-						<option value="1"><?php echo get_string('multiplepdfs', 'mod_emarking') ?></option>
+						<option value="0"><?php echo get_string("singlepdf", "mod_emarking") ?></option>
+						<option value="1"><?php echo get_string("multiplepdfs", "mod_emarking") ?></option>
 					</select>
 				</p>
 			</fieldset>

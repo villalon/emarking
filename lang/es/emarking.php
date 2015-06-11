@@ -40,6 +40,8 @@ $string['otherenrolment'] = 'Otro método de matriculación.';
 $string['sent'] = 'Enviada';
 $string['replied'] = 'Contestada';
 
+$string['usernotloggedin'] = 'Usuario no está logueado';
+$string['invalidsessionkey'] = 'Clave de sesión inválida';
 
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
@@ -278,6 +280,7 @@ $string ['examdeleteconfirm'] = 'Está a punto de borrar {$a}. ¿Desea continuar
 $string ['examdeleted'] = 'Prueba borrada. Por favor espera mientras está siendo redirigido.';
 $string ['examid'] = 'Nº de orden';
 $string ['examinfo'] = 'Información de la prueba';
+$string["examhasnopdf"] = "Exam id has no PDF associated. This is a terrible error, please notify the administrator.";
 $string ['examname'] = 'Nombre de la prueba';
 $string ['examname_help'] = 'Nombre de la prueba, por ejemplo: Control 2, Prueba final, Exámen.';
 $string ['exam'] = 'Prueba';
@@ -332,6 +335,7 @@ $string ['invalidemarkingid'] = 'Id de assignment inválido';
 $string ['invalidparametersforpage'] = 'Parámetros inválidos para la página';
 $string ['invalidpdfnopages'] = 'Archivo ZIP inválido, está vació.';
 $string ['invalidsize'] = 'Tamaño inválido para la imagen';
+$string ['invalidstatus'] = 'Estado inválido';
 $string ['invalidtoken'] = 'Código de seguridad no válido al intentar descargar prueba.';
 $string ['invalidzipnoanonymous'] = 'Archivo ZIP inválido, no contiene versiones anónimas de las respuestas. Es posible que haya sido generado con una versión antigua de la herramienta desktop.';
 $string ["justice"] = "Percepción de Justicia";

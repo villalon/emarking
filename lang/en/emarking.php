@@ -40,6 +40,8 @@ $string['otherenrolment'] = 'Other enrolment types.';
 $string['sent'] = 'Sent';
 $string['replied'] = 'Replied';
 
+$string['usernotloggedin'] = 'User is not logged in';
+$string['invalidsessionkey'] = 'Invalid session key';
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
 $string['predefinedcomments'] = 'Predefined comments';
@@ -280,6 +282,7 @@ $string ['examdeleteconfirm'] = 'You are about to delete {$a}. ¿Do you want to 
 $string ['examdeleted'] = 'Exam deleted. Please wait while you are redirected';
 $string ['examid'] = 'Exam id';
 $string ['examinfo'] = 'Exam information';
+$string["examhasnopdf"] = "El examen to tiene un archivo PDF asociado. Este error es grave, por favor notifique al administrador.";
 $string ['examname'] = 'Title';
 $string ['examname_help'] = 'Exam title e.g: Final examn, Mid-term.';
 $string ['exam'] = 'Exam';
@@ -330,6 +333,7 @@ $string ['invalidemarkingid'] = 'Invalid access, trying to upload exam';
 $string ['invalidparametersforpage'] = 'Invalid parameters for page';
 $string ['invalidpdfnopages'] = 'Invalid PDF file, it contains no pages.';
 $string ['invalidsize'] = 'Invalid size from Image';
+$string ['invalidstatus'] = 'Invalid status';
 $string ['invalidtoken'] = 'Invalid token trying to download exam.';
 $string ['invalidzipnoanonymous'] = 'Invalid ZIP file, it does not contain the anonymous version of answers. It is possible that it has been generated with an old version of the eMarking desktop tool.';
 $string ["justice"] = "Justice";

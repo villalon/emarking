@@ -22,17 +22,17 @@
  * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once (dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
+require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
+require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
 
-require_once ($CFG->dirroot . '/mod/emarking/lib/phpqrcode/phpqrcode.php');
-require_once ($CFG->dirroot . '/mod/emarking/lib.php');
-require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
-require_once ('locallib.php');
-require_once ($CFG->libdir . '/eventslib.php');
-require_once ($CFG->dirroot . '/mod/emarking/classes/event/invalidtoken_granted.php');
+require_once ($CFG->dirroot . "/mod/emarking/lib/phpqrcode/phpqrcode.php");
+require_once ($CFG->dirroot . "/mod/emarking/lib.php");
+require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
+require_once ("locallib.php");
+require_once ($CFG->libdir . "/eventslib.php");
+require_once ($CFG->dirroot . "/mod/emarking/classes/event/invalidtoken_granted.php");
 
 global $USER;
 
@@ -40,72 +40,72 @@ global $USER;
 // whom will not be logged in the course for downloading
 if (!isloggedin() || isguestuser()) {
     echo json_encode(array(
-        'error' => 'User is not logged in'
+        "error" => get_string("usernotloggedin", "mod_emarking")
     ));
     die();
 }
 
-$sesskey = required_param('sesskey', PARAM_ALPHANUM);
-$examid = optional_param('examid', 0, PARAM_INT);
-$token = optional_param('token', 0, PARAM_INT);
-$multiplepdfs = optional_param('multi', false, PARAM_BOOL);
-$incourse = optional_param('incourse', false, PARAM_BOOL);
+$sesskey = required_param("sesskey", PARAM_ALPHANUM);
+$examid = optional_param("examid", 0, PARAM_INT);
+$token = optional_param("token", 0, PARAM_INT);
+$multiplepdfs = optional_param("multi", false, PARAM_BOOL);
+$incourse = optional_param("incourse", false, PARAM_BOOL);
 
 // Validate session key
 if ($sesskey != $USER->sesskey) {
     echo json_encode(array(
-        'error' => 'Invalid session key'
+        "error" => get_string("invalidsessionkey", "mod_emarking")
     ));
     die();
 }
 
 // If we have the token and session id ok we get the exam id from the session
 if ($token > 9999) {
-    $examid = $_SESSION[$USER->sesskey . 'examid'];
+    $examid = $_SESSION[$USER->sesskey . "examid"];
 }
 
 // We get the exam object
-if (! $exam = $DB->get_record('emarking_exams', array(
-    'id' => $examid
+if (! $exam = $DB->get_record("emarking_exams", array(
+    "id" => $examid
 ))) {
     echo json_encode(array(
-        'error' => 'Invalid exam id'
+        "error" => get_string("invalidexamid", "mod_emarking")
     ));
     die();
 }
 
 // We get the course from the exam
-if (! $course = $DB->get_record('course', array(
-    'id' => $exam->course
+if (! $course = $DB->get_record("course", array(
+    "id" => $exam->course
 ))) {
-    print_error('Invalid exam course id');
+    print_error(get_string("invalidcourseid", "mod_emarking"));
     die();
 }
 
 $contextcat = context_coursecat::instance($course->category);
 $contextcourse = context_course::instance($course->id);
 
-$url = new moodle_url('/mod/emarking/print/download.php', array('examid'=>$exam->id, 'token' => $token, 'sesskey' => $sesskey));
-$coursecategoryurl = new moodle_url('/mod/emarking/print/printorders.php', array('category'=>$course->category));
-$courseurl = new moodle_url('/mod/emarking/print/exams.php', array('course'=>$course->id));
+$url = new moodle_url("/mod/emarking/print/download.php", array("examid"=>$exam->id, "token" => $token, "sesskey" => $sesskey));
+$coursecategoryurl = new moodle_url("/mod/emarking/print/printorders.php", array("category"=>$course->category));
+$courseurl = new moodle_url("/mod/emarking/print/exams.php", array("course"=>$course->id));
 
 // Validate capability in the category context
-if (! (has_capability('mod/emarking:downloadexam', $contextcat) || ($CFG->emarking_teachercandownload && has_capability('mod/emarking:downloadexam', $contextcourse)))) {
+if (! (has_capability("mod/emarking:downloadexam", $contextcat) || ($CFG->emarking_teachercandownload && has_capability("mod/emarking:downloadexam", $contextcourse)))) {
     $item = array(
-        'context' => $contextcourse
+        "context" => $contextcourse
     );
     // Add to Moodle log so some auditing can be done
     \mod_emarking\event\invalidaccess_granted::create($item)->trigger();
     echo json_encode(array(
-        'error' => get_string('invalidaccess', 'mod_emarking')
+        "error" => get_string("invalidaccess", "mod_emarking")
     ));
     die();
 }
 
 // If a token was sent and it was not valid, log and die
-if ($token > 9999 && $_SESSION[$USER->sesskey . 'smstoken'] !== $token) {
+if ($token > 9999 && $_SESSION[$USER->sesskey . "smstoken"] !== $token) {
     $item = array(
-        'context' => $contextcourse
+        "context" => $contextcourse
     );
     // Add to Moodle log so some auditing can be done
     \mod_emarking\event\invalidtoken_granted::create($item)->trigger();
@@ -114,32 +114,32 @@ if ($token > 9999 && $_SESSION[$USER->sesskey . 'smstoken'] !== $token) {
     $PAGE->set_url($url);
     
     echo $OUTPUT->header();
-    echo $OUTPUT->notification(get_string('eventinvalidtokengranted', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->notification(get_string("eventinvalidtokengranted", "mod_emarking"), "notifyproblem");
     $buttonurl = $incourse ? $courseurl : $coursecategoryurl;
-    echo $OUTPUT->single_button($buttonurl, get_string('back'), 'get');
+    echo $OUTPUT->single_button($buttonurl, get_string("back"), "get");
     echo $OUTPUT->footer();
     die();
 }
 
 // A token was sent to validate download it will have 5 digits, otherwise it should be 0
-if ($token > 9999 && $_SESSION[$USER->sesskey . 'smstoken'] === $token) {
+if ($token > 9999 && $_SESSION[$USER->sesskey . "smstoken"] === $token) {
     $now = new DateTime();
     $tokendate = new DateTime();
-    $tokendate->setTimestamp($_SESSION[$USER->sesskey . 'smsdate']);
+    $tokendate->setTimestamp($_SESSION[$USER->sesskey . "smsdate"]);
     $diff = $now->diff($tokendate);
     if ($diff->i > 5 && false) {
         $PAGE->set_context($contextcourse);
         $PAGE->set_url($url);
         
         echo $OUTPUT->header();
-        echo $OUTPUT->notification(get_string('tokenexpired', 'mod_emarking'), 'notifyproblem');
+        echo $OUTPUT->notification(get_string("tokenexpired", "mod_emarking"), "notifyproblem");
         $buttonurl = $incourse ? $courseurl : $coursecategoryurl;
-        echo $OUTPUT->single_button($buttonurl, get_string('back'), 'get');
+        echo $OUTPUT->single_button($buttonurl, get_string("back"), "get");
         echo $OUTPUT->footer();
         die();
     }
     $item = array(
-        'context' => $contextcourse
+        "context" => $contextcourse
     );
     // Add to Moodle log so some auditing can be done
     \mod_emarking\event\successfully_downloaded::create($item)->trigger();
@@ -162,33 +162,33 @@ if ($CFG->emarking_usesms) {
     // Validate mobile phone number
     if ($CFG->emarking_mobilephoneregex && ! preg_match('/^'.$CFG->emarking_mobilephoneregex.'$/', $USER->phone2)) {
         echo json_encode(array(
-            'error' => get_string("invalidphonenumber", "mod_emarking")
+            "error" => get_string("invalidphonenumber", "mod_emarking")
         ));
         die();
     }
     
     // Send sms
-    if (emarking_send_sms(get_string('yourcodeis', 'mod_emarking') . ": $newtoken", $USER->phone2)) {
+    if (emarking_send_sms(get_string("yourcodeis", "mod_emarking") . ": $newtoken", $USER->phone2)) {
         echo json_encode(array(
-            'error' => '',
-            'message' => get_string('smssent', 'mod_emarking')
+            "error" => "",
+            "message" => get_string("smssent", "mod_emarking")
         ));
     } else {
         echo json_encode(array(
-            'error' => get_string("smsserverproblem", "mod_emarking"),
-            'message' => ''
+            "error" => get_string("smsserverproblem", "mod_emarking"),
+            "message" => ""
         ));
     }
 } else {
     if (emarking_send_email_code($newtoken, $USER, $course->fullname, $exam->name)) {
         echo json_encode(array(
-            'error' => '',
-            'message' => get_string('emailsent', 'mod_emarking')
+            "error" => "",
+            "message" => get_string("emailsent", "mod_emarking")
         ));
     } else {
         echo json_encode(array(
-            'error' => get_string("errorsendingemail", "mod_emarking"),
-            'message' => ''
+            "error" => get_string("errorsendingemail", "mod_emarking"),
+            "message" => ""
         ));
     }
 }

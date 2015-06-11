@@ -1089,7 +1089,7 @@ function emarking_get_categories_childs($id_category)
         $ids[] = $id;
     }
     
-    return implode(",", $ids);
+    return $ids;
 }
 
 /**

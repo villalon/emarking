@@ -39,7 +39,7 @@ emarking_verify_logo();
 
 // Validate status (print orders or history)
 if ($status < 1 || $status > 2) {
-    print_error('Invalid status');
+    print_error(get_string("invalidstatus", "mod_emarking"));
 }
 
 // Validate category
@@ -123,17 +123,27 @@ $examstable->align = array(
 $examstable->colclasses[1] = 'exams_examname';
 
 // Parameters for SQL calls
-$statussql = $status == 1 ? EMARKING_EXAM_UPLOADED : EMARKING_EXAM_SENT_TO_PRINT . "," . EMARKING_EXAM_PRINTED;
+if($status == 1) {
+    $statuses = array(EMARKING_EXAM_UPLOADED);
+} else {
+    $statuses = array(EMARKING_EXAM_SENT_TO_PRINT, EMARKING_EXAM_PRINTED);
+}
+
+list($statussql, $params) = $DB->get_in_or_equal($statuses);
+
 $order = $status == 1 ? "e.examdate asc, c.shortname ASC" : "e.examdate desc, c.shortname ASC";
-$ids_children = emarking_get_categories_childs($categoryid);
+
+list($childrensql, $childrenparams) = $DB->get_in_or_equal(emarking_get_categories_childs($categoryid));
+
+$params = array_merge($params, $childrenparams);
 
 $sqlcount = " SELECT count(*)
  FROM {emarking_exams} as e
 INNER JOIN {course} as c ON (e.course = c.id)
-WHERE c.category in ($ids_children) AND e.status in ($statussql)";
+WHERE c.category {$childrensql} AND e.status {$statussql}";
 
 // Get the count so we can use pagination
-$examscount = $DB->count_records_sql($sqlcount);
+$examscount = $DB->count_records_sql($sqlcount, $params);
 
 $sql = "SELECT e.*,
 			c.id as courseid,
@@ -145,12 +155,12 @@ $sql = "SELECT e.*,
 		INNER JOIN {course} as c ON (e.course = c.id)
 		INNER JOIN {user} as u ON (e.requestedby = u.id)
 		INNER JOIN {course_categories} as cc ON (cc.id = c.category)
-		WHERE c.category in ($ids_children) AND e.status in ($statussql)
+		WHERE c.category {$childrensql} AND e.status {$statussql}
 		ORDER BY " . $order;
 
 // Getting all print orders
 
-$exams = $DB->get_records_sql($sql, null, $page * $perpage, ($page + 1) * $perpage); // status = 1 means still not downloaded
+$exams = $DB->get_records_sql($sql, $params, $page * $perpage, ($page + 1) * $perpage); // status = 1 means still not downloaded
 
 $currentdate = time();
 $current = 0;
