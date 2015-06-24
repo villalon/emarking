@@ -54,6 +54,13 @@ if (! $emarking = $DB->get_record('emarking', array(
 ))) {
     print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
 }
+// Get the pages for the table
+$allstudents = emarking_get_students_for_printing($cmid);
+$countstudents = 0;
+foreach($allstudents as $student){	
+	$countstudents++;
+}
+$page = intval($countstudents/$perpage);
 
 // Validate course
 if (! $course = $DB->get_record('course', array(
