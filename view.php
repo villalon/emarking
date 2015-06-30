@@ -54,13 +54,6 @@ if (! $emarking = $DB->get_record('emarking', array(
 ))) {
     print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
 }
-// Get the pages for the table
-$allstudents = emarking_get_students_for_printing($cmid);
-$countstudents = 0;
-foreach($allstudents as $student){	
-	$countstudents++;
-}
-$page = intval($countstudents/$perpage);
 
 // Validate course
 if (! $course = $DB->get_record('course', array(
@@ -387,8 +380,14 @@ if ($emarking->type == EMARKING_TYPE_NORMAL) {
     // Run the query on the database
     $drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
 }
+// Get total students for the table
+$allstudents = emarking_get_students_for_printing($cm->course);
+$countstudents = 0;
+foreach($allstudents as $student){
+	$countstudents++;
+}
 
-$totalstudents = count($drafts);
+$totalstudents = $countstudents;
 
 $actionsheader = get_string('actions', 'mod_emarking');
 if(has_capability("mod/emarking:supervisegrading", $context)) {
