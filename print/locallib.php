@@ -541,7 +541,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
             }
         }
     }  // Markers training - One draft per marker
-else 
+    else 
         if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
             // Get all users with permission to grade in emarking
             $markers = get_enrolled_users($context, 'mod/emarking:grade');
@@ -564,7 +564,7 @@ else
                 $DB->insert_record('emarking_draft', $draft);
             }
         }  // Students training
-else 
+    else 
             if ($emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {
                 // Get all users with permission to grade in emarking
                 $students = get_enrolled_users($context, 'mod/emarking:submit');
@@ -584,7 +584,7 @@ else
                     $DB->insert_record('emarking_draft', $draft);
                 }
             }  // Peer review
-else 
+    else 
                 if ($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
                     // TODO: Implement peer review (this is a hard one)
                 }
@@ -622,26 +622,38 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     }
     
     // We position to the right of the logo and write exam name
-    $top = 8;
+    $top = 7;
     $pdf->SetFont('Helvetica', 'B', 12);
     $pdf->SetXY($left, $top);
     $pdf->Write(1, core_text::strtoupper($downloadexam->name));
     
     // Write course name
-    $top += 8;
+    $top += 6;
     $pdf->SetFont('Helvetica', '', 8);
     $pdf->SetXY($left, $top);
     $pdf->Write(1, core_text::strtoupper(get_string('course') . ': ' . $course->fullname));
     
+    $teachers = get_enrolled_users(context_course::instance($course->id), 'mod/emarking:supervisegrading');
+    $teachersnames = array();
+    foreach ($teachers as $teacher) {
+        $teachersnames[] = $teacher->firstname . ' ' . $teacher->lastname;
+    }
+    $teacherstring = implode(',', $teachersnames);
+    
     // Write number of students
     $top += 4;
     $pdf->SetXY($left, $top);
-    $pdf->Write(1, core_text::strtoupper(get_string('students') . ': ' . count($studentinfo)));
+    $pdf->Write(1, core_text::strtoupper(get_string('teacher', 'mod_emarking') . ': ' . $teacherstring));
     
     // Write date
     $top += 4;
     $pdf->SetXY($left, $top);
     $pdf->Write(1, core_text::strtoupper(get_string('date') . ': ' . date("l jS F g:ia", $downloadexam->examdate)));
+    
+    // Write number of students
+    $top += 4;
+    $pdf->SetXY($left, $top);
+    $pdf->Write(1, core_text::strtoupper(get_string('students') . ': ' . count($studentinfo)));
     
     // Write the table header
     $left = 10;
@@ -856,11 +868,12 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
     
     // Verify that both image files (anonymous and original) exist
     if (! file_exists($path . "/" . $filename) || ! file_exists($path . "/" . $anonymousfilename)) {
-        return false;
+        throw new Exception("Invalid path and/or filename $path $filename");
     }
     
-    if (! $student)
-        return false;
+    if (! $student) {
+        throw new Exception("Invalid student to submit page");
+    }
         
         // Filesystem
     $fs = get_file_storage();
@@ -1531,8 +1544,10 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     // Fill studentnames with student info (name, idnumber, id and picture)
     foreach ($students as $student) {
         
+        $studentenrolments = explode(",", $student->enrol);
+        
         // Verifies that the student is enrolled through a valid enrolment and that we haven't added her yet
-        if (array_search($student->enrol, $enrolincludes) === false || isset($studentinfo[$student->id])) {
+        if (count(array_intersect($studentenrolments, $enrolincludes)) == 0 || isset($studentinfo[$student->id])) {
             continue;
         }
         

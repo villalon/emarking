@@ -482,16 +482,19 @@ foreach ($drafts as $draft) {
     $draftsscore = explode('#', $draft->score);
 
     // Status and marking progress
-    $status = '';
     $pctmarked = '';
     $current = 0;
     foreach ($draftids as $d) {
         
         $pages = intval($draftspages[$current]);
-        $status .= emarking_get_submission_icon_status($draftstatuses[$current]);
+        $status = $draftqcs[$current]== 0 ? 
+            emarking_get_submission_icon_status($draftstatuses[$current]) : 
+            $OUTPUT->pix_icon('i/completion-auto-y', get_string("qualitycontrol", "mod_emarking"));
         
         // Add warning icon if there are missing pages in draft
-        if ($emarking->totalpages > 0 && $emarking->totalpages > $pages && $draftstatuses[$current] > EMARKING_STATUS_MISSING) {
+        if ($emarking->totalpages > 0 
+            && $emarking->totalpages > $pages 
+            && $draftstatuses[$current] > EMARKING_STATUS_MISSING) {
             $status .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
         }
         // Completion matrix
@@ -551,12 +554,15 @@ foreach ($drafts as $draft) {
         $current ++;
     }
     
+    
     // Action buttons
-    $actions = html_writer::start_div('printactions');
+    $actions = "";
     
     $current = 0;
     foreach ($draftids as $d) {
         
+        // Action buttons
+        $actions .= html_writer::start_div('printactions');
         $thisstatus = $draftstatuses[$current];
         $thisid = $d;
         
@@ -568,7 +574,8 @@ foreach ($drafts as $draft) {
         // eMarking button
         if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $thisstatus >= EMARKING_STATUS_PUBLISHED) {
             $pixicon = $usercangrade ? new pix_icon('i/manual_item', get_string('annotatesubmission', 'mod_emarking')) : new pix_icon('i/preview', get_string('viewsubmission', 'mod_emarking'));
-            $actions .= html_writer::div($OUTPUT->action_link($popup_url, null, new popup_action('click', $popup_url, 'emarking' . $thisid, array(
+            $actions .= html_writer::div($OUTPUT->action_link($popup_url, null, 
+                new popup_action('click', $popup_url, 'emarking' . $thisid, array(
                 'menubar' => 'no',
                 'titlebar' => 'no',
                 'status' => 'no',
@@ -610,10 +617,10 @@ foreach ($drafts as $draft) {
             $actions .= html_writer::div('<input type="checkbox" name="publish[]" value="' . $thisid . '">');
         }
         
+        $actions .= html_writer::end_div();
         $current ++;
     }
     
-    $actions .= html_writer::end_div();
     
     // Feedback
     $feedbacks = explode('#', $draft->feedback);
@@ -626,7 +633,9 @@ foreach ($drafts as $draft) {
     $timesmodified = explode('#', $draft->timemodified);
     $timemodified = '';
     foreach ($timesmodified as $t) {
+        $timemodified .= html_writer::start_div();
         $timemodified .= $t > 0 ? core_text::strtolower(emarking_time_ago($t)) : '';
+        $timemodified .= html_writer::end_div();
     }
     // If there's a draft show total pages
     if ($draft->status >= EMARKING_STATUS_SUBMITTED) {

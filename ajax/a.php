@@ -217,6 +217,7 @@ if ($action === 'ping') {
         'role' => $userRole,
         'groupID' => $emarking->id, // emarkig->id assigned to groupID for chat and wall rooms.
         'sesskey' => $USER->sesskey,
+        'cm' => $cm->id,
         'studentanonymous' => $studentanonymous ? "true" : "false",
         'markeranonymous' => $markeranonymous ? "true" : "false",
         'hascapability' => $usercangrade,

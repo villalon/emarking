@@ -33,25 +33,41 @@ class justice_form extends moodleform {
         global $COURSE, $DB,$CFG;
         $mform = $this->_form;
         
+        $erlevels = array(
+            'null'=>get_string('choose', 'mod_emarking'),
+            -4 => get_string("er-4", "mod_emarking"),
+            -3 => get_string("er-3", "mod_emarking"),
+            -2 => get_string("er-2", "mod_emarking"),
+            -1 => get_string("er-1", "mod_emarking"),
+             0 => get_string("er0", "mod_emarking"),
+             1 => get_string("er1", "mod_emarking"),
+             2 => get_string("er2", "mod_emarking"),
+             3 => get_string("er3", "mod_emarking"),
+             4 => get_string("er4", "mod_emarking")
+        );
+        
+        $oflevels = array(
+            'null'=>get_string('choose', 'mod_emarking'),
+            -4 => get_string("of-4", "mod_emarking"),
+            -3 => get_string("of-3", "mod_emarking"),
+            -2 => get_string("of-2", "mod_emarking"),
+            -1 => get_string("of-1", "mod_emarking"),
+             0 => get_string("of0", "mod_emarking"),
+             1 => get_string("of1", "mod_emarking"),
+             2 => get_string("of2", "mod_emarking"),
+             3 => get_string("of3", "mod_emarking"),
+             4 => get_string("of4", "mod_emarking")
+        );
+        
         // Add header
         $mform->addElement('header', 'general', get_string('justice', 'mod_emarking'));
         
-        // Static html for instruction
-        $mform->addElement('static', 'instructions', "",
-            get_string('justiceinstructions','mod_emarking'));
-
-        // Array with -4 to 4 levels for justice perception
-        $levels = array('null'=>get_string('choose', 'mod_emarking'));
-        for($i=4;$i>=-4;$i--){
-            $levels[$i]=$i;
-        }
-
         // Overall fairness
-        $mform->addElement('select', 'overall_fairness', get_string('justiceperceptionprocess','mod_emarking'), $levels);
+        $mform->addElement('select', 'overall_fairness', get_string('justiceperceptionprocess','mod_emarking'), $oflevels);
         $mform->addRule('overall_fairness', get_string('overallfairnessrequired', 'mod_emarking'), 'required', null, 'client');
         
         // Expectation vs reality
-        $mform->addElement('select', 'expectation_reality', get_string('justiceperceptionexpectation','mod_emarking'), $levels);
+        $mform->addElement('select', 'expectation_reality', get_string('justiceperceptionexpectation','mod_emarking'), $erlevels);
         $mform->addRule('expectation_reality', get_string('expectationrealityrequired', 'mod_emarking'), 'required', null, 'client');
         
         // Action buttons

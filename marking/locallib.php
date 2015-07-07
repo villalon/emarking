@@ -723,12 +723,24 @@ function emarking_set_finalgrade(
 	$pendingregrades = $DB->count_records('emarking_regrade', array('draft'=>$draft->id, 'accepted'=>0));
 	
 	// Calculate grade for draft
-	$draft->grade = $finalgrade + $gradebonus;
+	$draft->grade = $finalgrade;
 	$draft->generalfeedback = $generalfeedback;
 	$draft->status = $pendingregrades == 0 ? EMARKING_STATUS_GRADING : EMARKING_STATUS_REGRADING;
 	$draft->timemodified = time ();
 
 	$DB->update_record ( 'emarking_draft', $draft );
+	
+	// Adds an entry in the grades history
+	$grade_history = new stdClass();
+	$grade_history->draftid = $draft->id;
+	$grade_history->grade = $finalgrade;
+	$grade_history->score = $totalscore;
+	$grade_history->bonus = 0;
+	$grade_history->marker = $USER->id;
+	$grade_history->timecreated = time();
+	$grade_history->timemodified = time();
+	
+	$DB->insert_record('emarking_grade_history', $grade_history);
 	
 	// Aggregate grade for submission
 	$drafts = $DB->get_records ( "emarking_draft", array (
@@ -748,7 +760,7 @@ function emarking_set_finalgrade(
 	$DB->update_record ( 'emarking_submission', $submission );
 	
 	return array (
-			$finalgrade + $gradebonus,
+			$finalgrade,
 			$previouslvlid,
 			$previouscomment
 	);

@@ -1,55 +1,55 @@
-BUBPDF - README
-============================================================
-
-Name: BUBPDF
-Version: 1.0
-Release date: 2009-12-17
-Author:	Steve Petri 
-	
-Copyright (c) 2008-2009:
-	Steve Petri
-	www.pranatechdesigns.com
-	
-URLs:
-	http://www.pranatechdesigns.com/bubblesoft/OpenSource/
-	http://www.sourceforge.net/projects/bubpdf
-	
-Description:
+BUBPDF - README
+============================================================
+
+Name: BUBPDF
+Version: 1.0
+Release date: 2009-12-17
+Author:	Steve Petri 
+	
+Copyright (c) 2008-2009:
+	Steve Petri
+	www.pranatechdesigns.com
+	
+URLs:
+	http://www.pranatechdesigns.com/bubblesoft/OpenSource/
+	http://www.sourceforge.net/projects/bubpdf
+	
+Description:
 	BUBPDF is a PHP class for generating bubble style PDF exam answer sheets on-the-fly, requiring only the LGPL TCPDF library to function. It is compatible with many flatbed and form feed scanners, and with the Gravic Remark Office OMR 7 scanning software. http://www.gravic.com/remark/officeomr/index.html
-	Contact info@pranatechdesigns.com for other compatible modules.
-	
-Main Features:
+	Contact info@pranatechdesigns.com for other compatible modules.
+	
+Main Features:
 		1. Answer Bubble Sheets, to be filled in by the students. Can have blank bubbles for the student ID (e.g. for late roster additions), or student ID filled in automatically
 		2. Correct Answer Bubble Sheets, as an answer key
 		3. Multiple Measures Exam Answer Sheets
-
+
 Installation 
-	1. copy the folder on your Web server
+	1. copy the folder on your Web server
 	2. install the included TCPDF library into a tcpdf folder, or upgrade to the latest version from http://www.tcpdf.org
 	3. install 3 necessary fonts into TCPDF: omrextnd, omrbubbles, and 3of9_new. http://www.gravic.com/remark/officeomr/downloads.html#fonts
-
-Source Code Documentation:
-	(see the source code and provided samples)
-	
-
-License
-	Copyright (C) 2008-2009  Steve Petri - Pranatech Designs, Inc
-	
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation, either version 2.1 of the License, or
-	(at your option) any later version.
-	
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
-	
-	You should have received a copy of the GNU Lesser General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	
-	See LICENSE.TXT file for more information.
-	
+
+Source Code Documentation:
+	(see the source code and provided samples)
+	
+
+License
+	Copyright (C) 2008-2009  Steve Petri - Pranatech Designs, Inc
+	
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Lesser General Public License as published by
+	the Free Software Foundation, either version 2.1 of the License, or
+	(at your option) any later version.
+	
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Lesser General Public License for more details.
+	
+	You should have received a copy of the GNU Lesser General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	
+	See LICENSE.TXT file for more information.
+	
 ============================================================
 
 BubPdf Documentation:

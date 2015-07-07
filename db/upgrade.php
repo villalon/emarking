@@ -1141,5 +1141,64 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint ( true, 2015050101, 'emarking' );
     }
+    
+    if ($oldversion < 2015061101) {
+    
+        // Define table emarking_grade_history to be created.
+        $table = new xmldb_table('emarking_grade_history');
+    
+        // Adding fields to table emarking_grade_history.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('draftid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('grade', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('score', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('bonus', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('marker', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+    
+        // Adding keys to table emarking_grade_history.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+        // Conditionally launch create table for emarking_grade_history.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+    
+        $index = new xmldb_index('idx_id_draft', XMLDB_INDEX_NOTUNIQUE, array('draftid'));
+    
+        // Conditionally launch add index idx_id_draft.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015061101, 'emarking');
+    }
+    
+    if ($oldversion < 2015061301) {
+    
+        // Define table emarking_exam_answers to be created.
+        $table = new xmldb_table('emarking_exam_answers');
+    
+        // Adding fields to table emarking_exam_answers.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('examid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+    
+        // Adding keys to table emarking_exam_answers.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+        // Conditionally launch create table for emarking_exam_answers.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015061301, 'emarking');
+    }
+    
+    
     return true;
 }

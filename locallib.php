@@ -108,6 +108,8 @@ function emarking_get_submission_icon_status($status)
             return $OUTPUT->pix_icon('i/unflagged', emarking_get_string_for_status($status));
         case EMARKING_STATUS_ACCEPTED:
             return $OUTPUT->pix_icon('t/locked', emarking_get_string_for_status($status));
+        default:
+            return $OUTPUT->pix_icon('t/block', emarking_get_string_for_status(EMARKING_STATUS_ABSENT));
     }
 }
 
@@ -383,12 +385,13 @@ function emarking_get_students_for_printing($courseid)
 {
     global $DB;
     
-    $query = 'SELECT u.id, u.idnumber, u.firstname, u.lastname, e.enrol
+    $query = 'SELECT u.id, u.idnumber, u.firstname, u.lastname, GROUP_CONCAT(e.enrol) as enrol
 				FROM {user_enrolments} ue
 				JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
 				JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
 				JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
 				JOIN {user} u ON (ue.userid = u.id)
+                GROUP BY u.id
 				ORDER BY lastname ASC';
     
     // list($query, $params) = get_enrolled_sql(context_course::instance($courseid), 'mod/emarking:submit', 0 , true);

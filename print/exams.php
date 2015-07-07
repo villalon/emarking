@@ -174,7 +174,7 @@ foreach($exams as $exam) {
 	if (has_capability ( "mod/emarking:downloadexam", $contextcat )
 	    || ($CFG->emarking_teachercandownload
 	        && has_capability ( "mod/emarking:downloadexam", $contextcourse ))) {
-		$actions .= html_writer::div($OUTPUT->pix_icon("t/down", get_string("download"), null,
+		$actions .= html_writer::div($OUTPUT->pix_icon("i/down", get_string("download"), null,
 		    array("examid"=>$exam->id,"class"=>"downloademarking")));
     }
 

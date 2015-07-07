@@ -22,6 +22,28 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string["er-4"] = "-4 (mucho peor de lo que merecía)";
+$string["er-3"] = "-3";
+$string["er-2"] = "-2";
+$string["er-1"] = "-1";
+$string["er0"] = "0 (más o menos lo que merecía)";
+$string["er1"] = "1";
+$string["er2"] = "2";
+$string["er3"] = "3";
+$string["er4"] = "4 (mucho más de lo que merecía)";
+$string["of-4"] = "-4 (extremadamente injusta)";
+$string["of-3"] = "-3";
+$string["of-2"] = "-2";
+$string["of-1"] = "-1";
+$string["of0"] = "0 (ni justa ni injusta)";
+$string["of1"] = "1";
+$string["of2"] = "2";
+$string["of3"] = "3";
+$string["of4"] = "4 (extremadamente justa)";
+$string ['justiceperceptionprocess'] = '¿Cómo evaluaría cuan justa fue la corrección de esta evaluación?';
+$string ['justiceperceptionexpectation'] = '¿Cómo se compara su calificación en esta evaluación con la que usted piensa que se merecía?';
+$string ['thanksforjusticeperception'] = 'Gracias por expresar su opinión';
+
 $string['mobilephoneregex'] = 'Expresión regular de celulares';
 $string['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
 $string['invalidphonenumber'] = 'Número de celular inválido, se requiere un teléfono completo en formato internacional (ej: +56912345678)';
@@ -48,6 +70,7 @@ $string['predefinedcomments'] = 'Comentarios predefinidos';
 $string['savechanges'] = 'Guardar cambios';
 $string ['changessaved'] = 'Cambios guardados exitosamente';
 
+$string['qualitycontrol'] = 'Control de Calidad';
 $string['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
 $string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
 $string['enablequalitycontrol'] = 'Habilitar Control de Calidad';
@@ -188,10 +211,6 @@ $string ['uploadanswers_help'] = 'In this page you can upload the digitized answ
 $string ['gradescale'] = 'Escala de calificaciones';
 $string ['rubricscores'] = 'Puntaje total';
 
-$string ['justiceinstructions'] = 'Considerando una escala de -4 a 4 donde -4 significa muy injusto y 4 muy justo, por favor conteste las siguientes preguntas relativas a la evaluación:';
-$string ['justiceperceptionprocess'] = '¿Cuán justo le pareció el proceso de corrección?';
-$string ['justiceperceptionexpectation'] = '¿Cómo se compara su calificación con el resultado que usted merecía?';
-$string ['thanksforjusticeperception'] = 'Gracias por expresar su opinión';
 $string ['ranking'] = 'Ranking';
 
 $string ['noregraderequests'] = 'No hay solicitudes de recorrección';

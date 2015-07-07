@@ -22,6 +22,29 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+$string["er-4"] = "-4 (much worse than I deserved)";
+$string["er-3"] = "-3";
+$string["er-2"] = "-2";
+$string["er-1"] = "-1";
+$string["er0"] = "0 (about what I deserved)";
+$string["er1"] = "1";
+$string["er2"] = "2";
+$string["er3"] = "3";
+$string["er4"] = "4 (much more than I deserved)";
+$string["of-4"] = "-4 (extremely unfair)";
+$string["of-3"] = "-3";
+$string["of-2"] = "-2";
+$string["of-1"] = "-1";
+$string["of0"] = "0 (neither fair nor unfair)";
+$string["of1"] = "1";
+$string["of2"] = "2";
+$string["of3"] = "3";
+$string["of4"] = "4 (extremely fair)";
+$string ['justiceperceptionprocess'] = 'How would you rate the fairness of the marking of the evaluation?';
+$string ['justiceperceptionexpectation'] = 'How does your grade for the first assignment compare to the mark you think you deserved to get for this assignment?';
+$string ['thanksforjusticeperception'] = 'Thanks for expressing your opinion';
+
 $string['mobilephoneregex'] = 'Mobile phone regex';
 $string['mobilephoneregex_help'] = 'A regular expression to validate a correct mobile phone';
 $string['invalidphonenumber'] = 'Invalid phone number, we expect a full international number (ex: +56912345678)';
@@ -48,6 +71,7 @@ $string['predefinedcomments'] = 'Predefined comments';
 $string ['savechanges'] = 'Save changes';
 $string ['changessaved'] = 'Changes saved';
 
+$string['qualitycontrol'] = 'Quality Control';
 $string['markersqualitycontrol'] = 'Quality Control markers';
 $string['markersqualitycontrol_help'] = 'Quality Control markers are the ones that will mark and grade the QC exams which will be used to calculate inter-marker agreement.';
 $string['enablequalitycontrol'] = 'Enable Quality Control';
@@ -188,10 +212,6 @@ $string ['uploadanswers_help'] = 'In this page you can upload the digitized answ
 $string ['gradescale'] = 'Grades scale';
 $string ['rubricscores'] = 'Max score';
 
-$string ['justiceinstructions'] = 'Considering a -4 to 4 scale in which -4 means Strongly Disagree and 4 Strongly Agree, please mark the extent to which you agree on each statement:';
-$string ['justiceperceptionprocess'] = 'The evaluation process was fair';
-$string ['justiceperceptionexpectation'] = 'My result was what I expected';
-$string ['thanksforjusticeperception'] = 'Thanks for expressing your opinion';
 $string ['ranking'] = 'Ranking';
 
 $string ['noregraderequests'] = 'There are no regrade requests';

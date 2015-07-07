@@ -24,7 +24,7 @@
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once (dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ('locallib.php');
 
@@ -261,11 +261,11 @@ $multipdfs = $CFG->emarking_multiplepdfs;
 
 ?>
 <script type="text/javascript">
-	var wwwroot = '<?php echo $CFG->wwwroot ?>';
-	var downloadurl = '<?php echo $downloadurl ?>';
-	var sessionkey = '<?php echo sesskey() ?>';
-	var multipdfs = '0';
-	var incourse = '0';
+	var wwwroot = "<?php echo $CFG->wwwroot ?>";
+	var downloadurl = "<?php echo $downloadurl ?>";
+	var sessionkey = "<?php echo sesskey() ?>";
+	var multipdfs = "0";
+	var incourse = "0";
 </script>
 <div id="loadingPanel"></div>
 <!-- The panel DIV goes at the end to make sure it is loaded before javascript starts -->
@@ -275,10 +275,11 @@ $multipdfs = $CFG->emarking_multiplepdfs;
 			<fieldset>
 				<p>
 					<label for="id"><?php echo $message ?></label><br /> <input
-						type="text" name="sms" id="sms" placeholder=""> <select
-						onchange="change(this.value);">
-						<option value="0"><?php echo get_string('singlepdf', 'mod_emarking') ?></option>
-						<option value="1"><?php echo get_string('multiplepdfs', 'mod_emarking') ?></option>
+						type="text" name="sms" 
+						id="sms" placeholder=""> 
+					<select onchange="change(this.value);">
+						<option value="0"><?php echo get_string("singlepdf", "mod_emarking") ?></option>
+						<option value="1"><?php echo get_string("multiplepdfs", "mod_emarking") ?></option>
 					</select>
 				</p>
 			</fieldset>

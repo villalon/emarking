@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/emarking/db" VERSION="20141101" COMMENT="XMLDB file for Moodle mod/emarking"
+<XMLDB PATH="mod/emarking/db" VERSION="20150613" COMMENT="XMLDB file for Moodle mod/emarking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -118,8 +118,8 @@
     <TABLE NAME="emarking_comment" COMMENT="Marks in the pages">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="page" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-        <FIELD NAME="draft" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+        <FIELD NAME="page" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="draft" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="posx" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0.00000" SEQUENCE="false" DECIMALS="5"/>
         <FIELD NAME="posy" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.00000" SEQUENCE="false" DECIMALS="5"/>
         <FIELD NAME="width" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="120" SEQUENCE="false"/>
@@ -324,6 +324,35 @@
         <FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_grade_history" COMMENT="This tables stores all the changes in grades for each draft">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="draftid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="score" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="bonus" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="marker" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_id_draft" UNIQUE="false" FIELDS="draftid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_exam_answers" COMMENT="Digitized answer files ">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="examid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
