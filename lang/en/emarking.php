@@ -547,6 +547,7 @@ $string ['uploadanswers'] = 'Upload answers';
 $string ['uploaderrorsmanual'] = 'Upload errors manually';
 $string ['uploadexamfile'] = 'ZIP file';
 $string ['uploadinganswersheets'] = 'Uploading student answer sheets';
+$string ['uploadanswersuccessful'] = 'Upload answers successful';
 $string ['usesms'] = 'Use SMS';
 $string ['usesms_help'] = 'Use SMS messaging  instead of sending email for eMarking security codes';
 $string ['viewpeers'] = 'Students view peers\' exams';

@@ -215,14 +215,67 @@ function emarking_get_students_count_for_printing($courseid)
  *
  * creates email to course manager, teacher and non-editingteacher, when a printing order has been created.
  *
+ * @param unknown_type $emarking
+ * @param unknown_type $course
+ */
+function emarking_send_processanswers_notification($emarking, $course)
+{
+    global $USER;
+
+    $postsubject = $course->fullname . ' : ' . $emarking->name . '. ' . get_string('uploadanswersuccessful', 'mod_emarking') . ' [' . $emarking->id . ']';
+
+    // Create the email to be sent
+    $posthtml = '';
+    $posthtml .= '<table><tr><th colspan="2">' . get_string('uploadanswersuccessful', 'mod_emarking') . '</th></tr>';
+    $posthtml .= '<tr><td>' . get_string('emarking', 'mod_emarking') . '</td><td>' . $emarking->name . '. [' . $emarking->id . ']</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('fullnamecourse') . '</td><td>' . $course->fullname . ' (' . $course->shortname . ')' . '</td></tr>';
+    $posthtml .= '</table>';
+    $posthtml .= '';
+
+    // Create the email to be sent
+    $posttext =  get_string('uploadanswersuccessful', 'mod_emarking') . '\n';
+    $posttext .= get_string('emarking', 'mod_emarking') . ' : ' . $emarking->name . '. [' . $emarking->id . ']\n';
+    $posttext .= get_string('fullnamecourse') . ' : ' . $course->fullname . ' (' . $course->shortname . ')' . '\n';
+
+    $users = get_enrolled_users(context_course::instance($course->id), "mod/emarking:receivenotification");
+    
+    foreach($users as $user) {
+    $eventdata = new stdClass();
+    $eventdata->component = 'mod_emarking';
+    $eventdata->name = 'notification';
+    $eventdata->userfrom = $USER;
+    $eventdata->userto = $user->id;
+    $eventdata->subject = $postsubject;
+    $eventdata->fullmessage = $posttext;
+    $eventdata->fullmessageformat = FORMAT_HTML;
+    $eventdata->fullmessagehtml = $posthtml;
+    $eventdata->smallmessage = $postsubject;
+    
+    $eventdata->notification = 1;
+    
+    message_send($eventdata);
+    }
+}
+
+
+/**
+ *
+ *
+ *
+ * creates email to course manager, teacher and non-editingteacher, when a printing order has been created.
+ *
  * @param unknown_type $exam            
  * @param unknown_type $course            
  */
-function emarking_send_newprintorder_notification($exam, $course)
+function emarking_send_newprintorder_notification($exam, $course, $title = null)
 {
     global $USER;
     
     $postsubject = $course->fullname . ' : ' . $exam->name . '. ' . get_string('newprintorder', 'mod_emarking') . ' [' . $exam->id . ']';
+    
+    if($title) {
+        $postsubject = $course->fullname . ' : ' . $exam->name . '. ' . $title . ' [' . $exam->id . ']';
+    }
     
     $examhasqr = $exam->headerqr ? get_string('yes') : get_string('no');
     
@@ -240,13 +293,17 @@ function emarking_send_newprintorder_notification($exam, $course)
     }
     $teacherstring = implode(',', $teachersnames);
     
+    if(!$title) {
+        $title = get_string('newprintorder', 'mod_emarking');
+    }
+    
     // Create the email to be sent
     $posthtml = '';
-    $posthtml .= '<table><tr><th colspan="2">' . get_string('newprintorder', 'mod_emarking') . '</th></tr>';
+    $posthtml .= '<table><tr><th colspan="2">' . $title . '</th></tr>';
     $posthtml .= '<tr><td>' . get_string('examid', 'mod_emarking') . '</td><td>' . $exam->id . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('fullnamecourse') . '</td><td>' . $course->fullname . ' (' . $course->shortname . ')' . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('teacher', 'mod_emarking') . '</td><td>' . $teacherstring . '</td></tr>';
-    $posthtml .= '<tr><td>' . get_string('requestedby', 'mod_emarking') . '</td><td>' . $USER->lastname . ' ' . $USER->firstname . '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('requestedby', 'mod_emarking') . '</td><td>' . $USER->firstname . ' ' . $USER->lastname . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('examdate', 'mod_emarking') . '</td><td>' . date("d M Y - H:i", $exam->examdate) . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('headerqr', 'mod_emarking') . '</td><td>' . $examhasqr . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('doubleside', 'mod_emarking') . '</td><td>' . ($exam->usebackside ? get_string('yes') : get_string('no')) . '</td></tr>';
@@ -258,11 +315,11 @@ function emarking_send_newprintorder_notification($exam, $course)
     $posthtml .= '';
     
     // Create the email to be sent
-    $posttext = get_string('newprintorder', 'mod_emarking') . '\n';
+    $posttext = $title . '\n';
     $posttext .= get_string('examid', 'mod_emarking') . ' : ' . $exam->id . '\n';
     $posttext .= get_string('fullnamecourse') . ' : ' . $course->fullname . ' (' . $course->shortname . ')' . '\n';
     $posttext .= get_string('teacher', 'mod_emarking') . ' : ' . $teacherstring . '\n';
-    $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $USER->lastname . ' ' . $USER->firstname . '\n';
+    $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $USER->firstname . ' ' . $USER->lastname . '\n';
     $posttext .= get_string('examdate', 'mod_emarking') . ': ' . date("d M Y - H:i", $exam->examdate) . '\n';
     $posttext .= get_string('headerqr', 'mod_emarking') . ': ' . $examhasqr . '\n';
     $posttext .= get_string('doubleside', 'mod_emarking') . ' : ' . ($exam->usebackside ? get_string('yes') : get_string('no')) . '\n';
@@ -272,6 +329,32 @@ function emarking_send_newprintorder_notification($exam, $course)
     $posttext .= get_string('totalpagesprint', 'mod_emarking') . ': ' . $totalsheets . '\n';
     
     emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml);
+}
+
+/**
+ * creates email to course manager, teacher and non-editingteacher, when a printing order has been downloaded.
+ *
+ * @param unknown_type $exam            
+ * @param unknown_type $course            
+ */
+function emarking_send_examdownloaded_notification($exam, $course)
+{
+    global $USER;
+    
+    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusdownloaded", "mod_emarking"));
+}
+
+/**
+ * creates email to course manager, teacher and non-editingteacher, when a printing order has been downloaded.
+ *
+ * @param unknown_type $exam            
+ * @param unknown_type $course            
+ */
+function emarking_send_examprinted_notification($exam, $course)
+{
+    global $USER;
+    
+    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusprinted", "mod_emarking"));
 }
 
 /**
@@ -827,6 +910,8 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
             );
         }
     }
+    
+    emarking_send_processanswers_notification($emarking, $course);
     
     return array(
         true,
@@ -1693,6 +1778,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             echo $debugprintingmsg;
         }
         
+        // Notify everyone that the exam was printed
+        emarking_send_examprinted_notification($downloadexam, $course);
+        
         $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
         $downloadexam->printdate = time();
         $DB->update_record('emarking_exams', $downloadexam);
@@ -1740,6 +1828,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             echo $zipdebugmsg;
         }
         
+        // Notify everyone that the exam was downloaded
+        emarking_send_examdownloaded_notification($downloadexam, $course);
+        
         $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
         $downloadexam->printdate = time();
         $DB->update_record('emarking_exams', $downloadexam);
@@ -1777,6 +1868,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         emarking_import_pdf_into_pdf($pdf, $stinfo->examfile);
     }
     
+    // Notify everyone that the exam was downloaded
+    emarking_send_examdownloaded_notification($downloadexam, $course);
+        
     $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
     $downloadexam->printdate = time();
     $DB->update_record('emarking_exams', $downloadexam);
