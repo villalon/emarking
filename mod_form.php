@@ -87,8 +87,13 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$mform->addHelpButton ( 'name', 'modulename', 'mod_emarking' );
 		
 		// Adding the standard "intro" and "introformat" fields
-		moodleform_mod::standard_intro_elements();
-		// $this->add_intro_editor ();
+		$moodleversion = explode(".",$CFG->version);
+		// version 2014111007 corresponds Moodle 2.8.7 release 6 July 2015
+		if( (int)$moodleversion[0] <= 2014111007){
+			$this->add_intro_editor ();
+		}else{
+			moodleform_mod::standard_intro_elements();
+		}
 
 		// -------------------------------------------------------------------------------
 		// Experimental features
