@@ -230,7 +230,8 @@ if ($action === 'ping') {
         'agreeLevel' => $agreeLevelAvg, // General agree bar indicator (avg of all overlapped students).
         'heartbeat' => $emarking->heartbeatenabled,
         'linkrubric' => $linkrubric,
-        'collaborativefeatures' => $emarking->collaborativefeatures
+        'collaborativefeatures' => $emarking->collaborativefeatures,
+        'coursemodule'=>$cm->id
     ));
 }
 

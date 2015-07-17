@@ -1175,6 +1175,38 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2015061101, 'emarking');
     }
+    if ($oldversion < 2015071700) {
+    
+    	// Define table emarking_chat to be created.
+    	$table = new xmldb_table('emarking_chat');
+    
+    	// Adding fields to table emarking_chat.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('userid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('message', XMLDB_TYPE_TEXT, null, null, null, null, null);
+    	$table->add_field('room', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('source', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('draftid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('urgencylevel', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+    	$table->add_field('status', XMLDB_TYPE_INTEGER, '2', null, null, null, null);
+    	$table->add_field('parentid', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+    
+    	// Adding keys to table emarking_chat.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Adding indexes to table emarking_chat.
+    	$table->add_index('idx_draft', XMLDB_INDEX_NOTUNIQUE, array('draftid', 'room', 'timecreated'));
+    
+    	// Conditionally launch create table for emarking_chat.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015071700, 'emarking');
+    }
+    
     
     if ($oldversion < 2015061301) {
     
