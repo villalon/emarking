@@ -355,6 +355,12 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$grademin = $data ['grademin'];
 		$grademax = $data ['grade'];
 
+		// Make sure the minimum score is not greater than the maximum score
+		if($grademin >= $grademax){
+			$errors['grademin'] = get_string('gradescheck','mod_emarking');
+			$errors['grade'] = get_string('gradescheck','mod_emarking');
+		}
+		
 		// If we are adjusting the slope
 		if($adjustslope) {
 			// Make sure the grade is greater than the minimum grade

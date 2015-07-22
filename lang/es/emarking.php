@@ -106,6 +106,7 @@ $string ['comparativereport_help'] = 'Comparativo';
 $string ['youmustselectemarking'] = 'Debe seleccionar una actividad eMarking para comparar';
 $string ['rubrcismustbeidentical'] = 'Las rúbricas deben ser idénticas para poder comparar';
 
+$string ['gradescheck'] = 'La nota mínima no puede ser igual o mayor que la nota máxima.';
 $string ['adjustslope'] = 'Ajustar pendiente de calificaciones';
 $string ['adjustslope_help'] = 'Ajusta cómo eMarking calculará la calificación final, usando una calificación y puntaje de ajuste. Las nuevas calificaciones se calcularán linealmente con una pendiente entre 0 puntos y la calificación mínima, y la calificación/puntaje de ajuste, para luego continuar hasta la calificación máxima.';
 $string ['adjustslopegrade'] = 'Calificación de ajuste';

@@ -106,6 +106,7 @@ $string ['comparativereport_help'] = 'Comparative';
 $string ['youmustselectemarking'] = 'You must select an eMarking activity to compare to';
 $string ['rubrcismustbeidentical'] = 'Rubrics must be identical to be able to compare them';
 
+$string ['gradescheck'] = 'The minimum score may not be equal to or greater than the maximum score.';
 $string ['adjustslope'] = 'Adjust grades slope';
 $string ['adjustslope_help'] = 'Adjust how eMarking will calculate the final grade, according to a new grade that will match a specific score. The new grades are calculated linearly with a slope from 0 score for the minimum grade to the adjusted grade/score and then continue to the max grade if it can be obtained.';
 $string ['adjustslopegrade'] = 'Grade for slope';
