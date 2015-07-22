@@ -381,7 +381,13 @@ if ($emarking->type == EMARKING_TYPE_NORMAL) {
     $drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
 }
 
-$totalstudents = count($drafts);
+// Counting students for pagination
+$allstudents = emarking_get_students_for_printing($cm->course);
+$countstudents = 0;
+foreach ($allstudents as $student)
+	$countstudents++;
+
+$totalstudents = count($countstudents);
 
 $actionsheader = get_string('actions', 'mod_emarking');
 if(has_capability("mod/emarking:supervisegrading", $context)) {
