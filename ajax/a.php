@@ -230,7 +230,8 @@ if ($action === 'ping') {
         'agreeLevel' => $agreeLevelAvg, // General agree bar indicator (avg of all overlapped students).
         'heartbeat' => $emarking->heartbeatenabled,
         'linkrubric' => $linkrubric,
-        'collaborativefeatures' => $emarking->collaborativefeatures
+        'collaborativefeatures' => $emarking->collaborativefeatures,
+        'coursemodule'=>$cm->id
     ));
 }
 
@@ -269,6 +270,12 @@ if (! $usercangrade) {
 // Switch according to action
 switch ($action) {
     
+	case 'addchatmessage':
+		
+		include "act/actAddChatMessage.php";
+		emarking_json_array($output);
+		break;
+	
     case 'addcomment':
         
         // Add to Moodle log so some auditing can be done
@@ -401,6 +408,11 @@ switch ($action) {
         emarking_json_array($output);
         break;
     
+    case 'getchathistory':
+		include "qry/getChatHistory.php";
+    	emarking_json_array($results);
+    	break;
+        
     case 'prevcomments':
         
         include "qry/getPreviousCommentsSubmission.php";

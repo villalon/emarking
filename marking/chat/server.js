@@ -3,9 +3,7 @@ var people = {};
 var users=[];
 var rooms = [];
 var sockets = [];
-var chatHistory = [];
-var sosHistory=[];
-var color = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+var color = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
 
 var port=9091;
 var ipaddress="127.0.0.1";
@@ -18,8 +16,6 @@ app.listen(port,ipaddress);
 console.log("["+logtime()+"] "+"Servidor iniciado exitosamente en "+ipaddress+":"+port);
 var  io = require('socket.io').listen(app);
 var  fs = require('fs');
-
-
 
 var _ = require('underscore')._;
 ///////////////////////////////////////////////////////////////
@@ -36,23 +32,7 @@ function handler (req, res) {
 		res.end(data);
 	});
 }
-///////////////////////////////////////////
-/////////// mysql conection////////////////
-///////////////////////////////////////////
-var mysql      = require('mysql');
-var mysql = mysql.createConnection({
-	host     : 'localhost',
-	user     : 'root',
-	password : '',
-	database : 'moodle'
-});
-mysql.connect(function(err){
-	if(!err) {
-		console.log("["+logtime()+"] "+"Database is connected ");  
-	} else {
-		console.log("["+logtime()+"] "+"Error connecting database ");  
-	}
-});
+
 io.sockets.on("connection", function (socket) {
 	socket.on("joinserver", function(data) {
 		var conectionData=JSON.parse(data);
@@ -67,31 +47,7 @@ io.sockets.on("connection", function (socket) {
 		}
 		if(!inArray(socket.room,rooms)){
 			rooms.push(socket.room);
-			chatHistory[socket.room]=[];
-			sosHistory[socket.room]=[];
-			mysql.query('SELECT * from mdl_emarking_chat where room='+socket.room, function(err, rows, fields) {
-				if (!err){
-					if(rows.length > 0){
-						for(i=0;i<rows.length;i++){
-							chatHistory[socket.room].push(rows[i]);					    
-						} 
-					}
-				}else
-					console.log('Error while performing Query.');
-				    console.log(err);
-			});
-			mysql.query('SELECT * from mdl_emarking_sos where room='+socket.room, function(err, rows, fields) {
-				if (!err){
-					if(rows.length > 0){
-						for(i=0;i<rows.length;i++){
-							sosHistory[socket.room].push(rows[i]);					    
-						} 
-					}
-				}else
-					console.log('Error while performing Query.');
-				    console.log(err);
-			});
-		
+
 		}
 		socket.join(socket.room);
 		var user = {};
@@ -104,8 +60,7 @@ io.sockets.on("connection", function (socket) {
 		obj={};
 		obj.user=user;
 		obj.people=users;
-		obj.chatHistory=chatHistory[socket.room];
-		obj.sosHistory=sosHistory[socket.room];
+
 		socket.emit("userJoin", JSON.stringify(obj));
 		socket.broadcast.to(socket.room).emit("onBeginChatOther",JSON.stringify(user));
 		console.log("["+logtime()+"] "+ socket.userName+ " se ha conectado en la sala " + socket.room);
@@ -114,47 +69,22 @@ io.sockets.on("connection", function (socket) {
 		var data= JSON.parse(data);
 		var message=data.message;
 		var source =data.source;
-		if(message=='historial -v') {
-			console.log("["+logtime()+"]"+socket.userName +" en la sala "+socket.room+" activó el comando historial: ");
-			for(var i =0;i<chatHistory[socket.room].length;i++){
-				if(chatHistory[socket.room][i].source== source){
-				var obj={};
-				obj.time=chatHistory[socket.room][i].time;
-				obj.userid=chatHistory[socket.room][i].userid;
-				obj.message=chatHistory[socket.room][i].message;
-				obj.username=chatHistory[socket.room][i].username;
-				obj.source=chatHistory[socket.room][i].source;
-				obj.submissionid=chatHistory[socket.room][i].submissionid;
-					
-				console.log(obj);
-				}
-			}
-		}
-		else {
-			var obj={};
-			obj.time=unixtime();
-			obj.message=message;
-			obj.userid=socket.userid;
-			obj.room=socket.room;       
-			obj.username= socket.userName;
-			obj.color= socket.color;
-			obj.source=source;
-			obj.submissionid=socket.submissionId;
-			chatHistory[socket.room].push(obj);
-			socket.emit("onCatchMesage", JSON.stringify(obj));
-			socket.broadcast.to(socket.room).emit("onCatchMesage",JSON.stringify(obj));//solo envia un mensaje
-			console.log("["+logtime()+"] "+socket.userName +" en la sala "+socket.room+" ha enviado un mensaje: "+message);
-            delete obj.color;
-			var query = mysql.query('INSERT INTO mdl_emarking_chat SET ?', obj, function(err, result){
 
-				if(!err) {
-					console.log("["+logtime()+"] "+"Mensaje guardado en la base de datos. ");  
-				} else {
-					console.log("["+logtime()+"] "+"No se pudo guardar el mensaje en la base de datos ");
-					console.log(err);
-				}
-			});
-		}
+		var obj={};
+		obj.time=unixtime();
+		obj.message=message;
+		obj.userid=socket.userid;
+		obj.room=socket.room;       
+		obj.username= socket.userName;
+		obj.color= socket.color;
+		obj.source=source;
+		obj.submissionid=socket.submissionId;
+
+		//socket.emit("onCatchMesage", JSON.stringify(obj));
+		//socket.broadcast.to(socket.room).emit("onCatchMesage",JSON.stringify(obj));//solo envia un mensaje
+		console.log("["+logtime()+"] "+socket.userName +" en la sala "+socket.room+" ha enviado un mensaje: "+message);
+
+
 	});
 
 	socket.on("onSendSos", function(data) {
@@ -168,25 +98,13 @@ io.sockets.on("connection", function (socket) {
 		obj.room=socket.room;       
 		obj.status=1;
 		obj.username=socket.userName;
-		
+
 		socket.emit("onCatchSos", JSON.stringify(obj));
 		socket.broadcast.to(socket.room).emit("onCatchSos",JSON.stringify(obj));//solo envia un mensaje
-		delete obj.username;
-		
-		var query = mysql.query('INSERT INTO mdl_emarking_sos SET ?', obj, function(err, result){
 
-			if(!err) {
-				console.log("["+logtime()+"] "+"SOS guardada en la base de datos. ");  
-			} else {
-				console.log("["+logtime()+"] "+"No se pudo guardar el SOS en la base de datos ");  
-				console.log(err);
-			}
-		});
-		
-		
-		
+
 	});
-	
+
 	socket.on("disconnect", function() {
 		socket.leave(socket.room);
 		var user = {};
