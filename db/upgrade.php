@@ -1175,6 +1175,30 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2015061101, 'emarking');
     }
+    
+    if ($oldversion < 2015061301) {
+    
+    	// Define table emarking_exam_answers to be created.
+    	$table = new xmldb_table('emarking_exam_answers');
+    
+    	// Adding fields to table emarking_exam_answers.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+    	$table->add_field('examid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+    	$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+    
+    	// Adding keys to table emarking_exam_answers.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Conditionally launch create table for emarking_exam_answers.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015061301, 'emarking');
+    }
+    
     if ($oldversion < 2015071700) {
     
     	// Define table emarking_chat to be created.
@@ -1207,29 +1231,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015071700, 'emarking');
     }
     
-    
-    if ($oldversion < 2015061301) {
-    
-        // Define table emarking_exam_answers to be created.
-        $table = new xmldb_table('emarking_exam_answers');
-    
-        // Adding fields to table emarking_exam_answers.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('examid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-    
-        // Adding keys to table emarking_exam_answers.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-    
-        // Conditionally launch create table for emarking_exam_answers.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-    
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2015061301, 'emarking');
-    }
+
     
     
     return true;
