@@ -3,7 +3,7 @@ var people = {};
 var users=[];
 var rooms = [];
 var sockets = [];
-var color = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+var color = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
 
 var port=9091;
 var ipaddress="127.0.0.1";
@@ -16,8 +16,6 @@ app.listen(port,ipaddress);
 console.log("["+logtime()+"] "+"Servidor iniciado exitosamente en "+ipaddress+":"+port);
 var  io = require('socket.io').listen(app);
 var  fs = require('fs');
-
-
 
 var _ = require('underscore')._;
 ///////////////////////////////////////////////////////////////
@@ -71,22 +69,22 @@ io.sockets.on("connection", function (socket) {
 		var data= JSON.parse(data);
 		var message=data.message;
 		var source =data.source;
-	
-			var obj={};
-			obj.time=unixtime();
-			obj.message=message;
-			obj.userid=socket.userid;
-			obj.room=socket.room;       
-			obj.username= socket.userName;
-			obj.color= socket.color;
-			obj.source=source;
-			obj.submissionid=socket.submissionId;
 
-			socket.emit("onCatchMesage", JSON.stringify(obj));
-			socket.broadcast.to(socket.room).emit("onCatchMesage",JSON.stringify(obj));//solo envia un mensaje
-			console.log("["+logtime()+"] "+socket.userName +" en la sala "+socket.room+" ha enviado un mensaje: "+message);
+		var obj={};
+		obj.time=unixtime();
+		obj.message=message;
+		obj.userid=socket.userid;
+		obj.room=socket.room;       
+		obj.username= socket.userName;
+		obj.color= socket.color;
+		obj.source=source;
+		obj.submissionid=socket.submissionId;
 
-		
+		//socket.emit("onCatchMesage", JSON.stringify(obj));
+		//socket.broadcast.to(socket.room).emit("onCatchMesage",JSON.stringify(obj));//solo envia un mensaje
+		console.log("["+logtime()+"] "+socket.userName +" en la sala "+socket.room+" ha enviado un mensaje: "+message);
+
+
 	});
 
 	socket.on("onSendSos", function(data) {
@@ -100,13 +98,13 @@ io.sockets.on("connection", function (socket) {
 		obj.room=socket.room;       
 		obj.status=1;
 		obj.username=socket.userName;
-		
+
 		socket.emit("onCatchSos", JSON.stringify(obj));
 		socket.broadcast.to(socket.room).emit("onCatchSos",JSON.stringify(obj));//solo envia un mensaje
 
-		
+
 	});
-	
+
 	socket.on("disconnect", function() {
 		socket.leave(socket.room);
 		var user = {};
