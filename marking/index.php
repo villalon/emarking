@@ -104,6 +104,8 @@ if(isset($_COOKIE['emarking_showrubric'])) {
 
 header('Content-Type: text/html; charset=utf-8');
 
+$activeChat=(int)$CFG->emarking_collaborativefeatures;
+
 ?>
 <!doctype html>
 <!-- The DOCTYPE declaration above will set the     -->
@@ -143,7 +145,8 @@ header('Content-Type: text/html; charset=utf-8');
 		version="<?php echo $version ?>" 
 		submissionId="<?php  echo $draftid?>"
 		preferredWidth="<?php echo $preferredwidth ?>"
-		showRubric="<?php echo $showrubric ?>"		
+		showRubric="<?php echo $showrubric ?>"	
+		chat="<?php echo $activeChat ?>"	
 		moodleurl="<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/a.php"></div>
 </body>
 </html>

@@ -47,11 +47,6 @@ $status = optional_param('status',null ,PARAM_INT);
 /** Id of parent message in SOS request **/
 $parentid = optional_param('parentid',null ,PARAM_INT);
 
-// Get the page for this submission and page number
-if(!$page = $DB->get_record('emarking_page', array('submission'=>$submission->id, 'page'=>$pageno))) {
-	emarking_json_error("Invalid page for insterting comment");
-}
-
 
 
 // Create the new comment record

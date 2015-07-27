@@ -410,7 +410,7 @@ switch ($action) {
     
     case 'getchathistory':
 		include "qry/getChatHistory.php";
-    	emarking_json_array($results);
+    	emarking_json_array($output);
     	break;
         
     case 'prevcomments':
