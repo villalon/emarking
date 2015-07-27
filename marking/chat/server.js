@@ -69,6 +69,7 @@ io.sockets.on("connection", function (socket) {
 		var data= JSON.parse(data);
 		var message=data.message;
 		var source =data.source;
+		var messageid=data.messageid;
 
 		var obj={};
 		obj.time=unixtime();
@@ -79,9 +80,10 @@ io.sockets.on("connection", function (socket) {
 		obj.color= socket.color;
 		obj.source=source;
 		obj.submissionid=socket.submissionId;
-
-		//socket.emit("onCatchMesage", JSON.stringify(obj));
-		//socket.broadcast.to(socket.room).emit("onCatchMesage",JSON.stringify(obj));//solo envia un mensaje
+		obj.id=messageid;
+		console.log(obj);
+		socket.broadcast.to(socket.room).emit("onCatchMesage",JSON.stringify(obj));//solo envia un mensaje
+		socket.emit("onMessegeSent",JSON.stringify(obj));
 		console.log("["+logtime()+"] "+socket.userName +" en la sala "+socket.room+" ha enviado un mensaje: "+message);
 
 

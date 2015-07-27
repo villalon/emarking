@@ -24,6 +24,7 @@
  */
 $room = required_param('room', PARAM_INT);
 $source = required_param('source', PARAM_INT);
+
 $sqlchathistory = " SELECT ec.timecreated, ec.message,  u.firstname, u.lastname, u.email
 			FROM {emarking_chat} as ec
 			INNER JOIN {user} as u on u.id=ec.userid
@@ -31,4 +32,12 @@ $sqlchathistory = " SELECT ec.timecreated, ec.message,  u.firstname, u.lastname,
 		";
 $params = array('room'=>$room, 'source'=>$source);
 $results = $DB->get_records_sql($sqlchathistory, $params);
+if(!$results) {
+	$results = array();
+}else{
+foreach ($results as $obj){
+	
+	$output[]=$obj;
+}
 
+}

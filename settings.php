@@ -215,3 +215,10 @@ $settings->add(new admin_setting_configcheckbox('emarking_enableprintinglist',
 		get_string('enableprintinglist', 'mod_emarking'),
 		get_string('enableprintinglist_help', 'mod_emarking'),
 		0, PARAM_BOOL));
+
+//CHAT
+// Enable all chat features
+$settings->add(new admin_setting_configcheckbox('emarking_collaborativefeatures',
+		get_string('collaborativefeatures', 'mod_emarking'),
+		get_string('collaborativefeatures_help', 'mod_emarking'),
+		0, 1));
