@@ -766,4 +766,20 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, n
     global $PAGE, $DB, $USER, $CFG;
     
     // $emarkingnode->add('Foo');
+    $course = $PAGE->course;
+    $cm = $DB->get_record("emarking", array("course"=>$course->id));
+    $context = context_module::instance($cm->id);
+    if( has_capability("mod/emarking:printers", $context) ){
+    	$settingnode = $settingsnav->add(get_string('emarkingprints','mod_emarking'), null, navigation_node::TYPE_CONTAINER);
+    	$thingnode = $settingnode->add(
+    			get_string('adminprints','mod_emarking'), 
+    			new moodle_url('/mod/emarking/print/printers.php', 
+    			array('sesskey' => $USER->sesskey )
+    	));
+    	$thingnode = $settingnode->add(
+    			get_string('permitsviewprinters','mod_emarking'), 
+    			new moodle_url('/mod/emarking/print/userprinters.php', 
+    			array('sesskey' => $USER->sesskey )
+    	));
+    }
 }

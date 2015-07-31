@@ -197,6 +197,27 @@ $string ['markingduedate'] = 'Marking due date';
 $string ['markingduedate_help'] = 'Defines a due date that will help notify markers and teachers on pending jobs';
 $string ['enableduedate'] = 'Enable due date';
 
+$string ['emarkingprints'] = 'Emarking Printers';
+$string ['adminprints'] = 'Manage printers';
+$string ['permitsviewprinters'] = 'Permissions to view printers';
+$string ['notallowedprintermanagement'] = 'Not allowed to access the printer management';
+$string ['printerdoesnotexist'] = 'The printer does not exist';
+$string ['ip'] = 'ip';
+$string ['commandcups'] = 'Command cups';
+$string ['insertiondate'] = 'Insertion date';
+$string ['delete'] = 'Delete';
+$string ['doyouwantdeleteprinter'] = 'Do you want delete this printer?';
+$string ['edit'] = 'Edit';
+$string ['doyouwanteditprinter'] = 'do you want edit this printer?';
+$string ['addprinter'] = 'Add printer';
+$string ['editprinter'] = 'Edit printer';
+$string ['required'] = 'Required';
+$string ['nameexist'] = 'The printer name already exists';
+$string ['ipexist'] = 'The ip is associate to another printer';
+$string ['ipproblem'] = 'The ip has no numeric characters';
+$string ['emptyprinters'] = 'No printers in the system';
+$string ['emarking:manageprinters'] = 'Manage printers';
+
 $string ['printdigitize'] = 'Print/Scan';
 $string ['reports'] = 'Reports';
 $string ['gradereport'] = 'Grades report';

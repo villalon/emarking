@@ -258,6 +258,20 @@ $capabilities = array(
 						'editingteacher' => CAP_ALLOW,
 						'manager' => CAP_ALLOW
 				)
+		),
+		
+		'mod/emarking:manageprinters' => array(
+			'riskbitmask' => RISK_MANAGETRUST | RISK_XSS,
+			'captype' => 'write',
+			'contextlevel' => CONTEXT_SYSTEM,
+			'archetypes' => array(
+				'student' => CAP_PROHIBIT,
+				'teacher' => CAP_PROHIBIT,
+				'editingteacher' => CAP_PROHIBIT,
+				'manager' => CAP_ALLOW
+		
+				)
+		
 		)
 );
 

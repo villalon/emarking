@@ -196,6 +196,27 @@ $string ['markingduedate'] = 'Fecha entrega calificaciones';
 $string ['markingduedate_help'] = 'Si define una fecha de entrega de calificaciones, ésta se usará para notificar a correctores y profesores respecto del avance de la corrección';
 $string ['enableduedate'] = 'Habilitar fecha entrega';
 
+$string ['emarkingprints'] = 'Emarking Impresoras';
+$string ['adminprints'] = 'Administrar impresoras';
+$string ['permitsviewprinters'] = 'Permisos para ver impresoras';
+$string ['notallowedprintermanagement'] = 'No tiene permitido acceder a la administración de impresoras';
+$string ['printerdoesnotexist'] = 'La impresora no existe';
+$string ['ip'] = 'ip';
+$string ['commandcups'] = 'Comando cups';
+$string ['insertiondate'] = 'Fecha de inclusión';
+$string ['delete'] = 'Eliminar';
+$string ['doyouwantdeleteprinter'] = '¿Quieres eliminar esta impresora?';
+$string ['edit'] = 'Editar';
+$string ['doyouwanteditprinter'] = '¿Quieres editar esta impresora?';
+$string ['addprinter'] = 'Agregar impresora';
+$string ['editprinter'] = 'Editar impresora';
+$string ['required'] = 'Requerido';
+$string ['nameexist'] = 'El nombre de la impresora ya existe';
+$string ['ipexist'] = 'La ip ingresa esta relacionada con otra impresora';
+$string ['ipproblem'] = 'La ip posee caracteres no numericos';
+$string ['emptyprinters'] = 'No hay impresoras en el sistema';
+$string ['emarking:manageprinters'] = 'Administrar impresoras';
+
 $string ['printdigitize'] = 'Imprimir/Escanear';
 $string ['reports'] = 'Reportes';
 $string ['gradereport'] = 'Grades report';

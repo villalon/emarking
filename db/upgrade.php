@@ -1231,7 +1231,53 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015071700, 'emarking');
     }
     
-
+    if ($oldversion < 2015072800) {
+    
+    	// Define table emarking_printers to be created.
+    	$table = new xmldb_table('emarking_printers');
+    
+    	// Adding fields to table emarking_printers.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('name', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('command', XMLDB_TYPE_TEXT, null, null, null, null, null);
+    	$table->add_field('ip', XMLDB_TYPE_TEXT, null, null, null, null, null);
+    	$table->add_field('datecreated', XMLDB_TYPE_TEXT, null, null, null, null, null);
+    
+    	// Adding keys to table emarking_printers.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Conditionally launch create table for emarking_printers.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015072800, 'emarking');
+    }
+    
+    if ($oldversion < 2015072900) {
+    
+    	// Define table emarking_users_printers to be created.
+    	$table = new xmldb_table('emarking_users_printers');
+    
+    	// Adding fields to table emarking_users_printers.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('id_user', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('id_printer', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('datecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+    
+    	// Adding keys to table emarking_users_printers.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Conditionally launch create table for emarking_users_printers.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015072900, 'emarking');
+    }
+    
     
     
     return true;
