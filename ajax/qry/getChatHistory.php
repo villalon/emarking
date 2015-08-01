@@ -25,18 +25,21 @@
 $room = required_param('room', PARAM_INT);
 $source = required_param('source', PARAM_INT);
 
-$sqlchathistory = " SELECT ec.timecreated, ec.message,  u.firstname, u.lastname, u.email
+$sqlchathistory = " SELECT ec.*,  u.firstname, u.lastname, u.email
 			FROM {emarking_chat} as ec
 			INNER JOIN {user} as u on u.id=ec.userid
 		    WHERE ec.room=:room AND ec.source=:source
 		";
 $params = array('room'=>$room, 'source'=>$source);
 $results = $DB->get_records_sql($sqlchathistory, $params);
+
 if(!$results) {
 	$results = array();
 }else{
+
+
 foreach ($results as $obj){
-	
+	$obj->url=$CFG->wwwroot."/mod/emarking/marking/index.php";
 	$output[]=$obj;
 }
 
