@@ -365,11 +365,6 @@ switch ($action) {
         break;
     
     case 'getalltabs':
-        $showrubric = optional_param('showrubric', false, PARAM_BOOL);
-        $preferredwidth = optional_param('preferredwidth', 860, PARAM_INT);
-        $today = usertime(time());
-        setcookie('emarking_width',$preferredwidth, $today + 60*60*24*365, "/");
-        setcookie('emarking_showrubric',$showrubric ? "1" : "0", $today + 60*60*24*365, "/");
         $alltabs = emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context);
         emarking_json_resultset($alltabs);
         break;
