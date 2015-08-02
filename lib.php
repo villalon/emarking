@@ -765,11 +765,11 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, n
 {
     global $PAGE, $DB, $USER, $CFG;
     
-    // $emarkingnode->add('Foo');
     $course = $PAGE->course;
-    $cm = $DB->get_record("emarking", array("course"=>$course->id));
-    $context = context_module::instance($cm->id);
-    if( has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enablemanageprinters){
+    // Course context is used as this can work outside of the module
+    $context = context_course::instance($course->id);
+    
+    if( has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enablemanageprinters) {
     	$settingnode = $settingsnav->add(get_string('emarkingprints','mod_emarking'), null, navigation_node::TYPE_CONTAINER);
     	$thingnode = $settingnode->add(
     			get_string('adminprints','mod_emarking'), 
