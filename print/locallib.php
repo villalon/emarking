@@ -2193,3 +2193,51 @@ function emarking_clean_filename($filename, $slash = false)
     return $newfile;
 }
 
+//gets an ipv4 address in dotted format and returns true if the format
+//is acceptable
+function validate_ipv4_address($ipv4)
+{
+	$valid = true;
+	$pattern = '/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/';
+	if (preg_match($pattern, $ipv4, $parts)) {
+		if (
+				$parts[1] > 0 &&
+				$parts[1] <= 255 &&
+				$parts[2] >= 0 &&
+				$parts[2] <= 255 &&
+				$parts[3] >= 0 &&
+				$parts[3] <= 255 &&
+				$parts[4] >= 0 &&
+				$parts[4] <= 255
+		) {
+			$valid = false;
+		}
+	}
+	return $valid;
+}
+
+
+//gets an ipv6 in hex format and returns true if the format is acceptable
+function validate_ipv6_address($ipv6)
+{
+	$flag=true;
+
+	//uncompressed form
+	if (strpos($ipv6, '::') === false )
+	{
+
+		$pattern='/^([a-f0-9]{1,4}\:){7}([a-f0-9]{1,4})$/i';
+		if(preg_match($pattern, $ipv6))
+			$flag=false;
+
+	}elseif(substr_count($ipv6, '::')==1){
+
+		$pattern='/^([a-f0-9]{1,4}::?){1,}([a-f0-9]{1,4})$/i';
+		if(preg_match($pattern, $ipv6))
+			$flag=false;
+
+	}
+	return $flag;
+
+}
+

@@ -24,7 +24,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die;
-global $PAGE;
+global $PAGE, $CFG;
 
 // Basic settings
 $settings->add(new admin_setting_heading('emarking_basicsettings',
@@ -196,11 +196,18 @@ $settings->add(new admin_setting_configcheckbox('emarking_enableprinting',
 		get_string('enableprinting_help', 'mod_emarking'),
 		0, PARAM_BOOL));
 
+$settings->add(new admin_setting_configcheckbox('emarking_enablemanageprinters',
+		get_string('enablemanageprinters', 'mod_emarking'),
+		get_string('viewadminprints', 'mod_emarking', $CFG->wwwroot."/mod/emarking/print/printers.php")
+		.get_string('viewpermitsprinters', 'mod_emarking', $CFG->wwwroot."/mod/emarking/print/usersprinters.php"),
+		0, PARAM_BOOL));
+/*
 // The remote printer's name
 $settings->add(new admin_setting_configtext('emarking_printername',
 		get_string('printername', 'mod_emarking'),
 		get_string('printername_help', 'mod_emarking'),
 		'', PARAM_TAGLIST));
+*/
 
 //PRINT RANDOM
 // Enable printing random
@@ -215,3 +222,10 @@ $settings->add(new admin_setting_configcheckbox('emarking_enableprintinglist',
 		get_string('enableprintinglist', 'mod_emarking'),
 		get_string('enableprintinglist_help', 'mod_emarking'),
 		0, PARAM_BOOL));
+
+//CHAT
+// Enable all chat features
+$settings->add(new admin_setting_configcheckbox('emarking_collaborativefeatures',
+		get_string('collaborativefeatures', 'mod_emarking'),
+		get_string('collaborativefeatures_help', 'mod_emarking'),
+		0, 1));
