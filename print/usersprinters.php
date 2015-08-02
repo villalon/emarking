@@ -33,23 +33,15 @@ if (isguestuser()) {
 	die();
 }
 
-// Course module id
-//$courseid = required_param("courseid", PARAM_INT);
 // Action = { view, edit, delete, create }, all options page
 $action = optional_param("action", "view", PARAM_TEXT);
 $idprinter = optional_param("idprinter", null, PARAM_INT);
 $iduser = optional_param("iduser", null, PARAM_INT);
 $sesskey = optional_param("sesskey", null, PARAM_ALPHANUM);
 
-// Validate course module
-/*if (! $cm = $DB->get_record("emarking", array("course"=>$courseid)) ) {
- print_error(get_string("invalidcoursemodule", "mod_emarking") . " course id: $courseid");
-}*/
-
-//$context = context_module::instance($cm->id);
 $context = context_system::instance();
 
-if(! has_capability("mod/emarking:printers", $context)){
+if(! has_capability("mod/emarking:manageprinters", $context)){
 	print_error(get_string("notallowedprintermanagement", "mod_emarking"));
 }
 
@@ -68,16 +60,25 @@ if( $action == "add" ){
 	if( $addform->is_cancelled() ){
 		$action = "view";
 	}else if( $creationdata = $addform->get_data() ){
-		$record = new stdClass();
-		$record->name = $creationdata->name;
-		$record->command = $creationdata->command;
-		$record->ip = $creationdata->ip;
-		$record->datecreated = time();
-		$DB->insert_record("emarking_printers", $record);
+		if( isset($creationdata->users) && isset($creationdata->printers) ){
+			$selectusers = $creationdata->users;
+			$selectprinters = $creationdata->printers;
+			$records = array();
+			foreach( $selectusers as  $iduser ){
+				foreach( $selectprinters as $idprinter ){
+					$record = new stdClass();
+					$record->id_user = $iduser;
+					$record->id_printer = $idprinter;
+					$record->datecreated = time();
+					$records[] = $record;
+				}
+			}
+			$DB->insert_record("emarking_printers", $records);
+		}
 		$action = "view";
 	}
 }
-
+/* TODO: se editara una relación usuario-impresora, o solo se podra borrar?
 if( $action == "edit" ){
 	if( $idprinter == null ){
 		print_error(get_string("printerdoesnotexist", "mod_emarking"));
@@ -109,55 +110,58 @@ if( $action == "edit" ){
 		}
 	}
 }
-
+*/
 if( $action == "delete" ){
-	if( $idprinter == null ){
-		print_error(get_string("printerdoesnotexist", "mod_emarking"));
+	if( $idprinter == null || $iduser == null ){
+		print_error(get_string("dontexistrelationship", "mod_emarking"));
 		$action = "view";
 	}else{
-		if( $printer = $DB->get_record("emarking_printers", array("id"=>$idprinter)) ){
+		if( $relationship = $DB->get_record("emarking_users_printers", array("id_user" => $iduser, "id_printer" => $idprinter )) ){
 			if( $sesskey == $USER->sesskey ) {
-				$DB->delete_records("emarking_printers", array("id"=>$printer->id));
-				$DB->delete_records_select("emarking_users_printers","id_printer = ?",array($printer->id));
+				$DB->delete_records("emarking_users_printers", array("id_user" => $iduser, "id_printer" => $idprinter));
 				$action = "view";
 			}else{
 				print_error(get_string("usernotloggedin", "mod_emarking"));
 			}
 		}else{
-			print_error(get_string("printerdoesnotexist", "mod_emarking"));
+			print_error(get_string("dontexistrelationship", "mod_emarking")); 
 			$action = "view";
 		}
 	}
 }
 
 if( $action == "view" ){
-	$printers = $DB->get_records('emarking_printers');
+	$datasql = "SELECT u.id as iduser, u.username, u.lastname, u.email, p.id as idprinter, p.name
+			FROM {user} as u INNER JOIN {emarking_users_printers} as up ON (u.id = up.id_user)
+			INNER JOIN {emarking_printers} as p ON (up.id_printer = p.id)";
+	$usersprinters = $DB->get_records_sql($datasql);
 	$printerstable = new html_table();
-	if( count ($printers) >0 ){
+	if( count($usersprinters) >0 ){
 		$printerstable->head = array(
+				get_string("username", "mod_emarking"),
+				get_string("email", "mod_emarking"),
 				get_string("printername", "mod_emarking"),
-				get_string("ip", "mod_emarking"),
-				get_string("commandcups", "mod_emarking"),
-				get_string("insertiondate", "mod_emarking"),
 				get_string("adjustments", "mod_emarking")
 		);
 
-		foreach ($printers as $printer){
-			$deleteurl_printer = new moodle_url("/mod/emarking/print/printers.php", array(
+		foreach ($usersprinters as $relationship){
+			$deleteurl_printer = new moodle_url("/mod/emarking/print/usersprinters.php", array(
 					"action" => "delete",
-					"idprinter" => $printer->id,
+					"idprinter" => $relationship->idprinter,
+					"iduser" => $relationship->iduser,
 					"sesskey" => sesskey()
 			));
 			$deleteicon_printer = new pix_icon("t/delete", get_string("delete", "mod_emarking"));
 			$deleteaction_printer = $OUTPUT->action_icon(
 					$deleteurl_printer,
 					$deleteicon_printer,
-					new confirm_action(get_string("doyouwantdeleteprinter", "mod_emarking")
+					new confirm_action(get_string("doyouwantdeleterelationship", "mod_emarking")
 					));
 				
+			/*
 			$editurl_printer = new moodle_url("/mod/emarking/print/printers.php", array(
 					"action"=> "edit",
-					"idprinter" => $printer->id,
+					"idprinter" => $relationship->id,
 					"sesskey" => sesskey()
 			));
 			$editicon_printer = new pix_icon("i/edit", get_string("edit", "mod_emarking"));
@@ -166,18 +170,17 @@ if( $action == "view" ){
 					$editicon_printer,
 					new confirm_action(get_string("doyouwanteditprinter", "mod_emarking")
 					));
-
+			*/
 			$printerstable->data[] = array(
-					$printer->name,
-					$printer->ip,
-					$printer->command,
-					date("d-m-Y", $printer->datecreated),
-					$deleteaction_printer.$editaction_printer
+					$relationship->username." ".$relationship->lastname,
+					$relationship->email,
+					$relationship->name,
+					$deleteaction_printer   //.$editaction_printer
 			);
 		}
 	}
 
-	$buttonurl = new moodle_url("/mod/emarking/print/printers.php", array('action' => 'add'));
+	$buttonurl = new moodle_url("/mod/emarking/print/usersprinters.php", array("action" => "add"));
 
 	$toprow = array();
 	$toprow[] = new tabobject(
@@ -198,25 +201,38 @@ if( $action == "add" ){
 	echo $OUTPUT->heading(get_string("addprinter", "mod_emarking"));
 	$addform->display();
 }
-
+/*
 if( $action == "edit" ){
 	$PAGE->set_title(get_string("editprinter", "mod_emarking"));
 	$PAGE->set_heading(get_string("editprinter", "mod_emarking"));
 	echo $OUTPUT->heading(get_string("editprinter", "mod_emarking"));
 	$editform->display();
 }
-
-if( $action == "view" ){
-	$PAGE->set_title(get_string("adminprints", "mod_emarking"));
-	$PAGE->set_heading(get_string("editprinter", "mod_emarking"));
-	echo $OUTPUT->heading(get_string("editprinter", "mod_emarking"));
-	echo $OUTPUT->tabtree( $toprow, get_string("adminprints", "mod_emarking"));
-	if( count($printers) == 0 ){
-		echo html_writer::nonempty_tag("h4", get_string("emptyprinters", "mod_emarking"), array('align' => 'center'));
+*/
+if( $action == "view" && $CFG->emarking_enablemanageprinters ){
+	$PAGE->set_title(get_string("managepermissions", "mod_emarking"));
+	$PAGE->set_heading(get_string("managepermissions", "mod_emarking"));
+	echo $OUTPUT->heading(get_string("managepermissions", "mod_emarking"));
+	echo $OUTPUT->tabtree( $toprow, get_string("permitsviewprinters", "mod_emarking"));
+	if( count($usersprinters) == 0 ){
+		echo html_writer::nonempty_tag("h4", get_string("emptypermissions", "mod_emarking"), array('align' => 'center'));
 	}else{
 		echo html_writer::table($printerstable);
 	}
-	echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addprinter", "mod_emarking")), array('align' => 'center'));
+	if( !$DB->get_records("emarking_printers") ){
+		echo html_writer::nonempty_tag("h4", get_string("emptyprinters", "mod_emarking"), array('align' => 'center'));
+		$buttonurl = new moodle_url("/mod/emarking/print/printers.php", array("action" => "add"));
+		echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addprinter", "mod_emarking")), array("align" => "center"));
+	}else{
+		echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addpermission", "mod_emarking")), array('align' => 'center'));
+	}
+	
+}else{
+	echo html_writer::nonempty_tag("h4", 
+			get_string("notenablemanageprinters", "mod_emarking", $CFG->wwwroot."/admin/settings.php?section=modsettingemarking"), 
+			array("align" => "center")
+		);
+	echo $OUTPUT->footer();
 }
 
 echo $OUTPUT->footer();

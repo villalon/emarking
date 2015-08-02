@@ -145,7 +145,49 @@ class emarking_editionprinter_form extends moodleform{
 				$errors["ip"] = get_string("ipproblem", "mod_emarking");
 		}else{
 			$errors["ip"] = get_string("required", "mod_emarking");
-		}
+		}		
+		return $errors;
+	}
+}
+
+class emarking_addrelationship_userprint_form extends moodleform{
+	function definition(){
+		global $DB;
+		$mform = $this->_form; 
+		
+		$sqlusers = "SELECT u.id, u.username, u.lastname, u.email
+				FROM {user} as u INNER JOIN {role_assignments} as ra ON (u.id = ra.userid)
+				INNER JOIN {role_capabilities} as rc ON (rc.roleid = ra.roleid)
+				INNER JOIN {role} as r ON (r.id = ra.roleid)
+				WHERE rc.capability like ?
+				AND rc.permission = ?
+				GROUP BY u.id";
+		
+		$users = $DB->get_records_sql($sqlusers, array('%emarking:downloadexam%', 1));
+			$data = array();
+			foreach( $users as $user ){
+				$names[$user->id] = $user->username." ".$user->lastname." (".$user->email.")";
+			}		
+			$selectusers = $mform->addElement("select", "users", get_string("selectusers","mod_emarking"),$data);
+			$selectusers->setMultiple(true);
+			
+			if($printers = $DB->get_records("emarking_printers")){
+				$data = array();
+				foreach( $printers as $printer ){
+					$data[$printer->id] = $printer->name;
+				}
+				$selectprinters = $mform->addElement("select", "printers", get_string("selectprinters","mod_emarking"),$data);
+				$selectprinters->setMultiple(true);			
+			}
+			
+			$mform->addElement("hidden", "action", "add");
+			$mform->setType("action", PARAM_TEXT);
+			
+			$this->add_action_buttons(true);
+	}
+	function validation($data, $files){
+		global $DB;
+		$errors = array();
 		
 		return $errors;
 	}

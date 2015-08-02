@@ -33,22 +33,14 @@ if (isguestuser()) {
 	die();
 }
 
-// Course module id
-//$courseid = required_param("courseid", PARAM_INT);
-// Action = { view, edit, delete, create }, all options page
+// Action = { view, edit, delete, create }, all page options
 $action = optional_param("action", "view", PARAM_TEXT);
 $idprinter = optional_param("idprinter", null, PARAM_INT);
 $sesskey = optional_param("sesskey", null, PARAM_ALPHANUM);
 
-// Validate course module
-/*if (! $cm = $DB->get_record("emarking", array("course"=>$courseid)) ) {
-	print_error(get_string("invalidcoursemodule", "mod_emarking") . " course id: $courseid");
-}*/
-
-//$context = context_module::instance($cm->id);
 $context = context_system::instance();
 
-if(! has_capability("mod/emarking:printers", $context)){
+if(! has_capability("mod/emarking:manageprinters", $context)){
 	print_error(get_string("notallowedprintermanagement", "mod_emarking"));
 }
 
@@ -98,7 +90,7 @@ if( $action == "edit" ){
 				$record->name = $editiondata->name;
 				$record->command = $editiondata->command;
 				$record->ip = $editiondata->ip;
-				$record->datecreated = time(); //TODO: modificar la fecha cuando se edita la impresora ¿?
+				$record->datecreated = time(); 
 				$DB->update_record("emarking_printers", $record);
 				$action = "view";
 			}
@@ -130,9 +122,9 @@ if( $action == "delete" ){
 }
 
 if( $action == "view" ){
-	$printers = $DB->get_records('emarking_printers');	
+	$printers = $DB->get_records("emarking_printers");	
 	$printerstable = new html_table();
-	if( count ($printers) >0 ){
+	if( count($printers) >0 ){
 		$printerstable->head = array(
 				get_string("printername", "mod_emarking"),
 				get_string("ip", "mod_emarking"),
@@ -176,7 +168,7 @@ if( $action == "view" ){
 		}
 	}
 	
-	$buttonurl = new moodle_url("/mod/emarking/print/printers.php", array('action' => 'add'));
+	$buttonurl = new moodle_url("/mod/emarking/print/printers.php", array("action" => "add"));
 	
 	$toprow = array();
 	$toprow[] = new tabobject(
@@ -205,17 +197,23 @@ if( $action == "edit" ){
 	$editform->display();
 }
 
-if( $action == "view" ){
+if( $action == "view" && $CFG->emarking_enablemanageprinters ){
 	$PAGE->set_title(get_string("adminprints", "mod_emarking"));
-	$PAGE->set_heading(get_string("editprinter", "mod_emarking"));
-	echo $OUTPUT->heading(get_string("editprinter", "mod_emarking"));
+	$PAGE->set_heading(get_string("adminprints", "mod_emarking"));
+	echo $OUTPUT->heading(get_string("adminprints", "mod_emarking"));
 	echo $OUTPUT->tabtree( $toprow, get_string("adminprints", "mod_emarking"));
 	if( count($printers) == 0 ){
-		echo html_writer::nonempty_tag("h4", get_string("emptyprinters", "mod_emarking"), array('align' => 'center'));
+		echo html_writer::nonempty_tag("h4", get_string("emptyprinters", "mod_emarking"), array("align" => "center"));
 	}else{
 		echo html_writer::table($printerstable);
 	}
-	echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addprinter", "mod_emarking")), array('align' => 'center'));
+	echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addprinter", "mod_emarking")), array("align" => "center"));
+}else{
+	echo html_writer::nonempty_tag("h4", 
+			get_string("notenablemanageprinters", "mod_emarking", $CFG->wwwroot."/admin/settings.php?section=modsettingemarking"), 
+			array("align" => "center")
+		);
+	echo $OUTPUT->footer();
 }
 
 echo $OUTPUT->footer();
