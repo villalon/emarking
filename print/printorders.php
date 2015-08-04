@@ -135,7 +135,7 @@ $order = $status == 1 ? "e.examdate asc, c.shortname ASC" : "e.examdate desc, c.
 
 list($childrensql, $childrenparams) = $DB->get_in_or_equal(emarking_get_categories_childs($categoryid));
 
-$params = array_merge($params, $childrenparams);
+$params = array_merge($childrenparams, $params);
 
 $sqlcount = " SELECT count(*)
  FROM {emarking_exams} as e
