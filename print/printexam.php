@@ -132,6 +132,11 @@ if ($form->get_data ()) {
 		$target = "10.110.2.244";
 	}
 	
+	// TODO This is outrageous!
+	if ($printer == "Edificio-A-CentralDeApuntes2") {
+		$target = "10.50.2.210";
+	}
+	
 	// codigo extra borrar
 	$cmd_result = shell_exec ( "ping -c 1 -w 1 " . $target );
 	$result = explode ( ",", $cmd_result );
