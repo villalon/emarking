@@ -202,13 +202,13 @@ $settings->add(new admin_setting_configcheckbox('emarking_enablemanageprinters',
 		.get_string('viewpermitsprinters', 'mod_emarking', $CFG->wwwroot."/mod/emarking/print/usersprinters.php"),
 		0, PARAM_BOOL));
 
-/*
+
 // The remote printer's name
 $settings->add(new admin_setting_configtext('emarking_printername',
 		get_string('printername', 'mod_emarking'),
 		get_string('printername_help', 'mod_emarking'),
 		'', PARAM_TAGLIST));
-*/
+
 
 //PRINT RANDOM
 // Enable printing random
