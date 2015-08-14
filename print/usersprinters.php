@@ -232,7 +232,6 @@ if( $action == "view" && $CFG->emarking_enablemanageprinters ){
 			get_string("notenablemanageprinters", "mod_emarking", $CFG->wwwroot."/admin/settings.php?section=modsettingemarking"), 
 			array("align" => "center")
 		);
-	echo $OUTPUT->footer();
 }
 
 echo $OUTPUT->footer();

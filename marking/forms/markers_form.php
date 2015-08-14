@@ -37,7 +37,8 @@ class emarking_markers_form extends moodleform {
 		$context = $this->_customdata['context'];
 		$cmid = $this->_customdata['id'];
 		$emarking = $this->_customdata['emarking'];
-
+		$action = $this->_customdata['action'];
+		
 		$mform = $this->_form;
 
 		// Add header
@@ -47,38 +48,46 @@ class emarking_markers_form extends moodleform {
 		$mform->addElement('hidden', 'id', $cmid);
 		$mform->setType ( 'id', PARAM_INT);
 
+		// Hide course module id
+		$mform->addElement('hidden', 'action', $action);
+		$mform->setType ( 'action', PARAM_ALPHA);
+
 		// Array of motives for regrading
 		$markers=get_enrolled_users($context, 'mod/assign:grade');
-
+		$chkmarkers = array();
+		foreach($markers as $marker) {
+		    $chkmarkers[$marker->id] = $marker->firstname . " " . $marker->lastname;
+		}
+		
+		$mform->addElement('html', '<table><tr><td>');
+		
+		if($action === "addmarker") {
+		$select = $mform->addElement('select', 'data', get_string('extraexams', 'mod_emarking'), $chkmarkers, null);
+		$select->setMultiple(true);
+		} else {
+		// $mform->addHelpButton('extraexams', 'extraexams', 'mod_emarking');
+		
+		$chkpages = array();
+		for($i=1;$i<=$emarking->totalpages;$i++) {
+		    $chkpages[$i] = get_string('page', 'mod_emarking') . " " . $i;
+		}
+		$select = $mform->addElement('select', 'data', get_string('extraexams', 'mod_emarking'), $chkpages, null);
+		$select->setMultiple(true);
+		}
+		
+		$criteriaitems = array();
 		foreach($criteria as $criterion) {
-			$chkmarkers = array();
-			foreach($markers as $marker) {
-				$chkmarkers[] = $mform->createElement ( 'checkbox', 'assign-'.$criterion['id'].'-'.$marker->id, null, $marker->firstname . " " . $marker->lastname);
-			}
-
-			// Add markers group as checkboxes
-			$mform->addGroup($chkmarkers, 'markers-'.$criterion['id'], $criterion['description'], array('<br />'), false);
-			$mform->addRule ( 'markers-'.$criterion['id'], get_string ( 'required' ), 'required', null, 'client' );
-			$mform->setType ( 'markers-'.$criterion['id'], PARAM_INT);
+		    $criteriaitems[$criterion['id']] = $criterion['description'];
 		}
+		
+		$mform->addElement('html', '</td><td>');
+		
+		$select = $mform->addElement('select', 'criteria', get_string('extraexams', 'mod_emarking'), $criteriaitems, null);
+		$select->setMultiple(true);
+		// $mform->addHelpButton('extraexams', 'extraexams', 'mod_emarking');
 
-		if(isset($emarking->totalpages) && $emarking->totalpages > 0) {
-			// Add header
-			$mform->addElement('header', 'general', ucfirst(get_string('assignpagestocriteria', 'mod_emarking')));
-
-			foreach($criteria as $criterion) {
-				$chkpages = array();
-				for($i=1;$i<=$emarking->totalpages;$i++) {
-					$chkpages[] = $mform->createElement ( 'checkbox', 'page-'.$criterion['id'].'-'.$i, null, get_string('page', 'mod_emarking') . " " . $i);
-				}
-				// Add pages group as checkboxes
-				$mform->addGroup($chkpages, 'pages-'.$criterion['id'], $criterion['description'], array('<br />'), false);
-				$mform->addRule ( 'pages-'.$criterion['id'], get_string ( 'required' ), 'required', null, 'client' );
-				$mform->setType ( 'pages-'.$criterion['id'], PARAM_INT);
-			}
-		}
-
-
+		$mform->addElement('html', '</td></tr></table>');
+		
 		// Add action buttons
 		$this->add_action_buttons();
 	}

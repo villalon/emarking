@@ -156,38 +156,6 @@ $settings->add(new admin_setting_configcheckbox('emarking_webexperimental',
 		get_string('emarking_webexperimental_help', 'mod_emarking'),
 		0, PARAM_BOOL));
 
-// JUSTICE PERCEPTION
-
-// Enable asking for justice perception
-$settings->add(new admin_setting_configcheckbox('emarking_enablejustice',
-		get_string('enablejustice', 'mod_emarking'),
-		get_string('enablejustice_help', 'mod_emarking'),
-		0, PARAM_BOOL));
-
-// Experiment with justice perception showing some students the graphical tools or not
-$settings->add(new admin_setting_configcheckbox('emarking_justiceexperiment',
-		get_string('justiceexperiment', 'mod_emarking'),
-		get_string('justiceexperiment_help', 'mod_emarking'),
-		0, PARAM_BOOL));
-
-// CROWD MARKING
-
-// Crowd marking experimenting
-$settings->add(new admin_setting_configcheckbox('emarking_crowdexperiment',
-		get_string('crowdexperiment', 'mod_emarking'),
-		get_string('crowdexperiment_help', 'mod_emarking'),
-		0, PARAM_BOOL));
-
-$settings->add(new admin_setting_configtext('emarking_crowdexperiment_rtm_secret',
-    get_string('crowdexperiment_rtm_secret', 'mod_emarking'),
-    get_string('crowdexperiment_rtm_secret_help', 'mod_emarking'),
-    '', PARAM_ALPHANUMEXT));
-
-$settings->add(new admin_setting_configtext('emarking_crowdexperiment_rtm_appid',
-    get_string('crowdexperiment_rtm_appid', 'mod_emarking'),
-    get_string('crowdexperiment_rtm_appid_help', 'mod_emarking'),
-    '', PARAM_ALPHANUMEXT));
-
 // REMOTE PRINTING
 
 // Enable printing directly from eMarking to a remote printer using cups
@@ -217,16 +185,15 @@ $settings->add(new admin_setting_configcheckbox('emarking_enableprintingrandom',
 		get_string('enableprintingrandom_help', 'mod_emarking'),
 		0, PARAM_BOOL));	
 
-//PRINT LIST
-// Enable printing the list of students
-$settings->add(new admin_setting_configcheckbox('emarking_enableprintinglist',
-		get_string('enableprintinglist', 'mod_emarking'),
-		get_string('enableprintinglist_help', 'mod_emarking'),
-		0, PARAM_BOOL));
-
-//CHAT
-// Enable all chat features
+// NodeJs settings
+// Enable e-marking chat features
 $settings->add(new admin_setting_configcheckbox('emarking_collaborativefeatures',
 		get_string('collaborativefeatures', 'mod_emarking'),
 		get_string('collaborativefeatures_help', 'mod_emarking'),
 		0, 1));
+
+// Enable e-marking chat features
+$settings->add(new admin_setting_configtext('emarking_nodejspath',
+    get_string('nodejspath', 'mod_emarking'),
+    get_string('nodejspath_help', 'mod_emarking'),
+    '', PARAM_URL));
