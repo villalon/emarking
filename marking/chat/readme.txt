@@ -33,7 +33,6 @@ C:\nodejs\moodle).
 npm install moment
 npm install socket.io
 npm install underscore
-npm install mysql
 
 Most installations should run without warnings except for socket.io which
 will print:
@@ -76,13 +75,9 @@ socket.io@1.3.5 ..\node_modules\socket.io
 -binary@0.1.6, parseuri@0.0.2, engine.io-client@1.5.1)
 ------------------------
 
-- Modify the server.js file with the mysql database, user and
-password for your moodle database.
-
 - Run node with:
 node server.js
 
 It should show:
 [08-07-2015 16:25:06] Iniciando Servidor
 [08-07-2015 16:25:06] Servidor iniciado exitosamente en 127.0.0.1:9091
-[08-07-2015 16:25:06] Database is connected
