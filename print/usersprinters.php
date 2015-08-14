@@ -73,7 +73,7 @@ if( $action == "add" ){
 					$records[] = $record;
 				}
 			}
-			$DB->insert_record("emarking_printers", $records);
+			$DB->insert_records("emarking_users_printers", $records);
 		}
 		$action = "view";
 	}
@@ -131,7 +131,7 @@ if( $action == "delete" ){
 }
 
 if( $action == "view" ){
-	$datasql = "SELECT u.id as iduser, u.username, u.lastname, u.email, p.id as idprinter, p.name
+	$datasql = "SELECT up.id, u.id as iduser, u.username, u.lastname, u.email, p.id as idprinter, p.name
 			FROM {user} as u INNER JOIN {emarking_users_printers} as up ON (u.id = up.id_user)
 			INNER JOIN {emarking_printers} as p ON (up.id_printer = p.id)";
 	$usersprinters = $DB->get_records_sql($datasql);
@@ -227,7 +227,7 @@ if( $action == "view" && $CFG->emarking_enablemanageprinters ){
 		echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addpermission", "mod_emarking")), array('align' => 'center'));
 	}
 	
-}else{
+}else if( !$CFG->emarking_enablemanageprinters ){
 	echo html_writer::nonempty_tag("h4", 
 			get_string("notenablemanageprinters", "mod_emarking", $CFG->wwwroot."/admin/settings.php?section=modsettingemarking"), 
 			array("align" => "center")

@@ -65,9 +65,10 @@ if (isguestuser ()) {
 	die ();
 }
 
-$printers = explode ( ',', $CFG->emarking_printername );
-if (count ( $printers ) <= 0) {
-	print_error ( 'No printers cnofigured. Please notify administrator.' );
+if (! $printers = $DB->get_records("emarking_users_printers", array(
+		"id_user" => $USER->id		
+) )) {
+	print_error ( 'No printers configured. Please notify administrator.' );
 }
 
 $url = new moodle_url ( '/mod/emarking/print/printexam.php', array (
@@ -112,10 +113,20 @@ if (count ( $parts ) != 2) {
 }
 }
 
-if ($form->get_data ()) {
+if ($data = $form->get_data ()) {
 	
-	$printer = $printers [$form->get_data ()->printername];
+	$idprinter = $data->printername;
+	$sqlprinter = "SELECT id, name, ip, cups
+			FROM {emarking_printers}
+			WHERE id = ?";
+	$printerinfo = $DB->get_records_sql($sqlprinter, array(
+			$idprinter
+	));
 	
+	$target = $printerinfo->ip;
+	$printer = $printerinfo->name;
+	$command = $printerinfo->cups;
+	/*
 	if(!$debugprinting) {
 	// TODO This is outrageous!
 	if ($printer == "Edificio-A-CentralDeApuntes") {
@@ -136,7 +147,7 @@ if ($form->get_data ()) {
 	if ($printer == "Edificio-A-CentralDeApuntes2") {
 		$target = "10.50.2.210";
 	}
-	
+	*/
 	// codigo extra borrar
 	$cmd_result = shell_exec ( "ping -c 1 -w 1 " . $target );
 	$result = explode ( ",", $cmd_result );
@@ -151,7 +162,7 @@ if ($form->get_data ()) {
 	if ($estado != "OK") {
 		print_error ( $estado );
 	}
-	}
+	
 	
 	$pbar = new progress_bar ( 'printing', 500, true );
 	if ($exam->printrandom == 1) {
