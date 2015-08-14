@@ -209,6 +209,15 @@ $linkrubric = $emarking->linkrubric;
 // $totaltest, $inprogesstest, $publishtest
 // Ping action for fast validation of user logged in and communication with server
 if ($action === 'ping') {
+    
+    include "../version.php";
+    
+    // Start with a default Node JS path, and get the configuration one if any
+    $nodejspath = 'http://127.0.0.1:9091';
+    if(isset($CFG->emarking_nodejspath)) {
+        $nodejspath = $CFG->emarking_nodejspath;
+    }
+    
     emarking_json_array(array(
         'user' => $USER->id,
         'student' => $userid,
@@ -231,7 +240,9 @@ if ($action === 'ping') {
         'heartbeat' => $emarking->heartbeatenabled,
         'linkrubric' => $linkrubric,
         'collaborativefeatures' => $emarking->collaborativefeatures,
-        'coursemodule'=>$cm->id
+        'coursemodule'=> $cm->id,
+        'nodejspath'=> $nodejspath,
+        'version' => $module->version
     ));
 }
 
@@ -339,19 +350,6 @@ switch ($action) {
         emarking_json_array($output);
         break;
     
-    case 'emarking':
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        // Add to Moodle log so some auditing can be done
-        \mod_emarking\event\emarking_graded::create($item)->trigger();
-        
-        $module = new stdClass();
-        include "../version.php";
-        include "view/emarking.php";
-        break;
-    
     case 'finishmarking':
         
         require_once ($CFG->dirroot . '/mod/emarking/marking/locallib.php');
@@ -400,7 +398,12 @@ switch ($action) {
         
         include "qry/getSubmissionGrade.php";
         $output = $results;
-        emarking_json_array($output);
+        $output->coursemodule = $cm->id;
+        $output->markerfirstname = $USER->firstname;
+        $output->markerlastname = $USER->lastname;
+	    $output->markeremail = $USER->email;
+        $output->markerid = $USER->id;
+	    emarking_json_array($output);
         break;
     
     case 'getchathistory':

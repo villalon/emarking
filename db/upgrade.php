@@ -1278,7 +1278,38 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015072900, 'emarking');
     }
     
+    if ($oldversion < 2015080303) {
     
+        // Define field stage to be added to emarking_perception.
+        $table = new xmldb_table('emarking_perception');
+        $field = new xmldb_field('stage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'expectation_reality');
+    
+        // Conditionally launch add field stage.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Define field block to be added to emarking_marker_criterion.
+        $table = new xmldb_table('emarking_marker_criterion');
+        $field = new xmldb_field('block', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'criterion');
+    
+        // Conditionally launch add field block.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Define field block to be added to emarking_page_criterion.
+        $table = new xmldb_table('emarking_page_criterion');
+        $field = new xmldb_field('block', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'criterion');
+    
+        // Conditionally launch add field block.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015080303, 'emarking');
+    }
     
     return true;
 }

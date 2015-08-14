@@ -22,6 +22,8 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string["nodejspath"] = "NodeJS path";
+$string["nodejspath_help"] = "The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091";
 
 $string["er-4"] = "-4 (much worse than I deserved)";
 $string["er-3"] = "-3";

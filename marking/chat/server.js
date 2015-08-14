@@ -1,24 +1,21 @@
+// Library that we don't know why is here
 var moment = require('moment');
-var people = {};
-var users=[];
-var rooms = [];
-var sockets = [];
-var color = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
 
+// NodeJS configuration, this should be read from somewhere else probably
 var port=9091;
 var ipaddress="127.0.0.1";
 
-console.log("["+logtime()+"] "+"Iniciando Servidor");
-///////////////////////////////////////////////////////////////
+console.log(logtime() + "Starting NodeJS for e-marking");
+
 var app = require('http').createServer(handler);
 app.listen(port,ipaddress);
-
-console.log("["+logtime()+"] "+"Servidor iniciado exitosamente en "+ipaddress+":"+port);
 var  io = require('socket.io').listen(app);
 var  fs = require('fs');
-
 var _ = require('underscore')._;
-///////////////////////////////////////////////////////////////
+
+console.log(logtime() + "NodeJS for e-marking started on " + ipaddress + ":" + port);
+
+// This function is used in createServer for http. Check if we can skip it
 function handler (req, res) {
 	fs.readFile('index.html',
 
@@ -33,117 +30,100 @@ function handler (req, res) {
 	});
 }
 
+// This is the real stuff. sockets.io on connection
+// with several events. This happens when a new socket
+// has connected. In which case we add event listeners
+// which are: joinserver, disconnect and sendmessage
 io.sockets.on("connection", function (socket) {
+	
+	// When the new socket has just joined the server. Called from
+	// the function LoadNodeJs in GWT
 	socket.on("joinserver", function(data) {
+		
+		// We parse the data sent from GWT
 		var conectionData=JSON.parse(data);
+		
+		// First, fill the socket with data from the interface
 		socket.room = conectionData.cm;
-		socket.userName=conectionData.Username;
+		socket.first=conectionData.first;
+		socket.last=conectionData.last;
+		socket.email=conectionData.email;
 		socket.userid=conectionData.userid;
-		socket.draftid=conectionData.draftid;
-		socket.color=color[0];
-		var index = color.indexOf(socket.color);
-		if (index > -1) {
-			color.splice(index, 1);
-		}
-		if(!inArray(socket.room,rooms)){
-			rooms.push(socket.room);
 
-		}
+		// Join the room with the socket (so we can broadcast)
 		socket.join(socket.room);
-		var user = {};
-		user.username=socket.userName;
-		user.room=socket.room;
-		user.userid=socket.userid;
-		user.draftid=socket.draftid;
-		user.color=socket.color;
-		users.push(user);
-		obj={};
-		obj.user=user;
-		obj.people=users;
 
-		socket.emit("userJoin", JSON.stringify(obj));
-		socket.broadcast.to(socket.room).emit("onBeginChatOther",JSON.stringify(user));
-		console.log("["+logtime()+"] "+ socket.userName+ " se ha conectado en la sala " + socket.room);
-	});
-	socket.on("onSendMessage", function(data) {
-		var data= JSON.parse(data);
-		var message=data.message;
-		var source =data.source;
-		var messageid=data.messageid;
-
-		var obj={};
-		obj.time=unixtime();
-		obj.message=message;
-		obj.userid=socket.userid;
-		obj.room=socket.room;       
-		obj.username= socket.userName;
-		obj.color= socket.color;
-		obj.source=source;
-		obj.draftid=socket.draftid;
-		obj.id=messageid;
-		console.log(obj);
-		socket.broadcast.to(socket.room).emit("onCatchMesage",JSON.stringify(obj));//solo envia un mensaje
-		socket.emit("onMessegeSent",JSON.stringify(obj));
-		console.log("["+logtime()+"] "+socket.userName +" en la sala "+socket.room+" ha enviado un mensaje: "+message);
-
-
-	});
-
-	socket.on("onSendSos", function(data) {
-		var data= JSON.parse(data);
-		var obj={};
-		obj.time=unixtime();
-		obj.comment=data.comment;
-		obj.urgencylevel=data.urgencyLevel;
-		obj.draftid=socket.draftid;
-		obj.userid=socket.userid;
-		obj.room=socket.room;       
-		obj.status=1;
-		obj.username=socket.userName;
-
-		socket.emit("onCatchSos", JSON.stringify(obj));
-		socket.broadcast.to(socket.room).emit("onCatchSos",JSON.stringify(obj));//solo envia un mensaje
-		console.log(obj);
-
-
-	});
-
-	socket.on("disconnect", function() {
-		socket.leave(socket.room);
-		var user = {};
-		user.username=socket.userName;
-		user.room=socket.room;
-		user.userid=socket.userid;
-		user.color=socket.color;
-		socket.broadcast.to(socket.room).emit("onRemoveChatUser",JSON.stringify(user));
-		color.push(socket.color);
-		console.log("["+logtime()+"] "+socket.userName+ " se ha desconectado en la sala " + socket.room);
-		for(var i=0; i<users.length; i++) {
-
-			if(socket.userName === users[i].username) {
-
-				users.splice(i, 1);
-
-				return;
-			}
+		// Get the list of all sockets currently in the room
+		var users = [];
+		var clients_in_the_room = io.sockets.adapter.rooms[socket.room];
+		
+		// Make a users list
+		for (var clientId in clients_in_the_room ) {
+			var client_socket = io.sockets.connected[clientId];
+			
+			// We create a user object to push in the list
+			var user = {};
+			user.first=client_socket.first;
+			user.last=client_socket.last;
+			user.email=client_socket.email;
+			user.userid=client_socket.userid;
+			
+			users.push(user);
 		}
+		
+		// Broadcast to room (this one makes sense)
+		io.to(socket.room).emit("onJoinServer", JSON.stringify(users));
+		
+		// Log the new user
+		console.log(logtime() + socket.first + " " + socket.last + " has entered room " + socket.room);
+	});
+	
+	// When a message is sent from a user
+	socket.on("sendmessage", function(data) {
+		var data= JSON.parse(data);
+		
+		var obj={};
+		obj.time=unixtime();		// Always
+		obj.userid=socket.userid;	// Since connected
+		obj.message=data.message;	// Per message, all messages have it
+		obj.source=data.source;		// Per message, all messages have it
+		obj.draftid=data.draftid;	// Only SOS have it
+		obj.status=data.status;		// Only SOS have it
+		obj.urgency=data.urgency;	// Only SOS have it
+
+		// Broadcast to the room
+		io.to(socket.room).emit("onSendMessage", JSON.stringify(obj));//solo envia un mensaje
+		
+		console.log(logtime() + socket.first + " " + socket.last + " in room " + socket.room + " has sent message: " + data.message);
+
+
+	});
+
+	// Disconnecting from the server
+	socket.on("disconnect", function() {
+		// Built in room management (perfect)
+		socket.leave(socket.room);
+
+		var user = {};
+		user.first=socket.first;
+		user.last=socket.last;
+		user.email=socket.email;
+		user.userid=socket.userid;
+
+		// We tell all others in the room that we are not connected anymore
+		socket.broadcast.to(socket.room).emit("onDisconnect", JSON.stringify(user));
+		
+		console.log(logtime() + socket.first + " " + socket.last + " has left room " + socket.room);
 	});
 });
 
-function inArray(needle, haystack) {
-	var length = haystack.length;
-	for(var i = 0; i < length; i++) {
-		if(haystack[i] == needle)
-			return true;
-	}
-	return false;
-}
 function logtime(){
 	var lognow = moment(new Date());
-	var logtime = lognow.format("DD-MM-YYYY HH:mm:ss");
-	return logtime;
+	var logtime = lognow.format("YYYY-MM-DD HH:mm:ss");
+	return "["+logtime+"] ";
 
 }
+
 function unixtime(){
 	var now = moment(new Date());
 	var time = now.format("X");

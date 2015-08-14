@@ -80,7 +80,6 @@ $item = array(
 
 // Read the module version
 $module = new stdClass();
-include "../version.php";
 
 $lang = $USER->lang;
 $parts = explode("_",$lang);
@@ -90,21 +89,8 @@ if(count($parts)>1) {
 $langhtml = '<meta name="gwt:property" content="locale='.$lang.'">';
 
 $emarkingdir = $CFG->wwwroot. '/mod/emarking/marking/emarkingweb';
-$version = $module->version;
-
-$preferredwidth = 860;
-if(isset($_COOKIE['emarking_width']) && intval($_COOKIE['emarking_width']) > 300) {
-    $preferredwidth = intval($_COOKIE['emarking_width']);
-}
-
-$showrubric = true;
-if(isset($_COOKIE['emarking_showrubric'])) {
-    $showrubric = $_COOKIE['emarking_width'] === "1" ? "1" : "0";
-}
 
 header('Content-Type: text/html; charset=utf-8');
-
-$activeChat=(int)$CFG->emarking_collaborativefeatures;
 
 ?>
 <!doctype html>
@@ -142,11 +128,6 @@ $activeChat=(int)$CFG->emarking_collaborativefeatures;
 <!--                                           -->
 <body style="padding-top:0px;">
 	<div id="emarking" 
-		version="<?php echo $version ?>" 
-		submissionId="<?php  echo $draftid?>"
-		preferredWidth="<?php echo $preferredwidth ?>"
-		showRubric="<?php echo $showrubric ?>"	
-		chat="<?php echo $activeChat ?>"	
 		moodleurl="<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/a.php"></div>
 </body>
 </html>
