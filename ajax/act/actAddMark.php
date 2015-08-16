@@ -95,6 +95,7 @@ $emarking_comment->rawtext = $comment;
 $emarking_comment->markerid = $USER->id;
 $emarking_comment->colour = 'yellow';
 $emarking_comment->levelid = $rubriclevel;
+$emarking_comment->criterionid = $rubricinfo->criterionid;
 $emarking_comment->bonus = $bonus;
 $emarking_comment->textformat = 2;
 

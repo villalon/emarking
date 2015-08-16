@@ -36,7 +36,7 @@ $sqlcomments = "SELECT
 		aec.levelid,
 		grl.score AS score, 
 		grl.definition AS leveldesc, 
-		grc.id AS criterionid, 
+		IFNULL(grc.id,0) AS criterionid, 
 		grc.description AS criteriondesc,
 		u.id AS markerid, 
 		CONCAT(u.firstname,' ',u.lastname) AS markername,

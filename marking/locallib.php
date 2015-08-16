@@ -171,7 +171,7 @@ function emarking_get_comments_page($pageno, $draftid, $winwidth, $winheight) {
 		aec.levelid,
 		grl.score AS score,
 		grl.definition AS leveldesc,
-		grc.id AS criterionid,
+		IFNULL(aec.criterionid,0) AS criterionid,
 		grc.description AS criteriondesc,
 		u.id AS markerid,
 		CONCAT(u.firstname,' ',u.lastname) AS markername,
