@@ -182,19 +182,6 @@ if ($submission->status >= EMARKING_STATUS_PUBLISHED && ! $usercanregrade) {
     $readonly = true;
 }
 
-// Get markers info
-$markers = get_enrolled_users($context, 'mod/emarking:grade');
-$markersToSend = array();
-foreach ($markers as $marker) {
-    $markersToSend[] = array(
-        
-        "id" => $marker->id,
-        "username" => $marker->username,
-        "firstname" => $marker->firstname,
-        "lastname" => $marker->lastname
-    );
-}
-
 // Get actual user role
 $userRole = null;
 if ($usercangrade == 1 && $issupervisor == 0) {
@@ -231,7 +218,6 @@ if ($action === 'ping') {
         'markeranonymous' => $markeranonymous ? "true" : "false",
         'hascapability' => $usercangrade,
         'supervisor' => $issupervisor,
-        'markers' => json_encode($markersToSend),
         'markingtype' => $emarking->type,
         'totalTests' => $totaltest, // Progress bar indicator
         'inProgressTests' => $inprogesstest, // Progress bar indicator
