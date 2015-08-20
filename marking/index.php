@@ -102,6 +102,7 @@ header('Content-Type: text/html; charset=utf-8');
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" type="image/png" href="<?php echo $CFG->wwwroot ?>/mod/emarking/pix/icon.png"/>
 <?php echo $langhtml ?>
 <!--                                                               -->
 <!-- Consider inlining CSS to reduce the number of requested files -->
