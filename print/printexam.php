@@ -116,16 +116,16 @@ if (count ( $parts ) != 2) {
 if ($data = $form->get_data ()) {
 	
 	$idprinter = $data->printername;
-	$sqlprinter = "SELECT id, name, ip, cups
+	$sqlprinter = "SELECT id, ip
 			FROM {emarking_printers}
 			WHERE id = ?";
-	$printerinfo = $DB->get_records_sql($sqlprinter, array(
+	$printerinfo = $DB->get_record_sql($sqlprinter, array(
 			$idprinter
 	));
 	
+	$idprinter = $printerinfo->id;
 	$target = $printerinfo->ip;
-	$printer = $printerinfo->name;
-	$command = $printerinfo->cups;
+	
 	/*
 	if(!$debugprinting) {
 	// TODO This is outrageous!
@@ -147,7 +147,7 @@ if ($data = $form->get_data ()) {
 	if ($printer == "Edificio-A-CentralDeApuntes2") {
 		$target = "10.50.2.210";
 	}
-	*/
+	
 	// codigo extra borrar
 	$cmd_result = shell_exec ( "ping -c 1 -w 1 " . $target );
 	$result = explode ( ",", $cmd_result );
@@ -162,7 +162,7 @@ if ($data = $form->get_data ()) {
 	if ($estado != "OK") {
 		print_error ( $estado );
 	}
-	
+	*/
 	
 	$pbar = new progress_bar ( 'printing', 500, true );
 	if ($exam->printrandom == 1) {
@@ -201,7 +201,7 @@ $pbar, true, $printer );
                                        null, 
 		                               $pbar, 
 		                               true, 
-		                               $printer,
+		                               $idprinter,
 		                               false,
 		                               $debugprinting )) { // Send directly to printer
 			print_error ( 'Fatal error trying to print' );

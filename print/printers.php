@@ -85,11 +85,12 @@ if( $action == "edit" ){
 			$editform->set_data($defaultdata);
 			if( $editform->is_cancelled() ){
 				$action = "view";
-			}else if( $editiondata = $editform->get_data()  && $sesskey == $USER->sesskey ){
+			}else if( $editform->get_data()  && $sesskey == $USER->sesskey ){
 				$record = new stdClass();
-				$record->name = $editiondata->name;
-				$record->command = $editiondata->command;
-				$record->ip = $editiondata->ip;
+				$record->id = $editform->get_data()->idprinter;
+				$record->name = $editform->get_data()->name;
+				$record->command = $editform->get_data()->command;
+				$record->ip = $editform->get_data()->ip;
 				$record->datecreated = time(); 
 				$DB->update_record("emarking_printers", $record);
 				$action = "view";

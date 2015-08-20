@@ -1533,7 +1533,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid)
  * @param unknown $examid            
  * @return NULL
  */
-function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, progress_bar $pbar = null, $sendprintorder = false, $printername = null, $printanswersheet = false, $debugprinting = false)
+function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, progress_bar $pbar = null, $sendprintorder = false, $idprinter = null, $printanswersheet = false, $debugprinting = false)
 {
     global $DB, $CFG, $USER, $OUTPUT;
     require_once ($CFG->dirroot . '/mod/emarking/lib/openbub/ans_pdf_open.php');
@@ -1553,8 +1553,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     }
     
     // Verify that remote printing is enable, otherwise disable a printing order
-    if ($sendprintorder && (! $CFG->emarking_enableprinting || $printername == null)) {
-        throw new Exception('Printing is not enabled or printername was absent ' . $printername);
+    if ($sendprintorder && (! $CFG->emarking_enableprinting || $idprinter == null)) {
+        throw new Exception('Printing is not enabled or printername was absent ' . $idprinter);
     }
     
     // Validate course
@@ -1739,13 +1739,24 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $currentstudent ++;
     }
     
+    $sqlprinter = "SELECT id, name, command
+			FROM {emarking_printers}
+			WHERE id = ?";
+    $printerinfo = $DB->get_record_sql($sqlprinter, array(
+    		$idprinter
+    ));
+    
     // If we have to print directly
     $debugprintingmsg = '';
     if ($sendprintorder) {
         
         // Check if we have to print the students list
         if ($downloadexam->printlist == 1) {
-            $printresult = emarking_print_file($printername, $studentlistpdffile, $debugprinting);
+            $printresult = emarking_print_file($printerinfo->name, 
+            		$printerinfo->command, 
+            		$studentlistpdffile, 
+            		$debugprinting
+            );
             if (! $printresult) {
                 $debugprintingmsg .= 'Problems printing ' . $studentlistpdffile . '<hr>';
             } else {
@@ -1766,7 +1777,11 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                 continue;
             }
             
-            $printresult = emarking_print_file($printername, $stinfo->examfile, $debugprinting);
+            $printresult = emarking_print_file($printerinfo->name, 
+            		$printerinfo->command, 
+            		$stinfo->examfile, 
+            		$debugprinting
+            );
             if (! $printresult) {
                 $debugprintingmsg .= 'Problems printing ' . $stinfo->examfile . '<hr>';
             } else {
@@ -1893,26 +1908,31 @@ function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport)
     }
 }
 
-function emarking_print_file($printername, $file, $debugprinting)
+function emarking_print_file($printername, $command, $file, $debugprinting)
 {
     global $CFG;
     
     if (! $printername)
         return null;
-    
+    /*
     if ($printername === "Edificio-C-mesonSecretaria") {
         $command = "lp -d " . $printername . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $file;
     } else {
         $command = "lp -d " . $printername . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $file;
     }
+    */
+    
+    $command = explode("#", $command);
+    
+    $cups = $command[0].$printername.$command[1].$file;
     
     $printresult = null;
     if (! $debugprinting) {
-        $printresult = exec($command);
+        $printresult = exec($cups);
     }
     
     if ($CFG->debug || $debugprinting) {
-        $printresult .= "$command <br>";
+        $printresult .= "$cups <br>";
     }
     
     return $printresult;
