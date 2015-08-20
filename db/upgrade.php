@@ -1310,6 +1310,32 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2015080303, 'emarking');
     }
+
+    if ($oldversion < 2015082000) {
+    
+        // Define table emarking_page_criterion to be created.
+        $table = new xmldb_table('emarking_page_criterion');
+    
+        // Adding fields to table emarking_page_criterion.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('emarking', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('page', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('criterion', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('block', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+    
+        // Adding keys to table emarking_page_criterion.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+        // Conditionally launch create table for emarking_page_criterion.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015082000, 'emarking');
+    }
     
     return true;
 }
