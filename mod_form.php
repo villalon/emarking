@@ -57,6 +57,16 @@ class mod_emarking_mod_form extends moodleform_mod {
 			}
 		}
 		
+		// Numbers 1 to 100. Used in pages and min and max grades
+		$numbers1to100 = array ();
+		for($i = 0; $i <= 100; $i ++) {
+		    $numbers1to100 [] = $i;
+		}
+		
+		// Today
+		$date = new DateTime ();
+		$date->setTimestamp ( usertime ( time () ) );
+		
 		// -------------------------------------------------------------------------------
 		// Adding the "general" fieldset, where all the common settings are showed
 		$mform->addElement ( 'header', 'general', get_string ( 'general', 'form' ) );
@@ -96,23 +106,138 @@ class mod_emarking_mod_form extends moodleform_mod {
 		}
 
 		// -------------------------------------------------------------------------------
-		// Experimental features
+		// add standard grading elements...
+		if (! $this->_features->rating || $this->_features->gradecat) {
+			$mform->addElement ( 'header', 'modstandardgrade', get_string ( 'grade' ) );
+		}
+		
+			// if supports grades and grades arent being handled via ratings
+		if (! $this->_features->rating) {			
+			$mform->addElement ( 'select', 'grademin', get_string ( 'grademin', 'grades' ), $numbers1to100 );
+			$mform->setDefault ( 'grademin', 1 );
+			
+			$mform->addElement ( 'select', 'grade', get_string ( 'grademax', 'grades' ), $numbers1to100 );
+			$mform->setDefault ( 'grade', 7 );
+		}
+		
+		// Due date settings
+		$mform->addElement ( 'checkbox', 'enableduedate', get_string ( 'enableduedate', 'mod_emarking' ) );
+		
+		$mform->addElement ( 'date_time_selector', 'markingduedate', get_string ( 'markingduedate', 'mod_emarking' ),
+		    array (
+		        'startyear' => date('Y'),
+		        'stopyear' => date ( 'Y' ) + 1,
+		        'step' => 5,
+		        'defaulttime' => $date->getTimestamp(),
+		        'optional' => false
+		    ), null );
+		$mform->addHelpButton ( 'markingduedate', 'markingduedate', 'mod_emarking' );
+		$mform->disabledIf ( 'markingduedate', 'enableduedate' );
+		
+			if ($this->_features->advancedgrading and ! empty ( $this->current->_advancedgradingdata ['methods'] ) and ! empty ( $this->current->_advancedgradingdata ['areas'] )) {
+			
+			if (count ( $this->current->_advancedgradingdata ['areas'] ) == 1) {
+				// if there is just one gradable area (most cases), display just the selector
+				// without its name to make UI simplier
+				$areadata = reset ( $this->current->_advancedgradingdata ['areas'] );
+				$areaname = key ( $this->current->_advancedgradingdata ['areas'] );
+				$mform->addElement ( 'select', 'advancedgradingmethod_' . $areaname, get_string ( 'gradingmethod', 'core_grading' ), array (
+						'rubric' => "Rubrica" 
+				) );
+				$mform->addHelpButton ( 'advancedgradingmethod_' . $areaname, 'gradingmethod', 'core_grading' );
+				$mform->setAdvanced('advancedgradingmethod_' . $areaname);
+				$mform->disabledIf('advancedgradingmethod_' . $areaname, 'type', 'neq', '1');
+			} else {
+				throw new Exception ( "The emarking module should not define more than one grading area" );
+			}
+		}
+		
+		if ($this->_features->gradecat) {
+			$mform->addElement ( 'select', 'gradecat', get_string ( 'gradecategoryonmodform', 'grades' ), grade_get_categories_menu ( $COURSE->id, $this->_outcomesused ) );
+			$mform->addHelpButton ( 'gradecat', 'gradecategoryonmodform', 'grades' );
+			$mform->setAdvanced('gradecat');
+			$mform->disabledIf('gradecat', 'type', 'neq', '1');
+		}
+		
+		// Regrade settings, dates and enabling
+		$mform->addElement ( 'checkbox', 'adjustslope', get_string ( 'adjustslope', 'mod_emarking' ) );
+		$mform->addHelpButton ( 'adjustslope', 'adjustslope', 'mod_emarking' );		
+		$mform->setAdvanced('adjustslope');
+		$mform->disabledIf('adjustslope', 'type', 'neq', '1');
+		
+		$mform->addElement ( 'text', 'adjustslopegrade', get_string ( 'adjustslopegrade', 'mod_emarking' ), array ('size' => '5'));
+		$mform->setType ( 'adjustslopegrade', PARAM_FLOAT);
+		$mform->setDefault ( 'adjustslopegrade', 0 );			
+		$mform->addHelpButton ( 'adjustslopegrade', 'adjustslopegrade', 'mod_emarking' );
+		$mform->disabledIf ( 'adjustslopegrade', 'adjustslope' );
+		$mform->setAdvanced('adjustslopegrade');
+		$mform->disabledIf('adjustslopegrade', 'type', 'neq', '1');
+		
+		$mform->addElement('text', 'adjustslopescore', get_string('adjustslopescore', 'mod_emarking'), array ('size' => '5'));
+		$mform->setType ( 'adjustslopescore', PARAM_FLOAT);
+		$mform->setDefault ( 'adjustslopescore', 0);
+		$mform->addHelpButton ( 'adjustslopescore', 'adjustslopescore', 'mod_emarking' );
+		$mform->disabledIf ( 'adjustslopescore', 'adjustslope' );
+		$mform->setAdvanced('adjustslopescore');
+		$mform->disabledIf('adjustslopescore', 'type', 'neq', '1');
+		
+		// -------------------------------------------------------------------------------
+		// Regrade configuration
+		$mform->addElement ( 'header', 'regrade', get_string ( 'regrade', 'mod_emarking' ) );
+		
+		// -------------------------------------------------------------------------------
+		// Adding modules for eMarking process
+		
+		
+		// Regrade settings, dates and enabling
+		$mform->addElement ( 'checkbox', 'regraderestrictdates', get_string ( 'regraderestrictdates', 'mod_emarking' ) );
+		$mform->addHelpButton ( 'regraderestrictdates', 'regraderestrictdates', 'mod_emarking' );
+		$mform->disabledIf('regraderestrictdates', 'type', 'neq', '1');
+		
+		$mform->addElement ( 'date_time_selector', 'regradesopendate', get_string ( 'regradesopendate', 'mod_emarking' ), array (
+				'startyear' => date ( 'Y' ),
+				'stopyear' => date ( 'Y' ) + 1,
+				'step' => 5,
+				'defaulttime' => $date->getTimestamp (),
+				'optional' => false 
+		), null );
+		$mform->addHelpButton ( 'regradesopendate', 'regradesopendate', 'mod_emarking' );
+		$mform->disabledIf ( 'regradesopendate', 'regraderestrictdates' );
+		$mform->disabledIf('regradesopendate', 'type', 'neq', '1');
+		
+		$date->modify ( '+2 months' );
+		$mform->addElement ( 'date_time_selector', 'regradesclosedate', get_string ( 'regradesclosedate', 'mod_emarking' ), array (
+				'startyear' => date ( 'Y' ),
+				'stopyear' => date ( 'Y' ) + 1,
+				'step' => 5,
+				'defaulttime' => $date->getTimestamp (),
+				'optional' => false 
+		), null );
+		$mform->addHelpButton ( 'regradesclosedate', 'regradesclosedate', 'mod_emarking' );
+		$mform->disabledIf ( 'regradesclosedate', 'regraderestrictdates' );
+		$mform->disabledIf('regradesclosedate', 'type', 'neq', '1');
+		
+		// Students can see peers answers
+		$ynoptions = array (
+				0 => get_string('no'),
+				1 => get_string('yes')
+		);
+		$mform->addElement ( 'select', 'peervisibility', get_string ( 'viewpeers', 'mod_emarking' ), $ynoptions );
+		$mform->addHelpButton ( 'peervisibility', 'viewpeers', 'mod_emarking' );
+		$mform->setDefault ( 'peervisibility', 0 );
+		$mform->setType ( 'peervisibility', PARAM_INT );
+		$mform->disabledIf('peervisibility', 'type', 'neq', '1');
+		
+		// -------------------------------------------------------------------------------
+		// Marking configuration
 		$mform->addElement ( 'header', 'marking', get_string ( 'marking', 'mod_emarking' ) );
 		
 		// Expected pages for submissions
-		$pages = array ();
-		for($i = 0; $i <= 100; $i ++) {
-			$pages [] = $i;
-		}
-		$mform->addElement ( 'select', 'totalpages', get_string ( 'totalpages', 'mod_emarking' ), $pages );
+		$mform->addElement ( 'select', 'totalpages', get_string('totalpages', 'mod_emarking' ), $numbers1to100 );
 		$mform->addHelpButton ( 'totalpages', 'totalpages', 'mod_emarking' );
 		$mform->setDefault ( 'totalpages', 0 );
 		$mform->setType ( 'totalpages', PARAM_INT );
-		
-		$string['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
-		$string['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';
-		$string['studentvisible_markervisible'] = 'Student visible / Marker visible';
-		$string['studentvisible_markeranonymous'] = 'Student visible / Marker anonymous';
+		$mform->disabledIf('totalpages', 'type', 'neq', '1');
 		
 		// Anonymous eMarking setting
 		$anonymousoptions = array (
@@ -129,6 +254,13 @@ class mod_emarking_mod_form extends moodleform_mod {
 		}
 		$mform->setDefault ( 'anonymous', 0 );
 		$mform->setType ( 'anonymous', PARAM_INT );
+		$mform->disabledIf('anonymous', 'type', 'neq', '1');
+		
+		$mform->addElement ( 'checkbox', 'linkrubric', get_string ( 'linkrubric', 'mod_emarking' ) );
+		$mform->addHelpButton ( 'linkrubric', 'linkrubric', 'mod_emarking' );
+		
+		$mform->addElement ( 'checkbox', 'collaborativefeatures', get_string ( 'collaborativefeatures', 'mod_emarking' ) );
+		$mform->addHelpButton ( 'collaborativefeatures', 'collaborativefeatures', 'mod_emarking' );		
 		
 		// Custom marks
 		if (has_capability ( 'mod/emarking:managespecificmarks', $ctx )) {
@@ -143,11 +275,15 @@ class mod_emarking_mod_form extends moodleform_mod {
 		}
 		$mform->setDefault ( 'custommarks', '' );
 		$mform->setType ( 'custommarks', PARAM_TEXT );
+		$mform->setAdvanced('custommarks');
+		$mform->disabledIf('custommarks', 'type', 'neq', '1');
 		
 		// Due date settings
 		$mform->addElement ( 'checkbox', 'qualitycontrol', get_string ( 'enablequalitycontrol', 'mod_emarking' ) );
 		$mform->addHelpButton ( 'qualitycontrol', 'enablequalitycontrol', 'mod_emarking' );
 		$mform->disabledIf ( 'qualitycontrol', 'type', 'neq', '1' );
+		$mform->setAdvanced('qualitycontrol');
+		$mform->disabledIf('qualitycontrol', 'type', 'neq', '1');
 		
 		// Get all users with permission to grade in emarking
 		$markers=get_enrolled_users($ctx, 'mod/emarking:grade');
@@ -161,124 +297,9 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$mform->addHelpButton ( 'markers', 'markersqualitycontrol', 'mod_emarking' );
 		$mform->setType ( 'markers', PARAM_INT);
 		$mform->disabledIf ( 'markers', 'qualitycontrol' );
+		$mform->setAdvanced('markers');
+		$mform->disabledIf('markers', 'type', 'neq', '1');
 		
-		// -------------------------------------------------------------------------------
-		// Experimental features
-		$mform->addElement ( 'header', 'regrade', get_string ( 'date' ) .'s & ' . get_string ( 'regrade', 'mod_emarking' ) );
-		
-		// -------------------------------------------------------------------------------
-		// Adding modules for eMarking process
-		
-		$date = new DateTime ();
-		$date->setTimestamp ( usertime ( time () ) );
-		
-		// Due date settings
-		$mform->addElement ( 'checkbox', 'enableduedate', get_string ( 'enableduedate', 'mod_emarking' ) );		
-		
-		$mform->addElement ( 'date_time_selector', 'markingduedate', get_string ( 'markingduedate', 'mod_emarking' ), 
-				array (
-				'startyear' => date('Y'),
-				'stopyear' => date ( 'Y' ) + 1,
-				'step' => 5,
-				'defaulttime' => $date->getTimestamp(),
-				'optional' => false
-				), null );
-		$mform->addHelpButton ( 'markingduedate', 'markingduedate', 'mod_emarking' );
-		$mform->disabledIf ( 'markingduedate', 'enableduedate' );
-		
-		
-		// Regrade settings, dates and enabling
-		$mform->addElement ( 'checkbox', 'regraderestrictdates', get_string ( 'regraderestrictdates', 'mod_emarking' ) );
-		$mform->addHelpButton ( 'regraderestrictdates', 'regraderestrictdates', 'mod_emarking' );
-		
-		$mform->addElement ( 'date_time_selector', 'regradesopendate', get_string ( 'regradesopendate', 'mod_emarking' ), array (
-				'startyear' => date ( 'Y' ),
-				'stopyear' => date ( 'Y' ) + 1,
-				'step' => 5,
-				'defaulttime' => $date->getTimestamp (),
-				'optional' => false 
-		), null );
-		$mform->addHelpButton ( 'regradesopendate', 'regradesopendate', 'mod_emarking' );
-		$mform->disabledIf ( 'regradesopendate', 'regraderestrictdates' );
-		
-		$date->modify ( '+2 months' );
-		$mform->addElement ( 'date_time_selector', 'regradesclosedate', get_string ( 'regradesclosedate', 'mod_emarking' ), array (
-				'startyear' => date ( 'Y' ),
-				'stopyear' => date ( 'Y' ) + 1,
-				'step' => 5,
-				'defaulttime' => $date->getTimestamp (),
-				'optional' => false 
-		), null );
-		$mform->addHelpButton ( 'regradesclosedate', 'regradesclosedate', 'mod_emarking' );
-		$mform->disabledIf ( 'regradesclosedate', 'regraderestrictdates' );
-		
-		// Students can see peers answers
-		$ynoptions = array (
-				0 => get_string('no'),
-				1 => get_string('yes')
-		);
-		$mform->addElement ( 'select', 'peervisibility', get_string ( 'viewpeers', 'mod_emarking' ), $ynoptions );
-		$mform->addHelpButton ( 'peervisibility', 'viewpeers', 'mod_emarking' );
-		$mform->setDefault ( 'peervisibility', 0 );
-		$mform->setType ( 'peervisibility', PARAM_INT );
-		
-		// -------------------------------------------------------------------------------
-		// add standard grading elements...
-		if (! $this->_features->rating || $this->_features->gradecat) {
-			$mform->addElement ( 'header', 'modstandardgrade', get_string ( 'grade' ) );
-		}
-		
-		$grades = array ();
-		for($i = 0; $i <= 100; $i++) {
-			$grades [] = $i;
-		}
-		
-		if ($this->_features->advancedgrading and ! empty ( $this->current->_advancedgradingdata ['methods'] ) and ! empty ( $this->current->_advancedgradingdata ['areas'] )) {
-			
-			if (count ( $this->current->_advancedgradingdata ['areas'] ) == 1) {
-				// if there is just one gradable area (most cases), display just the selector
-				// without its name to make UI simplier
-				$areadata = reset ( $this->current->_advancedgradingdata ['areas'] );
-				$areaname = key ( $this->current->_advancedgradingdata ['areas'] );
-				$mform->addElement ( 'select', 'advancedgradingmethod_' . $areaname, get_string ( 'gradingmethod', 'core_grading' ), array (
-						'rubric' => "Rubrica" 
-				) );
-				$mform->addHelpButton ( 'advancedgradingmethod_' . $areaname, 'gradingmethod', 'core_grading' );
-			} else {
-				throw new Exception ( "The emarking module should not define more than one grading area" );
-			}
-		}
-		
-		if ($this->_features->gradecat) {
-			$mform->addElement ( 'select', 'gradecat', get_string ( 'gradecategoryonmodform', 'grades' ), grade_get_categories_menu ( $COURSE->id, $this->_outcomesused ) );
-			$mform->addHelpButton ( 'gradecat', 'gradecategoryonmodform', 'grades' );
-		}
-		
-			// if supports grades and grades arent being handled via ratings
-		if (! $this->_features->rating) {			
-			$mform->addElement ( 'select', 'grademin', get_string ( 'grademin', 'grades' ), $pages );
-			$mform->setDefault ( 'grademin', 1 );
-			
-			$mform->addElement ( 'select', 'grade', get_string ( 'grademax', 'grades' ), $pages );
-			$mform->setDefault ( 'grade', 7 );
-		}
-		
-		// Regrade settings, dates and enabling
-		$mform->addElement ( 'checkbox', 'adjustslope', get_string ( 'adjustslope', 'mod_emarking' ) );
-		$mform->addHelpButton ( 'adjustslope', 'adjustslope', 'mod_emarking' );		
-		
-		$mform->addElement ( 'text', 'adjustslopegrade', get_string ( 'adjustslopegrade', 'mod_emarking' ), array ('size' => '5'));
-		$mform->setType ( 'adjustslopegrade', PARAM_FLOAT);
-		$mform->setDefault ( 'adjustslopegrade', 0 );			
-		$mform->addHelpButton ( 'adjustslopegrade', 'adjustslopegrade', 'mod_emarking' );
-		$mform->disabledIf ( 'adjustslopegrade', 'adjustslope' );
-		
-		$mform->addElement('text', 'adjustslopescore', get_string('adjustslopescore', 'mod_emarking'), array ('size' => '5'));
-		$mform->setType ( 'adjustslopescore', PARAM_FLOAT);
-		$mform->setDefault ( 'adjustslopescore', 0);
-		$mform->addHelpButton ( 'adjustslopescore', 'adjustslopescore', 'mod_emarking' );
-		$mform->disabledIf ( 'adjustslopescore', 'adjustslope' );
-
 		// -------------------------------------------------------------------------------
 		// add standard elements, common to all modules
 		$this->standard_coursemodule_elements ();
@@ -295,12 +316,6 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$mform->addElement ( 'checkbox', 'downloadrubricpdf', get_string ( 'downloadrubricpdf', 'mod_emarking' ) );
 		$mform->addHelpButton ( 'downloadrubricpdf', 'downloadrubricpdf', 'mod_emarking' );
 		
-		$mform->addElement ( 'checkbox', 'linkrubric', get_string ( 'linkrubric', 'mod_emarking' ) );
-		$mform->addHelpButton ( 'linkrubric', 'linkrubric', 'mod_emarking' );
-		
-		$mform->addElement ( 'checkbox', 'collaborativefeatures', get_string ( 'collaborativefeatures', 'mod_emarking' ) );
-		$mform->addHelpButton ( 'collaborativefeatures', 'collaborativefeatures', 'mod_emarking' );
-
 		// If we are in editing mode we can not change the type anymore
 		if($this->_instance) {
 			$emarking = $DB->get_record('emarking', array('id'=>$this->_instance));

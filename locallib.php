@@ -148,12 +148,19 @@ function emarking_tabs($context, $cm, $emarking)
     $usercangrade = has_capability('mod/assign:grade', $context);
     
     $tabs = array();
+
     // Home tab
     $examstab = new tabobject("home", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("printdigitize", 'mod_emarking'));
     $examstab->subtree[] = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("myexams", 'mod_emarking'));
     
     $examstab->subtree[] = new tabobject("newprintorder", $CFG->wwwroot . "/mod/emarking/print/newprintorder.php?cm={$cm->id}", get_string("newprintorder", 'mod_emarking'));
     $examstab->subtree[] = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
+    
+    // Settings tab
+    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
+        if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
+            $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markers", 'mod_emarking'));
+        $settingstab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     
     // Grade tab
     $gradetab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('marking', 'mod_emarking'));
@@ -167,9 +174,6 @@ function emarking_tabs($context, $cm, $emarking)
     } else {
         if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
             $gradetab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
-        if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
-            $gradetab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markers", 'mod_emarking'));
-        $gradetab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     }
     
     // Grade report tab
@@ -184,6 +188,7 @@ function emarking_tabs($context, $cm, $emarking)
     if ($usercangrade) {
         $tabs[] = $gradetab;
         $tabs[] = $gradereporttab;
+        $tabs[] = $settingstab;
         if (has_capability('mod/emarking:uploadexam', $context))
             $tabs[] = $examstab;
     } else {

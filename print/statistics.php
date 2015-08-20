@@ -86,7 +86,7 @@ $statstable = new html_table();
 $statstable->head = array(
 		ucfirst(get_string('year')),
 		get_string('month'),
-		get_string('totalpages', 'mod_emarking'),
+		get_string('totalpagesprint', 'mod_emarking'),
 		get_string('totalexams', 'mod_emarking'));
 $statstable->attributes['style'] = 'margin-left: auto; margin-right: auto;';
 foreach($stats as $st) {

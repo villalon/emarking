@@ -125,11 +125,11 @@ $string ['heartbeatenabled_help'] = 'Enables registering the time spent by stude
 $string ['downloadrubricpdf'] = 'Download pdf with rubric on it';
 $string ['downloadrubricpdf_help'] = 'Students can download their test with the rubric in the last page';
 
-$string ['linkrubric'] = 'Rubrics connected to comments';
-$string ['linkrubric_help'] = "Capacity to assign colours ​​to the rubric's criterias to link them with comments.";
+$string ['linkrubric'] = 'Multicolor rubric';
+$string ['linkrubric_help'] = "A multicolor rubric shows a different color for each criterion, both for marks and comments.";
 
-$string ['collaborativefeatures'] = 'Enable collaborative features';
-$string ['collaborativefeatures_help'] = "Enable wall, chat and SOS for markers.";
+$string ['collaborativefeatures'] = 'Markers collaboration';
+$string ['collaborativefeatures_help'] = "Enables a chat, a wall and SOS for markers. The chat allows communication between markers. The wall allows supervisors (teachers or admins) to post messages, markers can only read them. The SOS allows markers to ask for help regarding a specific exam they are marking.";
 
 $string ['experimentalgroups'] = 'Experimental Groups';
 $string ['experimentalgroups_help'] = "Enable separete marking through the course groups.";
@@ -197,7 +197,7 @@ $string ['regradesclosedate'] = 'Regrade requests close date';
 $string ['regradesclosedate_help'] = 'Date until the students can submit regrading requests';
 $string ['markingduedate'] = 'Marking due date';
 $string ['markingduedate_help'] = 'Defines a due date that will help notify markers and teachers on pending jobs';
-$string ['enableduedate'] = 'Enable due date';
+$string ['enableduedate'] = 'Enable marking due date';
 
 $string ['emarkingprints'] = 'Emarking Printers';
 $string ['adminprints'] = 'Manage printers';
@@ -543,6 +543,7 @@ $string ['rubricdraft'] = 'eMarking requires a ready rubric, the rubric is in st
 $string ['selectall'] = 'Select all';
 $string ['selectnone'] = 'Select none';
 $string ['separategroups'] = 'Separate groups';
+$string ['settings'] = 'Settings';
 $string ['settingsadvanced'] = 'Advanced settings';
 $string ['settingsadvanced_help'] = 'Advanced configuration for eMarking';
 $string ['settingsbasic'] = 'Basic settings';
@@ -578,7 +579,7 @@ $string ['submission'] = 'Manual submission';
 $string ['teachercandownload'] = 'Show teachers download exam link';
 $string ['teachercandownload_help'] = 'Show teachers a  exam link for the exams they send. It still requires to configure the capability for the teacher role.';
 $string ['totalexams'] = 'Total exams';
-$string ['totalpages'] = 'Total pages';
+$string ['totalpages'] = 'Expected pages';
 $string ['totalpages_help'] = 'Indicates the number of pages expected for each student. It does not limit the pages that can be uploaded, it allows to associate pages to rubric criteria and shows visual warnings when there are missing pages for a student.';
 $string ['totalpagesprint'] = 'Total Pages to Print';
 $string ['uploadanswers'] = 'Upload answers';
