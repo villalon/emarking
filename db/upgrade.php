@@ -1337,5 +1337,29 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015082000, 'emarking');
     }
     
+    if ($oldversion < 2015082100) {
+    
+    	// Define field agreementflexibility to be added to emarking.
+    	$table = new xmldb_table('emarking');
+    	$field = new xmldb_field('agreementflexibility', XMLDB_TYPE_INTEGER, '3', null, null, null, '0', 'experimentalgroups');
+    
+    	// Conditionally launch add field agreementflexibility.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	$field = new xmldb_field('firststagedate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'agreementflexibility');
+    
+    	// Conditionally launch add field firststagedate.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015082100, 'emarking');
+    }
+    
+    
+    
     return true;
 }
