@@ -640,7 +640,7 @@ foreach ($drafts as $draft) {
     if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
         $data[] = $markersstring;
     }
-    $data[] = $pctmarked . $timemodified;
+    $data[] = $pctmarked;
     $data[] = $finalgrade;
     $data[] = $actions;
     $showpages->add_data($data);
