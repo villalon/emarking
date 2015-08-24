@@ -85,32 +85,56 @@ function emarking_time_ago($time)
  *
  * @param int $status
  *            the submission status
+ * @param boolean $prefix
+ *            if the icon should include the status description as prefix
+ * @param int $pctmarked
+ *            if a percentage of marking for the draft is given, when 100% replaces grading for ready for publishing
  * @return string the icon HTML
  */
-function emarking_get_submission_icon_status($status)
+function emarking_get_draft_status_icon($status, $prefix = false, $pctmarked = 0)
 {
     global $OUTPUT;
     
+    $html = '';
     switch ($status) {
         case EMARKING_STATUS_MISSING:
-            return $OUTPUT->pix_icon('i/warning', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('i/warning', emarking_get_string_for_status($status));
+            break;
         case EMARKING_STATUS_ABSENT:
-            return $OUTPUT->pix_icon('t/block', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('t/block', emarking_get_string_for_status($status));
+            break;
         case EMARKING_STATUS_SUBMITTED:
-            return $OUTPUT->pix_icon('i/user', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('i/user', emarking_get_string_for_status($status));
+            break;
         case EMARKING_STATUS_GRADING:
-            return $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status));
+            if($pctmarked > 0) {
+                $html = $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status, $pctmarked));
+            } else {
+                $html = $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status));
+            }
+            break;
         case EMARKING_STATUS_PUBLISHED:
-            return $OUTPUT->pix_icon('i/grade_correct', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('i/grade_correct', emarking_get_string_for_status($status));
+            break;
         case EMARKING_STATUS_REGRADING:
-            return $OUTPUT->pix_icon('i/flagged', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('i/flagged', emarking_get_string_for_status($status));
+            break;
         case EMARKING_STATUS_REGRADING_RESPONDED:
-            return $OUTPUT->pix_icon('i/unflagged', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('i/unflagged', emarking_get_string_for_status($status));
+            break;
         case EMARKING_STATUS_ACCEPTED:
-            return $OUTPUT->pix_icon('t/locked', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('t/locked', emarking_get_string_for_status($status));
+            break;
         default:
-            return $OUTPUT->pix_icon('t/block', emarking_get_string_for_status(EMARKING_STATUS_ABSENT));
+            $html = $OUTPUT->pix_icon('t/block', emarking_get_string_for_status(EMARKING_STATUS_ABSENT));
+            break;
     }
+    
+    if ($prefix) {
+        $html = emarking_get_string_for_status($status, $pctmarked) . "&nbsp;" . $html;
+    }
+    
+    return $html;
 }
 
 /**
@@ -148,7 +172,7 @@ function emarking_tabs($context, $cm, $emarking)
     $usercangrade = has_capability('mod/assign:grade', $context);
     
     $tabs = array();
-
+    
     // Home tab
     $examstab = new tabobject("home", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("printdigitize", 'mod_emarking'));
     $examstab->subtree[] = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("myexams", 'mod_emarking'));
@@ -158,9 +182,9 @@ function emarking_tabs($context, $cm, $emarking)
     
     // Settings tab
     $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
-        if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
-            $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markers", 'mod_emarking'));
-        $settingstab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
+    if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
+        $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markers", 'mod_emarking'));
+    $settingstab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     
     // Grade tab
     $gradetab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('marking', 'mod_emarking'));
@@ -249,7 +273,7 @@ function emarking_verify_logo()
                 $existingfiles = $fs->get_area_files($syscontext->id, 'mod_emarking', 'logo', 1, "filename", false);
                 
                 $replace = false;
-                foreach($existingfiles as $existingfile) {
+                foreach ($existingfiles as $existingfile) {
                     if ($existingfile->get_timemodified() < $file->get_timemodified()) {
                         $existingfile->delete();
                         $replace = true;
@@ -296,12 +320,15 @@ function emarking_get_logo_file($filedir)
 }
 
 /**
- * Returns a human readable status for a submission
+ * Returns a human readable status for a draft
  *
- * @param unknown $status            
+ * @param int $status
+ *          the draft status            
+ * @param int $pctmarked
+ *          the percentage of the marking
  * @return Ambigous <string, lang_string>
  */
-function emarking_get_string_for_status($status)
+function emarking_get_string_for_status($status, $pctmarked = 0)
 {
     switch ($status) {
         case EMARKING_STATUS_ACCEPTED:
@@ -309,7 +336,9 @@ function emarking_get_string_for_status($status)
         case EMARKING_STATUS_ABSENT:
             return get_string('statusabsent', 'mod_emarking');
         case EMARKING_STATUS_GRADING:
-            return get_string('statusgrading', 'mod_emarking');
+            return $pctmarked == 100 ?
+                get_string('statusgradingfinished', 'mod_emarking') :
+                get_string('statusgrading', 'mod_emarking');
         case EMARKING_STATUS_MISSING:
             return get_string('statusmissing', 'mod_emarking');
         case EMARKING_STATUS_REGRADING:
@@ -978,7 +1007,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
 
 /**
  * Outputs a json string based on a json array
- * 
+ *
  * @param unknown $jsonOutput            
  */
 function emarking_json_output($jsonOutput)
@@ -1049,7 +1078,7 @@ function emarking_json_array($output)
 
 /**
  * Returns a json string for an error
- * 
+ *
  * @param unknown $message            
  * @param string $values            
  */
@@ -1082,7 +1111,7 @@ function emarking_is_regrade_requests_allowed($emarking)
 
 /**
  * Obtains all categories that are children to a specific one
- * 
+ *
  * @param unknown $id_category            
  * @return Ambigous <string, unknown>
  */
@@ -1104,33 +1133,40 @@ function emarking_get_categories_childs($id_category)
  * When a user is unenrolled from a course, we set all her submissions
  * to ABSENT state, so they are not considered in reports and remain
  * hidden from the interfaces until the user is enroled again.
- * 
- * @param unknown $userid
- * @param unknown $courseid
+ *
+ * @param unknown $userid            
+ * @param unknown $courseid            
  */
-function emarking_unenrol_student($userid, $courseid) {
+function emarking_unenrol_student($userid, $courseid)
+{
     global $DB;
     
-    if(!$emarkingactivities = $DB->get_records('emarking', array('course'=>$courseid))) {
+    if (! $emarkingactivities = $DB->get_records('emarking', array(
+        'course' => $courseid
+    ))) {
         // Nothing to do as there are no emarking activities in the course
         return true;
     }
     
-    foreach($emarkingactivities as $emarking) {
-        $submission = $DB->get_record('emarking_submission', array('emarking'=>$emarking->id, 'student'=>$userid));
+    foreach ($emarkingactivities as $emarking) {
+        $submission = $DB->get_record('emarking_submission', array(
+            'emarking' => $emarking->id,
+            'student' => $userid
+        ));
         
-        if(!$submission) {
+        if (! $submission) {
             // The student has no submissions in this emarking activity. Skip her.
             continue;
         }
         
         // As the submission exists, we update all drafts to ABSENT
-        $DB->set_field('emarking_draft', 'status', EMARKING_STATUS_ABSENT, array('submissionid'=>$submission->id));
+        $DB->set_field('emarking_draft', 'status', EMARKING_STATUS_ABSENT, array(
+            'submissionid' => $submission->id
+        ));
         $submission->status = EMARKING_STATUS_ABSENT;
-        if($DB->update_record('emarking_submission', $submission)) {
-
-            error_log('Done!');
+        if ($DB->update_record('emarking_submission', $submission)) {
             
+            error_log('Done!');
         } else {
             
             error_log('Problem!');
@@ -1138,4 +1174,80 @@ function emarking_unenrol_student($userid, $courseid) {
     }
     
     return true;
+}
+
+/**
+ * Creates a draft status information in HTML format
+ *
+ * @param unknown $draftid            
+ * @param unknown $status            
+ * @param unknown $qc            
+ * @param unknown $criteriaids            
+ * @param unknown $criteriascores            
+ * @param unknown $comments            
+ * @param unknown $pctmarked            
+ * @param unknown $pctmarkeduser            
+ * @param unknown $regrades            
+ * @param unknown $pages            
+ * @param unknown $numcriteria            
+ * @param unknown $numcriteriauser            
+ * @param unknown $emarking            
+ * @return string
+ */
+function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $criteriascores, $comments, $pctmarked, $pctmarkeduser, $regrades, $pages, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria)
+{
+    global $OUTPUT;
+    
+    // If the draft is published or the student was absent just show the icon
+    if ($status <= EMARKING_STATUS_ABSENT || $status == EMARKING_STATUS_PUBLISHED
+        || ($status == EMARKING_STATUS_GRADING && $pctmarked == 100)) {
+        return emarking_get_draft_status_icon($status, true, 100);
+    }
+    
+    if ($status == EMARKING_STATUS_GRADING) {
+        
+        // Completion matrix
+        $matrix = '';
+        $markedcriteria = explode(",", $criteriaids);
+        $markedcriteriascores = explode(",", $criteriascores);
+        if (count($markedcriteria) > 0 && $numcriteria > 0) {
+            $matrix = "<div id='sub-$draftid' style='display:none;'>
+            <table width='100%'>";
+            $matrix .= "<tr><th>" . get_string('criterion', 'mod_emarking') . "</th><th style='text-align:center'>" . get_string('corrected', 'mod_emarking') . "</th></tr>";
+            foreach ($rubriccriteria->rubric_criteria as $criterion) {
+                $matrix .= "<tr><td>" . $criterion['description'] . "</td><td style='text-align:center'>";
+                $key = array_search($criterion['id'], $markedcriteria);
+                if ($key !== false) {
+                    $matrix .= $OUTPUT->pix_icon('i/completion-manual-y', round($markedcriteriascores[$key], 1) . "pts");
+                } else {
+                    $matrix .= $OUTPUT->pix_icon('i/completion-manual-n', null);
+                }
+                $matrix .= "</td></tr>";
+            }
+            $matrix .= "</table></div>";
+        }
+        $matrixlink = "<div class=\"progress\"><a style='cursor:pointer;' onclick='$(\"#sub-$draftid\").dialog({modal:true,buttons:{Ok: function(){\$(this).dialog(\"close\");}}});'>
+    <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"$pctmarked\"
+    aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:$pctmarked%\">
+    <span class=\"sr-only\">$pctmarked%</span>
+    </div></a>
+    </div>" . $matrix;
+        return $matrixlink;
+    }
+    
+    if($status == EMARKING_STATUS_REGRADING) {
+        // Percentage of criteria already marked for this draft
+        $pctmarkedtitle = ($numcriteria - $comments) . " pending criteria";
+        $matrixlink = "" . ($numcriteriauser > 0 ? $pctmarkeduser . "% / " : '') . $pctmarked . "%" 
+            . ($regrades > 0 ? '<br/>' . $regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');    
+    }
+    
+    $statushtml = $qc == 0 ? emarking_get_draft_status_icon($status, true) : $OUTPUT->pix_icon('i/completion-auto-y', get_string("qualitycontrol", "mod_emarking"));
+    
+    // Add warning icon if there are missing pages in draft
+    if ($emarking->totalpages > 0 && $emarking->totalpages > $pages && $status > EMARKING_STATUS_MISSING) {
+        $statushtml .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
+    }
+    
+    return $statusinfo;
 }

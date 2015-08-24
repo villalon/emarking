@@ -399,7 +399,6 @@ if ($emarking->type == 2)
     $headers[] = get_string('marker', 'mod_emarking');
 $headers[] = get_string('status', 'mod_emarking');
 $headers[] = get_string('grade', 'mod_emarking');
-$headers[] = get_string('lastmodification', 'mod_emarking');
 $headers[] = $actionsheader;
 
 $columns = array();
@@ -408,7 +407,6 @@ if ($emarking->type == 2)
     $columns[] = 'marker';
 $columns[] = 'status';
 $columns[] = 'grade';
-$columns[] = 'timemodified';
 $columns[] = 'actions';
 
 // Define flexible table (can be sorted in different ways)
@@ -491,49 +489,23 @@ foreach ($drafts as $draft) {
     $current = 0;
     foreach ($draftids as $d) {
         
-        $pages = intval($draftspages[$current]);
-        $status = $draftqcs[$current]== 0 ? 
-            emarking_get_submission_icon_status($draftstatuses[$current]) : 
-            $OUTPUT->pix_icon('i/completion-auto-y', get_string("qualitycontrol", "mod_emarking"));
+        $pctmarked = emarking_get_draft_status_info(
+            $d,
+            $draftstatuses[$current],
+            $draftqcs[$current],
+            $draftscriteriaids[$current],
+            $draftscriteriascores[$current],
+            $draftscomments[$current],
+            $draftspctmarked[$current],
+            $draftspctmarkeduser[$current],
+            $draftsregrades[$current],
+            intval($draftspages[$current]),
+            $numcriteria,
+            $numcriteriauser,
+            $emarking,
+            $rubriccriteria
+        );
         
-        // Add warning icon if there are missing pages in draft
-        if ($emarking->totalpages > 0 
-            && $emarking->totalpages > $pages 
-            && $draftstatuses[$current] > EMARKING_STATUS_MISSING) {
-            $status .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
-        }
-        // Completion matrix
-        $matrix = '';
-        $markedcriteria = explode(",", $draftscriteriaids[$current]);
-        $markedcriteriascores = explode(",", $draftscriteriascores[$current]);
-        if (count($markedcriteria) > 0 && $numcriteria > 0) {
-            $matrix = "<div id='sub-$d' style='display:none;' title='$draft->firstname $draft->lastname '>
-		<table width='100%'>";
-            $matrix .= "<tr><th>" . get_string('criterion', 'mod_emarking') . "</th><th style='text-align:center'>" . get_string('corrected', 'mod_emarking') . "</th></tr>";
-            foreach ($rubriccriteria->rubric_criteria as $criterion) {
-                $matrix .= "<tr><td>" . $criterion['description'] . "</td><td style='text-align:center'>";
-                $key = array_search($criterion['id'], $markedcriteria);
-                if ($key !== false) {
-                    $matrix .= $OUTPUT->pix_icon('i/completion-manual-y', round($markedcriteriascores[$key], 1) . "pts");
-                } else {
-                    $matrix .= $OUTPUT->pix_icon('i/completion-manual-n', null);
-                }
-                $matrix .= "</td></tr>";
-            }
-            $matrix .= "</table></div>";
-        }
-        // Percentage of criteria already marked for this draft
-        $pctmarkedtitle = ($numcriteria - $draftscomments[$current]) . " pending criteria";
-        $matrixlink = "<a style='cursor:pointer;' onclick='$(\"#sub-$d\").dialog({modal:true,buttons:{Ok: function(){\$(this).dialog(\"close\");}}});'>" . ($numcriteriauser > 0 ? $draftspctmarkeduser[$current] . "% / " : '') . $draftspctmarked[$current] . "%" . ($draftsregrades[$current] > 0 ? '<br/>' . $draftsregrades[$current] . ' ' . get_string('regradespending', 'mod_emarking') : '') . "</a>" . $matrix;
-        if($draftstatuses[$current] > EMARKING_STATUS_MISSING) {
-            $pctmarked .= $OUTPUT->box($status . '&nbsp;' . $matrixlink, 'generalbox', null, array(
-                'title' => $pctmarkedtitle
-            ));
-        } else {
-            $pctmarked .= $OUTPUT->box($status, 'generalbox', null, array(
-                'title' => $pctmarkedtitle
-            ));
-        }
         $current ++;
     }
     
@@ -545,15 +517,16 @@ foreach ($drafts as $draft) {
         $bonusinfo = ($draftsbonus[$current] > 0 ? '+' : '') . $bonusinfo;
         $gradevalue = round(floatval($draftsgrade[$current]), 2);
         $thisfinalgrade = '-';
-        if ($draftstatuses[$current] >= EMARKING_STATUS_GRADING) {
+        if ((($usercangrade || $issupervisor) && $draftstatuses[$current] >= EMARKING_STATUS_GRADING)
+            || ($draftstatuses[$current] >= EMARKING_STATUS_PUBLISHED && $draft->id == $USER->id)) {
             $thisfinalgrade = $gradevalue;
-            if ($draftstatuses[$current] >= EMARKING_STATUS_PUBLISHED) {
-                $thisfinalgrade = '<strong>' . $thisfinalgrade . '</strong>';
-            }
         } else if($draftstatuses[$current] <= EMARKING_STATUS_MISSING) {
             $thisfinalgrade = "";
         }
-        $finalgrade .= $OUTPUT->box($thisfinalgrade, 'generalbox', null, array(
+        if ($draftstatuses[$current] >= EMARKING_STATUS_PUBLISHED) {
+            $thisfinalgrade = '<strong>' . $thisfinalgrade . '</strong>';
+        }
+        $finalgrade .= $OUTPUT->box($thisfinalgrade, 'generalbox grade', null, array(
             'title' => round($draftsscore[$current], 2) . $bonusinfo . get_string('of', 'mod_emarking') . " " . $rubricscores['maxscore'] . " " . get_string('points', 'grades')
         ));
         $current ++;
@@ -638,7 +611,9 @@ foreach ($drafts as $draft) {
     $timesmodified = explode('#', $draft->timemodified);
     $timemodified = '';
     foreach ($timesmodified as $t) {
-        $timemodified .= html_writer::start_div();
+        $timemodified .= html_writer::start_div("timemodified");
+        $timemodified .= get_string('lastmodification', 'mod_emarking');
+        $timemodified .= "&nbsp;";
         $timemodified .= $t > 0 ? core_text::strtolower(emarking_time_ago($t)) : '';
         $timemodified .= html_writer::end_div();
     }
@@ -665,9 +640,8 @@ foreach ($drafts as $draft) {
     if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
         $data[] = $markersstring;
     }
-    $data[] = $pctmarked;
+    $data[] = $pctmarked . $timemodified;
     $data[] = $finalgrade;
-    $data[] = $timemodified;
     $data[] = $actions;
     $showpages->add_data($data);
 }

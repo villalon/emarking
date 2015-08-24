@@ -1,3 +1,71 @@
+#page-mod-emarking-marking-markers .generaltable tbody tr .rowactions,
+#page-mod-emarking-view .flexible tbody tr .printactions,
+#page-mod-emarking-view .flexible tbody tr .timemodified  {
+	display: none;
+}
+
+#page-mod-emarking-marking-markers .lastcol {
+	width: 70%;
+}
+
+.pagecriterionbox {
+	width: 20px;
+	height: 20px;
+	text-align: center;
+    float: left;
+    margin-left: 5px;
+    background-color: #005aa8;
+    color: #fff;
+}
+.rowactions {
+	text-decoration: underline;
+	float: right;
+}
+
+#page-mod-emarking-marking-markers .generaltable tbody tr:hover .rowactions,
+#page-mod-emarking-view .flexible tbody tr:hover .printactions,
+#page-mod-emarking-view .flexible tbody tr:hover .timemodified {
+    display: block;
+}
+
+.timemodified {
+	font-size: 8pt;
+}
+
+#page-mod-emarking-view .flexible tbody td {
+    vertical-align: middle;
+    background-color: transparent;
+}
+
+#page-mod-emarking-view .progress {
+	margin-bottom: 0px;
+	width: 50%;
+}
+
+.grade {
+	font-size:12pt;
+	font-weight: bold;
+}
+
+#page-mod-emarking-view .flexible tbody tr:hover {
+    background-color: #eee;
+}
+
+.progress-bar {
+  background-color: blue;
+  color: white;
+  font-weight: bold;
+  font-size: 7pt;
+  text-align: center;
+}
+#page-mod-emarking-marking-markers .singlebutton {
+	text-align:center;
+}
+
+.addmarkerstable, .addmarkerstable select {
+	 width: 100%;
+}
+
 .exams_examname {
     min-width: 200px;
 }

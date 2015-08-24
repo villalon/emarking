@@ -48,7 +48,8 @@ if (! $course = $DB->get_record ( 'course', array ('id' => $emarking->course))) 
 
 $context = context_module::instance ( $cm->id );
 
-$url = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cmid));
+$url = new moodle_url('/mod/emarking/marking/addmarkers.php', array('id'=>$cmid, 'action'=>$action));
+$cancelurl = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cmid));
 
 // First check that the user is logged in
 require_login($course->id);
@@ -76,11 +77,6 @@ if (! has_capability ( 'mod/emarking:assignmarkers', $context )) {
 	print_error ( get_string('invalidaccess','mod_emarking' ) );
 }
 
-echo $OUTPUT->header();
-echo $OUTPUT->heading($emarking->name);
-
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "markers" );
-
 // Get rubric instance
 list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
 
@@ -93,6 +89,16 @@ if(!$rubriccontroller instanceof gradingform_rubric_controller) {
 $definition = $rubriccontroller->get_definition();
 $mform = new emarking_markers_form(null, 
 		array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "action"=>$action));
+
+if($mform->is_cancelled()) {
+    redirect($cancelurl);
+    die();
+}
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading($emarking->name);
+
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "markers" );
 
 if($mform->get_data()) {
 
