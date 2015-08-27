@@ -134,14 +134,8 @@ class emarking_editionprinter_form extends moodleform{
 			if( !$DB->get_recordset_select("emarking_printers", " ip = ?", array($ip))){
 				$errors["ip"] = get_string("ipexist", "mod_emarking");
 			}			
-			// Regex for ipv4 and ipv6
-			$matchipv4 = 0;
-			$matchipv6 = 0;
-			if( validate_ipv4_address($ip) )
-				$matchipv4++;
-			if( validate_ipv6_address($ip) )
-				$matchipv6++;
-			if( $matchipv4 == $matchipv6 && $matchipv4 )
+			// Validete ip for regex ipv4 and ipv6
+			if( validate_ipv4_address($ip) == validate_ipv6_address($ip) && validate_ipv4_address($ip) )
 				$errors["ip"] = get_string("ipproblem", "mod_emarking");
 		}else{
 			$errors["ip"] = get_string("required", "mod_emarking");

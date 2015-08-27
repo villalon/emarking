@@ -1794,7 +1794,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         }
         
         // Notify everyone that the exam was printed
-        emarking_send_examprinted_notification($downloadexam, $course);
+        emarking_send_examprinted_notification($downloadexam, $course, null);
         
         $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
         $downloadexam->printdate = time();
@@ -1914,17 +1914,10 @@ function emarking_print_file($printername, $command, $file, $debugprinting)
     
     if (! $printername)
         return null;
-    /*
-    if ($printername === "Edificio-C-mesonSecretaria") {
-        $command = "lp -d " . $printername . " -o StapleLocation=SinglePortrait -o PageSize=Letter -o Duplex=none " . $file;
-    } else {
-        $command = "lp -d " . $printername . " -o StapleLocation=UpperLeft -o fit-to-page -o media=Letter " . $file;
-    }
-    */
-    
+
     $command = explode("#", $command);
     
-    $cups = $command[0].$printername.$command[1].$file;
+    $cups = $command[0].$printername.$command[1]." ".$file;
     
     $printresult = null;
     if (! $debugprinting) {
