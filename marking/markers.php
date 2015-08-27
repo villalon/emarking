@@ -26,11 +26,14 @@ require_once (dirname(dirname(dirname(dirname(__FILE__ )))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/grade/grading/form/rubric/renderer.php");
 require_once ("forms/markers_form.php");
+require_once ("forms/pages_form.php");
 
 global $DB, $USER;
 
 // Obtain parameter from URL
-$cmid = required_param ( 'id', PARAM_INT );
+$cmid = required_param('id', PARAM_INT);
+$criterionid = optional_param('criterion', 0, PARAM_INT);
+$action = optional_param('action', 'view', PARAM_ALPHA);
 
 if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
 	print_error ( get_string('invalidid','mod_emarking' ) . " id: $cmid" );
@@ -45,16 +48,33 @@ if (! $course = $DB->get_record ( 'course', array ('id' => $emarking->course))) 
 	print_error ( get_string('invalidcourseid','mod_emarking' ) . " id: $courseid" );
 }
 
+if($criterionid > 0) {
+    $criterion = $DB->get_record('gradingform_rubric_criteria', array('id'=>$criterionid));
+    if($criterion == null) {
+        print_error("Invalid criterion id");
+    }
+}
+
 $context = context_module::instance ( $cm->id );
 
 $url = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cmid));
-
 // First check that the user is logged in
 require_login($course->id);
 
 if (isguestuser ()) {
 	die ();
 }
+
+// Get rubric instance
+list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
+
+// As we have a rubric we can get the controller
+$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
+if(!$rubriccontroller instanceof gradingform_rubric_controller) {
+    print_error(get_string('invalidrubric', 'mod_emarking'));
+}
+
+$definition = $rubriccontroller->get_definition();
 
 $PAGE->set_context ( $context );
 $PAGE->set_course($course);
@@ -76,56 +96,218 @@ if (! has_capability ( 'mod/emarking:assignmarkers', $context )) {
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading($emarking->name);
 
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "markers" );
 
-// Get rubric instance
-list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
+$mform_markers = new emarking_markers_form(null,
+    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "action"=>"addmarkers"));
+
+if($mform_markers->get_data()) {
+    $newmarkers = process_mform($mform_markers, "addmarkers", $emarking);
+}
+
+if($action === 'deletemarkers') {
+    $DB->delete_records('emarking_marker_criterion', array('emarking'=>$emarking->id, 'criterion'=>$criterion->id));
+    echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
+}
+
+$nummarkerscriteria = $DB->count_records(
+    "emarking_marker_criterion",
+    array("emarking"=>$emarking->id));
 
 $markercriteria = $DB->get_recordset_sql("
-    SELECT mc.id, u.firstname, u.lastname, c.description, mc.block 
-    FROM {emarking_marker_criterion} as mc
-    INNER JOIN {user} as u ON (mc.emarking = :emarking AND mc.marker = u.id)
-    INNER JOIN {gradingform_rubric_criteria} as c ON (c.id = mc.criterion)
-    ORDER BY mc.block ASC, mc.criterion ASC", 
-    array("emarking"=>$emarking->id));
+        SELECT 
+        id, 
+        description, 
+        GROUP_CONCAT(uid) AS markers,
+        sortorder
+    FROM (
+    SELECT 
+        c.id, 
+        c.description,
+        c.sortorder, 
+        u.id as uid
+    FROM {gradingform_rubric_criteria} as c
+    LEFT JOIN {emarking_marker_criterion} as mc ON (c.definitionid = :definition AND mc.emarking = :emarking AND c.id = mc.criterion)
+    LEFT JOIN {user} as u ON (mc.marker = u.id)
+    WHERE c.definitionid = :definition2
+    ORDER BY c.id ASC, u.lastname ASC) as T
+    GROUP BY id", 
+    array("definition"=>$definition->id, "definition2"=>$definition->id, "emarking"=>$emarking->id));
 
-if (count($markercriteria) == 0) {
-    echo $OUTPUT->notification("No hay asignaciones de correctores a preguntas", "notifyproblem");
-} else {
     $data = array();
     foreach($markercriteria as $d) {
-        $data[] = array($d->description, $d->firstname . " " . $d->lastname, $d->block);
+        $urldelete = new moodle_url('/mod/emarking/marking/markers.php', array('id'=>$cm->id, 'criterion'=>$d->id, 'action'=>'deletemarkers'));
+        $markershtml = "";
+        if($d->markers) {
+        $markers = explode(",", $d->markers);
+        foreach($markers as $marker) {
+            $u = $DB->get_record("user", array("id"=>$marker));
+            $markershtml .= $OUTPUT->user_picture($u);
+        }
+        $markershtml .= $OUTPUT->action_link($urldelete, get_string("delete"), null, array("class"=>"rowactions"));
+        }
+        $row = array();
+        $row[] = $d->description;
+        $row[] = $markershtml;
+        $data[] = $row;
     }
     $table = new html_table();
-    $table->head = array("Pregunta", "Corrector", "Bloque");
+    $table->head = array(
+        get_string("criterion", "mod_emarking"), 
+        get_string("markers", "mod_emarking"));
+    $table->colclasses = array(
+        null,
+        null
+    );
     $table->data = $data;
     echo html_writer::table($table);
+
+$mform_markers->display();
+
+$mform_pages = new emarking_pages_form(null,
+    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "action"=>"addpages"));
+
+if($mform_pages->get_data()) {
+    $newpages = process_mform($mform_pages, "addpages", $emarking);
 }
 
-echo $OUTPUT->single_button(new moodle_url("addmarkers.php", array("id"=>$cm->id, "action"=>"addmarker")), "Agregar", "GET");
+if($action === 'deletepages') {
+    $DB->delete_records('emarking_page_criterion', array('emarking'=>$emarking->id, 'criterion'=>$criterion->id));
+    echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
+}
 
-$pagecriteria = $DB->get_recordset_sql("
-    SELECT mc.id, mc.page, c.description, mc.block
-    FROM {emarking_page_criterion} as mc
-    INNER JOIN {gradingform_rubric_criteria} as c ON (mc.emarking = :emarking AND c.id = mc.criterion)
-    ORDER BY mc.block ASC, mc.criterion ASC",
+$numpagescriteria = $DB->count_records(
+    "emarking_page_criterion",
     array("emarking"=>$emarking->id));
 
-if (count($pagecriteria) == 0) {
-    echo $OUTPUT->notification("No hay asignaciones de páginas a preguntas", "notifyproblem");
-} else {
+$pagecriteria = $DB->get_recordset_sql("
+    SELECT 
+        id, 
+        description, 
+        GROUP_CONCAT(page) AS pages,
+        sortorder
+    FROM (
+    SELECT c.id, c.description, c.sortorder, mc.page
+    FROM {gradingform_rubric_criteria} AS c 
+    LEFT JOIN {emarking_page_criterion} AS mc ON (c.definitionid = :definition AND mc.emarking = :emarking AND c.id = mc.criterion)
+    WHERE c.definitionid = :definition2
+    ORDER BY c.id ASC, mc.page ASC) as T
+    GROUP BY id
+    ORDER BY sortorder",
+    array("definition"=>$definition->id, "definition2"=>$definition->id, "emarking"=>$emarking->id));
+
     $data = array();
     foreach($pagecriteria as $d) {
-        $data[] = array($d->description, $d->page, $d->block);
+        $urldelete = new moodle_url('/mod/emarking/marking/markers.php', array('id'=>$cm->id, 'criterion'=>$d->id, 'action'=>'deletepages'));
+        $pageshtml = "";
+        if($d->pages) {
+            $pages = explode(",", $d->pages);
+            foreach($pages as $page) {
+                $pageshtml .= $OUTPUT->box($page, "pagecriterionbox");
+            }
+            
+            $pageshtml .= $OUTPUT->action_link($urldelete, get_string("delete"), null, array("class"=>"rowactions"));
+        }
+        $row = array();
+        $row[] = $d->description;
+        $row[] = $pageshtml;
+        $data[] = $row;
     }
     $table = new html_table();
-    $table->head = array("Pregunta", "Página", "Bloque");
+    $table->head = array(
+        get_string("criterion", "mod_emarking"), 
+        core_text::strtotitle(get_string("pages", "mod_emarking")));
+    $table->colclasses = array(
+        null,
+        null
+    );
     $table->data = $data;
     echo html_writer::table($table);
+
+$mform_pages->display();
+
+if($nummarkerscriteria == 0 && $numpagescriteria == 0) {
+    echo $OUTPUT->box(get_string("markerscanseewholerubric", "mod_emarking"));
+    echo $OUTPUT->box(get_string("markerscanseeallpages", "mod_emarking"));
+} else if ($nummarkerscriteria > 0 && $numpagescriteria == 0) {
+    echo $OUTPUT->box(get_string("markerscanseeselectedcriteria", "mod_emarking"));
+    echo $OUTPUT->box(get_string("markerscanseeallpages", "mod_emarking"));
+} else if($nummarkerscriteria == 0 && $numpagescriteria > 0) {
+    echo $OUTPUT->notification(get_string("markerscanseenothing", "mod_emarking"), "notifyproblem");
+} else {
+    echo $OUTPUT->box(get_string("markerscanseeselectedcriteria", "mod_emarking"));
+    echo $OUTPUT->box(get_string("markerscanseepageswithcriteria", "mod_emarking"));
 }
 
-echo $OUTPUT->single_button(new moodle_url("addmarkers.php", array("id"=>$cm->id, "action"=>"addpages")), "Agregar", "GET");
-
 echo $OUTPUT->footer();
+
+function process_mform($mform, $action, $emarking) {
+    global $DB, $OUTPUT;
+    
+    if($mform->get_data()) {
+        if($action !== $mform->get_data()->action)
+            return;
+        if($action === "addmarkers") {
+            $datalist = $mform->get_data()->datamarkers;
+        } else {
+            $datalist = $mform->get_data()->datapages;
+        }
+        $toinsert = array();
+        foreach($datalist as $data) {
+            if($action === "addmarkers") {
+                $criteria = $mform->get_data()->criteriamarkers;
+            } else {
+                $criteria = $mform->get_data()->criteriapages;
+            }
+            foreach($criteria as $criterion) {
+                $association = new stdClass();
+                $association->data = $data;
+                $association->criterion = $criterion;
+                $toinsert[] = $association;
+            }
+        }
+    
+        if($action === "addmarkers") {
+            $blocknum = $DB->get_field_sql("SELECT max(block) FROM {emarking_marker_criterion} WHERE emarking = ?", array($emarking->id));
+        } else {
+            $blocknum = $DB->get_field_sql("SELECT max(block) FROM {emarking_page_criterion} WHERE emarking = ?", array($emarking->id));
+        }
+    
+        if(!$blocknum) {
+            $blocknum = 1;
+        } else {
+            $blocknum++;;
+        }
+    
+        foreach($toinsert as $data)  {
+            if($action === "addmarkers") {
+                $association = $DB->get_record("emarking_marker_criterion", array("emarking"=>$emarking->id, "criterion"=>$data->criterion, "marker"=>$data->data));
+                $tablename = "emarking_marker_criterion";
+            } else {
+                $association = $DB->get_record("emarking_page_criterion", array("emarking"=>$emarking->id, "criterion"=>$data->criterion, "page"=>$data->data));
+                $tablename = "emarking_page_criterion";
+            }
+            if($association) {
+                $association->block = $blocknum;
+                $DB->update_record($tablename, $association);
+            } else {
+                $association = new stdClass();
+                $association->emarking = $emarking->id;
+                $association->criterion = $data->criterion;
+                $association->block = $blocknum;
+                $association->timecreated = time();
+                $association->timemodified = time();
+    
+                if($action === "addmarkers") {
+                    $association->marker = $data->data;
+                } else {
+                    $association->page = $data->data;
+                }
+    
+                $association->id = $DB->insert_record($tablename, $association);
+            }
+        }
+        echo $OUTPUT->notification(get_string('saved', 'mod_emarking'),'notifysuccess');
+    }
+}

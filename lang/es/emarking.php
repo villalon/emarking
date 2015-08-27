@@ -22,6 +22,15 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+$string["markerscanseewholerubric"]="Correctores pueden ver la rúbrica completa.";
+$string["markerscanseeallpages"] = "Correctores ven todas las páginas.";
+$string["markerscanseeselectedcriteria"] = "Correctores ven solamente criterios que se le han asignado.";
+$string["markerscanseenothing"] = "Hay páginas asignadas a criterios, pero no correctores. Esto provocará que solo los administradores puedan ver las páginas.";
+$string["markerscanseepageswithcriteria"] = "Correctores ven solo las páginas de los criterios que tienen asignados.";
+
+$string["criteria"] = "Criterios";
+
 $string["nodejspath"] = "Ruta de NodeJS";
 $string["nodejspath_help"] = "Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091";
 
@@ -161,7 +170,7 @@ $string ['transactionsuccessfull'] = 'Transacción exitosa';
 $string ['setasabsent'] = 'Marcar como ausente';
 $string ['setassubmitted'] = 'Marcar como enviada';
 $string ['markers'] = 'Correctores';
-$string ['assignmarkerstocriteria'] = 'Asignar correctores a criterios';
+$string ['assignmarkerstocriteria'] = 'Agregar correctores a criterios';
 
 $string ['pctmarked'] = '% corregido';
 $string ['saved'] = 'Cambios guardados';
@@ -490,7 +499,7 @@ $string ['noexamsforprinting'] = 'No hay pruebas para imprimir';
 $string ['notcorrected'] = 'Por corregir';
 $string ['page'] = 'Página';
 $string ['pages'] = 'páginas';
-$string ['assignpagestocriteria'] = 'Asignar páginas a criterios';
+$string ['assignpagestocriteria'] = 'Agregar páginas a criterios';
 $string ['pagedecodingfailed'] = 'QR de página {$a} no pudo ser decodificado';
 $string ['pagedecodingsuccess'] = 'QR de página {$a} decodificado exitosamente';
 $string ['pagenumber'] = 'Número de página';
@@ -569,6 +578,7 @@ $string ['status'] = 'Estado';
 $string ['statusaccepted'] = 'Aceptada';
 $string ['statusabsent'] = 'Ausente';
 $string ['statusgrading'] = 'En corrección';
+$string ['statusgradingfinished'] = 'Lista para publicar';
 $string ['statusmissing'] = 'No entregada';
 $string ['statusnotsent'] = 'No enviada';
 $string ['statusregrading'] = 'En recorrección';

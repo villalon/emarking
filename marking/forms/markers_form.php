@@ -42,7 +42,9 @@ class emarking_markers_form extends moodleform {
 		$mform = $this->_form;
 
 		// Add header
-		$mform->addElement('header', 'general', get_string('assignmarkerstocriteria', 'mod_emarking'));
+		$mform->addElement('header', 'general', 
+		    $action === 'addmarkers' ? get_string('assignmarkerstocriteria', 'mod_emarking') :
+		      get_string('assignpagestocriteria', 'mod_emarking'));
 
 		// Hide course module id
 		$mform->addElement('hidden', 'id', $cmid);
@@ -52,26 +54,25 @@ class emarking_markers_form extends moodleform {
 		$mform->addElement('hidden', 'action', $action);
 		$mform->setType ( 'action', PARAM_ALPHA);
 
-		// Array of motives for regrading
+		
+		$mform->addElement('html', '<table class="addmarkerstable"><tr><td>');
+		
+		if($action === "addmarkers") {
+				// Array of motives for regrading
 		$markers=get_enrolled_users($context, 'mod/assign:grade');
 		$chkmarkers = array();
 		foreach($markers as $marker) {
 		    $chkmarkers[$marker->id] = $marker->firstname . " " . $marker->lastname;
 		}
-		
-		$mform->addElement('html', '<table><tr><td>');
-		
-		if($action === "addmarker") {
-		$select = $mform->addElement('select', 'data', get_string('extraexams', 'mod_emarking'), $chkmarkers, null);
+		    $select = $mform->addElement('select', 'datamarkers', get_string('markers', 'mod_emarking'), $chkmarkers, null);
 		$select->setMultiple(true);
 		} else {
-		// $mform->addHelpButton('extraexams', 'extraexams', 'mod_emarking');
 		
 		$chkpages = array();
 		for($i=1;$i<=$emarking->totalpages;$i++) {
 		    $chkpages[$i] = get_string('page', 'mod_emarking') . " " . $i;
 		}
-		$select = $mform->addElement('select', 'data', get_string('extraexams', 'mod_emarking'), $chkpages, null);
+		$select = $mform->addElement('select', 'datapages', core_text::strtotitle(get_string('pages', 'mod_emarking')), $chkpages, null);
 		$select->setMultiple(true);
 		}
 		
@@ -82,9 +83,12 @@ class emarking_markers_form extends moodleform {
 		
 		$mform->addElement('html', '</td><td>');
 		
-		$select = $mform->addElement('select', 'criteria', get_string('extraexams', 'mod_emarking'), $criteriaitems, null);
+		if($action === "addmarkers") {
+		    $select = $mform->addElement('select', 'criteriamarkers', get_string('criteria', 'mod_emarking'), $criteriaitems, null);
+		} else {
+		    $select = $mform->addElement('select', 'criteriapages', get_string('criteria', 'mod_emarking'), $criteriaitems, null);		    
+		}
 		$select->setMultiple(true);
-		// $mform->addHelpButton('extraexams', 'extraexams', 'mod_emarking');
 
 		$mform->addElement('html', '</td></tr></table>');
 		

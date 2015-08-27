@@ -22,6 +22,14 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+$string["markerscanseewholerubric"]="Markers can see the entire rubric.";
+$string["markerscanseeallpages"] = "Markers can see all pages.";
+$string["markerscanseeselectedcriteria"] = "Markers can see only assigned criteria.";
+$string["markerscanseenothing"] = "Pages are assigned to criteria but no markers are assigned to criteria. Only admins will be able to see pages.";
+$string["markerscanseepageswithcriteria"] = "Markers can see only those pages assigned to the criteria they can mark.";
+$string["criteria"] = "Criteria";
+
 $string["nodejspath"] = "NodeJS path";
 $string["nodejspath_help"] = "The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091";
 
@@ -160,7 +168,7 @@ $string ['transactionsuccessfull'] = 'Transaction successfull';
 $string ['setasabsent'] = 'Set as absent';
 $string ['setassubmitted'] = 'Set as submitted';
 $string ['markers'] = 'Markers';
-$string ['assignmarkerstocriteria'] = 'Assign markers to criteria';
+$string ['assignmarkerstocriteria'] = 'Add markers to criteria';
 
 $string ['pctmarked'] = 'Marking progress';
 $string ['saved'] = 'Saved';
@@ -488,7 +496,7 @@ $string ['noexamsforprinting'] = 'There are no exams for printing';
 $string ['notcorrected'] = 'Not corrected';
 $string ['page'] = 'Page';
 $string ['pages'] = 'pages';
-$string ['assignpagestocriteria'] = 'Assign pages to criteria';
+$string ['assignpagestocriteria'] = 'Add pages to criteria';
 $string ['pagedecodingfailed'] = 'Decoding QR from page {$a} failed';
 $string ['pagedecodingsuccess'] = 'Decoding QR from page {$a} successfull';
 $string ['pagenumber'] = 'Page number';
@@ -569,6 +577,7 @@ $string ['status'] = 'Status';
 $string ['statusaccepted'] = 'Accepted';
 $string ['statusabsent'] = 'Absent';
 $string ['statusgrading'] = 'Grading';
+$string ['statusgradingfinished'] = 'Ready for publishing';
 $string ['statusmissing'] = 'Missing';
 $string ['statusnotsent'] = 'Not sent';
 $string ['statusregrading'] = 'Regrading';
