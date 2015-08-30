@@ -65,9 +65,12 @@ if (isguestuser ()) {
 	die ();
 }
 
-$printers = explode ( ',', $CFG->emarking_printername );
-if (count ( $printers ) <= 0) {
-	print_error ( 'No printers cnofigured. Please notify administrator.' );
+if( is_siteadmin($USER) ){
+	$printers = $DB->get_records("emarking_users_printers");
+}else if (! $printers = $DB->get_records("emarking_users_printers", array(
+		"id_user" => $USER->id		
+	) )) {
+	print_error ( 'No printers configured. Please notify administrator.' );
 }
 
 $url = new moodle_url ( '/mod/emarking/print/printexam.php', array (
@@ -98,60 +101,34 @@ if ($form->is_cancelled ()) {
 echo $OUTPUT->header ();
 echo $OUTPUT->heading ( get_string ( 'printexam', 'mod_emarking' ) );
 
+// Default printer
 $result = exec ( 'lpstat -p -d' );
 $parts = explode ( ":", $result );
 
 if(!$debugprinting) {
-if (count ( $parts ) != 2) {
-	echo $OUTPUT->notification('Invalid printer setup. You must install cups and set a default printer for eMarking to be able to print.', 'notifyproblem');
-	echo $OUTPUT->footer ();
-	die();
-} else  {
-	$printer = strtoupper ( trim ( $parts [1] ) );
-	echo $OUTPUT->box ( 'Default printer: ' . $printer );
-}
+	if (count ( $parts ) != 2) {
+		echo $OUTPUT->notification('Invalid printer setup. 
+				You must install cups and set a default printer for eMarking to be able to print.', 'notifyproblem');
+		echo $OUTPUT->footer ();
+		die();
+	} else  {
+		$printer = strtoupper ( trim ( $parts [1] ) );
+		echo $OUTPUT->box ( 'Default printer: ' . $printer );
+	}
 }
 
-if ($form->get_data ()) {
+if ($data = $form->get_data ()) {
 	
-	$printer = $printers [$form->get_data ()->printername];
+	$idprinter = $data->printername;
+	$sqlprinter = "SELECT id, ip
+			FROM {emarking_printers}
+			WHERE id = ?";
+	$printerinfo = $DB->get_record_sql($sqlprinter, array(
+			$idprinter
+	));
 	
-	if(!$debugprinting) {
-	// TODO This is outrageous!
-	if ($printer == "Edificio-A-CentralDeApuntes") {
-		$target = "10.50.2.124";
-	}
-	
-	// TODO This is outrageous!
-	if ($printer == "Edificio-C-mesonSecretaria") {
-		$target = "10.60.2.8";
-	}
-	
-	// TODO This is outrageous!
-	if ($printer == "secretaria-edificio-D") {
-		$target = "10.110.2.244";
-	}
-	
-	// TODO This is outrageous!
-	if ($printer == "Edificio-A-CentralDeApuntes2") {
-		$target = "10.50.2.210";
-	}
-	
-	// codigo extra borrar
-	$cmd_result = shell_exec ( "ping -c 1 -w 1 " . $target );
-	$result = explode ( ",", $cmd_result );
-	if (eregi ( "0 received", $result [1] )) {
-		$estado = "Fatal error trying to print, printer is off line";
-	} elseif (eregi ( "1 received", $result [1] )) {
-		$estado = "OK";
-	} else {
-		$estado = "Fatal error trying to print, printer is unknown";
-	}
-	
-	if ($estado != "OK") {
-		print_error ( $estado );
-	}
-	}
+	$idprinter = $printerinfo->id;
+	$target = $printerinfo->ip;
 	
 	$pbar = new progress_bar ( 'printing', 500, true );
 	if ($exam->printrandom == 1) {
@@ -160,7 +137,7 @@ if ($form->get_data ()) {
 			$rsg = emarking_download_exam ( $exam->id, // Id of exam to print
 true, // Print using multiple pdfs
 $r->id, // id group for print random
-$pbar, true, $printer );
+$pbar, true, $idprinter );
 			if (! $rsg) { // Send directly to printer
 				print_error ( 'Fatal error trying to print' );
 			}
@@ -190,7 +167,7 @@ $pbar, true, $printer );
                                        null, 
 		                               $pbar, 
 		                               true, 
-		                               $printer,
+		                               $idprinter,
 		                               false,
 		                               $debugprinting )) { // Send directly to printer
 			print_error ( 'Fatal error trying to print' );

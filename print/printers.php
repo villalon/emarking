@@ -40,7 +40,7 @@ $sesskey = optional_param("sesskey", null, PARAM_ALPHANUM);
 
 $context = context_system::instance();
 
-if(! has_capability("mod/emarking:manageprinters", $context)){
+if( !has_capability("mod/emarking:manageprinters", $context) || !is_siteadmin($USER) ){
 	print_error(get_string("notallowedprintermanagement", "mod_emarking"));
 }
 
@@ -51,8 +51,6 @@ $PAGE->set_url($urlprinters);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout("standard");
 
-// Show header
-echo $OUTPUT->header();
 
 if( $action == "add" ){
 	$addform = new emarking_addprinter_form();
@@ -85,11 +83,12 @@ if( $action == "edit" ){
 			$editform->set_data($defaultdata);
 			if( $editform->is_cancelled() ){
 				$action = "view";
-			}else if( $editiondata = $editform->get_data()  && $sesskey == $USER->sesskey ){
+			}else if( $editform->get_data()  && $sesskey == $USER->sesskey ){
 				$record = new stdClass();
-				$record->name = $editiondata->name;
-				$record->command = $editiondata->command;
-				$record->ip = $editiondata->ip;
+				$record->id = $editform->get_data()->idprinter;
+				$record->name = $editform->get_data()->name;
+				$record->command = $editform->get_data()->command;
+				$record->ip = $editform->get_data()->ip;
 				$record->datecreated = time(); 
 				$DB->update_record("emarking_printers", $record);
 				$action = "view";
@@ -186,6 +185,7 @@ if( $action == "view" ){
 if( $action == "add" ){
 	$PAGE->set_title(get_string("addprinter", "mod_emarking")); 
 	$PAGE->set_heading(get_string("addprinter", "mod_emarking"));
+	echo $OUTPUT->header();
 	echo $OUTPUT->heading(get_string("addprinter", "mod_emarking"));
 	$addform->display();
 }
@@ -193,6 +193,7 @@ if( $action == "add" ){
 if( $action == "edit" ){
 	$PAGE->set_title(get_string("editprinter", "mod_emarking"));
 	$PAGE->set_heading(get_string("editprinter", "mod_emarking"));
+	echo $OUTPUT->header();
 	echo $OUTPUT->heading(get_string("editprinter", "mod_emarking"));
 	$editform->display();
 }
@@ -200,6 +201,7 @@ if( $action == "edit" ){
 if( $action == "view" && $CFG->emarking_enablemanageprinters ){
 	$PAGE->set_title(get_string("adminprints", "mod_emarking"));
 	$PAGE->set_heading(get_string("adminprints", "mod_emarking"));
+	echo $OUTPUT->header();
 	echo $OUTPUT->heading(get_string("adminprints", "mod_emarking"));
 	echo $OUTPUT->tabtree( $toprow, get_string("adminprints", "mod_emarking"));
 	if( count($printers) == 0 ){
@@ -208,7 +210,7 @@ if( $action == "view" && $CFG->emarking_enablemanageprinters ){
 		echo html_writer::table($printerstable);
 	}
 	echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addprinter", "mod_emarking")), array("align" => "center"));
-}else{
+}else if( !$CFG->emarking_enablemanageprinters ){
 	echo html_writer::nonempty_tag("h4", 
 			get_string("notenablemanageprinters", "mod_emarking", $CFG->wwwroot."/admin/settings.php?section=modsettingemarking"), 
 			array("align" => "center")

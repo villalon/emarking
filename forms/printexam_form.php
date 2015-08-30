@@ -26,7 +26,7 @@ class emarking_printexam_form extends moodleform {
 
 	// Extra HTML to be added at the end of the form, used for javascript functions.
 	function definition() {
-		global $DB, $CFG;
+		global $DB, $CFG, $USER;
 
 		$mform = $this->_form;
 		$instance = $this->_customdata;
@@ -43,18 +43,33 @@ class emarking_printexam_form extends moodleform {
 		$mform->setType ( 'debug', PARAM_BOOL );
 
 		$mform->addElement ( 'header', 'selectprinter', get_string('selectprinter','mod_emarking' ) );
-
-		$printerarray = array();
-		foreach(explode(',', $CFG->emarking_printername) as $printer) {
-			$printerarray[] = $printer;
+		
+		if( is_siteadmin($USER) ){
+			$sqlprinters= "SELECT p.id, p.name
+					FROM {emarking_printers} as p";
+			$printersarray = $DB->get_records_sql($sqlprinters);
+		}else{
+			$sqlprinters = "SELECT p.id, p.name
+					FROM {emarking_printers} as p 
+					INNER JOIN {emarking_users_printers} as up ON (p.id = up.id_printer)
+					WHERE up.id_user = ?";
+			$printersarray = $DB->get_records_sql($sqlprinters, array(
+					$USER->id
+			));
 		}
-
+		
+		$selectprinters = array();
+		foreach($printersarray as $printer) {
+			$selectprinters[$printer->id] = $printer->name;
+		}
+		
 		// Extra sheets per student
 		$mform->addElement ( 'select', 'printername', 
-				get_string('printername','mod_emarking' ), $printerarray, null );
+				get_string('printername','mod_emarking' ), $selectprinters, null );
 		$mform->addHelpButton ( 'printername', 'printername', 'mod_emarking' );
 
 		// buttons
 		$this->add_action_buttons ( true, get_string ( 'submit' ) );
 	}
+	
 }

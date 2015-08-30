@@ -207,6 +207,7 @@ $string ['regradesclosedate_help'] = 'Fecha límite para que los estudiantes env
 $string ['markingduedate'] = 'Fecha límite corrección';
 $string ['markingduedate_help'] = 'Si define una fecha límite para finalizar la corrección, ésta se usará para notificar a correctores y profesores respecto del avance de la corrección.';
 $string ['enableduedate'] = 'Habilitar fecha límite';
+$string ['verifyregradedate'] = 'Verificar que la fecha de apertura sea menor que el cierre';
 
 $string ['emarkingprints'] = 'Emarking impresoras';
 $string ['adminprints'] = 'Administrar impresoras';
