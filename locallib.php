@@ -1249,5 +1249,5 @@ function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $c
         $statushtml .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
     }
     
-    return $statusinfo;
+    return $statushtml;
 }
