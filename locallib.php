@@ -1255,19 +1255,4 @@ function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $c
     }
     
     return $statushtml;
-<<<<<<< HEAD
-=======
-}
-
-function emarking_check_is_user_with_role($courseid, $rolename, $userid = 0) {
-	$result = false;
-	$roles = get_user_roles(context_course::instance($courseid), $userid, false);
-	foreach ($roles as $role) {
-		if ($role->shortname == $rolename) {
-			$result = true;
-			break;
-		}
-	}
-	return $result;
->>>>>>> refs/remotes/origin/master
 }
