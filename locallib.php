@@ -169,7 +169,7 @@ function emarking_tabs($context, $cm, $emarking)
     global $CFG;
     global $USER;
     
-    $usercangrade = has_capability('mod/assign:grade', $context);
+    $usercangrade = has_capability("mod/emarking:grade", $context);
     
     $tabs = array();
     
@@ -985,7 +985,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
         if ($showform) {
             echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
             
-            if( !emarking_check_is_user_with_role($COURSE->id, "student") ){
+            if(has_capability("mod/emarking:addinstance", $context) ){
             	echo $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'));
             }
         }
@@ -998,7 +998,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
         if ($definition->status == 10) {          
             echo $OUTPUT->notification(get_string('rubricdraft', 'mod_emarking'), 'notifyproblem');
             
-            if( !emarking_check_is_user_with_role($COURSE->id, "student") ){
+            if(has_capability("mod/emarking:addinstance", $context) ){
             	echo $OUTPUT->single_button($managerubricurl, get_string('completerubric', 'mod_emarking'));
             }
         }
