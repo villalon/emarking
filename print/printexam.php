@@ -65,9 +65,11 @@ if (isguestuser ()) {
 	die ();
 }
 
-if (! $printers = $DB->get_records("emarking_users_printers", array(
+if( is_siteadmin($USER) ){
+	$printers = $DB->get_records("emarking_users_printers");
+}else if (! $printers = $DB->get_records("emarking_users_printers", array(
 		"id_user" => $USER->id		
-) )) {
+	) )) {
 	print_error ( 'No printers configured. Please notify administrator.' );
 }
 
@@ -104,14 +106,15 @@ $result = exec ( 'lpstat -p -d' );
 $parts = explode ( ":", $result );
 
 if(!$debugprinting) {
-if (count ( $parts ) != 2) {
-	echo $OUTPUT->notification('Invalid printer setup. You must install cups and set a default printer for eMarking to be able to print.', 'notifyproblem');
-	echo $OUTPUT->footer ();
-	die();
-} else  {
-	$printer = strtoupper ( trim ( $parts [1] ) );
-	echo $OUTPUT->box ( 'Default printer: ' . $printer );
-}
+	if (count ( $parts ) != 2) {
+		echo $OUTPUT->notification('Invalid printer setup. 
+				You must install cups and set a default printer for eMarking to be able to print.', 'notifyproblem');
+		echo $OUTPUT->footer ();
+		die();
+	} else  {
+		$printer = strtoupper ( trim ( $parts [1] ) );
+		echo $OUTPUT->box ( 'Default printer: ' . $printer );
+	}
 }
 
 if ($data = $form->get_data ()) {
@@ -134,7 +137,7 @@ if ($data = $form->get_data ()) {
 			$rsg = emarking_download_exam ( $exam->id, // Id of exam to print
 true, // Print using multiple pdfs
 $r->id, // id group for print random
-$pbar, true, $printer );
+$pbar, true, $idprinter );
 			if (! $rsg) { // Send directly to printer
 				print_error ( 'Fatal error trying to print' );
 			}

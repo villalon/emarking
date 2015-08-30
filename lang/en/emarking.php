@@ -206,6 +206,7 @@ $string ['regradesclosedate_help'] = 'Date until the students can submit regradi
 $string ['markingduedate'] = 'Marking due date';
 $string ['markingduedate_help'] = 'Defines a due date that will help notify markers and teachers on pending jobs';
 $string ['enableduedate'] = 'Enable marking due date';
+$string ['verifyregradedate'] = 'Verify that the opening is less than the closing';
 
 $string ['emarkingprints'] = 'Emarking Printers';
 $string ['adminprints'] = 'Manage printers';

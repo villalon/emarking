@@ -41,7 +41,7 @@ $sesskey = optional_param("sesskey", null, PARAM_ALPHANUM);
 
 $context = context_system::instance();
 
-if(! has_capability("mod/emarking:manageprinters", $context)){
+if( !has_capability("mod/emarking:manageprinters", $context) || !is_siteadmin($USER) ){
 	print_error(get_string("notallowedprintermanagement", "mod_emarking"));
 }
 
@@ -52,8 +52,6 @@ $PAGE->set_url($urlprinters);
 $PAGE->set_context($context);
 $PAGE->set_pagelayout("standard");
 
-// Show header
-echo $OUTPUT->header();
 
 if( $action == "add" ){
 	$addform = new emarking_addrelationship_userprint_form();
@@ -78,39 +76,7 @@ if( $action == "add" ){
 		$action = "view";
 	}
 }
-/* TODO: se editara una relación usuario-impresora, o solo se podra borrar?
-if( $action == "edit" ){
-	if( $idprinter == null ){
-		print_error(get_string("printerdoesnotexist", "mod_emarking"));
-		$action = "view";
-	}else{
-		if( $printer = $DB->get_record("emarking_printers", array("id"=>$idprinter)) ){
-			$editform = new emarking_editionprinter_form(null, array(
-					"idprinter" => $idprinter
-			));
-			$defaultdata = new stdClass();
-			$defaultdata->name = $printer->name;
-			$defaultdata->command = $printer->command;
-			$defaultdata->ip = $printer->ip;
-			$editform->set_data($defaultdata);
-			if( $editform->is_cancelled() ){
-				$action = "view";
-			}else if( $editiondata = $editform->get_data()  && $sesskey == $USER->sesskey ){
-				$record = new stdClass();
-				$record->name = $editiondata->name;
-				$record->command = $editiondata->command;
-				$record->ip = $editiondata->ip;
-				$record->datecreated = time(); //TODO: modificar la fecha cuando se edita la impresora ¿?
-				$DB->update_record("emarking_printers", $record);
-				$action = "view";
-			}
-		}else{
-			print_error(get_string("printerdoesnotexist", "mod_emarking"));
-			$action = "view";
-		}
-	}
-}
-*/
+
 if( $action == "delete" ){
 	if( $idprinter == null || $iduser == null ){
 		print_error(get_string("dontexistrelationship", "mod_emarking"));
@@ -157,25 +123,12 @@ if( $action == "view" ){
 					$deleteicon_printer,
 					new confirm_action(get_string("doyouwantdeleterelationship", "mod_emarking")
 					));
-				
-			/*
-			$editurl_printer = new moodle_url("/mod/emarking/print/printers.php", array(
-					"action"=> "edit",
-					"idprinter" => $relationship->id,
-					"sesskey" => sesskey()
-			));
-			$editicon_printer = new pix_icon("i/edit", get_string("edit", "mod_emarking"));
-			$editaction_printer = $OUTPUT->action_icon(
-					$editurl_printer,
-					$editicon_printer,
-					new confirm_action(get_string("doyouwanteditprinter", "mod_emarking")
-					));
-			*/
+
 			$printerstable->data[] = array(
 					$relationship->username." ".$relationship->lastname,
 					$relationship->email,
 					$relationship->name,
-					$deleteaction_printer   //.$editaction_printer
+					$deleteaction_printer
 			);
 		}
 	}
@@ -197,20 +150,15 @@ if( $action == "view" ){
 
 if( $action == "add" ){
 	$PAGE->set_title(get_string("addprinter", "mod_emarking"));
+	echo $OUTPUT->header();
 	$PAGE->set_heading(get_string("addprinter", "mod_emarking"));
 	echo $OUTPUT->heading(get_string("addprinter", "mod_emarking"));
 	$addform->display();
 }
-/*
-if( $action == "edit" ){
-	$PAGE->set_title(get_string("editprinter", "mod_emarking"));
-	$PAGE->set_heading(get_string("editprinter", "mod_emarking"));
-	echo $OUTPUT->heading(get_string("editprinter", "mod_emarking"));
-	$editform->display();
-}
-*/
+
 if( $action == "view" && $CFG->emarking_enablemanageprinters ){
 	$PAGE->set_title(get_string("managepermissions", "mod_emarking"));
+	echo $OUTPUT->header();
 	$PAGE->set_heading(get_string("managepermissions", "mod_emarking"));
 	echo $OUTPUT->heading(get_string("managepermissions", "mod_emarking"));
 	echo $OUTPUT->tabtree( $toprow, get_string("permitsviewprinters", "mod_emarking"));
