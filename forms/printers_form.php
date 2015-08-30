@@ -134,14 +134,8 @@ class emarking_editionprinter_form extends moodleform{
 			if( !$DB->get_recordset_select("emarking_printers", " ip = ?", array($ip))){
 				$errors["ip"] = get_string("ipexist", "mod_emarking");
 			}			
-			// Regex for ipv4 and ipv6
-			$matchipv4 = 0;
-			$matchipv6 = 0;
-			if( validate_ipv4_address($ip) )
-				$matchipv4++;
-			if( validate_ipv6_address($ip) )
-				$matchipv6++;
-			if( $matchipv4 == $matchipv6 && $matchipv4 )
+			// Validete ip for regex ipv4 and ipv6
+			if( validate_ipv4_address($ip) == validate_ipv6_address($ip) && validate_ipv4_address($ip) )
 				$errors["ip"] = get_string("ipproblem", "mod_emarking");
 		}else{
 			$errors["ip"] = get_string("required", "mod_emarking");
@@ -163,27 +157,27 @@ class emarking_addrelationship_userprint_form extends moodleform{
 				AND rc.permission = ?
 				GROUP BY u.id";
 		
-		$users = $DB->get_records_sql($sqlusers, array('%emarking:downloadexam%', 1));
-			$data = array();
-			foreach( $users as $user ){
-				$names[$user->id] = $user->username." ".$user->lastname." (".$user->email.")";
-			}		
-			$selectusers = $mform->addElement("select", "users", get_string("selectusers","mod_emarking"),$data);
-			$selectusers->setMultiple(true);
+		$users = $DB->get_records_sql($sqlusers, array('%emarking:downloadexam%', '1'));
+		$data = array();
+		foreach( $users as $user ){
+			$data[$user->id] = $user->username." ".$user->lastname." (".$user->email.")";
+		}		
+		$selectusers = $mform->addElement("select", "users", get_string("selectusers","mod_emarking"),$data);
+		$selectusers->setMultiple(true);
 			
-			if($printers = $DB->get_records("emarking_printers")){
-				$data = array();
-				foreach( $printers as $printer ){
-					$data[$printer->id] = $printer->name;
-				}
-				$selectprinters = $mform->addElement("select", "printers", get_string("selectprinters","mod_emarking"),$data);
-				$selectprinters->setMultiple(true);			
+		if($printers = $DB->get_records("emarking_printers")){
+		$data = array();
+			foreach( $printers as $printer ){
+				$data[$printer->id] = $printer->name;
 			}
+			$selectprinters = $mform->addElement("select", "printers", get_string("selectprinters","mod_emarking"),$data);
+			$selectprinters->setMultiple(true);			
+		}
 			
-			$mform->addElement("hidden", "action", "add");
-			$mform->setType("action", PARAM_TEXT);
+		$mform->addElement("hidden", "action", "add");
+		$mform->setType("action", PARAM_TEXT);
 			
-			$this->add_action_buttons(true);
+		$this->add_action_buttons(true);
 	}
 	function validation($data, $files){
 		global $DB;

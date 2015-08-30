@@ -961,7 +961,7 @@ function emarking_rotate_image($pageno, $submission, $context)
  */
 function emarking_validate_rubric($context, $die = true, $showform = true)
 {
-    global $OUTPUT, $CFG;
+    global $OUTPUT, $CFG, $COURSE;
     
     require_once ($CFG->dirroot . '/grade/grading/lib.php');
     
@@ -984,7 +984,10 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
     if ($gradingmethod !== 'rubric' || ! $definition || $definition == null) {
         if ($showform) {
             echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
-            echo $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'));
+            
+            if( !emarking_check_is_user_with_role($COURSE->id, "student") ){
+            	echo $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'));
+            }
         }
         if ($die) {
             echo $OUTPUT->footer();
@@ -992,10 +995,12 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
         }
     }
     if (isset($definition->status)) {
-        if ($definition->status == 10) {
-            
+        if ($definition->status == 10) {          
             echo $OUTPUT->notification(get_string('rubricdraft', 'mod_emarking'), 'notifyproblem');
-            echo $OUTPUT->single_button($managerubricurl, get_string('completerubric', 'mod_emarking'));
+            
+            if( !emarking_check_is_user_with_role($COURSE->id, "student") ){
+            	echo $OUTPUT->single_button($managerubricurl, get_string('completerubric', 'mod_emarking'));
+            }
         }
     }
     
@@ -1249,5 +1254,17 @@ function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $c
         $statushtml .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
     }
     
-    return $statusinfo;
+    return $statushtml;
+}
+
+function emarking_check_is_user_with_role($courseid, $rolename, $userid = 0) {
+	$result = false;
+	$roles = get_user_roles(context_course::instance($courseid), $userid, false);
+	foreach ($roles as $role) {
+		if ($role->shortname == $rolename) {
+			$result = true;
+			break;
+		}
+	}
+	return $result;
 }

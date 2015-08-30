@@ -369,6 +369,9 @@ class mod_emarking_mod_form extends moodleform_mod {
 		$adjustslopegrade = isset($data ['adjustslopegrade']) ? $data ['adjustslopegrade'] : 0;
 		$grademin = $data ['grademin'];
 		$grademax = $data ['grade'];
+		$regradesopendate = $data['regradesopendate'];
+		$regradesclosedate = $data['regradesclosedate'];
+		
 
 		// Make sure the minimum score is not greater than the maximum score
 		if($grademin >= $grademax){
@@ -392,6 +395,12 @@ class mod_emarking_mod_form extends moodleform_mod {
 			if($adjustslopescore <= 0) {
 				$errors ['adjustslopescore'] = get_string('adjustslopescoregreaterthanzero','mod_emarking');
 			}
+		}
+		
+		// Validate regrade dates 
+		if( $regradesopendate > $regradesclosedate){
+			$errors['regradesopendate'] = get_string('verifyregradedate','mod_emarking');
+			$errors['regradesclosedate'] = get_string('verifyregradedate','mod_emarking');
 		}
 		
 		// Validate custom marks
