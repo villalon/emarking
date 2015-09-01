@@ -182,8 +182,10 @@ function emarking_tabs($context, $cm, $emarking)
     
     // Settings tab
     $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
-    if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
-        $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markers", 'mod_emarking'));
+    if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL) {
+        $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markerspercriteria", 'mod_emarking'));
+        $settingstab->subtree[] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}", core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
+    }
     $settingstab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
     
     // Grade tab

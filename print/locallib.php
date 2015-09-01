@@ -2208,7 +2208,7 @@ function emarking_clean_filename($filename, $slash = false)
 
 //gets an ipv4 address in dotted format and returns true if the format
 //is acceptable
-function validate_ipv4_address($ipv4)
+function emarking_validate_ipv4_address($ipv4)
 {
 	$valid = true;
 	$pattern = '/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/';
@@ -2231,7 +2231,7 @@ function validate_ipv4_address($ipv4)
 
 
 //gets an ipv6 in hex format and returns true if the format is acceptable
-function validate_ipv6_address($ipv6)
+function emarking_validate_ipv6_address($ipv6)
 {
 	$flag=true;
 

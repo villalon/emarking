@@ -22,6 +22,10 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string["emarkingviewed"]="Ver prueba";
+
+$string["markerspercriteria"]="Correctores por criterio";
+$string["pagespercriteria"]="Páginas por criterio";
 
 $string["markerscanseewholerubric"]="Correctores pueden ver la rúbrica completa.";
 $string["markerscanseeallpages"] = "Correctores ven todas las páginas.";
@@ -78,7 +82,11 @@ $string['usernotloggedin'] = 'Usuario no está logueado';
 $string['invalidsessionkey'] = 'Clave de sesión inválida';
 
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
+$string["datahasheaders"] = "Datos contienen encabezado";
+$string["confirmimportpredefinedcomments"] = "Los comentarios que se muestran en vista previa serán importados. ¿Está seguro(a)?";
+$string['addpredefinedcomments'] = 'Importar comentarios desde Excel';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
+$string['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';
 $string['savechanges'] = 'Guardar cambios';
 $string ['changessaved'] = 'Cambios guardados exitosamente';
 
@@ -579,7 +587,7 @@ $string ['status'] = 'Estado';
 $string ['statusaccepted'] = 'Aceptada';
 $string ['statusabsent'] = 'Ausente';
 $string ['statusgrading'] = 'En corrección';
-$string ['statusgradingfinished'] = 'Lista para publicar';
+$string ['statusgradingfinished'] = 'Corregida';
 $string ['statusmissing'] = 'No entregada';
 $string ['statusnotsent'] = 'No enviada';
 $string ['statusregrading'] = 'En recorrección';

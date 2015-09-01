@@ -389,7 +389,7 @@ foreach ($allstudents as $student){
 
 $totalstudents = $countstudents;
 
-$actionsheader = get_string('actions', 'mod_emarking');
+$actionsheader = "";
 if(has_capability("mod/emarking:supervisegrading", $context)) {
     $actionsheader .= $usercangrade ? '&nbsp;<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
 }
@@ -541,7 +541,7 @@ foreach ($drafts as $draft) {
     foreach ($draftids as $d) {
         
         // Action buttons
-        $actions .= html_writer::start_div('printactions');
+        $actionsarray = array();
         $thisstatus = $draftstatuses[$current];
         $thisid = $d;
         
@@ -553,7 +553,7 @@ foreach ($drafts as $draft) {
         // eMarking button
         if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $thisstatus >= EMARKING_STATUS_PUBLISHED) {
             $pixicon = $usercangrade ? new pix_icon('i/manual_item', get_string('annotatesubmission', 'mod_emarking')) : new pix_icon('i/preview', get_string('viewsubmission', 'mod_emarking'));
-            $actions .= html_writer::div($OUTPUT->action_link($popup_url,  get_string('annotatesubmission', 'mod_emarking'), 
+            $actionsarray[] = $OUTPUT->action_link($popup_url,  get_string('annotatesubmission', 'mod_emarking'), 
                 new popup_action('click', $popup_url, 'emarking' . $thisid, array(
                 'menubar' => 'no',
                 'titlebar' => 'no',
@@ -561,7 +561,7 @@ foreach ($drafts as $draft) {
                 'toolbar' => 'no',
                 'width' => 860,
                 'height' => 600
-            ))));
+            )));
         }
         
         // Mark draft as absent/sent
@@ -578,7 +578,7 @@ foreach ($drafts as $draft) {
             $pixicon = $thisstatus >= EMARKING_STATUS_SUBMITTED ? new pix_icon('t/delete', get_string('setasabsent', 'mod_emarking')) : new pix_icon('i/checkpermissions', get_string('setassubmitted', 'mod_emarking'));
             $msgstatus = $thisstatus >= EMARKING_STATUS_SUBMITTED ? get_string('setasabsent', 'mod_emarking') : get_string('setassubmitted', 'mod_emarking');
             
-            $actions .= html_writer::div("|&nbsp;". $OUTPUT->action_link($deletesubmissionurl, $msgstatus));
+            $actionsarray[] = $OUTPUT->action_link($deletesubmissionurl, $msgstatus);
         }
         
         // Url for downloading PDF feedback
@@ -586,7 +586,7 @@ foreach ($drafts as $draft) {
         
         // Download PDF button
         if ($emarking->type == EMARKING_TYPE_NORMAL && $thisstatus >= EMARKING_STATUS_PUBLISHED && $draftqcs[$current] == 0 && ($thisid == $USER->id || is_siteadmin($USER) || $issupervisor)) {
-            $actions .= html_writer::div("|&nbsp;". $OUTPUT->action_link($responseurl, get_string('downloadfeedback', 'mod_emarking')));
+            $actionsarray[] = $OUTPUT->action_link($responseurl, get_string('downloadfeedback', 'mod_emarking'));
         }
         
         // Checkbox for publishing grade
@@ -594,10 +594,13 @@ foreach ($drafts as $draft) {
             && $thisstatus >= EMARKING_STATUS_SUBMITTED && $thisstatus < EMARKING_STATUS_PUBLISHED && $usercangrade
             && has_capability("mod/emarking:supervisegrading", $context)) {
             $unpublishedsubmissions ++;
-            $actions .= html_writer::div('<input type="checkbox" name="publish[]" value="' . $thisid . '">');
+            $actionsarray[] = "<input type=\"checkbox\" name=\"publish[]\" value=\"$thisid\" title=\"".get_string("select")."\">";
         }
         
+        $actions .= html_writer::start_div('printactions');     
+        $actions .= implode("&nbsp;|&nbsp;", $actionsarray);
         $actions .= html_writer::end_div();
+        
         $current ++;
     }
     

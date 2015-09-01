@@ -97,76 +97,70 @@ if (! has_capability ( 'mod/emarking:assignmarkers', $context )) {
 
 echo $OUTPUT->header();
 
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "markers" );
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "pages" );
 
-$mform_markers = new emarking_markers_form(null,
-    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "action"=>"addmarkers"));
+$mform_pages = new emarking_pages_form(null,
+    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "action"=>"addpages"));
 
-if($mform_markers->get_data()) {
-    $newmarkers = process_mform($mform_markers, "addmarkers", $emarking);
+if($mform_pages->get_data()) {
+    $newpages = process_mform($mform_pages, "addpages", $emarking);
 }
 
-if($action === 'deletemarkers') {
-    $DB->delete_records('emarking_marker_criterion', array('emarking'=>$emarking->id, 'criterion'=>$criterion->id));
+if($action === 'deletepages') {
+    $DB->delete_records('emarking_page_criterion', array('emarking'=>$emarking->id, 'criterion'=>$criterion->id));
     echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
 }
 
-$nummarkerscriteria = $DB->count_records(
-    "emarking_marker_criterion",
+$numpagescriteria = $DB->count_records(
+    "emarking_page_criterion",
     array("emarking"=>$emarking->id));
 
-$markercriteria = $DB->get_recordset_sql("
-        SELECT 
+$pagecriteria = $DB->get_recordset_sql("
+    SELECT 
         id, 
         description, 
-        GROUP_CONCAT(uid) AS markers,
+        GROUP_CONCAT(page) AS pages,
         sortorder
     FROM (
-    SELECT 
-        c.id, 
-        c.description,
-        c.sortorder, 
-        u.id as uid
-    FROM {gradingform_rubric_criteria} as c
-    LEFT JOIN {emarking_marker_criterion} as mc ON (c.definitionid = :definition AND mc.emarking = :emarking AND c.id = mc.criterion)
-    LEFT JOIN {user} as u ON (mc.marker = u.id)
+    SELECT c.id, c.description, c.sortorder, mc.page
+    FROM {gradingform_rubric_criteria} AS c 
+    LEFT JOIN {emarking_page_criterion} AS mc ON (c.definitionid = :definition AND mc.emarking = :emarking AND c.id = mc.criterion)
     WHERE c.definitionid = :definition2
-    ORDER BY c.id ASC, u.lastname ASC) as T
-    GROUP BY id", 
+    ORDER BY c.id ASC, mc.page ASC) as T
+    GROUP BY id
+    ORDER BY sortorder",
     array("definition"=>$definition->id, "definition2"=>$definition->id, "emarking"=>$emarking->id));
 
     $data = array();
-    foreach($markercriteria as $d) {
-        $urldelete = new moodle_url('/mod/emarking/marking/markers.php', array('id'=>$cm->id, 'criterion'=>$d->id, 'action'=>'deletemarkers'));
-        $markershtml = "";
-        if($d->markers) {
-        $markers = explode(",", $d->markers);
-        foreach($markers as $marker) {
-            $u = $DB->get_record("user", array("id"=>$marker));
-            $markershtml .= $OUTPUT->user_picture($u);
-        }
-        $markershtml .= $OUTPUT->action_link($urldelete, get_string("delete"), null, array("class"=>"rowactions"));
+    foreach($pagecriteria as $d) {
+        $urldelete = new moodle_url('/mod/emarking/marking/markers.php', array('id'=>$cm->id, 'criterion'=>$d->id, 'action'=>'deletepages'));
+        $pageshtml = "";
+        if($d->pages) {
+            $pages = explode(",", $d->pages);
+            foreach($pages as $page) {
+                $pageshtml .= $OUTPUT->box($page, "pagecriterionbox");
+            }
+            
+            $pageshtml .= $OUTPUT->action_link($urldelete, get_string("delete"), null, array("class"=>"rowactions"));
         }
         $row = array();
         $row[] = $d->description;
-        $row[] = $markershtml;
+        $row[] = $pageshtml;
         $data[] = $row;
     }
     $table = new html_table();
     $table->head = array(
         get_string("criterion", "mod_emarking"), 
-        get_string("markers", "mod_emarking"));
+        core_text::strtotitle(get_string("pages", "mod_emarking")));
     $table->colclasses = array(
         null,
         null
     );
     $table->data = $data;
+$nummarkerscriteria = $DB->count_records(
+    "emarking_marker_criterion",
+    array("emarking"=>$emarking->id));
 
-    $numpagescriteria = $DB->count_records(
-        "emarking_page_criterion",
-        array("emarking"=>$emarking->id));
-    
-    
 if($nummarkerscriteria == 0 && $numpagescriteria == 0) {
     echo $OUTPUT->box(get_string("markerscanseewholerubric", "mod_emarking"));
     echo $OUTPUT->box(get_string("markerscanseeallpages", "mod_emarking"));
@@ -182,7 +176,7 @@ if($nummarkerscriteria == 0 && $numpagescriteria == 0) {
 
 echo html_writer::table($table);
 
-$mform_markers->display();
+$mform_pages->display();
 
 echo $OUTPUT->footer();
 

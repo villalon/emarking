@@ -39,7 +39,7 @@
 
 #page-mod-emarking-view .progress {
 	margin-bottom: 0px;
-	width: 50%;
+	width: 100%;
 }
 
 .grade {
@@ -49,6 +49,11 @@
 
 #page-mod-emarking-view .flexible tbody tr:hover {
     background-color: #eee;
+}
+
+#page-mod-emarking-view .flexible .c3 {
+    min-width: 140px;
+    text-align: right;
 }
 
 .progress-bar {

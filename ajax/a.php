@@ -433,8 +433,8 @@ switch ($action) {
             'context' => context_module::instance($cm->id),
             'objectid' => $cm->id
         );
-        \mod_emarking\event\sortpage_switched::create($item)->trigger();
-        
+        \mod_emarking\event\sortpages_switched::create($item)->trigger();
+
         $neworder = required_param('neworder', PARAM_SEQUENCE);
         $neworderarr = explode(',', $neworder);
         if (! emarking_sort_submission_pages($submission, $neworderarr)) {

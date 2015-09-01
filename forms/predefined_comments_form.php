@@ -42,8 +42,8 @@ class emarking_predefined_comments_form extends moodleform
         $mform->addElement('hidden', 'id', $cmid);
         $mform->setType('id', PARAM_INT);
         
-        $mform->addElement('textarea', 'comments', get_string('predefinedcomments', 'mod_emarking'), array(
-            'rows' => 17,
+        $mform->addElement('textarea', 'comments', get_string('addpredefinedcomments', 'mod_emarking'), array(
+            'rows' => 5,
             'cols' => 100,
             'class' => 'smalltext'
         ));
@@ -51,8 +51,14 @@ class emarking_predefined_comments_form extends moodleform
         $mform->setDefault('comments', '');
         $mform->setType('comments', PARAM_TEXT);
         
-        // buttons
-        $this->add_action_buttons(true, get_string('submit'));
+        $mform->addElement('checkbox', 'headers', get_string('datahasheaders', 'mod_emarking'));
+        $mform->setDefault('headers', null);
+        $mform->setType('headers', PARAM_BOOL);
+        
+        $mform->addElement("hidden", "confirm");
+        $mform->setDefault("confirm", false);
+        $mform->setType("confirm", PARAM_BOOL);
+        
     }
 
     function validation($data, $files)

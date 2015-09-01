@@ -22,6 +22,10 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string["emarkingviewed"]="Feedback viewed";
+
+$string["markerspercriteria"]="Markers per criteria";
+$string["pagespercriteria"]="Pages per criteria";
 
 $string["markerscanseewholerubric"]="Markers can see the entire rubric.";
 $string["markerscanseeallpages"] = "Markers can see all pages.";
@@ -77,7 +81,11 @@ $string['usernotloggedin'] = 'User is not logged in';
 $string['invalidsessionkey'] = 'Invalid session key';
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
+$string["datahasheaders"] = "Data has headers";
+$string["confirmimportpredefinedcomments"] = "The predefined comments in the preview will be imported. Are you sure?";
+$string['addpredefinedcomments'] = 'Import predefined comments from Excel';
 $string['predefinedcomments'] = 'Predefined comments';
+$string['predefinedcomments_help'] = 'Paste a column from Excel (with or without a header) to import all the rows as predefined comments.';
 $string ['savechanges'] = 'Save changes';
 $string ['changessaved'] = 'Changes saved';
 
@@ -578,7 +586,7 @@ $string ['status'] = 'Status';
 $string ['statusaccepted'] = 'Accepted';
 $string ['statusabsent'] = 'Absent';
 $string ['statusgrading'] = 'Grading';
-$string ['statusgradingfinished'] = 'Ready for publishing';
+$string ['statusgradingfinished'] = 'Marked';
 $string ['statusmissing'] = 'Missing';
 $string ['statusnotsent'] = 'Not sent';
 $string ['statusregrading'] = 'Regrading';
