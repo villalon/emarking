@@ -173,12 +173,11 @@ function emarking_tabs($context, $cm, $emarking)
     
     $tabs = array();
     
-    // Home tab
-    $examstab = new tabobject("home", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("printdigitize", 'mod_emarking'));
-    $examstab->subtree[] = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("myexams", 'mod_emarking'));
+    // Print tab
+    $printtab = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("print", 'mod_emarking'));
     
-    $examstab->subtree[] = new tabobject("newprintorder", $CFG->wwwroot . "/mod/emarking/print/newprintorder.php?cm={$cm->id}", get_string("newprintorder", 'mod_emarking'));
-    $examstab->subtree[] = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
+    // Scan tab
+    $scantab = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('scan', 'mod_emarking'));
     
     // Settings tab
     $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
@@ -212,11 +211,13 @@ function emarking_tabs($context, $cm, $emarking)
     
     // Tabs sequence
     if ($usercangrade) {
+        if (has_capability('mod/emarking:uploadexam', $context)) {
+            $tabs[] = $printtab;
+            $tabs[] = $scantab;
+        }
         $tabs[] = $gradetab;
         $tabs[] = $gradereporttab;
         $tabs[] = $settingstab;
-        if (has_capability('mod/emarking:uploadexam', $context))
-            $tabs[] = $examstab;
     } else {
         $tabs = $gradetab->subtree;
     }

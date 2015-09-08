@@ -1359,6 +1359,22 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015082100, 'emarking');
     }
     
+    if ($oldversion < 2015090800) {
+    
+        // Define field secondstagedate to be added to emarking.
+        $table = new xmldb_table('emarking');
+    
+        $field = new xmldb_field('secondstagedate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'firststagedate');
+    
+        // Conditionally launch add field secondstagedate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015090800, 'emarking');
+    }
+    
     
     
     return true;

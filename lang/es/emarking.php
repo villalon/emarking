@@ -22,6 +22,34 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string["agreementflexibility"] = "Flexibilidad de acuerdo";
+$string["agreementflexibility_help"] = "Define la diferencia máxima entre las calificaciones entregadas por un corrector y el promedio de los demás correctores para ser considerado fuera de rango.";
+$string["agreementflexibility00"] = "Estricto (calificaciones deben ser iguales)";
+$string["agreementflexibility20"] = "Flexible (permite diferencias de 20%)";
+$string["agreementflexibility40"] = "Laxo (permite diferencias de 40%)";
+$string["firststagedate"] = "Fecha límite para corregir";
+$string["firststagedate_help"] = "Fecha límite en la que los correctores deben corregir todas sus pruebas";
+$string["secondstagedate"] = "Fecha límite para acuerdo";
+$string["secondstagedate_help"] = "Fecha límite en la que los correctores deben alcanzar el acuerdo";
+$string["orsentexam"] = "O usar prueba enviada";
+$string["orsentexam_help"] = "Puede utilizar un archivo PDF de una prueba enviada previamente.";
+$string["print"] = "Imprimir";
+$string["onscreenmarking"] = "Corrección en pantalla";
+$string["scan"] = "Digitalizar";
+$string["none"] = "Ninguno";
+$string["activatemodules"] = "Activar módulos";
+$string["enablescan"] = "Habiliar digitalización";
+$string["enableosm"] = "Habilitar corrección en pantalla";
+$string["enableosm_help"] = "Debe habilitar la digitalización para poder habilitar la corrección en pantalla";
+
+$string["printsettings"] = "Configuración de impresión";
+$string["printsettings_help"] = "Help for print settings";
+
+$string["selectemarkingtype"] = "Seleccione...";
+$string["markingtypemandatory"] = "Debe seleccionar un tipo de corrección";
+$string["selectexam"] = "Enviar después";
+$string["exam_help"] = "Debe asociar esta corrección a una prueba enviada a imprimir. Seleccione la prueba entre las que ya se han enviado o indique que la enviará después.";
+
 $string["emarkingviewed"]="Ver prueba";
 
 $string["markerspercriteria"]="Correctores por criterio";
@@ -160,6 +188,8 @@ $string ['emarking:managedelphiprocess'] = 'Administrat delphi';
 $string ['emarking_webexperimental'] = 'eMarking Web experimental';
 $string ['emarking_webexperimental_help'] = 'Habilita la interfaz experimental';
 
+$string["enrolments"] = "Métodos de matriculación";
+$string["enrolments_help"] = "Solo se incluirán los estudiantes matriculados en los métodos de matriculación seleccionados.";
 $string ['enrolmanual'] = 'Matriculaciones manuales';
 $string ['enrolself'] = 'Auto-Matriculaciones';
 $string ['enroldatabase'] = 'Matriculaciones de base de datos externa';
@@ -184,7 +214,7 @@ $string ['pctmarked'] = '% corregido';
 $string ['saved'] = 'Cambios guardados';
 $string ['downloadform'] = 'Descargar formulario de impresión';
 $string ['selectprinter'] = 'Escoger impresora';
-$string ['enableprinting'] = 'Habilitar impresiones';
+$string ['enableprinting'] = 'Habilitar impresión desde Moodle';
 $string ['enableprinting_help'] = 'Habilita utilizar cups (lp) para imprimir desde el servidor de Moodle a una impresora en red';
 $string ['enableprintingrandom'] = 'Permite la impresión al azar';
 $string ['enableprintingrandom_help'] = 'permite la impresión al azar, basado en un grupo creado';
@@ -194,7 +224,7 @@ $string ['printername'] = 'Nombre de la impresora en red';
 $string ['printername_help'] = 'Nombre de la impresora de acuerdo a la configuración de cups';
 
 $string ['minimumdaysbeforeprinting'] = 'Días de anticipación para enviar pruebas';
-$string ['minimumdaysbeforeprinting_help'] = 'Los profesores podrán enviar pruebas a impresión al menos este número de días antes, después no se permitirá.';
+$string ['minimumdaysbeforeprinting_help'] = 'Los profesores podrán enviar pruebas a impresión al menos este número de días antes, después no se permitirá. Si se configuran en 0 días se deshabilita la verificación.';
 $string ['showcoursesfrom'] = 'Mostrar cursos de';
 $string ['donotinclude'] = 'No incluir';
 $string ['parallelcourses'] = 'Cursos paralelos';
@@ -238,8 +268,8 @@ $string ['ipproblem'] = 'La ip posee caracteres no numericos';
 $string ['emptyprinters'] = 'No hay impresoras en el sistema';
 $string ['emarking:manageprinters'] = 'Administrar impresoras';
 $string ['enablemanageprinters'] = 'Habilitar administración de impresoras';
-$string ['viewadminprints'] = 'Para administrar impresoras click <a href="{$a}">acá</a>';
-$string ['viewpermitsprinters'] = '<br> Para administrar permisos de impresoras <a href="{$a}">acá</a>';
+$string ['viewadminprints'] = '<a href="{$a}">Administrar impresoras</a>';
+$string ['viewpermitsprinters'] = '<br/><a href="{$a}">Administrar permisos de impresoras</a>';
 $string ['notenablemanageprinters'] = 'No esta habilitada la opción para la administración de impresoras, mas información <a href="{$a}">acá</a>';
 $string ['selectusers'] = 'Seleccione usuario(s)';
 $string ['selectprinters'] = 'Selecione impresora(s)';
@@ -339,8 +369,8 @@ $string ['messageprovider:notification'] = 'Notificación';
 $string ['emarking'] = 'eMarking';
 $string ['enablejustice'] = 'Habilitar percepción de justicia';
 $string ['enablejustice_help'] = 'Habilita la opción de expresar la percepción de justicia ante una corrección';
-$string ['enrolincludes'] = 'Tipos de matriculaciones para eMarking';
-$string ['enrolincludes_help'] = 'Los tipos de matriculaciones que se utilizarán para incluir el encabezado personalizado en eMarking';
+$string ['enrolincludes'] = 'Métodos de matriculación por defecto';
+$string ['enrolincludes_help'] = 'Los métodos de matriculación que por defecto se seleccionarán al enviar a imprimir una prueba.';
 $string ['errors'] = 'Errores';
 $string ['errorprocessingcrop'] = 'Error procesando crop de QR';
 $string ['errorprocessingextraction'] = 'Error procesando extracción desde ZIP';
@@ -394,7 +424,7 @@ $string ['idnotfound'] = '{$a->id} identificador no encontrado';
 $string ['idnumber'] = 'RUT';
 $string ['ignoreddocuments'] = 'Respuestas ignoradas';
 $string ['includelogo'] = 'Incluir logo';
-$string ['includelogo_help'] = 'Incluir logo en el encabezado de las pruebas. El logo está en mod/emarking/img/logo.jpg';
+$string ['includelogo_help'] = 'Incluir logo en el encabezado de las pruebas.';
 $string ['includeuserpicture'] = 'Incluir imagen de usuario';
 $string ['includeuserpicture_help'] = 'Incluir la imagen del usuario en el encabezado de las pruebas';
 $string ['initializedirfail'] = 'No se pudo inicializar directorio de trabajo {$a}. Por favor avisar al administrador.';
@@ -410,6 +440,7 @@ $string ['invalidimage'] = 'Información inválida desde la imagen';
 $string ['invalidemarkingid'] = 'Id de assignment inválido';
 $string ['invalidparametersforpage'] = 'Parámetros inválidos para la página';
 $string ['invalidpdfnopages'] = 'Archivo ZIP inválido, está vació.';
+$string ['invalidpdfnumpagesforms'] = 'Archivos de pruebas deben tener el mismo número de páginas.';
 $string ['invalidsize'] = 'Tamaño inválido para la imagen';
 $string ['invalidstatus'] = 'Estado inválido';
 $string ['invalidtoken'] = 'Código de seguridad no válido al intentar descargar prueba.';
@@ -464,9 +495,35 @@ $string ['logodesc'] = 'Logo para incluir en encabezado de pruebas';
 $string ['marking'] = 'Corrección';
 $string ['merge'] = 'Reemplazar páginas existentes';
 $string ['merge_help'] = 'Las páginas subidas en el archivo reemplazarán a las páginas existentes. Si no marca esta opción las páginas se agregarán al final.';
-$string ['modulename'] = 'eMarking';
-$string ['modulename_help'] = 'Nombre evaluación';
-$string ['modulenameplural'] = 'eMarkings';
+$string ['modulename'] = 'E-Marking';
+$string ['modulename_help'] = 'El módulo E-Marking permite:<br/>
+    <strong>Imprimir</strong>
+    <ul>
+    <li>Imprima pruebas con hojas personalizadas con el nombre del estudiante, un log y un código QR que facilita la digitalización.</li>
+    <li>Imprima la lista de estudiantes para tomar asistencia en la prueba.</li>
+    <li>Envíe a imprimir una misma prueba para varios cursos (1).</li>
+    </ul>
+    <strong>Digitalizar</strong>
+    <ul>
+    <li>Digitalice las respuestas de los estudiantes y califíquelas de manera sencilla o usando <span style="font-style:italic;">Corrección En Pantalla</span>.</li>
+    </ul>
+    <strong>Corrección En Pantalla</strong>
+    <ul>
+    <li>Corrija las pruebas usando rúbricas, marcadores personalizados y comentarios predefinidos para entregar retroalimentación de calidad. Varios correctores pueden colaborar y compartir los comentarios que dejan.</li>
+    <li>Corrija anónimamente para que correctores no puedan sesgarse de conocer a un estudiante.</li>
+    <li>Corrija doblemente una muestra de las pruebas para control de calidad.</li>
+    <li>Ayude a correctores a colaborar interactuando a través de un chat, con un muro de mensajes del supervisor y pidiendo ayuda cuando no estén seguros de una corrección (1).</li>
+    <li>Entrene correctores en interpretar una rúbrica usando pruebas seleccionadas y forzándolos a alcanzar un consenso.</li>
+    <li>Supervise el proceso de corrección y obtenga reportes por estudiante, por criterio de la rúbrica y por corrector.</li>
+    </ul>
+    <strong>Retroalimentación</strong>
+    <ul>
+    <li>Los estudiantes pueden revisar sus pruebas, sus calificaciones y su retroalimentación desde cualquier lugar. Además pueden solicitar recorrecciones.</li>
+    <li>Consulte la percepción de justicia de sus estudiantes respecto del proceso de corrección y sus calificaciones.</li>
+    <li>Los estudiantes pueden ver un ranking del curso o revisar las pruebas de sus compañeros (anónimamente) para comprender mejor qué hicieron bien o mal.</li>
+    </ul>
+    (1): Requiere configuración extra del servidor.';
+$string ['modulenameplural'] = 'E-Markings';
 $string ['motive'] = 'Motivo';
 $string ['motive_help'] = 'Indique el motivo de su recorrección para este criterio';
 $string ['multicourse'] = 'Multicurso';
@@ -512,11 +569,11 @@ $string ['assignpagestocriteria'] = 'Agregar páginas a criterios';
 $string ['pagedecodingfailed'] = 'QR de página {$a} no pudo ser decodificado';
 $string ['pagedecodingsuccess'] = 'QR de página {$a} decodificado exitosamente';
 $string ['pagenumber'] = 'Número de página';
-$string ['parallelregex'] = 'Regex para secciones paralelas';
-$string ['parallelregex_help'] = 'Expresión regular para extraer el código de la asignatura a partir del nombre corte de un curso, de manera de poder comparar evaluaciones entre cursos paralelos.';
-$string ['pathuserpicture'] = 'Directorio de imágenes de usuarios';
-$string ['pathuserpicture_help'] = 'Direccón absoluta del directorio que contiene las imágenes de los usuarios en formato PNG y cuyo nombre calza con userXXX.png en que XXX es el id de usuario';
-$string ['pdffile'] = 'Archivo(s) PDF';
+$string ['parallelregex'] = 'Regex para cursos paralelos';
+$string ['parallelregex_help'] = 'Expresión regular para extraer el código del curso a partir del nombre corto, de manera de identificar cursos paralelos.';
+$string ['pathuserpicture'] = 'Directorio de imágenes alternativas de usuarios';
+$string ['pathuserpicture_help'] = 'Dirección absoluta del directorio que contiene las imágenes alternativas de los usuarios en formato PNG y cuyo nombre calza con userXXX.png en que XXX es el id de usuario. Si está vacío y se incluirá la imagen de usuarios, se utilizará la que el usuario tiene en su perfil.';
+$string ['pdffile'] = 'Archivo(s) PDF de la prueba';
 $string ['pdffile_help'] = 'Si incluye más de un archivo PDF, éstos se utilizarán como formas diferentes a asignar para los estudiantes.';
 $string ['pluginadministration'] = 'Administración de emarking';
 $string ['previewheading'] = 'Visualización de decodificación de códigos QR';
@@ -569,16 +626,16 @@ $string ['settingsbasic'] = 'Configuración básica';
 $string ['settingsbasic_help'] = 'Configuración básica para eMarking';
 $string ['settingslogo'] = 'Configuración de encabezado';
 $string ['settingslogo_help'] = 'Opciones para incluir logo de la institución o la foto del estudiante';
-$string ['settingssms'] = 'Configuración SMS';
-$string ['settingssms_help'] = 'Configuración de un servicio SMS para validar la descarga de pruebas usando mensajes SMS';
+$string ['settingssecurity'] = 'Configuración de seguridad';
+$string ['settingssecurity_help'] = 'Se puede agregar seguridad extra usando el servicio SMS de Twilio.com para validar la descarga de pruebas usando mensajes de texto.';
 $string ['smsinstructions'] = 'Ingrese el código de seguridad enviado al teléfono: {$a->phone2}';
-$string ['smspassword'] = 'Contraseña SMS';
-$string ['smspassword_help'] = 'Contraseña del servicio de SMS';
+$string ['smspassword'] = 'Token de autorización de Twilio.com';
+$string ['smspassword_help'] = 'Token de autorización de la cuenta en Twilio.com';
 $string ['smsserverproblem'] = 'Error conectándose con servidor SMS';
-$string ['smsurl'] = 'URL servicio SMS';
-$string ['smsurl_help'] = 'URL del proveedor de servicio SMS';
-$string ['smsuser'] = 'Nombre usuario SMS';
-$string ['smsuser_help'] = 'Nombre de usuario del servicio de SMS';
+$string ['smsurl'] = 'Número de teléfono Twilio.com';
+$string ['smsurl_help'] = 'El número de teléfono internacional de su servicio contratado con Twilio.com. Es el que va como From en el mensaje.';
+$string ['smsuser'] = 'Id de cuenta Twilio.com';
+$string ['smsuser_help'] = 'Id de la cuenta en Twilio.com para el servicio de SMS';
 $string ['specificmarks'] = 'Marcadores personalizados';
 $string ['specificmarks_help'] = 'Marcadores personalizados, uno por línea separando código y descripción por un # por ejemplo:<br/>Oa#Ortografía acentual<br/>Op#Ortografía puntual<br/>G#Gramática';
 $string ['statistics'] = 'Estadísticas';
@@ -605,7 +662,7 @@ $string ['uploadanswers'] = 'Subir respuestas digitalizadas';
 $string ['uploaderrorsmanual'] = 'Subir respuestas manualmente';
 $string ['uploadexamfile'] = 'Archivo Zip';
 $string ['uploadinganswersheets'] = 'Subiendo respuestas de los estudiantes';
-$string ['usesms'] = 'Usar SMS';
+$string ['usesms'] = 'Usar Twilio.com para enviar SMS';
 $string ['usesms_help'] = 'Usar mensaje SMS en vez de correo electrónico para verificar códigos de seguridad de eMarking';
 $string ['viewpeers'] = 'Estudiantes ven pruebas de otros estudiantes';
 $string ['viewpeers_help'] = 'Se le permite a los estudiantes revisar pruebas de sus compañeros de manera anónima';

@@ -90,7 +90,7 @@ $coursecategoryurl = new moodle_url("/mod/emarking/print/printorders.php", array
 $courseurl = new moodle_url("/mod/emarking/print/exams.php", array("course"=>$course->id));
 
 // Validate capability in the category context
-if (! (has_capability("mod/emarking:downloadexam", $contextcat) || ($CFG->emarking_teachercandownload && has_capability("mod/emarking:downloadexam", $contextcourse)))) {
+if (! (has_capability("mod/emarking:downloadexam", $contextcat) || has_capability("mod/emarking:downloadexam", $contextcourse) )) {
     $item = array(
         "context" => $contextcourse
     );
@@ -162,7 +162,7 @@ if ($CFG->emarking_usesms) {
     // Validate mobile phone number
     if ($CFG->emarking_mobilephoneregex && ! preg_match('/^'.$CFG->emarking_mobilephoneregex.'$/', $USER->phone2)) {
         echo json_encode(array(
-            "error" => get_string("invalidphonenumber", "mod_emarking")
+            "error" => get_string("invalidphonenumber", "mod_emarking") . " " . $USER->phone2
         ));
         die();
     }

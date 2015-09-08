@@ -124,12 +124,17 @@ if($cmid > 0) {
 // If a new exam was recently added, show success message and instructions
 if($examid) {
 	echo $OUTPUT->notification(get_string("newprintordersuccessinstructions", "mod_emarking",$newexam),"notifysuccess");
-	if($CFG->emarking_printsuccessinstructions)
-	   echo $OUTPUT->notification($CFG->emarking_printsuccessinstructions,"notifysuccess");
+}
+
+// Parameters to retrieve all exams for this course or emarking
+if($cmid > 0) {
+    $params = array("course"=>$course->id, "emarking"=>$emarking->id);
+} else {
+    $params = array("course"=>$course->id);
 }
 
 // Retrieve all exams for this course
-$exams = $DB->get_records("emarking_exams", array("course"=>$course->id), "examdate DESC");
+$exams = $DB->get_records("emarking_exams", $params, "examdate DESC");
 
 // If there are no exams to show
 if(count($exams) == 0) {
@@ -172,8 +177,7 @@ foreach($exams as $exam) {
 	// the category or if she is a teacher and has download capability for the 
 	// course and teacher downloads are allowed in the system
 	if (has_capability ( "mod/emarking:downloadexam", $contextcat )
-	    || ($CFG->emarking_teachercandownload
-	        && has_capability ( "mod/emarking:downloadexam", $contextcourse ))) {
+	    || has_capability ( "mod/emarking:downloadexam", $contextcourse)) {
 		$actions .= html_writer::div($OUTPUT->pix_icon("i/down", get_string("download"), null,
 		    array("examid"=>$exam->id,"class"=>"downloademarking")));
     }
@@ -249,8 +253,10 @@ foreach($exams as $exam) {
 
 echo html_writer::table($examstable);
 
-echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), 
-    "get", array("class"=>"newprintorder"));
+if($cmid == 0) {
+    echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), 
+        "get", array("class"=>"newprintorder"));
+}
 
 $downloadurl = new moodle_url("/mod/emarking/print/download.php");
 
@@ -259,8 +265,6 @@ if($CFG->emarking_usesms) {
 } else {
 	$message = get_string("emailinstructions", "mod_emarking", $USER);
 }
-
-$multipdfs = $CFG->emarking_multiplepdfs;
 
 ?>
 <script type="text/javascript">

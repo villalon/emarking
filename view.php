@@ -62,6 +62,9 @@ if (! $course = $DB->get_record('course', array(
     print_error(get_string('invalidcourseid', 'mod_emarking'));
 }
 
+// Get the associated exam
+$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id));
+
 // Get the course module for the emarking, to build the emarking url
 $urlemarking = new moodle_url('/mod/emarking/view.php', array(
     'id' => $cm->id

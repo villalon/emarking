@@ -22,6 +22,34 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string["agreementflexibility"] = "Agreement flexibility";
+$string["agreementflexibility_help"] = "Defines the maximum difference between the grades given by a marker and the average grade to be considered an outlier.";
+$string["agreementflexibility00"] = "Strict (grades must be identical)";
+$string["agreementflexibility20"] = "Flexible (allows differences up to 20%)";
+$string["agreementflexibility40"] = "Relaxed (allows differences up to 40%)";
+$string["firststagedate"] = "Max date for marking";
+$string["firststagedate_help"] = "Maximum date for markers to grade all exams";
+$string["secondstagedate"] = "Max date for agreement";
+$string["secondstagedate_help"] = "Maximum date for markers to reach agreement";
+$string["orsentexam"] = "Or use previously sent exam";
+$string["orsentexam_help"] = "You can use the PDF from a previously sent exam.";
+$string["print"] = "Print";
+$string["onscreenmarking"] = "On Screen Marking";
+$string["scan"] = "Scan";
+$string["none"] = "None";
+$string["activatemodules"] = "Activate modules";
+$string["enablescan"] = "Enable scan";
+$string["enableosm"] = "Enable OSM";
+$string["enableosm_help"] = "You must enable scan before you can enable OSM";
+
+$string["printsettings"] = "Print settings";
+$string["printsettings_help"] = "Help for print settings";
+
+$string["selectemarkingtype"] = "Select...";
+$string["markingtypemandatory"] = "You must select a marking type";
+$string["selectexam"] = "Send later";
+$string["exam_help"] = "You must associate an e-marking activity with a printed exam. Select the exam from the previously sent or indicate that you will send it later.";
+
 $string["emarkingviewed"]="Feedback viewed";
 
 $string["markerspercriteria"]="Markers per criteria";
@@ -158,6 +186,8 @@ $string ['emarking:managedelphiprocess'] = 'Manage delphi';
 $string ['emarking_webexperimental'] = 'eMarking Web experimental';
 $string ['emarking_webexperimental_help'] = 'Enables the experimental interface';
 
+$string["enrolments"] = "Enrolment methods";
+$string["enrolments_help"] = "The students considered for the marking will be only those enroled in the selected enrolment methods.";
 $string ['enrolmanual'] = 'Manual enrolments';
 $string ['enrolself'] = 'Self-enrolments';
 $string ['enroldatabase'] = 'External database enrolments';
@@ -182,8 +212,8 @@ $string ['pctmarked'] = 'Marking progress';
 $string ['saved'] = 'Saved';
 $string ['downloadform'] = 'Download print form';
 $string ['selectprinter'] = 'Select printer';
-$string ['enableprinting'] = 'Enable printing';
-$string ['enableprinting_help'] = 'Enables the use of cups (lp) for printing exams using a network printer (enables stappling exams)';
+$string ['enableprinting'] = 'Enable printing from Moodle';
+$string ['enableprinting_help'] = 'Enables cups (lp) for printing exams directly from Moodle using a network printer (certain printer enable stappling exams)';
 $string ['enableprintingrandom'] = 'enables printing randomly';
 $string ['enableprintingrandom_help'] = 'enables printing randomly, based in a group created';
 $string ['enableprintinglist'] = 'Allows printing a list of students';
@@ -192,8 +222,8 @@ $string ['printername'] = 'Printer name';
 $string ['printername_help'] = 'Printer\'s name on cups configuration';
 $string ['yourcodeis'] = 'Your security code is';
 
-$string ['minimumdaysbeforeprinting'] = 'Days before exam for printing';
-$string ['minimumdaysbeforeprinting_help'] = 'Teacher can send print orders with at least this number of days in advance, after that it will fail.';
+$string ['minimumdaysbeforeprinting'] = 'Minimum days before exam for printing';
+$string ['minimumdaysbeforeprinting_help'] = 'Teachers can send print orders until this number of days before the exam date. If set to 0 days the date won\'t be verified.';
 $string ['showcoursesfrom'] = 'Show courses from';
 $string ['donotinclude'] = 'Do not include';
 $string ['parallelcourses'] = 'Parallel courses';
@@ -237,8 +267,8 @@ $string ['ipproblem'] = 'The ip has no numeric characters';
 $string ['emptyprinters'] = 'No printers in the system';
 $string ['emarking:manageprinters'] = 'Manage printers';
 $string ['enablemanageprinters'] = 'Enable management printers';
-$string ['viewadminprints'] = 'Click <a href="{$a}">here</a> to manage printers';
-$string ['viewpermitsprinters'] = '<br>Click <a href="{$a}">here</a> to manage permissions of the printers';
+$string ['viewadminprints'] = '<a href="{$a}">Manage printers</a>';
+$string ['viewpermitsprinters'] = '<br/><a href="{$a}">Manage printers permissions</a>';
 $string ['notenablemanageprinters'] = 'No enabled the option for printer management, more information <a href="{$a}">here</a>';
 $string ['selectusers'] = 'Select user(s)';
 $string ['selectprinters'] = 'Select printer(s)';
@@ -339,8 +369,8 @@ $string ['messageprovider:notification'] = 'Notification';
 $string ['emarking'] = 'eMarking';
 $string ['enablejustice'] = 'Enable justice perception';
 $string ['enablejustice_help'] = 'Enables the option for students to express their perception of justice for their evaluations';
-$string ['enrolincludes'] = 'Enrolment types for eMarking';
-$string ['enrolincludes_help'] = 'The enrolment types that will be used to print the personalized headers in eMarking';
+$string ['enrolincludes'] = 'Default enrolment methods';
+$string ['enrolincludes_help'] = 'The enrolment methods that will be selected when printing a new exam.';
 $string ['errors'] = 'Errors';
 $string ['enrolincludes_help'] = 'The enrolment types that will be included when generating personalized headers in eMarking';
 $string ['errorprocessingcrop'] = 'Error processing crop of QR';
@@ -358,7 +388,7 @@ $string ['examdeleted'] = 'Exam deleted. Please wait while you are redirected';
 $string ['examid'] = 'Exam id';
 $string ['examinfo'] = 'Exam information';
 $string["examhasnopdf"] = "El examen to tiene un archivo PDF asociado. Este error es grave, por favor notifique al administrador.";
-$string ['examname'] = 'Title';
+$string ['examname'] = 'Exam title';
 $string ['examname_help'] = 'Exam title e.g: Final examn, Mid-term.';
 $string ['exam'] = 'Exam';
 $string ['exams'] = 'Exams';
@@ -391,7 +421,7 @@ $string ['idnotfound'] = '{$a->id} id not found';
 $string ['idnumber'] = 'ID';
 $string ['ignoreddocuments'] = 'Documents ignored';
 $string ['includelogo'] = 'Include logo';
-$string ['includelogo_help'] = 'Include a logo in each exam header. The logo image can be found in mod/emarking/img/logo.jpg';
+$string ['includelogo_help'] = 'Includes a logo in the exam header.';
 $string ['includeuserpicture'] = 'Include user picture';
 $string ['includeuserpicture_help'] = 'Includes the user picture in the exams headers';
 $string ['initializedirfail'] = 'Could not initalize directory {$a}. Please check with the administrator.';
@@ -407,6 +437,7 @@ $string ['invalidimage'] = 'Invalid information from Image';
 $string ['invalidemarkingid'] = 'Invalid access, trying to upload exam';
 $string ['invalidparametersforpage'] = 'Invalid parameters for page';
 $string ['invalidpdfnopages'] = 'Invalid PDF file, it contains no pages.';
+$string ['invalidpdfnumpagesforms'] = 'Invalid PDF files, they must have the same number of pages.';
 $string ['invalidsize'] = 'Invalid size from Image';
 $string ['invalidstatus'] = 'Invalid status';
 $string ['invalidtoken'] = 'Invalid token trying to download exam.';
@@ -460,9 +491,35 @@ $string ['logodesc'] = 'Logo to include in personalized exam headers';
 $string ['marking'] = 'Marking';
 $string ['merge'] = 'Merge submission';
 $string ['merge_help'] = 'Adds new pages to current student submission.';
-$string ['modulename'] = 'eMarking';
-$string ['modulename_help'] = 'A name for the exam, e.g: Final exam';
-$string ['modulenameplural'] = 'emarkings';
+$string ['modulename'] = 'E-Marking';
+$string ['modulename_help'] = 'The E-Marking module allows:<br/>
+    <strong>Printing</strong>
+    <ul>
+    <li>Print exams using personalized sheets including students\' name, a logo and a QR code for scanning later.</li>
+    <li>Add a students list for attendance.</li>
+    <li>Print an exam for several courses (1).</li>
+    </ul>
+    <strong>Scanning</strong>
+    <ul>
+    <li>Digitize students\' answers and grade exams using basic feedback or On Screen Marking.</li>
+    </ul>
+    <strong>On Screen Marking</strong>
+    <ul>
+    <li>Mark students\' answers using rubrics, custom marks and predefined comments to provide better feedback. Several markers can collaborate and reuse each others comments.</li>
+    <li>Mark anonymously so markers won\'t be biased if they know the student.</li>
+    <li>Double mark a sample of the exams for quality control.</li>
+    <li>Help markers collaborate through a chat, having supervisor\'s messages on a wall and asking for help when they see an answer they don\'t feel confident to grade (1).</li>
+    <li>Train markers on interpreting a rubric using selected answers and forcing them to reach consensus.</li>
+    <li>Supervise the marking process and obtain grade reports per student, per rubric criteria and per marker.</li>
+    </ul>
+    <strong>Feedback</strong>
+    <ul>
+    <li>Students can see their exams, grades and feedback from anywhere in the world and request regrades.</li>
+    <li>Collect students\' justice perception regarding the marking process and their grades.</li>
+    <li>Students can see the course ranking and anonymously see their peers\' exams to better understand what they did good or wrong.</li>
+    </ul>
+    (1): Requires extra server configuration.';
+$string ['modulenameplural'] = 'E-Markings';
 $string ['motive'] = 'Motive';
 $string ['motive_help'] = 'Please indicate the motive for your requesting a regrade in this criterion';
 $string ['multicourse'] = 'Multicourse';
@@ -513,7 +570,7 @@ $string ['parallelregex'] = 'Regex for parallels';
 $string ['parallelregex_help'] = 'Regular expression to extract unit of study code in course shortnames so exams from parallel course can be compared.';
 $string ['pathuserpicture'] = 'Path to users pictures directory';
 $string ['pathuserpicture_help'] = 'Absolute path to directory containing users pictures in PNG format labeled userXXX.png with XXX being the user id';
-$string ['pdffile'] = 'PDF file(s)';
+$string ['pdffile'] = 'Exam PDF file(s)';
 $string ['pdffile_help'] = 'You can upload several PDF files if you want to have different forms for each student';
 $string ['pluginadministration'] = 'eMarking administration';
 $string ['pluginname'] = 'eMarking';
@@ -567,16 +624,16 @@ $string ['settingsbasic'] = 'Basic settings';
 $string ['settingsbasic_help'] = 'Basic settings for eMarking functioning';
 $string ['settingslogo'] = 'Header settings';
 $string ['settingslogo_help'] = 'Settings for the personalized header';
-$string ['settingssms'] = 'SMS settings';
-$string ['settingssms_help'] = 'SMS settings to use an SMS service for validating exam downloads using two steps';
+$string ['settingssecurity'] = 'Security settings';
+$string ['settingssecurity_help'] = 'You can configure extra security using SMS. It will use Twilio.com services to enable validating exam downloads using two steps.';
 $string ['smsinstructions'] = 'Please enter the security code sent to the mobile number: {$a->phone2}';
-$string ['smspassword'] = 'SMS provider password';
-$string ['smspassword_help'] = 'Password of the SMS sending provider';
-$string ['smsserverproblem'] = 'Error connecting to SMS';
-$string ['smsurl'] = 'SMS provider URL';
-$string ['smsurl_help'] = 'URL of the SMS sending provider';
-$string ['smsuser'] = 'SMS provider user';
-$string ['smsuser_help'] = 'User of the SMS sending provider';
+$string ['smspassword'] = 'Twilio.com auth token';
+$string ['smspassword_help'] = 'The auth token for the account in Twilio.com';
+$string ['smsserverproblem'] = 'Error connecting to Twilio.com';
+$string ['smsurl'] = 'Twilio.com phone number';
+$string ['smsurl_help'] = 'The Twilio.com phone number that is used as the sender for the messages.';
+$string ['smsuser'] = 'Twilio.com account id';
+$string ['smsuser_help'] = 'The account id from Twilio.com';
 $string ['smssent'] = 'Security code sent to your mobile phone';
 $string ['specificmarks'] = 'Custom marks';
 $string ['specificmarks_help'] = 'Custom marks, one per line separating code and description by a # (e.g: Sp#Spelling error<br/>Gr#Grammar error)';
@@ -605,7 +662,7 @@ $string ['uploaderrorsmanual'] = 'Upload errors manually';
 $string ['uploadexamfile'] = 'ZIP file';
 $string ['uploadinganswersheets'] = 'Uploading student answer sheets';
 $string ['uploadanswersuccessful'] = 'Upload answers successful';
-$string ['usesms'] = 'Use SMS';
+$string ['usesms'] = 'Use Twilio.com to send SMS';
 $string ['usesms_help'] = 'Use SMS messaging  instead of sending email for eMarking security codes';
 $string ['viewpeers'] = 'Students view peers\' exams';
 $string ['viewpeers_help'] = 'Students are allowed to see their peers\' exams in an anonymous way';

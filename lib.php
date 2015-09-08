@@ -100,7 +100,7 @@ function emarking_supports($feature)
  */
 function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = null)
 {
-    global $DB, $CFG, $COURSE;
+    global $DB, $CFG, $COURSE, $USER;
     
     $data->timecreated = time();
     $id = $DB->insert_record('emarking', $data);
@@ -116,6 +116,164 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
             $marker->marker = $markerid;
             $marker->qualitycontrol = 1;
             $DB->insert_record('emarking_markers', $marker);
+        }
+    }
+
+    $context = context_course::instance($COURSE->id);
+    
+    $examid = 0;
+    // If there's no previous exam to associate, and we are creating a new
+    // e-marking, we need the PDF file
+    if ($data->exam == 0) {
+    
+        // We get the draftid from the form
+        $draftid = file_get_submitted_draft_itemid('exam_files');
+        $usercontext = context_user::instance($USER->id);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftid);
+    
+        $tempdir = emarking_get_temp_dir_path($COURSE->id);
+        emarking_initialize_directory($tempdir, true);
+    
+        $numpagesprevious = - 1;
+        $exampdfs = array();
+        foreach ($files as $uploadedfile) {
+            if ($uploadedfile->get_mimetype() !== 'application/pdf')
+                continue;
+    
+            $filename = $uploadedfile->get_filename();
+            $filename = emarking_clean_filename($filename);
+            $newfilename = $tempdir . '/' . $filename;
+    
+            $pdffile = emarking_get_path_from_hash($tempdir, $uploadedfile->get_pathnamehash());
+    
+            // Executes pdftk burst to get all pages separated
+            $numpages = emarking_pdf_count_pages($newfilename, $tempdir, false);
+    
+            $exampdfs[] = array(
+                'pathname' => $pdffile,
+                'filename' => $filename
+            );
+        }
+    } else {
+        $examid = $data->exam;
+    }
+
+    $studentsnumber = emarking_get_students_count_for_printing($COURSE->id);
+    
+    // A new exam object is created and its attributes filled from form data
+    if ($examid == 0)
+        $exam = new stdClass();
+    $exam->course = $COURSE->id;
+    $exam->courseshortname = $COURSE->shortname;
+    $exam->name = $mform->get_data()->name;
+    $exam->examdate = $mform->get_data()->examdate;
+    
+    $exam->emarking = $id;
+    $exam->headerqr = isset($mform->get_data()->headerqr) ? 1 : 0;
+    $exam->printrandom = isset($mform->get_data()->printrandom) ? 1 : 0;
+    $exam->printlist = isset($mform->get_data()->printlist) ? 1 : 0;
+    
+    $exam->extrasheets = $mform->get_data()->extrasheets;
+    $exam->extraexams = $mform->get_data()->extraexams;
+    $exam->usebackside = isset($mform->get_data()->printdoublesided) ? 1 : 0;
+    
+    if ($examid == 0)
+        $exam->timecreated = time();
+    $exam->timemodified = time();
+    $exam->requestedby = $USER->id;
+    
+    $exam->totalstudents = $studentsnumber;
+    
+    // Get the enrolments as a comma separated values
+    $enrollist = array();
+    
+    if (! empty($mform->get_data()->enrolments)) {
+        $enrolments = $mform->get_data()->enrolments;
+        foreach ($enrolments as $key => $enrolment) {
+            if (! empty($enrolment)) {
+                $enrollist[] = $key;
+            }
+        }
+    }
+    
+    $exam->enrolments = implode(",", $enrollist);
+    $exam->printdate = 0;
+    $exam->status = isset($mform->get_data()->sendtoprint) ? EMARKING_EXAM_SENT_TO_PRINT : EMARKING_EXAM_UPLOADED;
+    
+    // Calculate total pages for exam
+    $exam->totalpages = $numpages;
+    
+    // Exam is inserted and new id recovered from operation
+    if ($examid == 0)
+        $exam->id = $DB->insert_record('emarking_exams', $exam);
+    else
+        $DB->update_record('emarking_exams', $exam);
+    
+    // If we are editing a print order and a file was submitted, delete the previous file
+    if ($examid > 0) {
+        $fs->delete_area_files($context->id, 'mod_emarking', 'exams', $exam->id);
+    }
+    
+    foreach ($exampdfs as $exampdf) {
+        // Save the submitted file to check if it's a PDF
+        $filerecord = array(
+            'component' => 'mod_emarking',
+            'filearea' => 'exams',
+            'contextid' => $context->id,
+            'itemid' => $exam->id,
+            'filepath' => '/',
+            'filename' => $exampdf['filename']
+        );
+        $file = $fs->create_file_from_pathname($filerecord, $exampdf['pathname']);
+    }
+    // Update exam object to store the PDF's file id
+    $exam->file = $file->get_id();
+    if (! $DB->update_record('emarking_exams', $exam)) {
+        $fs->delete_area_files($contextid, 'emarking', 'exams', $exam->id);
+    
+        print_error(get_string('errorsavingpdf', 'mod_emarking'));
+    }
+    
+    // Send new print order notification
+    emarking_send_newprintorder_notification($exam, $COURSE);
+    
+    // If it is a multi-course submission, insert several exams
+    if (! empty($mform->get_data()->multicourse)) {
+        $multicourse = $mform->get_data()->multicourse;
+        foreach ($multicourse as $key => $mcourse) {
+            if (! empty($key)) {
+                if ($thiscourse = $DB->get_record('course', array(
+                    'shortname' => $key))) {
+    
+                    $studentsnumber = emarking_get_students_count_for_printing($thiscourse->id);
+    
+                    $newexam = $exam;
+                    $newexam->id = null;
+                    $newexam->totalstudents = $studentsnumber;
+                    $newexam->course = $thiscourse->id;
+                    $newexam->id = $DB->insert_record('emarking_exams', $newexam);
+    
+                    $thiscontext = context_course::instance($thiscourse->id);
+    
+                    // Create file records for all new exams
+                    foreach ($exampdfs as $exampdf) {
+                        // Save the submitted file to check if it's a PDF
+                        $filerecord = array(
+                            'component' => 'mod_emarking',
+                            'filearea' => 'exams',
+                            'contextid' => $thiscontext->id,
+                            'itemid' => $newexam->id,
+                            'filepath' => '/',
+                            'filename' => $exampdf['filename']
+                        );
+                        $file = $fs->create_file_from_pathname($filerecord, $exampdf['pathname']);
+                    }
+    
+                    // Send new print order notification
+                    emarking_send_newprintorder_notification($newexam, $thiscourse);
+                }
+            }
         }
     }
     
@@ -176,6 +334,14 @@ function emarking_delete_instance($id)
     if (! $emarking = $DB->get_record('emarking', array(
         'id' => $id
     ))) {
+        return false;
+    }
+    
+    $exam = $DB->get_record("emarking_exams", array("emarking"=>$id));
+    
+    // If we have an associated exam that was already sent to print
+    // we can't delete the e-marking activity
+    if($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
         return false;
     }
     
@@ -747,7 +913,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
  */
 function emarking_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm)
 {
-    // $navref->add('Foo', new moodle_url('/mod/emarking/view.php',array('id'=>1)), navigation_node::TYPE_SETTING);
+     $navref->add('Foo', new moodle_url('/mod/emarking/view.php',array('id'=>1)), navigation_node::TYPE_SETTING);
 }
 
 /**
@@ -761,15 +927,27 @@ function emarking_extend_navigation(navigation_node $navref, stdclass $course, s
  * @param navigation_node $emarkingnode
  *            {@link navigation_node}
  */
-function emarking_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $emarkingnode = null)
+function emarking_extend_settings_navigation(settings_navigation $settingsnav, $context)
 {
     global $PAGE, $DB, $USER, $CFG;
     
     $course = $PAGE->course;
     // Course context is used as this can work outside of the module
-    $context = context_course::instance($course->id);
+    // $context = context_course::instance($course->id);
     
-    if( has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enablemanageprinters) {
+    if($context instanceof context_course && isset($settingsnav) && $context->instanceid > 1 && is_siteadmin()) {
+        $settingnode = $settingsnav->add(get_string('emarking', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
+        $thingnode = $settingnode->add(get_string('quizprinting', 'local_galyleo'), new moodle_url('/local/galyleo/quizzes.php', array('course'=>$context->instanceid)));
+    }
+    if($context instanceof context_module && isset($settingsnav) && is_siteadmin()) {
+        if($contextcourse = $context->get_course_context(false)) {
+            $settingnode = $settingsnav->add(get_string('galyleo', 'local_galyleo'), null, navigation_node::TYPE_CONTAINER);
+            $thingnode = $settingnode->add(get_string('quizprinting', 'local_galyleo'),
+                new moodle_url('/local/galyleo/quizzes.php', array('course'=>$contextcourse->instanceid, 'quiz'=>$context->instanceid)));
+        }
+    }
+    
+    if(is_siteadmin($USER) || (has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enablemanageprinters)) {
     	$settingnode = $settingsnav->add(get_string('emarkingprints','mod_emarking'), null, navigation_node::TYPE_CONTAINER);
     	$thingnode = $settingnode->add(
     			get_string('adminprints','mod_emarking'), 

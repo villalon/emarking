@@ -8,6 +8,10 @@
 	width: 70%;
 }
 
+input[type="text"] {
+	height: inherit;
+}
+
 .pagecriterionbox {
 	width: 20px;
 	height: 20px;

@@ -257,8 +257,6 @@ if ($CFG->emarking_usesms) {
     $message = get_string('emailinstructions', 'mod_emarking', $USER);
 }
 
-$multipdfs = $CFG->emarking_multiplepdfs;
-
 ?>
 <script type="text/javascript">
 	var wwwroot = "<?php echo $CFG->wwwroot ?>";

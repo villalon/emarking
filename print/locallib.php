@@ -383,90 +383,6 @@ function emarking_pdf_count_pages($newfile, $tempdir, $doubleside = true)
 }
 
 /**
- * Creates a batch file for printing with windows
- */
-function emarking_create_print_bat()
-{
-    global $CFG;
-    
-    // Generate Bat File
-    $printerarray = explode(',', $CFG->emarking_printername);
-    
-    $contenido = "@echo off\r\n";
-    $contenido .= "TITLE Sistema de impresion\r\n";
-    $contenido .= "color ff\r\n";
-    $contenido .= "cls\r\n";
-    $contenido .= ":MENUPPL\r\n";
-    $contenido .= "cls\r\n";
-    $contenido .= "echo #######################################################################\r\n";
-    $contenido .= "echo #                     Sistema de impresion                            #\r\n";
-    $contenido .= "echo #                                                                     #\r\n";
-    $contenido .= "echo # @copyright 2014 Eduardo Miranda                                     #\r\n";
-    $contenido .= "echo # Fecha Modificacion 23-04-2014                                       #\r\n";
-    $contenido .= "echo #                                                                     #\r\n";
-    $contenido .= "echo #   Para realizar la impresion debe seleccionar una de las impresoras #\r\n";
-    $contenido .= "echo #   configuradas.                                                     #\r\n";
-    $contenido .= "echo #                                                                     #\r\n";
-    $contenido .= "echo #                                                                     #\r\n";
-    $contenido .= "echo #######################################################################\r\n";
-    $contenido .= "echo #   Seleccione una impresora:                                         #\r\n";
-    
-    $numbers = array();
-    for ($i = 0; $i < count($printerarray); $i ++) {
-        $contenido .= "echo #   $i - $printerarray[$i]                                                   #\r\n";
-        $numbers[] = $i;
-    }
-    
-    $i ++;
-    $contenido .= "echo #   $i - Cancelar                                                      #\r\n";
-    $contenido .= "echo #                                                                     #\r\n";
-    $contenido .= "echo #######################################################################\r\n";
-    $contenido .= "set /p preg01= Que desea hacer? [";
-    
-    $contenido .= implode(',', $numbers);
-    $contenido .= "]\r\n";
-    
-    for ($i = 0; $i < count($printerarray); $i ++) {
-        $contenido .= "if %preg01%==$i goto MENU $i \r\n";
-    }
-    
-    $i ++;
-    $contenido .= "if %preg01%==$i  goto SALIR\r\n";
-    $contenido .= "goto MENU\r\n";
-    $contenido .= "pause\r\n";
-    
-    for ($i = 0; $i < count($printerarray); $i ++) {
-        $contenido .= ":MENU" . $i . "\r\n";
-        $contenido .= "cls\r\n";
-        $contenido .= "set N=%Random%%random%\r\n";
-        $contenido .= "plink central.apuntes mkdir -m 0777 ~/pruebas/%N%\r\n";
-        $contenido .= "pscp *.pdf central.apuntes:pruebas/%N%\r\n";
-        $contenido .= "plink central.apuntes cp ~/pruebas/script_pruebas.sh ~/pruebas/%N%\r\n";
-        $contenido .= "plink central.apuntes cd pruebas/%N%;./script_pruebas.sh " . $printerarray[$i] . "\r\n";
-        $contenido .= "plink central.apuntes rm -dfr ~/pruebas/%N%\r\n";
-        $contenido .= "EXIT\r\n";
-    }
-    
-    $contenido .= ":SALIR\r\n";
-    $contenido .= "CLS\r\n";
-    $contenido .= "ECHO Cancelando...\r\n";
-    $contenido .= "EXIT\r\n";
-    
-    $random = random_string();
-    
-    mkdir($CFG->dataroot . '/temp/emarking/' . $random . '_bat/', 0777);
-    
-    $fp = fopen($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat", "x");
-    fwrite($fp, $contenido);
-    fclose($fp);
-    // Generate zip file
-    $zip->addFile($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat", "imprimir.bat");
-    $zip->close();
-    unlink($CFG->dataroot . "/temp/emarking/" . $random . "_bat/imprimir.bat");
-    rmdir($CFG->dataroot . "/temp/emarking/" . $random . "_bat");
-}
-
-/**
  * Creates a PDF form for the copy center to print
  *
  * @param unknown $context            
@@ -2103,53 +2019,22 @@ function emarking_rrmdir($dir)
 function emarking_send_sms($message, $number)
 {
     global $CFG;
-    
-    $postUrl = $CFG->emarking_smsurl;
-    
-    $xmlString = "<SMS>
-	<authentification>
-	<username>$CFG->emarking_smsuser</username>
-	<password>$CFG->emarking_smspassword</password>
-	</authentification>
-	<message>
-	<sender>Webcursos</sender>
-	<text>$message</text>
-	<recipients>
-	<gsm>$number</gsm>
-	</recipients>
-	</message>
 
-	</SMS>";
+    // this line loads the library
+    require($CFG->dirroot . '/mod/emarking/lib/twilio/Services/Twilio.php');
     
-    // previamente formateado en XML
-    $fields = "XML=" . urlencode($xmlString);
+    $account_sid = $CFG->emarking_smsuser;
+    $auth_token = $CFG->emarking_smspassword;
     
-    // Se require cURL
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $postUrl);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $client = new Services_Twilio($account_sid, $auth_token);
     
-    // Respuesta del POST
-    $response = curl_exec($ch);
-    curl_close($ch);
+    $obj = $client->account->messages->create(array(
+        'To' => "$number",
+        'From' => "+".$CFG->emarking_smsurl,
+        'Body' => "$message",
+    ));
     
-    if (! $response) {
-        return false;
-    }
-    
-    try {
-        $xml = new SimpleXmlElement($response);
-    } catch (exception $e) {
-        return false;
-    }
-    
-    if ($xml && $xml->status == 1) {
-        return true;
-    }
-    
-    return false;
+    return $obj->status === "queued";
 }
 
 /**
