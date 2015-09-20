@@ -36,16 +36,20 @@ $criterionid = optional_param('criterion', 0, PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHA);
 
 if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " id: $cmid" );
+	print_error ( get_string('invalidid','mod_emarking' ) . " cm id: $cmid" );
 }
 
 if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " id: $cmid" );
+	print_error ( get_string('invalidid','mod_emarking' ) . " emarking id: $cmid" );
 }
 
 // Validate that the parameter corresponds to a course
 if (! $course = $DB->get_record ( 'course', array ('id' => $emarking->course))) {
-	print_error ( get_string('invalidcourseid','mod_emarking' ) . " id: $courseid" );
+	print_error ( get_string('invalidcourseid','mod_emarking' ) . " course id: $courseid" );
+}
+
+if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->id))) {
+	print_error ( get_string('invalidid','mod_emarking' ) . " emarking id: $cmid" );
 }
 
 if($criterionid > 0) {
@@ -57,24 +61,13 @@ if($criterionid > 0) {
 
 $context = context_module::instance ( $cm->id );
 
-$url = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cmid));
+$url = new moodle_url('/mod/emarking/marking/pages.php',array('id'=>$cmid));
 // First check that the user is logged in
 require_login($course->id);
 
 if (isguestuser ()) {
 	die ();
 }
-
-// Get rubric instance
-list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
-
-// As we have a rubric we can get the controller
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-if(!$rubriccontroller instanceof gradingform_rubric_controller) {
-    print_error(get_string('invalidrubric', 'mod_emarking'));
-}
-
-$definition = $rubriccontroller->get_definition();
 
 $PAGE->set_context ( $context );
 $PAGE->set_course($course);
@@ -97,10 +90,24 @@ if (! has_capability ( 'mod/emarking:assignmarkers', $context )) {
 
 echo $OUTPUT->header();
 
+// Heading and tabs if we are within a course module
+echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "pages" );
 
+// Get rubric instance
+list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
+
+// As we have a rubric we can get the controller
+$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
+if(!$rubriccontroller instanceof gradingform_rubric_controller) {
+    print_error(get_string('invalidrubric', 'mod_emarking'));
+}
+
+$definition = $rubriccontroller->get_definition();
+
+
 $mform_pages = new emarking_pages_form(null,
-    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "action"=>"addpages"));
+    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "totalpages"=> $exam->totalpages, "action"=>"addpages"));
 
 if($mform_pages->get_data()) {
     $newpages = process_mform($mform_pages, "addpages", $emarking);
@@ -133,7 +140,7 @@ $pagecriteria = $DB->get_recordset_sql("
 
     $data = array();
     foreach($pagecriteria as $d) {
-        $urldelete = new moodle_url('/mod/emarking/marking/markers.php', array('id'=>$cm->id, 'criterion'=>$d->id, 'action'=>'deletepages'));
+        $urldelete = new moodle_url('/mod/emarking/marking/pages.php', array('id'=>$cm->id, 'criterion'=>$d->id, 'action'=>'deletepages'));
         $pageshtml = "";
         if($d->pages) {
             $pages = explode(",", $d->pages);
@@ -141,7 +148,7 @@ $pagecriteria = $DB->get_recordset_sql("
                 $pageshtml .= $OUTPUT->box($page, "pagecriterionbox");
             }
             
-            $pageshtml .= $OUTPUT->action_link($urldelete, get_string("delete"), null, array("class"=>"rowactions"));
+            $pageshtml .= $OUTPUT->action_link($urldelete, get_string("deleterow", "mod_emarking"), null, array("class"=>"rowactions"));
         }
         $row = array();
         $row[] = $d->description;
@@ -160,6 +167,8 @@ $pagecriteria = $DB->get_recordset_sql("
 $nummarkerscriteria = $DB->count_records(
     "emarking_marker_criterion",
     array("emarking"=>$emarking->id));
+
+echo $OUTPUT->heading(get_string("currentstatus", "mod_emarking"), 4);
 
 if($nummarkerscriteria == 0 && $numpagescriteria == 0) {
     echo $OUTPUT->box(get_string("markerscanseewholerubric", "mod_emarking"));

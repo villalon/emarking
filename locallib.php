@@ -107,7 +107,7 @@ function emarking_get_draft_status_icon($status, $prefix = false, $pctmarked = 0
             $html = $OUTPUT->pix_icon('i/user', emarking_get_string_for_status($status));
             break;
         case EMARKING_STATUS_GRADING:
-            if($pctmarked > 0) {
+            if ($pctmarked > 0) {
                 $html = $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status, $pctmarked));
             } else {
                 $html = $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status));
@@ -174,52 +174,86 @@ function emarking_tabs($context, $cm, $emarking)
     $tabs = array();
     
     // Print tab
-    $printtab = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exams.php?id={$cm->id}", get_string("print", 'mod_emarking'));
+    $printtab = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}", get_string("print", 'mod_emarking'));
     
     // Scan tab
-    $scantab = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('scan', 'mod_emarking'));
+    $scantab = new tabobject("scan", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string('scan', 'mod_emarking'));
+    $scantab->subtree[] = new tabobject("scanlist", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string("exams", 'mod_emarking'));
+    if($usercangrade) {
+        $scantab->subtree[] = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
+    }
     
     // Settings tab
-    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
-    if (has_capability('mod/emarking:assignmarkers', $context) && $emarking->type == EMARKING_TYPE_NORMAL) {
-        $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markerspercriteria", 'mod_emarking'));
-        $settingstab->subtree[] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}", core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
-    }
-    $settingstab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
+    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
     
     // Grade tab
-    $gradetab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('marking', 'mod_emarking'));
-    $gradetab->subtree[] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
+    $markingtab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('onscreenmarking', 'mod_emarking'));
+    $markingtab->subtree[] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
     if (! $usercangrade) {
         if ($emarking->peervisibility) {
-            $gradetab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
-            $gradetab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("justice.peercheck", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("justice.peercheck", 'mod_emarking'));
         }
-        $gradetab->subtree[] = new tabobject("regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+        $markingtab->subtree[] = new tabobject("regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
     } else {
         if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
-            $gradetab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+    }
+    
+    // Settings for marking
+    if ($emarking->type == EMARKING_TYPE_NORMAL) {
+        $settingstab->subtree[] = new tabobject("osmsettings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
+        $settingstab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
+        if (has_capability('mod/emarking:assignmarkers', $context)) {
+            $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markerspercriteria", 'mod_emarking'));
+            $settingstab->subtree[] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}", core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
+        }
     }
     
     // Grade report tab
-    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}", get_string("reports", "mod_emarking"));
+    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("reports", "mod_emarking"));
     
+    $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
     $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}", get_string("grades", "grades"));
     $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
     $gradereporttab->subtree[] = new tabobject("comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string("comparativereport", "mod_emarking"));
-    $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
+    
+    // Active types tab
+    $activatescan = new tabobject("enablescan", $CFG->wwwroot . "/mod/emarking/print/enablefeatures.php?id={$cm->id}&type=" . EMARKING_TYPE_PRINT_SCAN, get_string("enablescan", "mod_emarking"));
+    
+    // Active types tab
+    $activateosm = new tabobject("enableosm", $CFG->wwwroot . "/mod/emarking/print/enablefeatures.php?id={$cm->id}&type=" . EMARKING_TYPE_NORMAL, get_string("enableosm", "mod_emarking"));
     
     // Tabs sequence
     if ($usercangrade) {
-        if (has_capability('mod/emarking:uploadexam', $context)) {
-            $tabs[] = $printtab;
-            $tabs[] = $scantab;
+        // Print tab goes always except for markers training
+        if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_NORMAL) {
+            if (has_capability('mod/emarking:uploadexam', $context)) {
+                $tabs[] = $printtab;
+            }
         }
-        $tabs[] = $gradetab;
-        $tabs[] = $gradereporttab;
-        $tabs[] = $settingstab;
+        
+        // Scan or enablescan tab
+        if ($emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_NORMAL) {
+            $tabs[] = $scantab;
+        } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
+                $tabs[] = $activatescan;
+        }
+        
+        // OSM tabs, either marking, reports and settings or enable osm
+        if ($emarking->type == EMARKING_TYPE_NORMAL) {
+            $tabs[] = $markingtab;
+            $tabs[] = $gradereporttab;
+            $tabs[] = $settingstab;
+        } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+            $tabs[] = $activateosm;
+        }
+    } else if($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+        // This case is for students (user can not grade)
+        $tabs = $scantab->subtree;
     } else {
-        $tabs = $gradetab->subtree;
+        // This case is for students (user can not grade)
+        $tabs = $markingtab->subtree;
     }
     
     return $tabs;
@@ -326,9 +360,9 @@ function emarking_get_logo_file($filedir)
  * Returns a human readable status for a draft
  *
  * @param int $status
- *          the draft status            
+ *            the draft status
  * @param int $pctmarked
- *          the percentage of the marking
+ *            the percentage of the marking
  * @return Ambigous <string, lang_string>
  */
 function emarking_get_string_for_status($status, $pctmarked = 0)
@@ -339,9 +373,7 @@ function emarking_get_string_for_status($status, $pctmarked = 0)
         case EMARKING_STATUS_ABSENT:
             return get_string('statusabsent', 'mod_emarking');
         case EMARKING_STATUS_GRADING:
-            return $pctmarked == 100 ?
-                get_string('statusgradingfinished', 'mod_emarking') :
-                get_string('statusgrading', 'mod_emarking');
+            return $pctmarked == 100 ? get_string('statusgradingfinished', 'mod_emarking') : get_string('statusgrading', 'mod_emarking');
         case EMARKING_STATUS_MISSING:
             return get_string('statusmissing', 'mod_emarking');
         case EMARKING_STATUS_REGRADING:
@@ -988,8 +1020,8 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
         if ($showform) {
             echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
             
-            if(has_capability("mod/emarking:addinstance", $context) ){
-            	echo $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'));
+            if (has_capability("mod/emarking:addinstance", $context)) {
+                echo $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'));
             }
         }
         if ($die) {
@@ -998,11 +1030,11 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
         }
     }
     if (isset($definition->status)) {
-        if ($definition->status == 10) {          
+        if ($definition->status == 10) {
             echo $OUTPUT->notification(get_string('rubricdraft', 'mod_emarking'), 'notifyproblem');
             
-            if(has_capability("mod/emarking:addinstance", $context) ){
-            	echo $OUTPUT->single_button($managerubricurl, get_string('completerubric', 'mod_emarking'));
+            if (has_capability("mod/emarking:addinstance", $context)) {
+                echo $OUTPUT->single_button($managerubricurl, get_string('completerubric', 'mod_emarking'));
             }
         }
     }
@@ -1207,12 +1239,11 @@ function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $c
     global $OUTPUT;
     
     // If the draft is published or the student was absent just show the icon
-    if ($status <= EMARKING_STATUS_ABSENT || $status == EMARKING_STATUS_PUBLISHED
-        || ($status == EMARKING_STATUS_GRADING && $pctmarked == 100)) {
+    if ($status <= EMARKING_STATUS_ABSENT || $status == EMARKING_STATUS_PUBLISHED || ($status == EMARKING_STATUS_GRADING && $pctmarked == 100)) {
         return emarking_get_draft_status_icon($status, true, 100);
     }
     
-    if ($status == EMARKING_STATUS_GRADING) {
+    if ($emarking->type == EMARKING_TYPE_NORMAL && ($status == EMARKING_STATUS_GRADING || $status == EMARKING_STATUS_SUBMITTED)) {
         
         // Completion matrix
         $matrix = '';
@@ -1243,11 +1274,10 @@ function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $c
         return $matrixlink;
     }
     
-    if($status == EMARKING_STATUS_REGRADING) {
+    if ($status == EMARKING_STATUS_REGRADING) {
         // Percentage of criteria already marked for this draft
         $pctmarkedtitle = ($numcriteria - $comments) . " pending criteria";
-        $matrixlink = "" . ($numcriteriauser > 0 ? $pctmarkeduser . "% / " : '') . $pctmarked . "%" 
-            . ($regrades > 0 ? '<br/>' . $regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');    
+        $matrixlink = "" . ($numcriteriauser > 0 ? $pctmarkeduser . "% / " : '') . $pctmarked . "%" . ($regrades > 0 ? '<br/>' . $regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');
     }
     
     $statushtml = $qc == 0 ? emarking_get_draft_status_icon($status, true) : $OUTPUT->pix_icon('i/completion-auto-y', get_string("qualitycontrol", "mod_emarking"));

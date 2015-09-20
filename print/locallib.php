@@ -512,7 +512,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
     $submission->id = $DB->insert_record('emarking_submission', $submission);
     
     // Normal marking - One draft default
-    if ($emarking->type == EMARKING_TYPE_NORMAL) {
+    if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
         $draft = new stdClass();
         $draft->emarkingid = $emarking->id;
         $draft->submissionid = $submission->id;

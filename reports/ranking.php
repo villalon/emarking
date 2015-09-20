@@ -97,7 +97,7 @@ $resultset = $DB->get_recordset_sql($sql,
 		array('emarking'=>$emarking->id));
 
 if(!$resultset->valid() || count($resultset) == 0) {
-	echo $OUTPUT->notification(get_string('nosubmissionsgraded', 'mod_emarking'), 'notifyproblem');
+	echo $OUTPUT->notification(get_string('nosubmissionspublished', 'mod_emarking'), 'notifyproblem');
 	echo $OUTPUT->footer();
 	die();
 }

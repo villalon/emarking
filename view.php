@@ -37,6 +37,8 @@ $cmid = required_param('id', PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 // Table sort
 $tsort = optional_param('tsort', '', PARAM_ALPHA);
+// Scan only view
+$scan = optional_param('scan', false, PARAM_BOOL);
 
 $exportcsv = optional_param('exportcsv', false, PARAM_BOOL);
 
@@ -55,6 +57,10 @@ if (! $emarking = $DB->get_record('emarking', array(
     print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
 }
 
+if($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+    $scan = true;
+}
+
 // Validate course
 if (! $course = $DB->get_record('course', array(
     'id' => $emarking->course
@@ -63,7 +69,25 @@ if (! $course = $DB->get_record('course', array(
 }
 
 // Get the associated exam
-$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id));
+if(!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id))) {
+    $availableexams = $DB->get_records("emarking_exams", array(
+        "course" => $course->id,
+        "emarking" => 0
+    ));
+    if($availableexams) {
+        redirect(new moodle_url("/course/modedit.php", array("update"=>$cmid, "return"=>1)));
+        die();
+    } else {
+        print_error(get_string("emarkingwithnoexam", 'mod_emarking') . " _" . $course->id . "_");
+    }
+}
+
+if(!($emarking->type == EMARKING_TYPE_NORMAL 
+    || $emarking->type == EMARKING_TYPE_MARKER_TRAINING 
+    || $emarking->type == EMARKING_TYPE_PRINT_SCAN)) {
+    redirect(new moodle_url("/mod/emarking/print/exam.php", array("id"=>$cmid)));
+    die();
+}
 
 // Get the course module for the emarking, to build the emarking url
 $urlemarking = new moodle_url('/mod/emarking/view.php', array(
@@ -109,11 +133,15 @@ $PAGE->requires->jquery_plugin('ui-css');
 // Show header and heading
 echo $OUTPUT->header();
 
+// Heading and tabs if we are within a course module
+echo $OUTPUT->heading($emarking->name);
+
 // Navigation tabs
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark");
+$tabname = $scan ? "scanlist" : "mark";
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
+list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, false, false);
 
 // User filter checking capabilities. If user can not grade, then she can not
 // see other users
@@ -144,7 +172,9 @@ if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL) {
 }
 
 // Only when marking normally for a grade we can publish grades
-if ($emarking->type == EMARKING_TYPE_NORMAL && has_capability("mod/emarking:supervisegrading", $context)) {
+if ($emarking->type == EMARKING_TYPE_NORMAL 
+    && has_capability("mod/emarking:supervisegrading", $context)
+    && !$scan) {
     echo "<form id='publishgrades' action='marking/publish.php' method='post'>";
     echo "<input type='hidden' name='id' value='$cm->id'>";
 }
@@ -156,6 +186,7 @@ $rubricscores = array(
     'minscore' => 0
 );
 
+$rubriccriteria = null;
 // If there is a rubric defined we can get the controller and the parameters for this rubric
 if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($gradingmethod))) {
     if ($rubriccontroller instanceof gradingform_rubric_controller) {
@@ -178,7 +209,7 @@ $numcriteriauser = $DB->count_records_sql("
 ));
 
 // Check if activity is configured with separate groups to filter users
-if ($cm->groupmode == SEPARATEGROUPS && $emarking->type == EMARKING_TYPE_NORMAL && $usercangrade && ! is_siteadmin($USER) && ! $issupervisor) {
+if ($cm->groupmode == SEPARATEGROUPS && ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) && $usercangrade && ! is_siteadmin($USER) && ! $issupervisor) {
     $userfilter .= "
 		AND u.id in (
 			SELECT userid
@@ -234,7 +265,8 @@ GROUP_CONCAT(IFNULL(um.lastname, '') SEPARATOR '#') as markerlast,
 GROUP_CONCAT(IFNULL(um.firstname, '') SEPARATOR '#') as markerfirst,
 GROUP_CONCAT(IFNULL(um.id, 0) SEPARATOR '#') as markerid
 FROM (
-SELECT u.*, e.courseid FROM {user_enrolments} AS ue
+SELECT u.*, e.courseid 
+FROM {user_enrolments} AS ue
 INNER JOIN {enrol} AS e ON (e.id = ue.enrolid AND e.courseid = ?)
 INNER JOIN {context} AS c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
 INNER JOIN {role_assignments} AS ra ON (ra.contextid = c.id AND ra.userid = ue.userid)
@@ -363,7 +395,7 @@ $userfilter
 GROUP BY es.student
 ";
 
-if ($emarking->type == EMARKING_TYPE_NORMAL) {
+if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
     $params = array(
         $course->id,
         $emarking->id,
@@ -393,24 +425,26 @@ foreach ($allstudents as $student){
 $totalstudents = $countstudents;
 
 $actionsheader = "";
-if(has_capability("mod/emarking:supervisegrading", $context)) {
+if(has_capability("mod/emarking:supervisegrading", $context) && !$scan) {
     $actionsheader .= $usercangrade ? '&nbsp;<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
 }
 
 $headers = array();
 $headers[] = get_string('names', 'mod_emarking');
-if ($emarking->type == 2)
+if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING)
     $headers[] = get_string('marker', 'mod_emarking');
+if ($emarking->type == EMARKING_TYPE_NORMAL)
+    $headers[] = get_string('grade', 'mod_emarking');
 $headers[] = get_string('status', 'mod_emarking');
-$headers[] = get_string('grade', 'mod_emarking');
 $headers[] = $actionsheader;
 
 $columns = array();
 $columns[] = 'lastname';
-if ($emarking->type == 2)
+if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING)
     $columns[] = 'marker';
+if ($emarking->type == EMARKING_TYPE_NORMAL)
+    $columns[] = 'grade';
 $columns[] = 'status';
-$columns[] = 'grade';
 $columns[] = 'actions';
 
 // Define flexible table (can be sorted in different ways)
@@ -441,7 +475,7 @@ if ($showpages->get_sql_sort()) {
 $sqlstudents .= $orderby;
 $sqldrafts .= $orderby;
 
-if ($emarking->type == EMARKING_TYPE_NORMAL) {
+if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
     $params = array(
         $course->id,
         $emarking->id,
@@ -468,8 +502,10 @@ foreach ($drafts as $draft) {
         'course' => $course->id
     ));
     
-    if ($emarking->type == EMARKING_TYPE_NORMAL) {
-        $userinfo = $emarking->anonymous < 2 && $USER->id != $draft->id ? get_string('anonymousstudent', 'mod_emarking') : $OUTPUT->user_picture($draft) . '&nbsp;<a href="' . $profileurl . '">' . $draft->firstname . ' ' . $draft->lastname . '</a>';
+    if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+        $userinfo = $emarking->anonymous < 2 && $USER->id != $draft->id ? 
+            get_string('anonymousstudent', 'mod_emarking') : 
+            $OUTPUT->user_picture($draft) . '&nbsp;<a href="' . $profileurl . '">' . $draft->firstname . ' ' . $draft->lastname . '</a>';
     } else {
         $userinfo = get_string('exam', 'mod_emarking') . ' ' . $draft->submission;
     }
@@ -554,9 +590,11 @@ foreach ($drafts as $draft) {
         ));
         
         // eMarking button
-        if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $thisstatus >= EMARKING_STATUS_PUBLISHED) {
-            $pixicon = $usercangrade ? new pix_icon('i/manual_item', get_string('annotatesubmission', 'mod_emarking')) : new pix_icon('i/preview', get_string('viewsubmission', 'mod_emarking'));
-            $actionsarray[] = $OUTPUT->action_link($popup_url,  get_string('annotatesubmission', 'mod_emarking'), 
+        if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) 
+            || $thisstatus >= EMARKING_STATUS_PUBLISHED
+            || ($emarking->type == EMARKING_TYPE_PRINT_SCAN)) {
+            $label = ($usercangrade && !$scan) ? get_string('annotatesubmission', 'mod_emarking') : get_string('viewsubmission', 'mod_emarking');
+            $actionsarray[] = $OUTPUT->action_link($popup_url,  $label, 
                 new popup_action('click', $popup_url, 'emarking' . $thisid, array(
                 'menubar' => 'no',
                 'titlebar' => 'no',
@@ -600,7 +638,8 @@ foreach ($drafts as $draft) {
             $actionsarray[] = "<input type=\"checkbox\" name=\"publish[]\" value=\"$thisid\" title=\"".get_string("select")."\">";
         }
         
-        $actions .= html_writer::start_div('printactions');     
+        $divclass = $usercangrade ? 'printactions' : 'useractions';
+        $actions .= html_writer::start_div($divclass);     
         $actions .= implode("&nbsp;|&nbsp;", $actionsarray);
         $actions .= html_writer::end_div();
         
@@ -648,8 +687,10 @@ foreach ($drafts as $draft) {
     if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
         $data[] = $markersstring;
     }
+    if ($emarking->type == EMARKING_TYPE_NORMAL) {
+        $data[] = $finalgrade;
+    }
     $data[] = $pctmarked;
-    $data[] = $finalgrade;
     $data[] = $actions;
     $showpages->add_data($data);
 }
@@ -703,7 +744,7 @@ if ($usercangrade && $unpublishedsubmissions > 0) {
 echo "</form>";
 
 // If the user can not grade, we show them
-if (! $usercangrade) {
+if (!$usercangrade && $emarking->justiceperception == EMARKING_JUSTICE_PER_SUBMISSION) {
     require_once $CFG->dirroot . '/mod/emarking/forms/justice_form.php';
     
     $submission = $DB->get_record('emarking_submission', array(
@@ -733,4 +774,41 @@ if (! $usercangrade) {
     }
     $mform->display();
 }
+
+// If the user can not grade, we show them
+if (!$usercangrade && $emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
+    require_once $CFG->dirroot . '/mod/emarking/forms/justice_form_criterion.php';
+    
+    $submission = $DB->get_record('emarking_submission', array(
+        'emarking' => $emarking->id,
+        'student' => $USER->id
+    ));
+    $record = $submission ? $DB->get_records('emarking_perception', array(
+        "submission" => $submission->id
+    )) : null;
+    $criteriarecords = $record ? $DB->get_records('emarking_perception_criteria', array(
+        "perception" => $record->id
+    )) : null;
+    
+    var_dump($rubriccriteria);die();
+    $mform = new justice_form($urlemarking, null, 'post');
+    $mform->set_data($record);
+    if ($mform->get_data()) {
+        if (! $record) {
+            $record = new stdClass();
+        }
+        $record->submission = $submission->id;
+        $record->overall_fairness = $mform->get_data()->overall_fairness;
+        $record->expectation_reality = $mform->get_data()->expectation_reality;
+        $record->timecreated = time();
+        if (isset($record->id)) {
+            $DB->update_record('emarking_perception', $record);
+        } else {
+            $record->id = $DB->insert_record('emarking_perception', $record);
+        }
+        echo $OUTPUT->notification(get_string('thanksforjusticeperception', 'mod_emarking'), 'notifysuccess');
+    }
+    $mform->display();
+}
+
 echo $OUTPUT->footer();

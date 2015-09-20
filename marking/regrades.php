@@ -32,11 +32,11 @@ $criterionid = optional_param('criterion',null,PARAM_INT);
 $delete = optional_param('delete',false,PARAM_BOOL);
 
 if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	error('Invalid cm id');
+	print_error('Invalid cm id');
 }
 
 if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-	error('You must specify a valid course ID');
+	print_error('You must specify a valid course ID');
 }
 
 require_login($course, true);
@@ -45,15 +45,15 @@ if(isguestuser()) {
 }
 
 if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	error('You must specify a valid course module ID');
+	print_error('You must specify a valid course module ID');
 }
 
 if($emarking->type != EMARKING_TYPE_NORMAL) {
-    error('You can only have regrades in a normal emarking type');
+    print_error('You can only have regrades in a normal emarking type');
 }
 
 if(!$gradeitemobj = $DB->get_record('grade_items', array('itemtype'=>'mod','itemmodule'=>'emarking','iteminstance'=>$cm->instance))) {
-	error('You must specify a valid course module ID');
+	print_error('You must specify a valid course module ID');
 }
 
 if($criterionid && !$criterion= $DB->get_record('gradingform_rubric_criteria',array('id'=>$criterionid))){

@@ -22,71 +22,110 @@
  * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string["agreementflexibility"] = "Flexibilidad de acuerdo";
-$string["agreementflexibility_help"] = "Define la diferencia máxima entre las calificaciones entregadas por un corrector y el promedio de los demás correctores para ser considerado fuera de rango.";
-$string["agreementflexibility00"] = "Estricto (calificaciones deben ser iguales)";
-$string["agreementflexibility20"] = "Flexible (permite diferencias de 20%)";
-$string["agreementflexibility40"] = "Laxo (permite diferencias de 40%)";
-$string["firststagedate"] = "Fecha límite para corregir";
-$string["firststagedate_help"] = "Fecha límite en la que los correctores deben corregir todas sus pruebas";
-$string["secondstagedate"] = "Fecha límite para acuerdo";
-$string["secondstagedate_help"] = "Fecha límite en la que los correctores deben alcanzar el acuerdo";
-$string["orsentexam"] = "O usar prueba enviada";
-$string["orsentexam_help"] = "Puede utilizar un archivo PDF de una prueba enviada previamente.";
-$string["print"] = "Imprimir";
-$string["onscreenmarking"] = "Corrección en pantalla";
-$string["scan"] = "Digitalizar";
-$string["none"] = "Ninguno";
-$string["activatemodules"] = "Activar módulos";
-$string["enablescan"] = "Habiliar digitalización";
-$string["enableosm"] = "Habilitar corrección en pantalla";
-$string["enableosm_help"] = "Debe habilitar la digitalización para poder habilitar la corrección en pantalla";
+// EMARKING TYPES WORKFLOW
+$string['orsentexam'] = 'Asociar prueba impresa';
+$string['orsentexam_help'] = 'Puede asociar una prueba que fue enviada a imprimir previamente.';
+$string['print'] = 'Imprimir';
+$string['onscreenmarking'] = 'Corrección en pantalla';
+$string['scan'] = 'Digitalizar';
+$string['none'] = 'Ninguno';
+$string['activatemodules'] = 'Activar módulos';
+$string['enablescan'] = 'Habilitar digitalización';
+$string['enableosm'] = 'Habilitar corrección en pantalla';
+$string['enableosm_help'] = 'Debe habilitar la digitalización para poder habilitar la corrección en pantalla';
+$string['updateemarkingtype'] = 'Usted va a {$a->message} en {$a->name}. No hay riesgos en hacer esto, usted puede cambiarlo después en los ajustes de la actividad en cualquier momento.';
 
-$string["printsettings"] = "Configuración de impresión";
-$string["printsettings_help"] = "Help for print settings";
+$string['printsettings'] = 'Configuración de impresión';
+$string['printsettings_help'] = 'Help for print settings';
 
-$string["selectemarkingtype"] = "Seleccione...";
-$string["markingtypemandatory"] = "Debe seleccionar un tipo de corrección";
-$string["selectexam"] = "Enviar después";
-$string["exam_help"] = "Debe asociar esta corrección a una prueba enviada a imprimir. Seleccione la prueba entre las que ya se han enviado o indique que la enviará después.";
+$string['selectemarkingtype'] = 'Seleccione...';
+$string['markingtypemandatory'] = 'Debe seleccionar un tipo de corrección';
+$string['selectexam'] = 'Enviar después';
+$string['exam_help'] = 'Debe asociar esta corrección a una prueba enviada a imprimir. Seleccione la prueba entre las que ya se han enviado o indique que la enviará después.';
 
-$string["emarkingviewed"]="Ver prueba";
+$string['emarkingviewed']='Ver prueba';
 
-$string["markerspercriteria"]="Correctores por criterio";
-$string["pagespercriteria"]="Páginas por criterio";
+// MARKERS AND PAGES OSM CONFIGURATION
+$string['markerspercriteria']='Correctores por criterio';
+$string['pagespercriteria']='Páginas por criterio';
+$string['markerscanseewholerubric']='Correctores pueden ver la rúbrica completa.';
+$string['markerscanseeallpages'] = 'Correctores ven todas las páginas.';
+$string['markerscanseeselectedcriteria'] = 'Correctores ven solamente criterios que se le han asignado.';
+$string['markerscanseenothing'] = 'Hay páginas asignadas a criterios, pero no correctores. Esto provocará que solo los administradores puedan ver las páginas.';
+$string['markerscanseepageswithcriteria'] = 'Correctores ven solo las páginas de los criterios que tienen asignados.';
+$string['assignedmarkers'] = 'Correctores asignados';
+$string['currentstatus'] = 'Configuración actual';
 
-$string["markerscanseewholerubric"]="Correctores pueden ver la rúbrica completa.";
-$string["markerscanseeallpages"] = "Correctores ven todas las páginas.";
-$string["markerscanseeselectedcriteria"] = "Correctores ven solamente criterios que se le han asignado.";
-$string["markerscanseenothing"] = "Hay páginas asignadas a criterios, pero no correctores. Esto provocará que solo los administradores puedan ver las páginas.";
-$string["markerscanseepageswithcriteria"] = "Correctores ven solo las páginas de los criterios que tienen asignados.";
+// GENERAL
+$string['criteria'] = 'Criterios';
+$string['deleterow'] = 'Borrar fila';
 
-$string["criteria"] = "Criterios";
+$string['nodejspath'] = 'Ruta de NodeJS';
+$string['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091';
 
-$string["nodejspath"] = "Ruta de NodeJS";
-$string["nodejspath_help"] = "Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091";
+// SMS SECURITY
+$string ['download'] = 'Descargar';
+$string ['cancel'] = 'Cancelar';
+$string ['resendcode'] = 'Reenviar código de seguridad';
+$string ['smsservertimeout'] = 'Se agotó el tiempo de espera para enviar el código. Por favor avise al administrador.';
+$string ['smsservererror'] = 'Tuvimos problemas de comunicación con el servidor de mensajes celulares. Por favor reintente más tarde.';
+    
+// EXAM
+$string ['examdetails'] = 'Detalles de la prueba';
+$string ['examalreadysent'] = 'La prueba ya fue impresa, no puede modificarse.';
+$string ['examdate'] = 'Fecha y hora de la prueba';
+$string ['examdate_help'] = 'La fecha y hora en que se tomará la prueba. Solo se pueden solicitar impresiones con al menos 48 horas de anticipación (sin incluir fines de semana).';
+$string ['examdateinvalid'] = 'Solo se pueden solicitar impresiones con al menos {$a->mindays} días de anticipación (sin incluir fines de semana)';
+$string ['examdateinvaliddayofweek'] = 'Fecha de prueba inválida, solo de Lunes a Viernes y Sábados hasta las 4pm.';
+$string ['examdateprinted'] = 'Fecha de impresión';
+$string ['examdatesent'] = 'Fecha de envío';
+$string ['examdeleteconfirm'] = 'Está a punto de borrar {$a}. ¿Desea continuar?';
+$string ['examdeleted'] = 'Prueba borrada. Por favor espera mientras está siendo redirigido.';
+$string ['examid'] = 'Nº de orden';
+$string ['examinfo'] = 'Información de la prueba';
+$string ['examhasnopdf'] = 'Exam id has no PDF associated. This is a terrible error, please notify the administrator.';
+$string ['examname'] = 'Nombre de la prueba';
+$string ['examname_help'] = 'Nombre de la prueba, por ejemplo: Control 2, Prueba final, Exámen.';
+$string ['exam'] = 'Prueba';
+$string ['exams'] = 'Pruebas';
+$string ['examstatusdownloaded'] = 'Descargada';
+$string ['examstatusprinted'] = 'Impresa';
+$string ['examstatussent'] = 'Enviada';
+$string ['downloadexam'] = 'Descargar prueba';
 
-$string["er-4"] = "-4 (mucho peor de lo que merecía)";
-$string["er-3"] = "-3";
-$string["er-2"] = "-2";
-$string["er-1"] = "-1";
-$string["er0"] = "0 (más o menos lo que merecía)";
-$string["er1"] = "1";
-$string["er2"] = "2";
-$string["er3"] = "3";
-$string["er4"] = "4 (mucho más de lo que merecía)";
-$string["of-4"] = "-4 (extremadamente injusta)";
-$string["of-3"] = "-3";
-$string["of-2"] = "-2";
-$string["of-1"] = "-1";
-$string["of0"] = "0 (ni justa ni injusta)";
-$string["of1"] = "1";
-$string["of2"] = "2";
-$string["of3"] = "3";
-$string["of4"] = "4 (extremadamente justa)";
+// JUSTICE PERCEPTION
+$string['er-4'] = '-4 (mucho peor de lo que merecía)';
+$string['er-3'] = '-3';
+$string['er-2'] = '-2';
+$string['er-1'] = '-1';
+$string['er0'] = '0 (más o menos lo que merecía)';
+$string['er1'] = '1';
+$string['er2'] = '2';
+$string['er3'] = '3';
+$string['er4'] = '4 (mucho más de lo que merecía)';
+$string['of-4'] = '-4 (extremadamente injusta)';
+$string['of-3'] = '-3';
+$string['of-2'] = '-2';
+$string['of-1'] = '-1';
+$string['of0'] = '0 (ni justa ni injusta)';
+$string['of1'] = '1';
+$string['of2'] = '2';
+$string['of3'] = '3';
+$string['of4'] = '4 (extremadamente justa)';
 $string ['justiceperceptionprocess'] = '¿Cómo evaluaría cuan justa fue la corrección de esta evaluación?';
 $string ['justiceperceptionexpectation'] = '¿Cómo se compara su calificación en esta evaluación con la que usted piensa que se merecía?';
 $string ['thanksforjusticeperception'] = 'Gracias por expresar su opinión';
+$string['justiceperception'] = 'Preguntar percepción de justicia';
+$string['justiceperception_help'] = 'Esta opción permite a los estudiantes entregar su percepción de justicia respecto del proceso de corrección (justicia procedural) y su resultado (justicia distributiva). Se puede preguntar por la prueba en general o por cada criterio de la rúbrica.';
+$string['agreementflexibility'] = 'Flexibilidad de acuerdo';
+$string['agreementflexibility_help'] = 'Define la diferencia máxima entre las calificaciones entregadas por un corrector y el promedio de los demás correctores para ser considerado fuera de rango.';
+$string['agreementflexibility00'] = 'Estricto (calificaciones deben ser iguales)';
+$string['agreementflexibility20'] = 'Flexible (permite diferencias de 20%)';
+$string['agreementflexibility40'] = 'Laxo (permite diferencias de 40%)';
+$string['firststagedate'] = 'Fecha límite para corregir';
+$string['firststagedate_help'] = 'Fecha límite en la que los correctores deben corregir todas sus pruebas';
+$string['secondstagedate'] = 'Fecha límite para acuerdo';
+$string['secondstagedate_help'] = 'Fecha límite en la que los correctores deben alcanzar el acuerdo';
 
 $string['mobilephoneregex'] = 'Expresión regular de celulares';
 $string['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
@@ -110,8 +149,8 @@ $string['usernotloggedin'] = 'Usuario no está logueado';
 $string['invalidsessionkey'] = 'Clave de sesión inválida';
 
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
-$string["datahasheaders"] = "Datos contienen encabezado";
-$string["confirmimportpredefinedcomments"] = "Los comentarios que se muestran en vista previa serán importados. ¿Está seguro(a)?";
+$string['datahasheaders'] = 'Ignorar primera fila';
+$string['confirmimportpredefinedcomments'] = 'Los comentarios que se muestran en vista previa serán importados. ¿Está seguro(a)?';
 $string['addpredefinedcomments'] = 'Importar comentarios desde Excel';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
 $string['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';
@@ -126,25 +165,36 @@ $string['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas s
 $string['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
 $string['notenoughmarkersforqualitycontrol'] = 'No ha seleccionado correctores para que realicen el control de calidad. Por favor seleccione al menos un corrector como responsable de corregir las pruebas de control.';
 
+// ANONYMOUS
 $string['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
 $string['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
 $string['studentvisible_markervisible'] = 'Estudiante visible / Corrector visible';
 $string['studentvisible_markeranonymous'] = 'Estudiante visible / Corrector anónimo';
+$string['anonymous'] = 'Corrección anónima';
+$string['yespeerisanonymous'] = 'Si (Par es anónimo)';
+$string['anonymous_help'] = 'Seleccione para que el proceso de corrección sea anónimo, en cuyo caso los nombres de los estudiantes serán escondidos.';
+$string['anonymousstudent'] = 'Estudiante anónimo';
+$string['viewpeers'] = 'Estudiantes ven pruebas de otros estudiantes';
+$string['viewpeers_help'] = 'Se le permite a los estudiantes revisar pruebas de sus compañeros de manera anónima';
 
-
+// E-MARKING TYPES
 $string ['markingtype'] = 'Tipo de corrección';
-$string ['markingtype_help'] = "<h2>Tipos de corrección</h2><br>
+$string ['markingtype_help'] = '<h2>Tipos de corrección</h2><br>
 		Hay cuatro tipos de corrección en eMarking:
 		<ul>
-			<li><b>Normal</b>: Correctores corrigen las pruebas normalmente de acuerdo a una rúbrica. Las pruebas pueden ser corregidas por más de un corrector para control de calidad.</li>
+			<li><b>Solo impresión</b>: Las pruebas se imprimen a través del sistema, la corrección es manual, y opcionalmente se pueden subir las notas al libro de calificaciones.</li>
+			<li><b>Imprimir y digitalizar</b>: Las pruebas se imprimen a través del sistema, la corrección es manual, las respuestas se digitalizan y se suben al sistema como respaldo. Opcionalmente se pueden subir las notas al libro de calificaciones.</li>
+            <li><b>Corrección en pantalla</b>: Pruebas se imprimen, digitalizan y la corrección se realiza en línea de acuerdo a una rúbrica. Las pruebas pueden ser corregidas por más de un corrector para control de calidad.</li>
 			<li><b>Entrenamiento de correctores</b>: Las pruebas no pertenecen a estudiantes del curso. Todos los correctores corrigen todas las pruebas y deben alcanzar un acuerdo de 100% para finalizar el proceso.</li>
 			<li><b>Entrenamiento de estudiantes</b>: Las pruebas no pertenecen a estudiantes del curso. Los estudiantes corrigen como práctica para su próxima evaluación.</li>
 			<li><b>Revisión entre pares</b>: Los estudiantes se corrigen entre si de acuerdo a la configuración de grupos. Si hay grupos configurados (visibles o separados), cada estudiante corrige todas las pruebas de otro grupo.</li>
-		</ul>";
-$string ['type_normal'] = 'Normal';
+		</ul>';
+$string ['type_normal'] = 'Corrección en pantalla';
 $string ['type_markers_training'] = 'Entrenamiento de correctores';
 $string ['type_student_training'] = 'Entrenamiento de estudiantes';
 $string ['type_peer_review'] = 'Revisión entre pares';
+$string ['type_print_only'] = 'Solo impresión';
+$string ['type_print_scan'] = 'Imprimir y digitalizar';
 
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';
 $string ['exporttoexcel'] = 'Exportar a Excel';
@@ -172,13 +222,13 @@ $string ['downloadrubricpdf'] = 'Descarga pdf con rúbrica';
 $string ['downloadrubricpdf_help'] = 'Estudiantes pueden descargar su prueba con la rúbrica en la última página';
 
 $string ['linkrubric'] = 'Rúbrica multicolor';
-$string ['linkrubric_help'] = "Una rúbrica multicolor mostrará un color diferente para cada criterio, tanto para las correcciones (cruces o ticks) como para los comentarios.";
+$string ['linkrubric_help'] = 'Una rúbrica multicolor mostrará un color diferente para cada criterio, tanto para las correcciones (cruces o ticks) como para los comentarios.';
 
 $string ['collaborativefeatures'] = 'Colaboración entre correctores';
-$string ['collaborativefeatures_help'] = "Habilita el chat, el muro y el SOS para la colaboración de correctores. El chat permite a correctores comunicarse entre si. El muro permite a supervisores (profesor o administrador) enviar mensajes, los correctores no pueden escribir en el muro. El SOS permite a correctores solicitar ayuda respecto de una prueba que están corrigiendo.";
+$string ['collaborativefeatures_help'] = 'Habilita el chat, el muro y el SOS para la colaboración de correctores. El chat permite a correctores comunicarse entre si. El muro permite a supervisores (profesor o administrador) enviar mensajes, los correctores no pueden escribir en el muro. El SOS permite a correctores solicitar ayuda respecto de una prueba que están corrigiendo.';
 
 $string ['experimentalgroups'] = 'Grupos experimentales';
-$string ['experimentalgroups_help'] = "Habilitar corrección separada a través de los grupos del curso";
+$string ['experimentalgroups_help'] = 'Habilitar corrección separada a través de los grupos del curso';
 
 $string ['emarking:assignmarkers'] = 'Asignar correctores a preguntas';
 $string ['emarking:activatedelphiprocess'] = 'Activar delphi';
@@ -188,8 +238,8 @@ $string ['emarking:managedelphiprocess'] = 'Administrat delphi';
 $string ['emarking_webexperimental'] = 'eMarking Web experimental';
 $string ['emarking_webexperimental_help'] = 'Habilita la interfaz experimental';
 
-$string["enrolments"] = "Métodos de matriculación";
-$string["enrolments_help"] = "Solo se incluirán los estudiantes matriculados en los métodos de matriculación seleccionados.";
+$string['enrolments'] = 'Métodos de matriculación';
+$string['enrolments_help'] = 'Solo se incluirán los estudiantes matriculados en los métodos de matriculación seleccionados.';
 $string ['enrolmanual'] = 'Matriculaciones manuales';
 $string ['enrolself'] = 'Auto-Matriculaciones';
 $string ['enroldatabase'] = 'Matriculaciones de base de datos externa';
@@ -206,7 +256,7 @@ $string ['of'] = 'de';
 $string ['missingpages'] = 'Faltan páginas';
 $string ['transactionsuccessfull'] = 'Transacción exitosa';
 $string ['setasabsent'] = 'Ausente';
-$string ['setassubmitted'] = 'Marcar como enviada';
+$string ['setassubmitted'] = 'Marcar como subida';
 $string ['markers'] = 'Correctores';
 $string ['assignmarkerstocriteria'] = 'Agregar correctores a criterios';
 
@@ -327,9 +377,6 @@ $string ['greaterthan'] = 'Mayor {$a}';
 $string ['areyousure'] = '¿Está seguro?';
 $string ['actions'] = 'Acciones';
 $string ['annotatesubmission'] = 'Corregir';
-$string ['anonymous'] = 'Corrección anónima';
-$string ['anonymous_help'] = 'Seleccione para que el proceso de corrección sea anónimo, en cuyo caso los nombres de los estudiantes serán escondidos.';
-$string ['anonymousstudent'] = 'Estudiante anónimo';
 $string ['aofb'] = '{$a->identified} de {$a->total}';
 $string ['attempt'] = 'Intento';
 $string ['average'] = 'Promedio';
@@ -356,7 +403,7 @@ $string ['crowdexperiment_rtm_secret_help'] = 'Codigo secreto para RTMarking aut
 $string ['crowdexperiment_rtm_appid'] = 'RTMarking App-id';
 $string ['crowdexperiment_rtm_appid_help'] = 'Appid para autenticar en RTMarking';
 $string ['decodeddata'] = 'Datos decodificados';
-$string ['digitizedfile'] = 'Archivo con respuestas';
+$string ['digitizedfile'] = 'Subir respuestas digitalizadas';
 $string ['doubleside'] = 'Doble cara';
 $string ['doublesidescanning'] = 'Respuestas digitalizadas por ambos lados';
 $string ['doublesidescanning_help'] = 'Esta opción se debe seleccionar cuando las respuestas de los estudiantes fueron escaneadas por ambos lados.';
@@ -375,25 +422,6 @@ $string ['errors'] = 'Errores';
 $string ['errorprocessingcrop'] = 'Error procesando crop de QR';
 $string ['errorprocessingextraction'] = 'Error procesando extracción desde ZIP';
 $string ['errorsavingpdf'] = 'Error al guardar archivo ZIP';
-$string ['examalreadysent'] = 'La prueba ya fue impresa, no puede modificarse.';
-$string ['examdate'] = 'Fecha y hora de la prueba';
-$string ['examdate_help'] = 'La fecha y hora en que se tomará la prueba. Solo se pueden solicitar impresiones con al menos 48 horas de anticipación (sin incluir fines de semana).';
-$string ['examdateinvalid'] = 'Solo se pueden solicitar impresiones con al menos {$a->mindays} días de anticipación (sin incluir fines de semana)';
-$string ['examdateinvaliddayofweek'] = 'Fecha de prueba inválida, solo de Lunes a Viernes y Sábados hasta las 4pm.';
-$string ['examdateprinted'] = 'Fecha de impresión';
-$string ['examdatesent'] = 'Fecha de envío';
-$string ['examdeleteconfirm'] = 'Está a punto de borrar {$a}. ¿Desea continuar?';
-$string ['examdeleted'] = 'Prueba borrada. Por favor espera mientras está siendo redirigido.';
-$string ['examid'] = 'Nº de orden';
-$string ['examinfo'] = 'Información de la prueba';
-$string["examhasnopdf"] = "Exam id has no PDF associated. This is a terrible error, please notify the administrator.";
-$string ['examname'] = 'Nombre de la prueba';
-$string ['examname_help'] = 'Nombre de la prueba, por ejemplo: Control 2, Prueba final, Exámen.';
-$string ['exam'] = 'Prueba';
-$string ['exams'] = 'Pruebas';
-$string ['examstatusdownloaded'] = 'Descargada';
-$string ['examstatusprinted'] = 'Impresa';
-$string ['examstatussent'] = 'Enviada';
 $string ['experimental'] = 'Experimental';
 $string ['experimental_help'] = 'Funcionalidades experimentales (puede ser riesgoso)';
 $string ['extractingpreview'] = 'Extrayendo páginas';
@@ -439,52 +467,52 @@ $string ['invalididnumber'] = 'N&uacute;mero Id inválido';
 $string ['invalidimage'] = 'Información inválida desde la imagen';
 $string ['invalidemarkingid'] = 'Id de assignment inválido';
 $string ['invalidparametersforpage'] = 'Parámetros inválidos para la página';
-$string ['invalidpdfnopages'] = 'Archivo ZIP inválido, está vació.';
+$string ['invalidpdfnopages'] = 'Archivo PDF inválido, no se reconocen páginas.';
 $string ['invalidpdfnumpagesforms'] = 'Archivos de pruebas deben tener el mismo número de páginas.';
 $string ['invalidsize'] = 'Tamaño inválido para la imagen';
 $string ['invalidstatus'] = 'Estado inválido';
 $string ['invalidtoken'] = 'Código de seguridad no válido al intentar descargar prueba.';
 $string ['invalidzipnoanonymous'] = 'Archivo ZIP inválido, no contiene versiones anónimas de las respuestas. Es posible que haya sido generado con una versión antigua de la herramienta desktop.';
-$string ["justice"] = "Percepción de Justicia";
-$string ["justice.area.under.construction"] = "";
-$string ["justice.back"] = "Volver";
-$string ["justice.download"] = "Ver prueba";
-$string ["justice.evaluations.actions"] = "Acciones";
-$string ["justice.evaluations.grade"] = "Calificación";
-$string ["justice.evaluations.marker"] = "Corrector";
-$string ["justice.evaluations.mean"] = "Promedio del curso";
-$string ["justice.evaluations.name"] = "Evaluación";
-$string ["justice.evaluations.status"] = "Estado";
-$string ["justice.exam.not.found"] = "Examen no encontrado";
-$string ["justice.feature.not.available.short"] = "Funcionalidad no disponible";
-$string ["justice.feature.not.available.yet"] = "Esta funcionalidad no está disponible aún.";
-$string ["justice.feedback.already.given"] = "Aviso! Ya nos has dado tu opinion. Si cambiaste de opinión, puedes volver a llenar el formulario.";
-$string ["justice.feedback.welcome"] = "Use este formulario cuando esté listo para aceptar su calificación";
-$string ["justice.form.header"] = "Mis evaluaciones";
-$string ["justice.graph.student.name"] = "Nombre";
-$string ["justice.graph.test.performance"] = "Rendimiento en la prueba";
-$string ["justice.my.evaluations"] = "Mis evaluaciones";
-$string ["justice.peercheck"] = "Revisar compañeros";
-$string ["justice.question.unavailable"] = "No disponible";
-$string ["justice.question.not.answered"] = "No Entregado";
-$string ["justice.question.modify"] = "Modificar";
-$string ["justice.regrade.request"] = "Recorrección";
-$string ["justice.similars.actions"] = "Acciones";
-$string ["justice.similars.grade"] = "Calificación";
-$string ["justice.similars.name"] = "Nombre";
-$string ["justice.statistics"] = "Estadísticas";
-$string ["justice.statistics.locked"] = "Antes de ver las estadísticas, por favor contesta estas preguntas.";
-$string ["justice.status.grading"] = "En Corrección";
-$string ["justice.status.pending"] = "Por revisar";
-$string ["justice.status.regrading"] = "En Recorrección";
-$string ["justice.status.accepted"] = "Calificación aceptada";
-$string ["justice.thank.you.for.your.feedback"] = "Su opinión ha sido guardada. Gracias por su tiempo.";
-$string ["justice.unavailable"] = "No disponible";
-$string ["justice.question.instructions"] = "Considere una escala de -4 a 4, donde -4 es muy injusto y 4 es muy justo, por favor conteste las siguientes preguntas en relación a la evaluación:";
-$string ["justice.question.first"] = "Como calificaría la justicia del proceso de corrección?";
-$string ["justice.question.second"] = "Como se compara tu calificación a lo que crees que merecías?";
-$string ["justice.review"] = "Revisar";
-$string ["justice.yourgrade"] = "Tu calificación";
+$string ['justice'] = 'Percepción de Justicia';
+$string ['justice.area.under.construction'] = '';
+$string ['justice.back'] = 'Volver';
+$string ['justice.download'] = 'Ver prueba';
+$string ['justice.evaluations.actions'] = 'Acciones';
+$string ['justice.evaluations.grade'] = 'Calificación';
+$string ['justice.evaluations.marker'] = 'Corrector';
+$string ['justice.evaluations.mean'] = 'Promedio del curso';
+$string ['justice.evaluations.name'] = 'Evaluación';
+$string ['justice.evaluations.status'] = 'Estado';
+$string ['justice.exam.not.found'] = 'Examen no encontrado';
+$string ['justice.feature.not.available.short'] = 'Funcionalidad no disponible';
+$string ['justice.feature.not.available.yet'] = 'Esta funcionalidad no está disponible aún.';
+$string ['justice.feedback.already.given'] = 'Aviso! Ya nos has dado tu opinion. Si cambiaste de opinión, puedes volver a llenar el formulario.';
+$string ['justice.feedback.welcome'] = 'Use este formulario cuando esté listo para aceptar su calificación';
+$string ['justice.form.header'] = 'Mis evaluaciones';
+$string ['justice.graph.student.name'] = 'Nombre';
+$string ['justice.graph.test.performance'] = 'Rendimiento en la prueba';
+$string ['justice.my.evaluations'] = 'Mis evaluaciones';
+$string ['justice.peercheck'] = 'Revisar compañeros';
+$string ['justice.question.unavailable'] = 'No disponible';
+$string ['justice.question.not.answered'] = 'No Entregado';
+$string ['justice.question.modify'] = 'Modificar';
+$string ['justice.regrade.request'] = 'Recorrección';
+$string ['justice.similars.actions'] = 'Acciones';
+$string ['justice.similars.grade'] = 'Calificación';
+$string ['justice.similars.name'] = 'Nombre';
+$string ['justice.statistics'] = 'Estadísticas';
+$string ['justice.statistics.locked'] = 'Antes de ver las estadísticas, por favor contesta estas preguntas.';
+$string ['justice.status.grading'] = 'En Corrección';
+$string ['justice.status.pending'] = 'Por revisar';
+$string ['justice.status.regrading'] = 'En Recorrección';
+$string ['justice.status.accepted'] = 'Calificación aceptada';
+$string ['justice.thank.you.for.your.feedback'] = 'Su opinión ha sido guardada. Gracias por su tiempo.';
+$string ['justice.unavailable'] = 'No disponible';
+$string ['justice.question.instructions'] = 'Considere una escala de -4 a 4, donde -4 es muy injusto y 4 es muy justo, por favor conteste las siguientes preguntas en relación a la evaluación:';
+$string ['justice.question.first'] = 'Como calificaría la justicia del proceso de corrección?';
+$string ['justice.question.second'] = 'Como se compara tu calificación a lo que crees que merecías?';
+$string ['justice.review'] = 'Revisar';
+$string ['justice.yourgrade'] = 'Tu calificación';
 $string ['justiceexperiment'] = 'Experimento en percepción de justicia';
 $string ['justiceexperiment_help'] = 'Muestra a la mitad de los estudiantes las estadísticas de la evaluación, de manera de tener grupos experimental y control.';
 $string ['justification'] = 'Justificación';
@@ -559,6 +587,7 @@ $string ['noemarkings'] = 'No quedan envíos';
 $string ['nopagestoprocess'] = 'Error. El archivo no contiene páginas a procesar, por favor suba las respuestas nuevamente.';
 $string ['noprintorders'] = 'No hay órdenes de impresión para este curso';
 $string ['nosubmissionsgraded'] = 'No hay pruebas corregidas aún';
+$string ['nosubmissionspublished'] = 'No hay calificaciones publicadas aún';
 $string ['nosubmissionsselectedforpublishing'] = 'No hay pruebas seleccionadas para publicar sus calificaciones';
 $string ['nocomment'] = 'No hay comentario general';
 $string ['noexamsforprinting'] = 'No hay pruebas para imprimir';
@@ -575,12 +604,14 @@ $string ['pathuserpicture'] = 'Directorio de imágenes alternativas de usuarios'
 $string ['pathuserpicture_help'] = 'Dirección absoluta del directorio que contiene las imágenes alternativas de los usuarios en formato PNG y cuyo nombre calza con userXXX.png en que XXX es el id de usuario. Si está vacío y se incluirá la imagen de usuarios, se utilizará la que el usuario tiene en su perfil.';
 $string ['pdffile'] = 'Archivo(s) PDF de la prueba';
 $string ['pdffile_help'] = 'Si incluye más de un archivo PDF, éstos se utilizarán como formas diferentes a asignar para los estudiantes.';
+$string ['pdffileupdate'] = 'Reemplazar archivo(s) PDF de la prueba';
 $string ['pluginadministration'] = 'Administración de emarking';
 $string ['previewheading'] = 'Visualización de decodificación de códigos QR';
 $string ['previewtitle'] = 'Visualizar errores de QR';
 $string ['printsuccessinstructions'] = 'Instrucciones para orden de impresión exitosa';
 $string ['printsuccessinstructionsdesc'] = 'Mensaje personalizado para mostrar a profesores y administrativo una vez que una orden de impresión fue correctamente enviada. Por ejemplo que retiren las pruebas en un centro de copiado o que descarguen la prueba por si mismos.';
 $string ['printdoublesided'] = 'Doble cara';
+$string ['printdoublesided_help'] = 'Al seleccionar doble cara, e-marking intentará imprimir la prueba por ambos lados del papel. Si CUPS (impresión en línea) no está configurada, se enviarán instrucciones a quien descargue la prueba.';
 $string ['printexam'] = 'Imprimir prueba';
 $string ['printrandom'] = 'Impresión aleatoria';
 $string ['printrandominvalid'] = 'Debe crear un grupo para utilizar esta función';
@@ -649,7 +680,7 @@ $string ['statusmissing'] = 'No entregada';
 $string ['statusnotsent'] = 'No enviada';
 $string ['statusregrading'] = 'En recorrección';
 $string ['statuspublished'] = 'Publicada';
-$string ['statussubmitted'] = 'Enviada';
+$string ['statussubmitted'] = 'Subida';
 $string ['statuserror'] = 'Error';
 $string ['submission'] = 'Subida manual de respuestas';
 $string ['teachercandownload'] = 'Profesor puede descargar prueba';
@@ -664,9 +695,7 @@ $string ['uploadexamfile'] = 'Archivo Zip';
 $string ['uploadinganswersheets'] = 'Subiendo respuestas de los estudiantes';
 $string ['usesms'] = 'Usar Twilio.com para enviar SMS';
 $string ['usesms_help'] = 'Usar mensaje SMS en vez de correo electrónico para verificar códigos de seguridad de eMarking';
-$string ['viewpeers'] = 'Estudiantes ven pruebas de otros estudiantes';
-$string ['viewpeers_help'] = 'Se le permite a los estudiantes revisar pruebas de sus compañeros de manera anónima';
-$string ['viewsubmission'] = 'Ver corrección';
+$string ['viewsubmission'] = 'Ver prueba';
 $string ['visualizeandprocess'] = 'Visualizar errores';
 $string ['formnewcomment'] = 'Texto del comentario';
 $string ['writecomment'] = 'Escriba un Comentario';
@@ -717,7 +746,7 @@ $string ['eventmarkingended'] = 'Terminar Emarking';
 $string ['eventinvalidaccessgranted'] = 'Acceso inválido, intentando cargar la prueba';
 $string ['eventsuccessfullydownloaded'] = 'Descarga de prueba exitosa';
 $string ['eventinvalidtokengranted'] = 'Código de seguridad no válido al intentar descargar prueba.';
-$string ['eventunauthorizedccessgranted'] = "WARNING: Acceso no autorizado a la Interfaz Ajax de eMarking";
+$string ['eventunauthorizedccessgranted'] = 'WARNING: Acceso no autorizado a la Interfaz Ajax de eMarking';
 $string ['eventmarkersconfigcalled'] = 'Se ingresa al markers config';
 $string ['eventmarkersassigned'] = 'Correctores han sido assignado';
 $string ['eventemarkingcalled'] = 'Llamada al emarking';

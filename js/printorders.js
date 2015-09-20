@@ -29,7 +29,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
     // Create the main modal form.
     panel = new Y.Panel({
         srcNode      : '#panelContent',
-        headerContent: 'Descargar prueba',
+        headerContent: messages.downloadexam,
         width        : 350,
         zIndex       : 5,
         centered     : true,
@@ -40,7 +40,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
     });
     
     panel.addButton({
-        value  : 'Descargar',
+        value  : messages.download,
         section: Y.WidgetStdMod.FOOTER,
         action : function (e) {
         	var sms = smsField.get('value');
@@ -65,7 +65,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
     });
 
     panel.addButton({
-        value  : 'Cancelar',
+        value  : messages.cancel,
         section: Y.WidgetStdMod.FOOTER,
         action : function (e) {
             e.preventDefault();
@@ -75,7 +75,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
     });
 
     panel.addButton({
-        value  : 'Reenviar código de seguridad',
+        value  : messages.resendcode,
         section: Y.WidgetStdMod.FOOTER,
         action : function (e) {
             e.preventDefault();
@@ -135,9 +135,9 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
             	Y.log(Y.Lang.dump(o));
             	if(o.statusText === 'timeout') {
             		Y.log('Timeout waiting for SMS async call','error');
-                    alert('Se agotó el tiempo de espera para enviar el código. Por favor avise al administrador.');
+                    alert(messages.timeout);
             	} else {
-                    alert('Tuvimos problemas de comunicación con el servidor de mensajes celulares. Por favor reintente más tarde.');
+                    alert(messages.servererror);
             	}
             	loadingpanel.hide();
             }

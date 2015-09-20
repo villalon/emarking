@@ -86,7 +86,7 @@ $totalsubmissions = $DB->count_records_sql("
                 ", array('emarking' => $emarking->id));
 
 if(!$totalsubmissions || $totalsubmissions == 0) {
-        echo $OUTPUT->notification(get_string('nosubmissionsgraded','mod_emarking'),'notifyproblem');
+        echo $OUTPUT->notification(get_string('nosubmissionspublished','mod_emarking'),'notifyproblem');
         echo $OUTPUT->footer();
         die();
 }

@@ -12,6 +12,10 @@ input[type="text"] {
 	height: inherit;
 }
 
+#page-mod-emarking-marking-markers .userpicture {
+	margin-right: 5px;
+}
+
 .pagecriterionbox {
 	width: 20px;
 	height: 20px;
@@ -44,6 +48,8 @@ input[type="text"] {
 #page-mod-emarking-view .progress {
 	margin-bottom: 0px;
 	width: 100%;
+	background-color: #ccc;
+	background-image: none;
 }
 
 .grade {

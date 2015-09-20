@@ -81,6 +81,7 @@ $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('predefinedcomments', 'mod_emarking'));
 
 echo $OUTPUT->header();
+
 echo $OUTPUT->heading($emarking->name);
 
 // output of the tabtree

@@ -85,6 +85,7 @@ $PAGE->navbar->add(get_string('emarking','mod_emarking'));
 
 // Show header and heading
 echo $OUTPUT->header();
+
 echo $OUTPUT->heading_with_help(get_string('emarking','mod_emarking'), 'annotatesubmission', 'mod_emarking');
 
 // Navigation tabs

@@ -1359,7 +1359,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015082100, 'emarking');
     }
     
-    if ($oldversion < 2015090800) {
+    if ($oldversion < 2015090801) {
     
         // Define field secondstagedate to be added to emarking.
         $table = new xmldb_table('emarking');
@@ -1371,10 +1371,85 @@ function xmldb_emarking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
     
+        $field = new xmldb_field('enablescan', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'secondstagedate');
+    
+        // Conditionally launch add field secondstagedate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        $field = new xmldb_field('enableosm', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'enablescan');
+    
+        // Conditionally launch add field secondstagedate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
         // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2015090800, 'emarking');
+        upgrade_mod_savepoint(true, 2015090801, 'emarking');
     }
     
+    if ($oldversion < 2015091201) {
+    
+        // Rename field experimentalgroups on table emarking to justiceperception.
+        $table = new xmldb_table('emarking');
+        $field = new xmldb_field('experimentalgroups', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    
+        // Launch rename field justiceperception.
+        $dbman->rename_field($table, $field, 'justiceperception');
+    
+        // Update all emarking objects for enablescan or enableosm in case it's necessary
+        if($instances = $DB->get_records('emarking')) {
+            foreach($instances as $instance) {
+                if($submissions = $DB->get_records_sql('
+                    SELECT s.*, COUNT(ec.id) AS comments
+                    FROM {emarking_submission} AS s 
+                    LEFT JOIN {emarking_draft} AS d ON (d.submissionid = s.id)
+                    LEFT JOIN {emarking_comment} AS ec ON (ec.draft = d.id)
+                    WHERE s.emarking = :emarking
+                    GROUP BY s.id', array('emarking'=>$instance->id))) {
+                    
+                        $instance->enablescan = 1;
+                        foreach($submissions as $submission) {
+                            if($submission->comments > 0) {
+                                $instance->enableosm = 1;
+                                break;
+                            }
+                        }
+                    $DB->update_record('emarking', $instance);
+                }
+            }
+        }
+        
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015091201, 'emarking');
+    }
+    
+    if ($oldversion < 2015091301) {
+    
+        // Define table emarking_perception_criteria to be created.
+        $table = new xmldb_table('emarking_perception_criteria');
+    
+        // Adding fields to table emarking_perception_criteria.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('perception', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('criterion', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('overall_fairness', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('expectation_reality', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    
+        // Adding keys to table emarking_perception_criteria.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+        // Conditionally launch create table for emarking_perception_criteria.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015091301, 'emarking');
+    }
     
     
     return true;

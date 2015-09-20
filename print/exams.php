@@ -31,10 +31,8 @@ require_once($CFG->dirroot."/mod/emarking/print/locallib.php");
 
 global $DB, $USER, $CFG;
 
-// Course module id if the user comes from an eMarking module
-$cmid = optional_param("id", 0, PARAM_INT);
 // Course id, if the user comes from a course
-$courseid = optional_param("course", 0, PARAM_INT);
+$courseid = required_param("course", PARAM_INT);
 // Exam id in case an exam was just created
 $examid = optional_param("examid", 0, PARAM_INT);
 // If the user is downloading a print form
@@ -46,38 +44,13 @@ if (isguestuser()) {
 	die();
 } 
 
-// If the user comes from a course module, we get the course id from it
-if($cmid > 0) {
-    // Get the course module
-	if(!$cm = get_coursemodule_from_id("emarking", $cmid)) {
-		print_error(get_string("invalidid", "mod_emarking"));
-	}
-
-	// Get the emarking object
-	if(!$emarking = $DB->get_record("emarking", array("id"=>$cm->instance))) {
-		print_error(get_string("invalidid", "mod_emarking"));
-	}
-
-	$courseid = $cm->course;
-}
-
 // Validate that the parameter corresponds to a course
 if(!$course = $DB->get_record("course", array("id"=>$courseid))) {
 	print_error(get_string("invalidcourseid", "mod_emarking"));
 }
 
 // Both contexts, from course and category, for permissions later
-$contextcourse = context_course::instance($course->id);
-$contextcat = context_coursecat::instance($course->category);
-
-// The context for the page is the course or the module
-$context = $cmid > 0 ? context_module::instance($cm->id) : $context = $contextcourse;
-
-// An exam id means either a new exam was sent, or a a download form
-// was requested
-if($examid) {
-    $newexam = $DB->get_record("emarking_exams", array("id"=>$examid));
-}
+$context = context_course::instance($course->id);
 
 // If a download form was requested
 if($examid && $downloadform) {
@@ -99,27 +72,17 @@ require_capability ( "mod/emarking:grade", $context );
 // URL for current page
 $url = new moodle_url("/mod/emarking/print/exams.php", array("id"=>$cmid, "course"=>$course->id));
 // URL for adding a new print order
-$params = $cmid > 0 ? array("cm"=>$cm->id) : array("course"=>$course->id);
-$urladd = new moodle_url("/mod/emarking/print/newprintorder.php", $params);
+$params = array("course"=>$course->id);
 
 $PAGE->set_url($url);
 $PAGE->requires->js("/mod/emarking/js/printorders.js");
 $PAGE->set_context($context);
 $PAGE->set_course($course);
-if($cmid > 0) {
-	$PAGE->set_cm($cm);
-}
 $PAGE->set_title(get_string("emarking", "mod_emarking"));
 $PAGE->set_pagelayout("incourse");
 $PAGE->navbar->add(get_string("myexams","mod_emarking"));
 
 echo $OUTPUT->header();
-
-// Heading and tabs if we are within a course module
-if($cmid > 0) {
-    echo $OUTPUT->heading($emarking->name);
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "myexams");
-}
 
 // If a new exam was recently added, show success message and instructions
 if($examid) {
@@ -127,11 +90,7 @@ if($examid) {
 }
 
 // Parameters to retrieve all exams for this course or emarking
-if($cmid > 0) {
-    $params = array("course"=>$course->id, "emarking"=>$emarking->id);
-} else {
     $params = array("course"=>$course->id);
-}
 
 // Retrieve all exams for this course
 $exams = $DB->get_records("emarking_exams", $params, "examdate DESC");
@@ -139,7 +98,6 @@ $exams = $DB->get_records("emarking_exams", $params, "examdate DESC");
 // If there are no exams to show
 if(count($exams) == 0) {
 	echo $OUTPUT->notification(get_string("noprintorders", "mod_emarking"));
-	echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), "get", array("class"=>"submitbutton"));
 	echo $OUTPUT->footer();
 	die();
 }
@@ -184,26 +142,6 @@ foreach($exams as $exam) {
 
 	list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 
-    // Check if exam can be deleted
-	if($canbedeleted) {
-	    // Add exam id to URL params
-	    $params["id"] = $exam->id;
-
-		// Url for exam deletion and editing
-		$urldelete = new moodle_url("/mod/emarking/print/deleteexam.php", $params);
-		$urledit = new moodle_url("/mod/emarking/print/newprintorder.php", $params);
-
-		// Edit icon
-		$actions .= html_writer::div($OUTPUT->action_icon($urledit, 
-		    new pix_icon("t/edit", get_string("editorder", "mod_emarking"), null,
-		    array("examid"=>$exam->id,"class"=>"downloademarking"))));
-
-		// Delete icon
-		$actions .= html_writer::div($OUTPUT->action_icon($urldelete, 
-		    new pix_icon("t/delete", get_string("cancelorder", "mod_emarking"), null,
-		    array("examid"=>$exam->id,"class"=>"downloademarking"))));
-	}
-	
 	$actions .= html_writer::end_tag("div");
 	$details = html_writer::start_tag("div", array("class"=>"printdetails"));
 	
@@ -268,6 +206,14 @@ if($CFG->emarking_usesms) {
 
 ?>
 <script type="text/javascript">
+var messages = {
+		downloadexam: "<?php echo get_string("downloadexam", "mod_emarking") ?>",
+		download: "<?php echo get_string("download", "mod_emarking") ?>",
+		cancel: "<?php echo get_string("cancel", "mod_emarking") ?>",
+		resendcode: "<?php echo get_string("resendcode", "mod_emarking") ?>",
+		timeout: "<?php echo get_string("smsservertimeout", "mod_emarking") ?>",
+		servererror: "<?php echo get_string("smsservererror", "mod_emarking") ?>"		
+    };
 	var wwwroot = "<?php echo $CFG->wwwroot ?>";
 	var downloadurl = "<?php echo $downloadurl ?>";
 	var sessionkey = "<?php echo sesskey() ?>";

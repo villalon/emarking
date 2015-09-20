@@ -19,73 +19,118 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string["agreementflexibility"] = "Agreement flexibility";
-$string["agreementflexibility_help"] = "Defines the maximum difference between the grades given by a marker and the average grade to be considered an outlier.";
-$string["agreementflexibility00"] = "Strict (grades must be identical)";
-$string["agreementflexibility20"] = "Flexible (allows differences up to 20%)";
-$string["agreementflexibility40"] = "Relaxed (allows differences up to 40%)";
-$string["firststagedate"] = "Max date for marking";
-$string["firststagedate_help"] = "Maximum date for markers to grade all exams";
-$string["secondstagedate"] = "Max date for agreement";
-$string["secondstagedate_help"] = "Maximum date for markers to reach agreement";
-$string["orsentexam"] = "Or use previously sent exam";
-$string["orsentexam_help"] = "You can use the PDF from a previously sent exam.";
-$string["print"] = "Print";
-$string["onscreenmarking"] = "On Screen Marking";
-$string["scan"] = "Scan";
-$string["none"] = "None";
-$string["activatemodules"] = "Activate modules";
-$string["enablescan"] = "Enable scan";
-$string["enableosm"] = "Enable OSM";
-$string["enableosm_help"] = "You must enable scan before you can enable OSM";
+// EMARKING TYPES WORKFLOW
+$string['orsentexam'] = 'Use previously sent exam';
+$string['orsentexam_help'] = 'You can use the PDF from a previously sent exam.';
+$string['print'] = 'Print';
+$string['onscreenmarking'] = 'On Screen Marking';
+$string['scan'] = 'Scan';
+$string['none'] = 'None';
+$string['activatemodules'] = 'Activate modules';
+$string['enablescan'] = 'Enable scan';
+$string['enableosm'] = 'Enable OSM';
+$string['enableosm_help'] = 'You must enable scan before you can enable OSM';
+$string['updateemarkingtype'] = 'You are about to {$a->message} in {$a->name}. There are no risks in doing so, you can change this later in settings at any time.';
 
-$string["printsettings"] = "Print settings";
-$string["printsettings_help"] = "Help for print settings";
+$string['printsettings'] = 'Print settings';
+$string['printsettings_help'] = 'Help for print settings';
 
-$string["selectemarkingtype"] = "Select...";
-$string["markingtypemandatory"] = "You must select a marking type";
-$string["selectexam"] = "Send later";
-$string["exam_help"] = "You must associate an e-marking activity with a printed exam. Select the exam from the previously sent or indicate that you will send it later.";
+$string['selectemarkingtype'] = 'Select...';
+$string['markingtypemandatory'] = 'You must select a marking type';
+$string['selectexam'] = 'Send later';
+$string['exam_help'] = 'You must associate an e-marking activity with a printed exam. Select the exam from the previously sent or indicate that you will send it later.';
 
-$string["emarkingviewed"]="Feedback viewed";
+$string['emarkingviewed']='Feedback viewed';
 
-$string["markerspercriteria"]="Markers per criteria";
-$string["pagespercriteria"]="Pages per criteria";
+// MARKERS AND PAGES OSM CONFIGURATION
+$string['markerspercriteria']='Markers per criteria';
+$string['pagespercriteria']='Pages per criteria';
+$string['markerscanseewholerubric']='Markers can see the entire rubric.';
+$string['markerscanseeallpages'] = 'Markers can see all pages.';
+$string['markerscanseeselectedcriteria'] = 'Markers can see only assigned criteria.';
+$string['markerscanseenothing'] = 'Pages are assigned to criteria but no markers are assigned to criteria. Only admins will be able to see pages.';
+$string['markerscanseepageswithcriteria'] = 'Markers can see only those pages assigned to the criteria they can mark.';
+$string['assignedmarkers'] = 'Assigned markers';
+$string['currentstatus'] = 'Current status';
 
-$string["markerscanseewholerubric"]="Markers can see the entire rubric.";
-$string["markerscanseeallpages"] = "Markers can see all pages.";
-$string["markerscanseeselectedcriteria"] = "Markers can see only assigned criteria.";
-$string["markerscanseenothing"] = "Pages are assigned to criteria but no markers are assigned to criteria. Only admins will be able to see pages.";
-$string["markerscanseepageswithcriteria"] = "Markers can see only those pages assigned to the criteria they can mark.";
-$string["criteria"] = "Criteria";
+// GENERAL
+$string['criteria'] = 'Criteria';
+$string['deleterow'] = 'Delete row';
 
-$string["nodejspath"] = "NodeJS path";
-$string["nodejspath_help"] = "The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091";
+$string['nodejspath'] = 'NodeJS path';
+$string['nodejspath_help'] = 'The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091';
 
-$string["er-4"] = "-4 (much worse than I deserved)";
-$string["er-3"] = "-3";
-$string["er-2"] = "-2";
-$string["er-1"] = "-1";
-$string["er0"] = "0 (about what I deserved)";
-$string["er1"] = "1";
-$string["er2"] = "2";
-$string["er3"] = "3";
-$string["er4"] = "4 (much more than I deserved)";
-$string["of-4"] = "-4 (extremely unfair)";
-$string["of-3"] = "-3";
-$string["of-2"] = "-2";
-$string["of-1"] = "-1";
-$string["of0"] = "0 (neither fair nor unfair)";
-$string["of1"] = "1";
-$string["of2"] = "2";
-$string["of3"] = "3";
-$string["of4"] = "4 (extremely fair)";
-$string ['justiceperceptionprocess'] = 'How would you rate the fairness of the marking of the evaluation?';
-$string ['justiceperceptionexpectation'] = 'How does your grade for the first assignment compare to the mark you think you deserved to get for this assignment?';
-$string ['thanksforjusticeperception'] = 'Thanks for expressing your opinion';
+// SMS SECURITY
+$string ['download'] = 'Download';
+$string ['cancel'] = 'Cancel';
+$string ['resendcode'] = 'Resend security code';
+$string ['smsservertimeout'] = 'SMS service timeout. Please notify the administrator.';
+$string ['smsservererror'] = 'SMS server communication error. Please try again later.';
+
+// EXAMS
+$string ['examdetails'] = 'Exam details';
+$string ['examalreadysent'] = 'The exam was already sent to print. It cannot be modified.';
+$string ['examdate'] = 'Exam date';
+$string ['examdate_help'] = 'Date and time in which the exam will be taken';
+$string ['examdateinvalid'] = 'Invalid exam date, it should be at least {$a->mindays} working days in advance.';
+$string ['examdateinvaliddayofweek'] = 'Invalid exam date, only from Monday to Fridays and Saturdays before 4pm.';
+$string ['examdateprinted'] = 'Print date';
+$string ['examdatesent'] = 'Date sent';
+$string ['examdeleteconfirm'] = 'You are about to delete {$a}. ¿Do you want to continue?';
+$string ['examdeleted'] = 'Exam deleted. Please wait while you are redirected';
+$string ['examid'] = 'Exam id';
+$string ['examinfo'] = 'Exam information';
+$string ['examhasnopdf'] = 'El examen to tiene un archivo PDF asociado. Este error es grave, por favor notifique al administrador.';
+$string ['examname'] = 'Exam name';
+$string ['examname_help'] = 'Exam name e.g: Final examn, Mid-term.';
+$string ['exam'] = 'Exam';
+$string ['exams'] = 'Exams';
+$string ['examstatusdownloaded'] = 'Downloaded';
+$string ['examstatusprinted'] = 'Printed';
+$string ['examstatussent'] = 'Sent for printing';
+$string ['downloadexam'] = 'Download exam';
+
+// JUSTICE PERCEPTION
+$string['er-4'] = '-4 (much worse than I deserved)';
+$string['er-3'] = '-3';
+$string['er-2'] = '-2';
+$string['er-1'] = '-1';
+$string['er0'] = '0 (about what I deserved)';
+$string['er1'] = '1';
+$string['er2'] = '2';
+$string['er3'] = '3';
+$string['er4'] = '4 (much more than I deserved)';
+$string['of-4'] = '-4 (extremely unfair)';
+$string['of-3'] = '-3';
+$string['of-2'] = '-2';
+$string['of-1'] = '-1';
+$string['of0'] = '0 (neither fair nor unfair)';
+$string['of1'] = '1';
+$string['of2'] = '2';
+$string['of3'] = '3';
+$string['of4'] = '4 (extremely fair)';
+$string['justiceperceptionprocess'] = 'How would you rate the fairness of the marking of the evaluation?';
+$string['justiceperceptionexpectation'] = 'How does your grade for the first assignment compare to the mark you think you deserved to get for this assignment?';
+$string['thanksforjusticeperception'] = 'Thanks for expressing your opinion';
+$string['justicedisabled'] = 'Disabled';
+$string['justicepersubmission'] = 'Ask one opinion per exam';
+$string['justicepercriterion'] = 'Ask one opinion per criterion';
+$string['justiceperception'] = 'Ask students for their justice perception';
+$string['justiceperception_help'] = 'This options allows students to provide their perception of justice regarding the marking process (procedural justice) and the result (distributive justice). It can be set to ask for one opinion for the whole exam, or one opinion per criterion.';
+$string['agreementflexibility'] = 'Agreement flexibility';
+$string['agreementflexibility_help'] = 'Defines the maximum difference between the grades given by a marker and the average grade to be considered an outlier.';
+$string['agreementflexibility00'] = 'Strict (grades must be identical)';
+$string['agreementflexibility20'] = 'Flexible (allows differences up to 20%)';
+$string['agreementflexibility40'] = 'Relaxed (allows differences up to 40%)';
+$string['firststagedate'] = 'Max date for marking';
+$string['firststagedate_help'] = 'Maximum date for markers to grade all exams';
+$string['secondstagedate'] = 'Max date for agreement';
+$string['secondstagedate_help'] = 'Maximum date for markers to reach agreement';
+$string ['justice.graph.student.name'] = 'Name';
+$string['justice.graph.test.performance'] = 'Your performance in the exam';
 
 $string['mobilephoneregex'] = 'Mobile phone regex';
 $string['mobilephoneregex_help'] = 'A regular expression to validate a correct mobile phone';
@@ -109,8 +154,8 @@ $string['usernotloggedin'] = 'User is not logged in';
 $string['invalidsessionkey'] = 'Invalid session key';
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
-$string["datahasheaders"] = "Data has headers";
-$string["confirmimportpredefinedcomments"] = "The predefined comments in the preview will be imported. Are you sure?";
+$string['datahasheaders'] = 'Ignore first row';
+$string['confirmimportpredefinedcomments'] = 'The predefined comments in the preview will be imported. Are you sure?';
 $string['addpredefinedcomments'] = 'Import predefined comments from Excel';
 $string['predefinedcomments'] = 'Predefined comments';
 $string['predefinedcomments_help'] = 'Paste a column from Excel (with or without a header) to import all the rows as predefined comments.';
@@ -125,25 +170,37 @@ $string['enablequalitycontrol_help'] = 'If QC in enabled, a set of QC exams will
 $string['notenoughmarkersfortraining'] = 'Not enough markers for training, please enrol markers as non editing teachers for training.';
 $string['notenoughmarkersforqualitycontrol'] = 'No markers were selected for quality control. Please select at least one marker as responsible for marking the control exams.';
 
+// ANONYMOUS
 $string['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
 $string['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';
 $string['studentvisible_markervisible'] = 'Student visible / Marker visible';
 $string['studentvisible_markeranonymous'] = 'Student visible / Marker anonymous';
+$string['anonymous'] = 'Anonymous';
+$string['yespeerisanonymous'] = 'Yes (Peer is anonymous)';
+$string['anonymous_help'] = 'Set to yes if you want the marking process to be blind. Student names and photos are hidden.';
+$string['anonymousstudent'] = 'Anonymous student';
+$string['viewpeers'] = 'Students can review peers\' exams';
+$string['viewpeers_help'] = 'Students are allowed to see their peers\' exams in an anonymous way';
 
+// E-MARKING TYPES
 $string ['markingtype'] = 'Marking type';
-$string ['markingtype_help'] = "<h2>Marking types</h2><br>
-		There are four types of marking sessions available in eMarking:
+$string ['markingtype_help'] = '<h2>Marking types</h2><br>
+		There are different types of marking procedures available in e-marking:
 		<ul>
-			<li><b>Normal</b>: Markers grade student exams normally according to a rubric. Exams can be marked more than once for quality control on inter-marker agreement.</li>
+			<li><b>Print only</b>: Exams are sent for printing through the system, marking is done manually and grades can be optionally uploaded to gradebook.</li>
+			<li><b>Print and scan</b>: Exams are sent for printing through the system, marking is done manually and student answers are digitized and uploaded to the system. Optionally grades can be set in the gradebook.</li>
+            <li><b>On Screen Marking</b>: Exams are printed and answers digitized and marked on screen according to a rubric. Exams can be marked more than once for quality control on inter-marker agreement.</li>
 			<li><b>Markers training</b>: Exams do not belong to students in the course. All markers grade all exams and the process does not close until 100% agreement is reached between markers.</li>
 			<li><b>Student training</b>: Exams do not belong to students in the course. Students grade exams as a way to practice for their own evaluations.</li>
 			<li><b>Peer review</b>: Students grade their peers according to the groups configuration. If groups are configured as visible or separated each student in a group marks all exams from another group.</li>
-		</ul>";
-$string ['type_normal'] = 'Normal';
+		</ul>';
+$string ['type_normal'] = 'On Screen Marking';
 $string ['type_markers_training'] = 'Markers training';
 $string ['type_student_training'] = 'Student training';
 $string ['type_peer_review'] = 'Peer review';
-		
+$string ['type_print_only'] = 'Print only';
+$string ['type_print_scan'] = 'Print and scan';
+
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
 $string ['exporttoexcel'] = 'Export to Excel';
 
@@ -170,13 +227,13 @@ $string ['downloadrubricpdf'] = 'Download pdf with rubric on it';
 $string ['downloadrubricpdf_help'] = 'Students can download their test with the rubric in the last page';
 
 $string ['linkrubric'] = 'Multicolor rubric';
-$string ['linkrubric_help'] = "A multicolor rubric shows a different color for each criterion, both for marks and comments.";
+$string ['linkrubric_help'] = 'A multicolor rubric shows a different color for each criterion, both for marks and comments.';
 
 $string ['collaborativefeatures'] = 'Markers collaboration';
-$string ['collaborativefeatures_help'] = "Enables a chat, a wall and SOS for markers. The chat allows communication between markers. The wall allows supervisors (teachers or admins) to post messages, markers can only read them. The SOS allows markers to ask for help regarding a specific exam they are marking.";
+$string ['collaborativefeatures_help'] = 'Enables a chat, a wall and SOS for markers. The chat allows communication between markers. The wall allows supervisors (teachers or admins) to post messages, markers can only read them. The SOS allows markers to ask for help regarding a specific exam they are marking.';
 
 $string ['experimentalgroups'] = 'Experimental Groups';
-$string ['experimentalgroups_help'] = "Enable separete marking through the course groups.";
+$string ['experimentalgroups_help'] = 'Enable separete marking through the course groups.';
 
 $string ['emarking:assignmarkers'] = 'Assign markers to criteria';
 $string ['emarking:activatedelphiprocess'] = 'Activate delphi';
@@ -186,8 +243,8 @@ $string ['emarking:managedelphiprocess'] = 'Manage delphi';
 $string ['emarking_webexperimental'] = 'eMarking Web experimental';
 $string ['emarking_webexperimental_help'] = 'Enables the experimental interface';
 
-$string["enrolments"] = "Enrolment methods";
-$string["enrolments_help"] = "The students considered for the marking will be only those enroled in the selected enrolment methods.";
+$string['enrolments'] = 'Enrolment methods';
+$string['enrolments_help'] = 'The students considered for the marking will be only those enroled in the selected enrolment methods.';
 $string ['enrolmanual'] = 'Manual enrolments';
 $string ['enrolself'] = 'Self-enrolments';
 $string ['enroldatabase'] = 'External database enrolments';
@@ -204,7 +261,7 @@ $string ['of'] = 'of';
 $string ['missingpages'] = 'Some pages are missing';
 $string ['transactionsuccessfull'] = 'Transaction successfull';
 $string ['setasabsent'] = 'Absent';
-$string ['setassubmitted'] = 'Set as submitted';
+$string ['setassubmitted'] = 'Set as uploaded';
 $string ['markers'] = 'Markers';
 $string ['assignmarkerstocriteria'] = 'Add markers to criteria';
 
@@ -326,9 +383,6 @@ $string ['greaterthan'] = 'More than {$a}';
 $string ['areyousure'] = 'Are you sure?';
 $string ['actions'] = 'Actions';
 $string ['annotatesubmission'] = 'Mark';
-$string ['anonymous'] = 'Anonymous';
-$string ['anonymous_help'] = 'Set to yes if you want the marking process to be blind. Student names and photos are hidden.';
-$string ['anonymousstudent'] = 'Anonymous student';
 $string ['aofb'] = '{$a->identified} of {$a->total}';
 $string ['attempt'] = 'Attempt';
 $string ['average'] = 'Average';
@@ -348,15 +402,15 @@ $string ['createrubric'] = 'Create rubric';
 $string ['criterion'] = 'Criterion';
 $string ['criteriaefficiency'] = 'Criteria efficiency';
 $string ['crowd'] = 'Crowd';
-$string ['crowdexperiment'] = "Crowd Experiment";
-$string ['crowdexperiment_help'] = "Enable initial crowd experiment (rtdelphi)";
+$string ['crowdexperiment'] = 'Crowd Experiment';
+$string ['crowdexperiment_help'] = 'Enable initial crowd experiment (rtdelphi)';
 $string ['crowdexperiment_rtm_secret'] = 'RTMarking Secret';
 $string ['crowdexperiment_rtm_secret_help'] = 'Secret for RTMarking auth';
 $string ['crowdexperiment_rtm_appid'] = 'RTMarking App-id';
 $string ['crowdexperiment_rtm_appid_help'] = 'Appid for RTMarking auth';
 
 $string ['decodeddata'] = 'Decoded data';
-$string ['digitizedfile'] = 'Digitized answers file';
+$string ['digitizedfile'] = 'Upload digitized answers file';
 $string ['doubleside'] = 'Double Side';
 $string ['doublesidescanning'] = 'Double side scanning';
 $string ['doublesidescanning_help'] = 'Please check if both sides of the answer sheets were scanned.';
@@ -367,8 +421,6 @@ $string ['email'] = 'Email';
 $string ['emailinstructions'] = 'Enter the security code sent to the email: {$a->email}';
 $string ['messageprovider:notification'] = 'Notification';
 $string ['emarking'] = 'eMarking';
-$string ['enablejustice'] = 'Enable justice perception';
-$string ['enablejustice_help'] = 'Enables the option for students to express their perception of justice for their evaluations';
 $string ['enrolincludes'] = 'Default enrolment methods';
 $string ['enrolincludes_help'] = 'The enrolment methods that will be selected when printing a new exam.';
 $string ['errors'] = 'Errors';
@@ -376,25 +428,6 @@ $string ['enrolincludes_help'] = 'The enrolment types that will be included when
 $string ['errorprocessingcrop'] = 'Error processing crop of QR';
 $string ['errorprocessingextraction'] = 'Error processing extraction from ZIP';
 $string ['errorsavingpdf'] = 'Error saving ZIP file';
-$string ['examalreadysent'] = 'The exam was already sent to print. It cannot be modified.';
-$string ['examdate'] = 'Exam date';
-$string ['examdate_help'] = 'Date and time in which the exam will be taken';
-$string ['examdateinvalid'] = 'Invalid exam date, it should be at least {$a->mindays} working days in advance.';
-$string ['examdateinvaliddayofweek'] = 'Invalid exam date, only from Monday to Fridays and Saturdays before 4pm.';
-$string ['examdateprinted'] = 'Print date';
-$string ['examdatesent'] = 'Date sent';
-$string ['examdeleteconfirm'] = 'You are about to delete {$a}. ¿Do you want to continue?';
-$string ['examdeleted'] = 'Exam deleted. Please wait while you are redirected';
-$string ['examid'] = 'Exam id';
-$string ['examinfo'] = 'Exam information';
-$string["examhasnopdf"] = "El examen to tiene un archivo PDF asociado. Este error es grave, por favor notifique al administrador.";
-$string ['examname'] = 'Exam title';
-$string ['examname_help'] = 'Exam title e.g: Final examn, Mid-term.';
-$string ['exam'] = 'Exam';
-$string ['exams'] = 'Exams';
-$string ['examstatusdownloaded'] = 'Downloaded';
-$string ['examstatusprinted'] = 'Printed';
-$string ['examstatussent'] = 'Sent for printing';
 $string ['experimental'] = 'Experimental';
 $string ['experimental_help'] = 'Experimental features (use at your own risk)';
 $string ['extractingpreview'] = 'Extracting pages';
@@ -442,47 +475,6 @@ $string ['invalidsize'] = 'Invalid size from Image';
 $string ['invalidstatus'] = 'Invalid status';
 $string ['invalidtoken'] = 'Invalid token trying to download exam.';
 $string ['invalidzipnoanonymous'] = 'Invalid ZIP file, it does not contain the anonymous version of answers. It is possible that it has been generated with an old version of the eMarking desktop tool.';
-$string ["justice"] = "Justice";
-$string ["justice.area.under.construction"] = "Dear Alpha Tester: This area is under construction! Thanks for helping us test our aplication.";
-$string ["justice.back"] = "Go Back";
-$string ["justice.download"] = "View";
-$string ["justice.evaluations.actions"] = "Actions";
-$string ["justice.evaluations.grade"] = "Grade";
-$string ["justice.evaluations.marker"] = "Marker";
-$string ["justice.evaluations.mean"] = "Mean";
-$string ["justice.evaluations.name"] = "Evaluation";
-$string ["justice.evaluations.status"] = "Status";
-$string ["justice.exam.not.found"] = "Exam not found";
-$string ["justice.feature.not.available.short"] = "Feature Unavailable";
-$string ["justice.feature.not.available.yet"] = "This feature is not available yet.";
-$string ["justice.feedback.already.given"] = "NOTICE! You have already given your opinion. You can update it below.";
-$string ["justice.feedback.welcome"] = "Use this form when you are ready to accept your grade.";
-$string ["justice.form.header"] = "My evaluations";
-$string ["justice.graph.student.name"] = "Name";
-$string ["justice.graph.test.performance"] = "Test performance";
-$string ["justice.my.evaluations"] = "My evaluations";
-$string ["justice.peercheck"] = "Review peers";
-$string ["justice.question.unavailable"] = "No disponible";
-$string ["justice.question.not.answered"] = "No Entregado";
-$string ["justice.question.modify"] = "Modificar";
-$string ["justice.regrade.request"] = "Request Regrade";
-$string ["justice.similars.actions"] = "Actions";
-$string ["justice.similars.grade"] = "Grade";
-$string ["justice.similars.name"] = "Name";
-$string ["justice.statistics"] = "Statistics";
-$string ["justice.statistics.locked"] = "Before viewing statistics, you need to answer some questions.";
-$string ["justice.status.grading"] = "Grading";
-$string ["justice.status.pending"] = "Pending Acceptance";
-$string ["justice.status.regrading"] = "Regrading";
-$string ["justice.status.accepted"] = "Accepted";
-$string ["justice.thank.you.for.your.feedback"] = "Thank you for your feedback.";
-$string ["justice.question.instructions"] = "Considering a scale from -4 to 4 where -4 means very unfair and 4 means very fair, please answer the following questions regarding the evaluation:";
-$string ["justice.question.first"] = "How would you rate the fairness of the marking process?";
-$string ["justice.question.second"] = "How does your grade compare to what you think you deserved?";
-$string ["justice.review"] = "Review";
-$string ["justice.yourgrade"] = "Your grade";
-$string ['justiceexperiment'] = 'Experiment in justice perception';
-$string ['justiceexperiment_help'] = 'Show half the students evaluation statistics to have experimental and control groups for measuring justice perception';
 $string ['justification'] = 'Justification';
 $string ['justification_help'] = 'You must justify your regrade request';
 $string ['lastmodification'] = 'Last modification';
@@ -556,6 +548,7 @@ $string ['noemarkings'] = 'No submissions left';
 $string ['nopagestoprocess'] = 'Error. No pages to process, please upload the answers again.';
 $string ['noprintorders'] = 'No print orders for this course';
 $string ['nosubmissionsgraded'] = 'No submissions graded';
+$string ['nosubmissionspublished'] = 'No grades published';
 $string ['nosubmissionsselectedforpublishing'] = 'No submissions selected for publishing grades';
 $string ['nocomment'] = 'No general comment';
 $string ['noexamsforprinting'] = 'There are no exams for printing';
@@ -572,6 +565,7 @@ $string ['pathuserpicture'] = 'Path to users pictures directory';
 $string ['pathuserpicture_help'] = 'Absolute path to directory containing users pictures in PNG format labeled userXXX.png with XXX being the user id';
 $string ['pdffile'] = 'Exam PDF file(s)';
 $string ['pdffile_help'] = 'You can upload several PDF files if you want to have different forms for each student';
+$string ['pdffileupdate'] = 'Update exam PDF file(s)';
 $string ['pluginadministration'] = 'eMarking administration';
 $string ['pluginname'] = 'eMarking';
 $string ['previewheading'] = 'Preview QR decoding';
@@ -579,6 +573,7 @@ $string ['previewtitle'] = 'Preview QR';
 $string ['printsuccessinstructions'] = 'Instructions for successfull printing';
 $string ['printsuccessinstructionsdesc'] = 'A personalized message to show teachers and admin staff once a successfull print order was sent. For example to pick up the prints from a copy center or to download by themselves.';
 $string ['printdoublesided'] = 'Double sided';
+$string ['printdoublesided_help'] = 'When selected e-marking will try to print the exam using both sides of the paper sheets. If CUPS (network printing) is not configured, instructions are indicated for the person who downloads.';
 $string ['printexam'] = 'Print exam';
 $string ['printrandom'] = 'Print random';
 $string ['printrandominvalid'] = 'must create a group for using this feature';
@@ -587,7 +582,7 @@ $string ['printlist'] = 'Print students list';
 $string ['printlist_help'] = 'Adds a student list';
 $string ['printnotification'] = 'Notification';
 $string ['printnotificationsent'] = 'Print notification sent';
-$string ['printorders'] = 'Prints orders';
+$string ['printorders'] = 'Print orders';
 $string ['printsendnotification'] = 'Send print notification';
 $string ['problem'] = 'Problem';
 $string ['processanswers'] = 'Process answers';
@@ -648,7 +643,7 @@ $string ['statusmissing'] = 'Missing';
 $string ['statusnotsent'] = 'Not sent';
 $string ['statusregrading'] = 'Regrading';
 $string ['statuspublished'] = 'Published';
-$string ['statussubmitted'] = 'Submitted';
+$string ['statussubmitted'] = 'Uploaded';
 $string ['statuserror'] = 'Error';
 $string ['submission'] = 'Manual submission';
 $string ['teachercandownload'] = 'Show teachers download exam link';
@@ -664,10 +659,8 @@ $string ['uploadinganswersheets'] = 'Uploading student answer sheets';
 $string ['uploadanswersuccessful'] = 'Upload answers successful';
 $string ['usesms'] = 'Use Twilio.com to send SMS';
 $string ['usesms_help'] = 'Use SMS messaging  instead of sending email for eMarking security codes';
-$string ['viewpeers'] = 'Students view peers\' exams';
-$string ['viewpeers_help'] = 'Students are allowed to see their peers\' exams in an anonymous way';
-$string ['viewsubmission'] = 'View submission';
-$string ['visualizeandprocess'] = 'Visualizar errores y procesar nuevamente';
+$string ['viewsubmission'] = 'View exam';
+$string ['visualizeandprocess'] = 'Check errors and process again';
 $string ['formnewcomment'] = 'Comment text';
 $string ['writecomment'] = 'Write a Comment';
 $string ['createcomment'] = 'Create Comment';

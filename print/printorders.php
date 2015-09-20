@@ -259,6 +259,14 @@ if ($CFG->emarking_usesms) {
 
 ?>
 <script type="text/javascript">
+    var messages = {
+		downloadexam: "<?php echo get_string("downloadexam", "mod_emarking") ?>",
+		download: "<?php echo get_string("download", "mod_emarking") ?>",
+		cancel: "<?php echo get_string("cancel", "mod_emarking") ?>",
+		resendcode: "<?php echo get_string("resendcode", "mod_emarking") ?>",
+		timeout: "<?php echo get_string("smsservertimeout", "mod_emarking") ?>",
+		servererror: "<?php echo get_string("smsservererror", "mod_emarking") ?>"		
+    };
 	var wwwroot = "<?php echo $CFG->wwwroot ?>";
 	var downloadurl = "<?php echo $downloadurl ?>";
 	var sessionkey = "<?php echo sesskey() ?>";

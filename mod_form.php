@@ -55,11 +55,18 @@ class mod_emarking_mod_form extends moodleform_mod
         
         // Exam id, in case we are in editing mode
         $examid = 0;
+        $exam = null;
+        $emarking = null;
         if ($this->_instance) {
-            $exam = $DB->get_record("emarking_exams", array(
-                "emarking" => $this->_instance
+            $emarking = $DB->get_record('emarking', array(
+                'id' => $this->_instance
             ));
-            $examid = $exam->id;
+            $exam = $DB->get_record("emarking_exams", array(
+                "emarking" => $emarking->id
+            ));
+            if ($exam) {
+                $examid = $exam->id;
+            }
         }
         
         // Verifies that the logo image set in settings is copied to regular filearea
@@ -93,12 +100,16 @@ class mod_emarking_mod_form extends moodleform_mod
         
         // Expected pages for submissions
         $types = array(
-            1 => get_string('type_normal', 'mod_emarking'),
-            2 => get_string('type_markers_training', 'mod_emarking')
+            EMARKING_TYPE_PRINT_ONLY => get_string('type_print_only', 'mod_emarking'),
+            EMARKING_TYPE_PRINT_SCAN => get_string('type_print_scan', 'mod_emarking'),
+            EMARKING_TYPE_NORMAL => get_string('type_normal', 'mod_emarking')
         );
+        
+        if (! $this->_instance || ($emarking && $emarking->type == EMARKING_TYPE_MARKER_TRAINING)) {
+            $types[EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
+        }
         // 3 => get_string('type_student_training', 'mod_emarking'),
         // 4 => get_string('type_peer_review', 'mod_emarking')
-        
         
         // MARKING TYPE
         $mform->addElement('select', 'type', get_string('markingtype', 'mod_emarking'), $types, array(
@@ -120,74 +131,107 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('name', 'examname', 'mod_emarking');
         
+        if ($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
+            $mform->freeze('name');
+        }
+        
         // PRINT CONFIGURATION
         $mform->addElement('header', 'print', get_string("print", "mod_emarking"));
         
-        // EXAM PDF FILE(S)
-        $examfilename = get_string('pdffile', 'mod_emarking');
-        $mform->addElement('filemanager', 'exam_files', $examfilename, null, array(
-            'subdirs' => 0,
-            'maxbytes' => 0,
-            'maxfiles' => 10,
-            'accepted_types' => array(
-                '.pdf'
-            ),
-            'return_types' => FILE_INTERNAL
-        ));
+        // EXAM PDF FILE(S) OR PREVIOUSLY SENT EXAM
         
-        $mform->setType('exam_files', PARAM_FILE);
-        $mform->addHelpButton('exam_files', 'pdffile', 'mod_emarking');
-        $mform->disabledIf('exam_files', 'exam', 'neq', '0');
-        
+        // Check if there are any exams with no emarking activity associated
         $availableexams = $DB->get_records("emarking_exams", array(
             "course" => $COURSE->id,
             "emarking" => 0
         ));
         
+        $this->standard_intro_elements(get_string('examinfo', 'mod_emarking'));
+        
         $examsarray = array();
-        if ($availableexams) {
-            $examsarray[0] = get_string("selectexam", "mod_emarking");
-            foreach ($availableexams as $exam) {
-                $examsarray[$exam->id] = $exam->name;
+        if ($availableexams && ! $exam) {
+            $examsarray[0] = get_string("no");
+            foreach ($availableexams as $avexam) {
+                $examsarray[$avexam->id] = $avexam->name;
             }
             // Expected pages for submissions
-            $mform->addElement('select', 'exam', get_string('orsentexam', 'mod_emarking'), $examsarray);
+            $mform->addElement('select', 'exam', get_string('orsentexam', 'mod_emarking'), $examsarray, array(
+                "onchange" => "previousExamUpdate();"
+            ));
             $mform->addHelpButton('exam', 'orsentexam', 'mod_emarking');
             $mform->setDefault('exam', 0);
             $mform->setType('exam', PARAM_INT);
-            $mform->disabledIf('exam', 'type', 'neq', '1');
-        } else {
-            $mform->addElement('hidden', 'exam', 0);
-            $mform->setType('exam', PARAM_INT);
-        }
+            $mform->disabledIf('exam', 'type', 'eq', '2');
+        } else 
+            if ($exam) {
+                $mform->addElement('hidden', 'exam', $exam->id);
+                $mform->setType('exam', PARAM_INT);
+            } else {
+                $mform->addElement('hidden', 'exam', 0);
+                $mform->setType('exam', PARAM_INT);
+            }
         
-        $examdate = new DateTime();
-        $examdate->setTimestamp(usertime(time()));
-        $examdate->modify('+2 days');
-        $examdate->modify('+10 minutes');
-        
-        $examw = date("w", $date->getTimestamp());
-        
-        // Sundays and saturdays shouldn't be selected by default
-        if ($examw == 0) {
-            $examdate->modify('+1 days');
-        }
-        
-        if ($examw == 6) {
+        $examfilename = get_string('pdffile', 'mod_emarking');
+        // If we are editing, we
+        if (($exam && $exam->status < EMARKING_EXAM_SENT_TO_PRINT)
+            || !$this->_instance) {
+                
+                if($this->_instance) {
+                    $examfilename = get_string('pdffileupdate', 'mod_emarking');
+                } else {
+                    $examfilename = get_string('pdffile', 'mod_emarking');
+                }
+            
+            $mform->addElement('filemanager', 'exam_files', $examfilename, null, array(
+                'subdirs' => 0,
+                'maxbytes' => 0,
+                'maxfiles' => 10,
+                'accepted_types' => array(
+                    '.pdf'
+                ),
+                'return_types' => FILE_INTERNAL
+            ));
+            
+            $mform->setType('exam_files', PARAM_FILE);
+            $mform->addHelpButton('exam_files', 'pdffile', 'mod_emarking');
+            $mform->disabledIf('exam_files', 'exam', 'neq', '0');
+            
+            $examdate = new DateTime();
+            $examdate->setTimestamp(usertime(time()));
             $examdate->modify('+2 days');
+            $examdate->modify('+10 minutes');
+            
+            $examw = date("w", $date->getTimestamp());
+            
+            // Sundays and saturdays shouldn't be selected by default
+            if ($examw == 0) {
+                $examdate->modify('+1 days');
+            }
+            
+            if ($examw == 6) {
+                $examdate->modify('+2 days');
+            }
+            
+            // Exam date
+            
+            $mform->addElement('date_time_selector', 'examdate', get_string('examdate', 'mod_emarking'), array(
+                'startyear' => date('Y'),
+                'stopyear' => date('Y') + 1,
+                'step' => 5,
+                'defaulttime' => $examdate->getTimestamp(),
+                'optional' => false
+            ), $instance['options']);
+            $mform->disabledIf('examdate', 'exam', 'neq', '0');
+            $mform->addHelpButton('examdate', 'examdate', 'mod_emarking');
+            
+            if ($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
+                $mform->freeze('examdate');
+                $mform->freeze('exam_files');
+            }
+        } else {
+            // Add message explaining why they can't change files or dates anymore
+            $mform->addElement('static', 'examdownloaded', get_string("pdffile", "mod_emarking"), get_string("examalreadysent", "mod_emarking"));
         }
-        
-        // Exam date
-        
-        $mform->addElement('date_time_selector', 'examdate', get_string('examdate', 'mod_emarking'), array(
-            'startyear' => date('Y'),
-            'stopyear' => date('Y') + 1,
-            'step' => 5,
-            'defaulttime' => $examdate->getTimestamp(),
-            'optional' => false
-        ), $instance['options']);
-        $mform->addHelpButton('examdate', 'examdate', 'mod_emarking');
-        
         // Print students list
         $mform->addElement('checkbox', 'printlist', get_string('printlist', 'mod_emarking'));
         $mform->setType('printlist', PARAM_BOOL);
@@ -197,15 +241,13 @@ class mod_emarking_mod_form extends moodleform_mod
         
         // print double sided
         $mform->addElement('checkbox', 'printdoublesided', get_string('printdoublesided', 'mod_emarking'));
-        // $mform->addElement('hidden', 'printdoublesided');
         $mform->setType('printdoublesided', PARAM_BOOL);
-        // $mform->addHelpButton('printdoublesided', 'printdoublesided', 'mod_emarking');
+        $mform->addHelpButton('printdoublesided', 'printdoublesided', 'mod_emarking');
         $mform->setDefault('printdoublesided', false);
         $mform->setAdvanced('printdoublesided');
         
         // Personalized header (using QR)
         $mform->addElement('checkbox', 'headerqr', get_string('headerqr', 'mod_emarking'));
-        // $mform->addElement('hidden','headerqr');
         $mform->setType('headerqr', PARAM_BOOL);
         $mform->addHelpButton('headerqr', 'headerqr', 'mod_emarking');
         $mform->setDefault('headerqr', true);
@@ -275,20 +317,9 @@ class mod_emarking_mod_form extends moodleform_mod
         
         // Enrolment methods to include in printing
         $enrolcheckboxes = array();
-        $enrolavailables = array();
-        $enrolments = enrol_get_instances($COURSE->id, true);
-        $flag = 0;
-        foreach ($enrolments as $enrolment) {
-            if ($enrolment->enrol == "meta") {
-                if ($flag == 0) {
-                    $flag = 1;
-                    $enrolavailables[] = $enrolment->enrol;
-                    $enrolcheckboxes[] = $mform->createElement('checkbox', $enrolment->enrol, null, get_string('enrol' . $enrolment->enrol, 'mod_emarking'), 'checked');
-                }
-            } else {
-                $enrolavailables[] = $enrolment->enrol;
-                $enrolcheckboxes[] = $mform->createElement('checkbox', $enrolment->enrol, null, get_string('enrol' . $enrolment->enrol, 'mod_emarking'), 'checked');
-            }
+        $enrolavailables = $this->getAvailableEnrolments();
+        foreach ($enrolavailables as $enrolment) {
+            $enrolcheckboxes[] = $mform->createElement('checkbox', $enrolment, null, get_string('enrol' . $enrolment, 'mod_emarking'), 'checked');
         }
         
         $mform->addGroup($enrolcheckboxes, 'enrolments', get_string('enrolments', 'mod_emarking'), array(
@@ -319,26 +350,20 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addElement('header', 'scan', get_string('scan', "mod_emarking"));
         
         // Due date settings
-        $mform->addElement('checkbox', 'enablescan', get_string('enablescan', 'mod_emarking'));
+        $mform->addElement('static', 'enablescan', get_string('enablescan', 'mod_emarking'));
         
         $mform->addElement('header', 'osm', get_string('onscreenmarking', "mod_emarking"));
-        
-        // Due date settings
-        $mform->addElement('checkbox', 'enableosm', get_string('enableosm', 'mod_emarking'));
-        $mform->addHelpButton('enableosm', 'enableosm', 'mod_emarking');
-        $mform->disabledIf("enableosm", "enablescan", "notchecked");
         
         // Students can see peers answers
         $ynoptions = array(
             0 => get_string('no'),
-            1 => get_string('yes')
+            1 => get_string('yespeerisanonymous', 'mod_emarking')
         );
         $mform->addElement('select', 'peervisibility', get_string('viewpeers', 'mod_emarking'), $ynoptions);
         $mform->addHelpButton('peervisibility', 'viewpeers', 'mod_emarking');
         $mform->setDefault('peervisibility', 0);
         $mform->setType('peervisibility', PARAM_INT);
-        $mform->disabledIf('peervisibility', 'type', 'neq', '1');
-        $mform->disabledIf('peervisibility', 'enableosm', 'notchecked');
+        $mform->disabledIf('peervisibility', 'type', 'eq', '2');
         
         // Expected pages for submissions
         $mform->addElement('hidden', 'totalpages', 0);
@@ -346,10 +371,10 @@ class mod_emarking_mod_form extends moodleform_mod
         
         // Anonymous eMarking setting
         $anonymousoptions = array(
-            0 => get_string('studentanonymous_markervisible', 'mod_emarking'),
-            1 => get_string('studentanonymous_markeranonymous', 'mod_emarking'),
-            2 => get_string('studentvisible_markervisible', 'mod_emarking'),
-            3 => get_string('studentvisible_markeranonymous', 'mod_emarking')
+            EMARKING_ANON_STUDENT => get_string('studentanonymous_markervisible', 'mod_emarking'),
+            EMARKING_ANON_BOTH => get_string('studentanonymous_markeranonymous', 'mod_emarking'),
+            EMARKING_ANON_NONE => get_string('studentvisible_markervisible', 'mod_emarking'),
+            EMARKING_ANON_MARKER => get_string('studentvisible_markeranonymous', 'mod_emarking')
         );
         if (has_capability('mod/emarking:manageanonymousmarking', $ctx)) {
             $mform->addElement('select', 'anonymous', get_string('anonymous', 'mod_emarking'), $anonymousoptions);
@@ -359,16 +384,29 @@ class mod_emarking_mod_form extends moodleform_mod
         }
         $mform->setDefault('anonymous', 0);
         $mform->setType('anonymous', PARAM_INT);
-        $mform->disabledIf('anonymous', 'type', 'neq', '1');
-        $mform->disabledIf('anonymous', 'enableosm', 'notchecked');
+        $mform->disabledIf('anonymous', 'type', 'eq', '2');
+        
+        // Justice perception eMarking setting
+        $justiceoptions = array(
+            EMARKING_JUSTICE_DISABLED => get_string('justicedisabled', 'mod_emarking'),
+            EMARKING_JUSTICE_PER_SUBMISSION => get_string('justicepersubmission', 'mod_emarking'),
+            EMARKING_JUSTICE_PER_CRITERION => get_string('justicepercriterion', 'mod_emarking')
+        );
+        if (has_capability('mod/emarking:manageanonymousmarking', $ctx)) {
+            $mform->addElement('select', 'justiceperception', get_string('justiceperception', 'mod_emarking'), $justiceoptions);
+            $mform->addHelpButton('justiceperception', 'justiceperception', 'mod_emarking');
+        } else {
+            $mform->addElement('hidden', 'justiceperception');
+        }
+        $mform->setDefault('justiceperception', 0);
+        $mform->setType('justiceperception', PARAM_INT);
+        $mform->disabledIf('justiceperception', 'type', 'eq', '2');
         
         $mform->addElement('checkbox', 'linkrubric', get_string('linkrubric', 'mod_emarking'));
         $mform->addHelpButton('linkrubric', 'linkrubric', 'mod_emarking');
-        $mform->disabledIf('linkrubric', 'enableosm', 'notchecked');
         
         $mform->addElement('checkbox', 'collaborativefeatures', get_string('collaborativefeatures', 'mod_emarking'));
         $mform->addHelpButton('collaborativefeatures', 'collaborativefeatures', 'mod_emarking');
-        $mform->disabledIf('collaborativefeatures', 'enableosm', 'notchecked');
         
         // Custom marks
         if (has_capability('mod/emarking:managespecificmarks', $ctx)) {
@@ -384,15 +422,13 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->setDefault('custommarks', '');
         $mform->setType('custommarks', PARAM_TEXT);
         $mform->setAdvanced('custommarks');
-        $mform->disabledIf('custommarks', 'type', 'neq', '1');
-        $mform->disabledIf('custommarks', 'enableosm', 'notchecked');
+        $mform->disabledIf('custommarks', 'type', 'eq', '2');
         
         // Due date settings
         $mform->addElement('checkbox', 'qualitycontrol', get_string('enablequalitycontrol', 'mod_emarking'));
         $mform->addHelpButton('qualitycontrol', 'enablequalitycontrol', 'mod_emarking');
         $mform->setAdvanced('qualitycontrol');
-        $mform->disabledIf('qualitycontrol', 'type', 'neq', '1');
-        $mform->disabledIf('qualitycontrol', 'enableosm', 'notchecked');
+        $mform->disabledIf('qualitycontrol', 'type', 'eq', '2');
         
         // Get all users with permission to grade in emarking
         $markers = get_enrolled_users($ctx, 'mod/emarking:grade');
@@ -409,12 +445,11 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->setType('markers', PARAM_INT);
         $mform->disabledIf('markers', 'qualitycontrol');
         $mform->setAdvanced('markers');
-        $mform->disabledIf('markers', 'type', 'neq', '1');
+        $mform->disabledIf('markers', 'type', 'eq', '2');
         
         // Due date settings
         $mform->addElement('checkbox', 'enableduedate', get_string('enableduedate', 'mod_emarking'));
         $mform->setAdvanced('enableduedate');
-        $mform->disabledIf("enableduedate", "enableosm", "notchecked");
         
         $mform->addElement('date_time_selector', 'markingduedate', get_string('markingduedate', 'mod_emarking'), array(
             'startyear' => date('Y'),
@@ -431,8 +466,7 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addElement('checkbox', 'regraderestrictdates', get_string('regraderestrictdates', 'mod_emarking'));
         $mform->addHelpButton('regraderestrictdates', 'regraderestrictdates', 'mod_emarking');
         $mform->setAdvanced('regraderestrictdates');
-        $mform->disabledIf('regraderestrictdates', 'type', 'neq', '1');
-        $mform->disabledIf('regraderestrictdates', 'enableosm', 'notchecked');
+        $mform->disabledIf('regraderestrictdates', 'type', 'eq', '2');
         
         $mform->addElement('date_time_selector', 'regradesopendate', get_string('regradesopendate', 'mod_emarking'), array(
             'startyear' => date('Y'),
@@ -444,7 +478,7 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('regradesopendate', 'regradesopendate', 'mod_emarking');
         $mform->setAdvanced('regradesopendate');
         $mform->disabledIf('regradesopendate', 'regraderestrictdates');
-        $mform->disabledIf('regradesopendate', 'type', 'neq', '1');
+        $mform->disabledIf('regradesopendate', 'type', 'eq', '2');
         
         $date->modify('+2 months');
         $mform->addElement('date_time_selector', 'regradesclosedate', get_string('regradesclosedate', 'mod_emarking'), array(
@@ -457,7 +491,7 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('regradesclosedate', 'regradesclosedate', 'mod_emarking');
         $mform->setAdvanced('regradesclosedate');
         $mform->disabledIf('regradesclosedate', 'regraderestrictdates');
-        $mform->disabledIf('regradesclosedate', 'type', 'neq', '1');
+        $mform->disabledIf('regradesclosedate', 'type', 'eq', '2');
         
         $mform->addElement('header', 'markerstraining', get_string('type_markers_training', 'mod_emarking'));
         $mform->setExpanded('markerstraining');
@@ -498,7 +532,6 @@ class mod_emarking_mod_form extends moodleform_mod
         // 3 => get_string('type_student_training', 'mod_emarking'),
         // 4 => get_string('type_peer_review', 'mod_emarking')
         
-        
         // MARKING TYPE
         $mform->addElement('select', 'agreementflexibility', get_string('agreementflexibility', 'mod_emarking'), $agreements);
         $mform->addHelpButton('agreementflexibility', 'agreementflexibility', 'mod_emarking');
@@ -526,12 +559,19 @@ class mod_emarking_mod_form extends moodleform_mod
                 // without its name to make UI simplier
                 $areadata = reset($this->current->_advancedgradingdata['areas']);
                 $areaname = key($this->current->_advancedgradingdata['areas']);
-                $mform->addElement('select', 'advancedgradingmethod_' . $areaname, get_string('gradingmethod', 'core_grading'), array(
-                    'rubric' => "Rubrica"
-                ));
-                $mform->addHelpButton('advancedgradingmethod_' . $areaname, 'gradingmethod', 'core_grading');
-                $mform->setAdvanced('advancedgradingmethod_' . $areaname);
-                $mform->disabledIf('advancedgradingmethod_' . $areaname, 'type', 'neq', '1');
+                // Regrade settings, dates and enabling
+                $mform->addElement('hidden', 'advancedgradingmethod_' . $areaname, 'rubric');
+                $mform->setType('advancedgradingmethod_' . $areaname, PARAM_ALPHA);
+                
+                /*
+                 * $mform->addElement('select', 'advancedgradingmethod_' . $areaname, get_string('gradingmethod', 'core_grading'), array(
+                 * null => "sIMPLE GRADING",
+                 * 'rubric' => "Rubrica"
+                 * ));
+                 * $mform->addHelpButton('advancedgradingmethod_' . $areaname, 'gradingmethod', 'core_grading');
+                 * $mform->setAdvanced('advancedgradingmethod_' . $areaname);
+                 * $mform->disabledIf('advancedgradingmethod_' . $areaname, 'type', 'eq', '2');
+                 */
             } else {
                 throw new Exception("The emarking module should not define more than one grading area");
             }
@@ -541,14 +581,14 @@ class mod_emarking_mod_form extends moodleform_mod
             $mform->addElement('select', 'gradecat', get_string('gradecategoryonmodform', 'grades'), grade_get_categories_menu($COURSE->id, $this->_outcomesused));
             $mform->addHelpButton('gradecat', 'gradecategoryonmodform', 'grades');
             $mform->setAdvanced('gradecat');
-            $mform->disabledIf('gradecat', 'type', 'neq', '1');
+            $mform->disabledIf('gradecat', 'type', 'eq', '2');
         }
         
         // Regrade settings, dates and enabling
         $mform->addElement('checkbox', 'adjustslope', get_string('adjustslope', 'mod_emarking'));
         $mform->addHelpButton('adjustslope', 'adjustslope', 'mod_emarking');
         $mform->setAdvanced('adjustslope');
-        $mform->disabledIf('adjustslope', 'type', 'neq', '1');
+        $mform->disabledIf('adjustslope', 'type', 'eq', '2');
         
         $mform->addElement('text', 'adjustslopegrade', get_string('adjustslopegrade', 'mod_emarking'), array(
             'size' => '5'
@@ -558,7 +598,7 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('adjustslopegrade', 'adjustslopegrade', 'mod_emarking');
         $mform->disabledIf('adjustslopegrade', 'adjustslope');
         $mform->setAdvanced('adjustslopegrade');
-        $mform->disabledIf('adjustslopegrade', 'type', 'neq', '1');
+        $mform->disabledIf('adjustslopegrade', 'type', 'eq', '2');
         
         $mform->addElement('text', 'adjustslopescore', get_string('adjustslopescore', 'mod_emarking'), array(
             'size' => '5'
@@ -568,7 +608,7 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('adjustslopescore', 'adjustslopescore', 'mod_emarking');
         $mform->disabledIf('adjustslopescore', 'adjustslope');
         $mform->setAdvanced('adjustslopescore');
-        $mform->disabledIf('adjustslopescore', 'type', 'neq', '1');
+        $mform->disabledIf('adjustslopescore', 'type', 'eq', '2');
         
         // -------------------------------------------------------------------------------
         // add standard elements, common to all modules
@@ -583,13 +623,23 @@ class mod_emarking_mod_form extends moodleform_mod
         
         // If we are in editing mode we can not change the type anymore
         if ($this->_instance) {
-            $emarking = $DB->get_record('emarking', array(
-                'id' => $this->_instance
-            ));
             $freeze = array();
-            $freeze[] = 'type';
+            if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+                $freeze[] = 'type';
+            }
             if ($emarking->type == EMARKING_TYPE_NORMAL) {
                 $freeze[] = 'qualitycontrol';
+            }
+            if ($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
+                $freeze[] = 'printlist';
+                $freeze[] = 'printdoublesided';
+                $freeze[] = 'headerqr';
+                $freeze[] = 'extrasheets';
+                $freeze[] = 'extraexams';
+                $freeze[] = 'enrolments';
+                if($mform->elementExists('multicourse')) {
+                    $freeze[] = 'multicourse';
+                }
             }
             $mform->freeze($freeze);
         }
@@ -612,16 +662,49 @@ class mod_emarking_mod_form extends moodleform_mod
             foreach ($markers as $marker) {
                 $default_values['marker-' . $marker->marker] = 1;
             }
+            
+            $exam = $DB->get_record("emarking_exams", array(
+                "emarking" => $this->_instance
+            ));
+            if ($exam) {
+                $default_values["examdate"] = $exam->examdate;
+                $default_values["printlist"] = $exam->printlist;
+                $default_values["printdoublesided"] = $exam->usebackside;
+                $default_values["headerqr"] = $exam->headerqr;
+                $default_values["extrasheets"] = $exam->extrasheets;
+                $default_values["extraexams"] = $exam->extraexams;
+                
+                $enrolavailables = $this->getAvailableEnrolments();
+                
+                // If we are editing, we use the previous enrolments
+                if (isset($exam->enrolments)) {
+                    $enrolincludes = explode(",", $exam->enrolments);
+                    foreach ($enrolincludes as $enroldefault) {
+                        if (in_array($enroldefault, $enrolavailables)) {
+                            $default_values["enrolments[$enroldefault]"] = true;
+                        }
+                    }
+                    // If we are creating a new one, the default comes from the plugin settings
+                } else 
+                    if ($CFG->emarking_enrolincludes && strlen($CFG->emarking_enrolincludes) > 1) {
+                        $enrolincludes = explode(",", $CFG->emarking_enrolincludes);
+                        foreach ($enrolincludes as $enroldefault) {
+                            if (in_array($enroldefault, $enrolavailables)) {
+                                $default_values["enrolments[$enroldefault]"] = true;
+                            }
+                        }
+                    }
+            }
         }
     }
 
     function validation($data, $files)
     {
-        global $CFG, $COURSE, $USER;
+        global $CFG, $COURSE, $USER, $DB;
         
-        require_once($CFG->dirroot . "/mod/emarking/print/locallib.php");
+        require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
         
-        if ($data["type"] == 0 || $data["type"] > 2) {
+        if ($data["type"] < 0 || $data["type"] > 5) {
             return array(
                 "type" => get_string("markingtypemandatory", "mod_emarking")
             );
@@ -658,52 +741,63 @@ class mod_emarking_mod_form extends moodleform_mod
             }
         }
         
-        // The exam date comes from the date selector
-        $examdate = new DateTime();
-        $examdate->setTimestamp(usertime($data['examdate']));
-        
-        // Day of week from 0 Sunday to 6 Saturday
-        $examw = date("w", $examdate->getTimestamp());
-        // Hour of the day un 00 to 23 format
-        $examh = date("H", $examdate->getTimestamp());
-        
-        // Sundays are forbidden, saturdays from 6am to 4pm TODO: Move this settings to eMarking settings
-        if ($examw == 0 || ($examw == 6 && ($examh < 6 || $examh > 16))) {
-            $errors['examdate'] = get_string('examdateinvaliddayofweek', 'mod_emarking');
-        }
-        
-        // If minimum days for printing is enabled
-        if (isset($CFG->emarking_minimumdaysbeforeprinting) && $CFG->emarking_minimumdaysbeforeprinting > 0) {
-            
-            // User date. Important because the user sees a date selector based on her timezone settings, not the server's
-            $date = usertime(time());
-            
-            // Today is the date according to the user's timezone
-            $today = new DateTime();
-            $today->setTimestamp($date);
-            
-            // We have a minimum difference otherwise we wouldn't be in this part of the code
-            $mindiff = intval($CFG->emarking_minimumdaysbeforeprinting);
-            
-            // If today is saturday or sunday, demand for a bigger difference
-            $todayw = date("w", $today->getTimestamp());
-            $todayw = $todayw ? $todayw : 7;
-            
-            if ($todayw > 5) {
-                $mindiff += $todayw - 5;
+        // Get the exam if we are updating an emarking activity
+        $exam = null;
+        if (isset($data['exam']) && $data['exam'] > 0) {
+            if(!$exam = $DB->get_record("emarking_exams", array("id"=>$data["exam"]))) {
+                $errors["exam"] = "Invalid data from form";
             }
+        }
+
+        // If there is no associated exam yet
+        if (! $exam) {
+            // The exam date comes from the date selector
+            $examdate = new DateTime();
+            $examdate->setTimestamp(usertime($data['examdate']));
             
-            // DateInterval calculated with diff
-            $diff = $today->diff($examdate, false);
+            // Day of week from 0 Sunday to 6 Saturday
+            $examw = date("w", $examdate->getTimestamp());
+            // Hour of the day un 00 to 23 format
+            $examh = date("H", $examdate->getTimestamp());
             
-            // The difference using the invert from DateInterval so we know it is in the past
-            $realdiff = $diff->days * ($diff->invert ? - 1 : 1);
-            
-            // If the difference is not enough, show an error
-            if ($realdiff < $mindiff) {
-                $a = new stdClass();
-                $a->mindays = $mindiff;
-                $errors['examdate'] = get_string('examdateinvalid', 'mod_emarking', $a);
+            // If minimum days for printing is enabled
+            if (isset($CFG->emarking_minimumdaysbeforeprinting) && $CFG->emarking_minimumdaysbeforeprinting > 0) {
+                
+                // Sundays are forbidden, saturdays from 6am to 4pm TODO: Move this settings to eMarking settings
+                if ($examw == 0 || ($examw == 6 && ($examh < 6 || $examh > 16))) {
+                    $errors['examdate'] = get_string('examdateinvaliddayofweek', 'mod_emarking');
+                }
+                
+                // User date. Important because the user sees a date selector based on her timezone settings, not the server's
+                $date = usertime(time());
+                
+                // Today is the date according to the user's timezone
+                $today = new DateTime();
+                $today->setTimestamp($date);
+                
+                // We have a minimum difference otherwise we wouldn't be in this part of the code
+                $mindiff = intval($CFG->emarking_minimumdaysbeforeprinting);
+                
+                // If today is saturday or sunday, demand for a bigger difference
+                $todayw = date("w", $today->getTimestamp());
+                $todayw = $todayw ? $todayw : 7;
+                
+                if ($todayw > 5) {
+                    $mindiff += $todayw - 5;
+                }
+                
+                // DateInterval calculated with diff
+                $diff = $today->diff($examdate, false);
+                
+                // The difference using the invert from DateInterval so we know it is in the past
+                $realdiff = $diff->days * ($diff->invert ? - 1 : 1);
+                
+                // If the difference is not enough, show an error
+                if ($realdiff < $mindiff) {
+                    $a = new stdClass();
+                    $a->mindays = $mindiff;
+                    $errors['examdate'] = get_string('examdateinvalid', 'mod_emarking', $a);
+                }
             }
         }
         
@@ -740,7 +834,7 @@ class mod_emarking_mod_form extends moodleform_mod
                     return $errors;
                 }
                 
-                if($numpagesprevious >= 0 && $numpagesprevious != $numpages) {
+                if ($numpagesprevious >= 0 && $numpagesprevious != $numpages) {
                     $errors["exam_files"] = get_string('invalidpdfnumpagesforms', 'mod_emarking');
                     return $errors;
                 }
@@ -833,7 +927,32 @@ class mod_emarking_mod_form extends moodleform_mod
                 $errors['markers'] = get_string('notenoughmarkersforqualitycontrol', 'mod_emarking');
         }
         
+        if ($data["exam"] > 0 && $this->_instance) {
+            $previousexam = $DB->get_record("emarking_exams", array(
+                "emarking" => $this->_instance
+            ));
+            if ($previousexam && ($previousexam->id != $data["exam"])) {
+                $errors["exam"] = "An exam is already assigned for this emarking activity";
+            }
+        }
+        
         return $errors;
+    }
+
+    function getAvailableEnrolments()
+    {
+        global $COURSE;
+        
+        // Enrolment methods to include in printing
+        $enrolavailables = array();
+        $enrolments = enrol_get_instances($COURSE->id, true);
+        foreach ($enrolments as $enrolment) {
+            if (! in_array($enrolment->enrol, $enrolavailables)) {
+                $enrolavailables[] = $enrolment->enrol;
+            }
+        }
+        
+        return $enrolavailables;
     }
 
     function display()
@@ -841,35 +960,89 @@ class mod_emarking_mod_form extends moodleform_mod
         parent::display();
         
         // Hide button save and back to course
-        echo "<style>#id_markerstraining, #id_submitbutton2 {display:none;}</style>";
+        // echo "<style>#id_scan, #id_osm, #id_modstandardgrade, #id_markerstraining, #id_submitbutton2 {display:none;}</style>";
         
         // #id_experimental, #id_marking, #id_regrade, #id_modstandardgrade, #id_modstandardelshdr
         echo "<script>
 	        function showFullForm() {
 	           var e = document.getElementById('id_type');
                var strUser = e.options[e.selectedIndex].value;
-	           if (strUser == '1') {
+	           if (strUser == '0') {
+                    document.getElementById('id_print').style.display = 'block';
+                    document.getElementById('id_scan').style.display = 'none';
+	                document.getElementById('id_osm').style.display = 'none';
+                    document.getElementById('id_markerstraining').style.display = 'none';
+                    document.getElementById('id_modstandardgrade').style.display = 'none';
+                    document.getElementById('id_modstandardelshdr').style.display = 'block';
+                } else if (strUser == '1') {
                     document.getElementById('id_print').style.display = 'block';
                     document.getElementById('id_scan').style.display = 'block';
 	                document.getElementById('id_osm').style.display = 'block';
                     document.getElementById('id_markerstraining').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'block';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
-	           } else if(strUser == '2') {
+                } else if(strUser == '2') {
                     document.getElementById('id_print').style.display = 'none';
 	                document.getElementById('id_scan').style.display = 'none';
                     document.getElementById('id_osm').style.display = 'none';
                     document.getElementById('id_markerstraining').style.display = 'block';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
-                    document.getElementById('id_modstandardelshdr').style.display = 'none';
-	           } else {
+                    document.getElementById('id_modstandardelshdr').style.display = 'block';
+                } else if(strUser == '5') {
+                    document.getElementById('id_print').style.display = 'block';
+	                document.getElementById('id_scan').style.display = 'block';
+                    document.getElementById('id_osm').style.display = 'none';
+                    document.getElementById('id_markerstraining').style.display = 'none';
+                    document.getElementById('id_modstandardgrade').style.display = 'none';
+                    document.getElementById('id_modstandardelshdr').style.display = 'block';
+                } else {
                     document.getElementById('id_print').style.display = 'none';
 	                document.getElementById('id_experimental').style.display = 'none';
                     document.getElementById('id_marking').style.display = 'none';
                     document.getElementById('id_regrade').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'none';
-	           }
+                }
+                
+            document.getElementById('fitem_id_introeditor').style.display = 'none';
+            document.getElementById('id_submitbutton2').style.display = 'none';
+            
+	       }
+            showFullForm();
+	        </script>";
+        
+        // #id_experimental, #id_marking, #id_regrade, #id_modstandardgrade, #id_modstandardelshdr
+        echo "<script>
+	        function previousExamUpdate() {
+	           var e = document.getElementById('id_exam');
+               var strUser = e.options[e.selectedIndex].value;
+	           if (strUser == '0') {
+                    document.getElementById('fitem_id_exam_files').style.display = 'block';
+                    document.getElementById('fitem_id_examdate').style.display = 'block';
+	                document.getElementById('fitem_id_printlist').style.display = 'block';
+                    document.getElementById('fitem_id_printdoublesided').style.display = 'block';
+                    document.getElementById('fitem_id_headerqr').style.display = 'block';
+                    document.getElementById('fitem_id_extrasheets').style.display = 'block';
+                    document.getElementById('fitem_id_extraexams').style.display = 'block';
+                    document.getElementById('fgroup_id_multicourse').style.display = 'block';
+                    document.getElementById('fgroup_id_enrolments').style.display = 'block';
+                    document.getElementById('fitem_id_selectall').style.display = 'block';
+                    document.getElementById('fitem_id_deselectall').style.display = 'block';
+                    document.getElementById('id_print').getElementsByClassName('moreless-actions')[0].style.display = 'block';
+                } else {
+                    document.getElementById('fitem_id_exam_files').style.display = 'none';
+                    document.getElementById('fitem_id_examdate').style.display = 'none';
+	                document.getElementById('fitem_id_printlist').style.display = 'none';
+                    document.getElementById('fitem_id_printdoublesided').style.display = 'none';
+                    document.getElementById('fitem_id_headerqr').style.display = 'none';
+                    document.getElementById('fitem_id_extrasheets').style.display = 'none';
+                    document.getElementById('fitem_id_extraexams').style.display = 'none';
+                    document.getElementById('fgroup_id_multicourse').style.display = 'none';
+                    document.getElementById('fgroup_id_enrolments').style.display = 'none';
+                    document.getElementById('fitem_id_selectall').style.display = 'none';
+                    document.getElementById('fitem_id_deselectall').style.display = 'none';
+                    document.getElementById('id_print').getElementsByClassName('moreless-actions')[0].style.display = 'none';
+                }
 	       }
 	        </script>";
         

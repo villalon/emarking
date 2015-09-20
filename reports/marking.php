@@ -132,7 +132,7 @@ $markingstats = $DB->get_record_sql("
                 array('emarkingid'=>$emarking->id));
 
 if(!$markingstats) {
-        echo $OUTPUT->notification(get_string('nosubmissionsgraded', 'mod_emarking'), 'notifyproblem');
+        echo $OUTPUT->notification(get_string('nosubmissionspublished', 'mod_emarking'), 'notifyproblem');
         echo $OUTPUT->footer();
         die();
 }
