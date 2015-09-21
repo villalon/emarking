@@ -4,6 +4,10 @@
 	display: none;
 }
 
+#page-mod-emarking-view .commands {
+	min-width: 100px;
+}
+
 #page-mod-emarking-marking-markers .lastcol {
 	width: 70%;
 }

@@ -116,6 +116,6 @@ if(!$result) {
 echo "<br/>";
 echo html_writer::table($table);
 
-$continue_url = new moodle_url('/mod/emarking/print/uploadanswers.php', array('id'=>$cm->id));
+$continue_url = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id, 'scan'=>true));
 echo $OUTPUT->continue_button($continue_url);
 echo $OUTPUT->footer();

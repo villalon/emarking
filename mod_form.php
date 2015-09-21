@@ -194,7 +194,6 @@ class mod_emarking_mod_form extends moodleform_mod
             
             $mform->setType('exam_files', PARAM_FILE);
             $mform->addHelpButton('exam_files', 'pdffile', 'mod_emarking');
-            $mform->disabledIf('exam_files', 'exam', 'neq', '0');
             
             $examdate = new DateTime();
             $examdate->setTimestamp(usertime(time()));
@@ -221,7 +220,6 @@ class mod_emarking_mod_form extends moodleform_mod
                 'defaulttime' => $examdate->getTimestamp(),
                 'optional' => false
             ), $instance['options']);
-            $mform->disabledIf('examdate', 'exam', 'neq', '0');
             $mform->addHelpButton('examdate', 'examdate', 'mod_emarking');
             
             if ($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
@@ -232,6 +230,7 @@ class mod_emarking_mod_form extends moodleform_mod
             // Add message explaining why they can't change files or dates anymore
             $mform->addElement('static', 'examdownloaded', get_string("pdffile", "mod_emarking"), get_string("examalreadysent", "mod_emarking"));
         }
+        
         // Print students list
         $mform->addElement('checkbox', 'printlist', get_string('printlist', 'mod_emarking'));
         $mform->setType('printlist', PARAM_BOOL);
@@ -350,7 +349,7 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addElement('header', 'scan', get_string('scan', "mod_emarking"));
         
         // Due date settings
-        $mform->addElement('static', 'enablescan', get_string('enablescan', 'mod_emarking'));
+        $mform->addElement('static', 'enablescantext', get_string('enablescan', 'mod_emarking'), 'wtf');
         
         $mform->addElement('header', 'osm', get_string('onscreenmarking', "mod_emarking"));
         

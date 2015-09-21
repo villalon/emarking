@@ -592,7 +592,7 @@ foreach ($drafts as $draft) {
         // eMarking button
         if (($usercangrade && $thisstatus >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) 
             || $thisstatus >= EMARKING_STATUS_PUBLISHED
-            || ($emarking->type == EMARKING_TYPE_PRINT_SCAN)) {
+            || ($emarking->type == EMARKING_TYPE_PRINT_SCAN && $thisstatus >= EMARKING_STATUS_SUBMITTED)) {
             $label = ($usercangrade && !$scan) ? get_string('annotatesubmission', 'mod_emarking') : get_string('viewsubmission', 'mod_emarking');
             $actionsarray[] = $OUTPUT->action_link($popup_url,  $label, 
                 new popup_action('click', $popup_url, 'emarking' . $thisid, array(
