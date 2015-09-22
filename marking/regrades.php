@@ -8,71 +8,66 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 /**
  *
  * @package mod
  * @subpackage emarking
  * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-require_once($CFG->dirroot.'/mod/emarking/locallib.php');
-require_once $CFG->dirroot.'/mod/emarking/forms/regrade_form.php';
-require_once($CFG->dirroot.'/grade/grading/lib.php');
+require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
+require_once $CFG->dirroot . '/mod/emarking/forms/regrade_form.php';
+require_once ($CFG->dirroot . '/grade/grading/lib.php');
 
-global $CFG,$OUTPUT, $PAGE, $DB;
+global $CFG, $OUTPUT, $PAGE, $DB;
 
 $cmid = required_param('id', PARAM_INT);
-$criterionid = optional_param('criterion',null,PARAM_INT);
-$delete = optional_param('delete',false,PARAM_BOOL);
+$criterionid = optional_param('criterion', null, PARAM_INT);
+$delete = optional_param('delete', false, PARAM_BOOL);
 
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error('Invalid cm id');
+if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
+    print_error('Invalid cm id');
 }
 
-if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-	print_error('You must specify a valid course ID');
+if (! $course = $DB->get_record('course', array(
+    'id' => $cm->course
+))) {
+    print_error('You must specify a valid course ID');
 }
 
 require_login($course, true);
-if(isguestuser()) {
-	die();
+if (isguestuser()) {
+    die();
 }
 
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error('You must specify a valid course module ID');
+if (! $emarking = $DB->get_record('emarking', array(
+    'id' => $cm->instance
+))) {
+    print_error('You must specify a valid course module ID');
 }
 
-if($emarking->type != EMARKING_TYPE_NORMAL) {
+if ($emarking->type != EMARKING_TYPE_NORMAL) {
     print_error('You can only have regrades in a normal emarking type');
 }
 
-if(!$gradeitemobj = $DB->get_record('grade_items', array('itemtype'=>'mod','itemmodule'=>'emarking','iteminstance'=>$cm->instance))) {
-	print_error('You must specify a valid course module ID');
+if (! $gradeitemobj = $DB->get_record('grade_items', array(
+    'itemtype' => 'mod',
+    'itemmodule' => 'emarking',
+    'iteminstance' => $cm->instance
+))) {
+    print_error('You must specify a valid course module ID');
 }
 
-if($criterionid && !$criterion= $DB->get_record('gradingform_rubric_criteria',array('id'=>$criterionid))){
-	print_error("No criterion");
-}
-
-		if(!$emarkingsubmission = $DB->get_record('emarking_submission', array('emarking'=>$emarking->id, 'student'=>$USER->id))) {
-			print_error('Fatal error! Couldn\'t find emarking submission');
-		}
-		
-        if(!$emarkingdraft = $DB->get_record('emarking_draft', array('emarkingid'=>$emarking->id, 'submissionid'=>$emarkingsubmission->id, 'qualitycontrol'=>0))) {
-			print_error('Fatal error! Couldn\'t find emarking draft');
-		}
-
-		$regrade = null;
-if($criterionid) {
-		$regrade = $DB->get_record('emarking_regrade',
-			array('draft'=>$emarkingdraft->id,
-					'criterion'=>$criterionid));
+if ($criterionid && ! $criterion = $DB->get_record('gradingform_rubric_criteria', array(
+    'id' => $criterionid
+))) {
+    print_error("No criterion");
 }
 
 $gradeitem = $gradeitemobj->id;
@@ -83,77 +78,109 @@ $context = context_module::instance($cm->id);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context);
 $usercangrade = has_capability('mod/assign:grade', $context);
 
-$url = new moodle_url('/mod/emarking/marking/regrades.php', array('id'=>$cm->id,'criterion'=>$criterionid));
-$cancelurl = new moodle_url('/mod/emarking/marking/regrades.php', array('id'=>$cm->id));
+$url = new moodle_url('/mod/emarking/marking/regrades.php', array(
+    'id' => $cm->id,
+    'criterion' => $criterionid
+));
+$cancelurl = new moodle_url('/mod/emarking/marking/regrades.php', array(
+    'id' => $cm->id
+));
 
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
-$PAGE->set_title(get_string('emarking','mod_emarking'));
+$PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_url($url);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking),'regrade');
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'regrade');
+
+if (! $emarkingsubmission = $DB->get_record('emarking_submission', array(
+    'emarking' => $emarking->id,
+    'student' => $USER->id
+))) {
+    echo $OUTPUT->notification(get_string('examnotavailable', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->footer();
+    die();
+}
+
+if (! $emarkingdraft = $DB->get_record('emarking_draft', array(
+    'emarkingid' => $emarking->id,
+    'submissionid' => $emarkingsubmission->id,
+    'qualitycontrol' => 0
+))) {
+    print_error('Fatal error! Couldn\'t find emarking draft');
+}
+
+$regrade = null;
+if ($criterionid) {
+    $regrade = $DB->get_record('emarking_regrade', array(
+        'draft' => $emarkingdraft->id,
+        'criterion' => $criterionid
+    ));
+}
 
 $requestswithindate = emarking_is_regrade_requests_allowed($emarking);
 
-if($criterionid && !$delete && $requestswithindate) {
-	$mform = new emarking_justice_regrade_form($url, array("criterion"=>$criterion));
-
-	if($regrade)
-		$mform->set_data($regrade);
-
-	if ($mform->is_cancelled()) {
-		redirect($cancelurl);
-	} else if ($data = $mform->get_data()) {
-	    
-	    if(!$requestswithindate) {
-	        print_error('Fatal error! Requesting regrade outside allowed dates');
-	    }
-		$data->studentid = $USER->id;
-		$data->moduleid = $cm->id;
-		$data->modulename = 'emarking';
-
-		if(!$regrade) {
-			$regrade = new stdClass();
-			$regrade->timecreated = time();
-		}
-		$regrade->student = $USER->id;
-		$regrade->draft = $emarkingdraft->id;
-		$regrade->motive = $data->motive;
-		$regrade->comment = $data->comment;
-		$regrade->criterion = $criterionid;
-		$regrade->timemodified = time();
-
-		if(isset($regrade->id)) {
-			$DB->update_record('emarking_regrade', $regrade);
-		} else {
-			$regradeid = $DB->insert_record('emarking_regrade', $regrade);
-			$regrade->id = $regradeid;
-		}
-
-		$emarkingsubmission->status = EMARKING_STATUS_REGRADING;
-		$DB->update_record('emarking_submission', $emarkingsubmission);
-
-		$successmessage = get_string('saved','mod_emarking');
-
-	} else {
-		//Form processing and displaying is done here
-		$mform->display();
-		echo $OUTPUT->footer();
-		die();
-	}
+if ($criterionid && ! $delete && $requestswithindate) {
+    $mform = new emarking_justice_regrade_form($url, array(
+        "criterion" => $criterion
+    ));
+    
+    if ($regrade)
+        $mform->set_data($regrade);
+    
+    if ($mform->is_cancelled()) {
+        redirect($cancelurl);
+    } else 
+        if ($data = $mform->get_data()) {
+            
+            if (! $requestswithindate) {
+                print_error('Fatal error! Requesting regrade outside allowed dates');
+            }
+            $data->studentid = $USER->id;
+            $data->moduleid = $cm->id;
+            $data->modulename = 'emarking';
+            
+            if (! $regrade) {
+                $regrade = new stdClass();
+                $regrade->timecreated = time();
+            }
+            $regrade->student = $USER->id;
+            $regrade->draft = $emarkingdraft->id;
+            $regrade->motive = $data->motive;
+            $regrade->comment = $data->comment;
+            $regrade->criterion = $criterionid;
+            $regrade->timemodified = time();
+            
+            if (isset($regrade->id)) {
+                $DB->update_record('emarking_regrade', $regrade);
+            } else {
+                $regradeid = $DB->insert_record('emarking_regrade', $regrade);
+                $regrade->id = $regradeid;
+            }
+            
+            $emarkingsubmission->status = EMARKING_STATUS_REGRADING;
+            $DB->update_record('emarking_submission', $emarkingsubmission);
+            
+            $successmessage = get_string('saved', 'mod_emarking');
+        } else {
+            // Form processing and displaying is done here
+            $mform->display();
+            echo $OUTPUT->footer();
+            die();
+        }
 }
 
-if($regrade && $delete && $requestswithindate) {
-	$DB->delete_records('emarking_regrade', array(
-			'draft'=>$emarkingdraft->id,
-			'criterion'=>$criterionid));
-	$successmessage=get_string('saved','mod_emarking');
+if ($regrade && $delete && $requestswithindate) {
+    $DB->delete_records('emarking_regrade', array(
+        'draft' => $emarkingdraft->id,
+        'criterion' => $criterionid
+    ));
+    $successmessage = get_string('saved', 'mod_emarking');
 }
-
 
 // Get the grading manager, then method and finally controller
 $gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
@@ -199,74 +226,85 @@ $query = "SELECT
                 LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
                 ORDER BY s.student,a.description";
 
-$questions = $DB->get_records_sql($query,
-		array('userid'=>$USER->id, 'emarkingid'=>$emarking->id, 'definition'=>$definition->id, 'emarkingid2'=>$emarking->id));
+$questions = $DB->get_records_sql($query, array(
+    'userid' => $USER->id,
+    'emarkingid' => $emarking->id,
+    'definition' => $definition->id,
+    'emarkingid2' => $emarking->id
+));
 
 $table = new html_table();
 $table->head = array(
-		get_string('criterion', 'mod_emarking'),
-		get_string('score', 'mod_emarking'),
-		get_string('markingcomment', 'mod_emarking'),
-		get_string('status', 'mod_emarking'),
-		get_string('regradingcomment', 'mod_emarking'),
-		get_string('actions', 'mod_emarking')
+    get_string('criterion', 'mod_emarking'),
+    get_string('score', 'mod_emarking'),
+    get_string('markingcomment', 'mod_emarking'),
+    get_string('status', 'mod_emarking'),
+    get_string('regradingcomment', 'mod_emarking'),
+    get_string('actions', 'mod_emarking')
 );
 $data = array();
-foreach($questions as $question){
-
-	$urledit = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id));
-	$urldelete = new moodle_url('/mod/emarking/marking/regrades.php',array("id"=>$cm->id,"criterion"=>$question->id,'delete'=>'true'));
-
-	$linktext = "";
-	$status = get_string("statusnotsent", "mod_emarking");
-	if($question->regradeid!=null) {
-		if($requestswithindate && !$question->rgaccepted) {
-			$linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('i/manual_item', get_string('edit')));
-			$linktext .= '&nbsp;' . $OUTPUT->action_link($urldelete, null, null, null, new pix_icon('t/delete', get_string('delete')));
-		} else {
-			$linktext = '&nbsp;';
-		}
-		if($question->rgaccepted) {
-		    $status = $OUTPUT->pix_icon("i/valid", get_string('replied', 'mod_emarking'));
-		} else {
-		    $status = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
-		}
-		$status .= '<br/>'. emarking_get_regrade_type_string($question->motive);
-		$status .= '<br/>'. substr($question->comment, 0 , min(strlen($question->comment), 25));
-		if(strlen($question->comment) > 25)
-			$status .= '...';
-	} elseif($requestswithindate && $emarkingdraft->status >= EMARKING_STATUS_PUBLISHED) {
-		$linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('t/add', 'Solicitar'));
-	} else {
-		$linktext = '&nbsp;';
-	}
-
-	$row = array();
-
-	$row[] = $question->description;
-	$row[] = round($question->score, 2).' / '. round($question->maxscore, 2);
-	$row[] = $question->feedback;
-	$row[] = $status;
-	$row[] = $question->markercomment;
-	$row[] = $linktext;
-
-	$data[] = $row;
+foreach ($questions as $question) {
+    
+    $urledit = new moodle_url('/mod/emarking/marking/regrades.php', array(
+        "id" => $cm->id,
+        "criterion" => $question->id
+    ));
+    $urldelete = new moodle_url('/mod/emarking/marking/regrades.php', array(
+        "id" => $cm->id,
+        "criterion" => $question->id,
+        'delete' => 'true'
+    ));
+    
+    $linktext = "";
+    $status = get_string("statusnotsent", "mod_emarking");
+    if ($question->regradeid != null) {
+        if ($requestswithindate && ! $question->rgaccepted) {
+            $linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('i/manual_item', get_string('edit')));
+            $linktext .= '&nbsp;' . $OUTPUT->action_link($urldelete, null, null, null, new pix_icon('t/delete', get_string('delete')));
+        } else {
+            $linktext = '&nbsp;';
+        }
+        if ($question->rgaccepted) {
+            $status = $OUTPUT->pix_icon("i/valid", get_string('replied', 'mod_emarking'));
+        } else {
+            $status = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
+        }
+        $status .= '<br/>' . emarking_get_regrade_type_string($question->motive);
+        $status .= '<br/>' . substr($question->comment, 0, min(strlen($question->comment), 25));
+        if (strlen($question->comment) > 25)
+            $status .= '...';
+    } elseif ($requestswithindate && $emarkingdraft->status >= EMARKING_STATUS_PUBLISHED) {
+        $linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('t/add', 'Solicitar'));
+    } else {
+        $linktext = '&nbsp;';
+    }
+    
+    $row = array();
+    
+    $row[] = $question->description;
+    $row[] = round($question->score, 2) . ' / ' . round($question->maxscore, 2);
+    $row[] = $question->feedback;
+    $row[] = $status;
+    $row[] = $question->markercomment;
+    $row[] = $linktext;
+    
+    $data[] = $row;
 }
 $table->data = $data;
 
-//Form processing and displaying is done here
-if($criterionid)
-	echo $OUTPUT->notification($successmessage,'notifysuccess');
+// Form processing and displaying is done here
+if ($criterionid)
+    echo $OUTPUT->notification($successmessage, 'notifysuccess');
 
 $data = new stdClass();
 $data->regradesclosedate = userdate($emarking->regradesclosedate);
-if(!$requestswithindate) {
-	echo $OUTPUT->notification(get_string('regraderestricted', 'mod_emarking', $data),'notifyproblem');
+if (! $requestswithindate) {
+    echo $OUTPUT->notification(get_string('regraderestricted', 'mod_emarking', $data), 'notifyproblem');
     echo $OUTPUT->footer();
-	die();
-}
-else if($requestswithindate)
-    echo $OUTPUT->notification(get_string('regraderestricted', 'mod_emarking', $data),'notifyproblem');
+    die();
+} else 
+    if ($requestswithindate)
+        echo $OUTPUT->notification(get_string('regraderestricted', 'mod_emarking', $data), 'notifyproblem');
 
 echo html_writer::table($table);
 

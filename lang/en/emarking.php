@@ -88,6 +88,7 @@ $string ['examname'] = 'Exam name';
 $string ['examname_help'] = 'Exam name e.g: Final examn, Mid-term.';
 $string ['exam'] = 'Exam';
 $string ['exams'] = 'Exams';
+$string ['examnotavailable'] = 'Your exam is not available';
 $string ['examstatusdownloaded'] = 'Downloaded';
 $string ['examstatusprinted'] = 'Printed';
 $string ['examstatussent'] = 'Sent for printing';

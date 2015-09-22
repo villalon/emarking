@@ -251,10 +251,13 @@ function emarking_tabs($context, $cm, $emarking)
     } else if($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
         // This case is for students (user can not grade)
         $tabs = $scantab->subtree;
+    } else if($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
+        // This case is for students (user can not grade)
+        $tabs = array();
     } else {
         // This case is for students (user can not grade)
         $tabs = $markingtab->subtree;
-    }
+    } 
     
     return $tabs;
 }

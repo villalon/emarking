@@ -141,7 +141,7 @@ $tabname = $scan ? "scanlist" : "mark";
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, false, false);
+list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, false, !$scan);
 
 // User filter checking capabilities. If user can not grade, then she can not
 // see other users
@@ -162,22 +162,6 @@ if ($emarking->qualitycontrol && ($DB->count_records('emarking_markers', array(
     $qcfilter = '';
 }
 
-// Show export to Excel button if supervisor and there are students to export
-if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL) {
-    $csvurl = new moodle_url('view.php', array(
-        'id' => $cm->id,
-        'exportcsv' => true
-    ));
-    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
-}
-
-// Only when marking normally for a grade we can publish grades
-if ($emarking->type == EMARKING_TYPE_NORMAL 
-    && has_capability("mod/emarking:supervisegrading", $context)
-    && !$scan) {
-    echo "<form id='publishgrades' action='marking/publish.php' method='post'>";
-    echo "<input type='hidden' name='id' value='$cm->id'>";
-}
 // Default variables for the number of criteria for this evaluation
 // and minimum and maximum scores
 $numcriteria = 0;
@@ -197,6 +181,23 @@ if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($grad
         // Getting min and max scores
         $rubricscores = $rubriccontroller->get_min_max_score();
     }
+}
+
+// Show export to Excel button if supervisor and there are students to export
+if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL && $rubriccriteria) {
+    $csvurl = new moodle_url('view.php', array(
+        'id' => $cm->id,
+        'exportcsv' => true
+    ));
+    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+}
+
+// Only when marking normally for a grade we can publish grades
+if ($emarking->type == EMARKING_TYPE_NORMAL 
+    && has_capability("mod/emarking:supervisegrading", $context)
+    && !$scan) {
+    echo "<form id='publishgrades' action='marking/publish.php' method='post'>";
+    echo "<input type='hidden' name='id' value='$cm->id'>";
 }
 
 // Calculates the number of criteria assigned to current user
@@ -425,7 +426,7 @@ foreach ($allstudents as $student){
 $totalstudents = $countstudents;
 
 $actionsheader = "";
-if(has_capability("mod/emarking:supervisegrading", $context) && !$scan) {
+if(has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubriccriteria) {
     $actionsheader .= $usercangrade ? '&nbsp;<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
 }
 
@@ -631,9 +632,13 @@ foreach ($drafts as $draft) {
         }
         
         // Checkbox for publishing grade
-        if ($emarking->type == EMARKING_TYPE_NORMAL && $draftqcs[$current] == 0 
-            && $thisstatus >= EMARKING_STATUS_SUBMITTED && $thisstatus < EMARKING_STATUS_PUBLISHED && $usercangrade
-            && has_capability("mod/emarking:supervisegrading", $context)) {
+        if ($emarking->type == EMARKING_TYPE_NORMAL 
+            && $draftqcs[$current] == 0 
+            && $thisstatus >= EMARKING_STATUS_SUBMITTED 
+            && $thisstatus < EMARKING_STATUS_PUBLISHED 
+            && $usercangrade
+            && has_capability("mod/emarking:supervisegrading", $context)
+            && $rubriccriteria) {
             $unpublishedsubmissions ++;
             $actionsarray[] = "<input type=\"checkbox\" name=\"publish[]\" value=\"$thisid\" title=\"".get_string("select")."\">";
         }
@@ -735,7 +740,7 @@ function validatePublish() {
 
 $showpages->print_html();
 
-if ($usercangrade && $unpublishedsubmissions > 0) {
+if ($usercangrade && $unpublishedsubmissions > 0 && !$scan && $rubriccriteria) {
     echo "<input style='float:right;' type='submit' onclick='return validatePublish();' value='" . get_string('publishselectededgrades', 'mod_emarking') . "'>";
 } else 
     if ($unpublishedsubmissions == 0) {

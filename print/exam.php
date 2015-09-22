@@ -64,8 +64,7 @@ if (! $course = $DB->get_record("course", array(
 
 $context = context_module::instance($cmid);
 
-// Ony users that can grade can see exams
-require_capability("mod/emarking:grade", $context);
+$usercangrade = has_capability("mod/emarking:grade", $context);
 
 // URL for current page
 $url = new moodle_url("/mod/emarking/print/exam.php", array(
@@ -152,7 +151,7 @@ $examstable->data[] = array(
     date("l jS F Y, g:ia", $exam->examdate)
 );
 
-
+if($usercangrade) {
 $examstatus = "";
 switch ($exam->status) {
     case 1:
@@ -211,6 +210,7 @@ $examstable->data[] = array(
     get_string("multicourse", "mod_emarking"),
     $multicourse ? $multicourse : get_string("no")
 );
+}
 
 echo html_writer::table($examstable);
 
@@ -218,8 +218,8 @@ echo html_writer::table($examstable);
 // the category or if she is a teacher and has download capability for the
 // course and teacher downloads are allowed in the system
 if (has_capability("mod/emarking:downloadexam", $context)) {
+    var_dump(has_capability("mod/emarking:downloadexam", $context));
     echo html_writer::empty_tag("input", array("type"=>"submit", "value"=>get_string("downloadexam", "mod_emarking"), "class"=>"downloademarking", "examid"=>$exam->id, "name"=>"submitbutton"));
-}
 
 $downloadurl = new moodle_url("/mod/emarking/print/download.php");
 
@@ -263,14 +263,15 @@ if ($CFG->emarking_usesms) {
 		</form>
 	</div>
 </div>
-<?php
-
-echo $OUTPUT->footer();
-
-?>
-
 <script type="text/javascript">
 	function change(e){
 			multipdfs = e;
 		}
 </script>
+<?php
+}
+
+echo $OUTPUT->footer();
+
+?>
+

@@ -88,6 +88,7 @@ $string ['examname'] = 'Nombre de la prueba';
 $string ['examname_help'] = 'Nombre de la prueba, por ejemplo: Control 2, Prueba final, Exámen.';
 $string ['exam'] = 'Prueba';
 $string ['exams'] = 'Pruebas';
+$string ['examnotavailable'] = 'Tu prueba no está disponible';
 $string ['examstatusdownloaded'] = 'Descargada';
 $string ['examstatusprinted'] = 'Impresa';
 $string ['examstatussent'] = 'Enviada';

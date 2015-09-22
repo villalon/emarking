@@ -349,7 +349,7 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addElement('header', 'scan', get_string('scan', "mod_emarking"));
         
         // Due date settings
-        $mform->addElement('static', 'enablescantext', get_string('enablescan', 'mod_emarking'), 'wtf');
+        $mform->addElement('static', 'enablescan', get_string('enablescan', 'mod_emarking'), 'wtf');
         
         $mform->addElement('header', 'osm', get_string('onscreenmarking', "mod_emarking"));
         
