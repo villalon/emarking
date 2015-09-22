@@ -145,8 +145,12 @@ class mod_emarking_mod_form extends moodleform_mod
             "course" => $COURSE->id,
             "emarking" => 0
         ));
-        
-        $this->standard_intro_elements(get_string('examinfo', 'mod_emarking'));
+
+        if($CFG->version > 2014111008) {
+            $this->standard_intro_elements(get_string('examinfo', 'mod_emarking'));
+        } else {
+            $this->add_intro_editor();
+        }
         
         $examsarray = array();
         if ($availableexams && ! $exam) {

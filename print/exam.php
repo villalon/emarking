@@ -99,12 +99,15 @@ $params = array(
 );
 
 // If there are no exams to show
-if (!$exam = $DB->get_record("emarking_exams", $params)) {
-    redirect(new moodle_url("/course/modedit.php", array("update"=>$cmid, "return"=>"1")));
+if (! $exam = $DB->get_record("emarking_exams", $params)) {
+    redirect(new moodle_url("/course/modedit.php", array(
+        "update" => $cmid,
+        "return" => "1"
+    )));
     die("");
 }
 
-list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
+list ($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 
 // Create a new html table
 $examstable = new html_table();
@@ -151,65 +154,65 @@ $examstable->data[] = array(
     date("l jS F Y, g:ia", $exam->examdate)
 );
 
-if($usercangrade) {
-$examstatus = "";
-switch ($exam->status) {
-    case 1:
-        $examstatus = get_string("examstatussent", "mod_emarking");
-        break;
-    case 2:
-        $examstatus = get_string("examstatusdownloaded", "mod_emarking");
-        break;
-    case 3:
-        $examstatus = get_string("examstatusprinted", "mod_emarking");
-        break;
-}
-
-$examstable->data[] = array(
-    get_string("status", "mod_emarking"),
-    $examstatus
-);
-
-$examstable->data[] = array(
-    get_string("details", "mod_emarking"),
-    $details
-);
-
-$examstable->data[] = array(
-    get_string("sent", "mod_emarking"),
-    emarking_time_ago($exam->timecreated)
-);
-
-$originals = $exam->totalpages + $exam->extrasheets;
-$copies = $exam->totalstudents + $exam->extraexams;
-$totalsheets = $originals * $copies;
-
-$examstable->data[] = array(
-    get_string('originals', 'mod_emarking') , 
-    $originals
-);
-$examstable->data[] = array(
-    get_string('copies', 'mod_emarking'),
-    $copies
-);
-$examstable->data[] = array(
-    get_string('totalpagesprint', 'mod_emarking'),
-    $totalsheets
-);
-
-$user = $DB->get_record("user", array("id"=>$exam->requestedby));
-
-$examstable->data[] = array(
-    get_string('requestedby', 'mod_emarking'),
-    $user->firstname . ' ' . $user->lastname
-);
-
-
-
-$examstable->data[] = array(
-    get_string("multicourse", "mod_emarking"),
-    $multicourse ? $multicourse : get_string("no")
-);
+if ($usercangrade) {
+    $examstatus = "";
+    switch ($exam->status) {
+        case 1:
+            $examstatus = get_string("examstatussent", "mod_emarking");
+            break;
+        case 2:
+            $examstatus = get_string("examstatusdownloaded", "mod_emarking");
+            break;
+        case 3:
+            $examstatus = get_string("examstatusprinted", "mod_emarking");
+            break;
+    }
+    
+    $examstable->data[] = array(
+        get_string("status", "mod_emarking"),
+        $examstatus
+    );
+    
+    $examstable->data[] = array(
+        get_string("details", "mod_emarking"),
+        $details
+    );
+    
+    $examstable->data[] = array(
+        get_string("sent", "mod_emarking"),
+        emarking_time_ago($exam->timecreated)
+    );
+    
+    $originals = $exam->totalpages + $exam->extrasheets;
+    $copies = $exam->totalstudents + $exam->extraexams;
+    $totalsheets = $originals * $copies;
+    
+    $examstable->data[] = array(
+        get_string('originals', 'mod_emarking'),
+        $originals
+    );
+    $examstable->data[] = array(
+        get_string('copies', 'mod_emarking'),
+        $copies
+    );
+    $examstable->data[] = array(
+        get_string('totalpagesprint', 'mod_emarking'),
+        $totalsheets
+    );
+    
+    $user = $DB->get_record("user", array(
+        "id" => $exam->requestedby
+    ));
+    
+    $examstable->data[] = array(
+        get_string('requestedby', 'mod_emarking'),
+        $user->firstname . ' ' . $user->lastname
+    );
+    
+    $examstable->data[] = array(
+        get_string("multicourse", "mod_emarking"),
+        $multicourse ? $multicourse : get_string("no")
+    );
 }
 
 echo html_writer::table($examstable);
@@ -218,18 +221,23 @@ echo html_writer::table($examstable);
 // the category or if she is a teacher and has download capability for the
 // course and teacher downloads are allowed in the system
 if (has_capability("mod/emarking:downloadexam", $context)) {
-    var_dump(has_capability("mod/emarking:downloadexam", $context));
-    echo html_writer::empty_tag("input", array("type"=>"submit", "value"=>get_string("downloadexam", "mod_emarking"), "class"=>"downloademarking", "examid"=>$exam->id, "name"=>"submitbutton"));
-
-$downloadurl = new moodle_url("/mod/emarking/print/download.php");
-
-if ($CFG->emarking_usesms) {
-    $message = get_string("smsinstructions", "mod_emarking", $USER);
-} else {
-    $message = get_string("emailinstructions", "mod_emarking", $USER);
-}
-
-?>
+    echo html_writer::empty_tag("input", array(
+        "type" => "submit",
+        "value" => get_string("downloadexam", "mod_emarking"),
+        "class" => "downloademarking",
+        "examid" => $exam->id,
+        "name" => "submitbutton"
+    ));
+    
+    $downloadurl = new moodle_url("/mod/emarking/print/download.php");
+    
+    if ($CFG->emarking_usesms) {
+        $message = get_string("smsinstructions", "mod_emarking", $USER);
+    } else {
+        $message = get_string("emailinstructions", "mod_emarking", $USER);
+    }
+    
+    ?>
 <script type="text/javascript">
     var messages = {
 		downloadexam: "<?php echo get_string("downloadexam", "mod_emarking") ?>",

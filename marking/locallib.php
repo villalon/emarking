@@ -351,9 +351,9 @@ function emarking_download_excel($emarking) {
         INNER JOIN {course} AS cc ON (cc.id = e.course)
 		INNER JOIN {user} AS u ON (s.student = u.id)
 		INNER JOIN {emarking_page} AS p ON (p.submission = s.id)
-		INNER JOIN {emarking_comment} AS c ON (c.page = p.id AND d.id = c.draft)
-		INNER JOIN {gradingform_rubric_levels} AS l ON (c.levelid = l.id)
-		INNER JOIN {gradingform_rubric_criteria} AS cr ON (cr.id = l.criterionid)
+		LEFT JOIN {emarking_comment} AS c ON (c.page = p.id AND d.id = c.draft)
+		LEFT JOIN {gradingform_rubric_levels} AS l ON (c.levelid = l.id)
+		LEFT JOIN {gradingform_rubric_criteria} AS cr ON (cr.id = l.criterionid)
 		ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 
     // Get data and generate a list of questions
