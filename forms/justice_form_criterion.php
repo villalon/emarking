@@ -84,15 +84,7 @@ class justice_form_criterion extends moodleform {
         }
         
         $mform->addElement('html', '</table>');
-        
-        // Overall fairness
-        $mform->addElement('hidden', 'overall_fairness', 'null');
-        $mform->setType('overall_fairness', PARAM_ALPHANUM);
-        
-        // Expectation vs reality
-        $mform->addElement('hidden', 'expectation_reality', 'null');
-        $mform->setType('expectation_reality', PARAM_ALPHANUM);
-        
+
         // Action buttons
         $this->add_action_buttons(false);
     }

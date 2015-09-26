@@ -137,6 +137,7 @@ $string['firststagedate'] = 'Fecha límite para corregir';
 $string['firststagedate_help'] = 'Fecha límite en la que los correctores deben corregir todas sus pruebas';
 $string['secondstagedate'] = 'Fecha límite para acuerdo';
 $string['secondstagedate_help'] = 'Fecha límite en la que los correctores deben alcanzar el acuerdo';
+$string['mustseefeedbackbeforejustice'] = 'Debes revisar la corrección de tu prueba antes de entregar tu opinión.';
 
 // PREDEFINED COMMENTS
 $string['emarkingsecuritycode'] = 'Código de seguridad eMarking';

@@ -88,6 +88,7 @@ if (! $submission = $DB->get_record('emarking_submission', array(
 
 // The submission's student
 $userid = $submission->student;
+$ownsubmission = $USER->id == $userid;
 
 // User object for student
 if (! $user = $DB->get_record('user', array(
@@ -170,7 +171,7 @@ $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_
 $isgroupmode = $cm->groupmode == SEPARATEGROUPS;
 
 $studentanonymous = $emarking->anonymous === "0" || $emarking->anonymous === "1";
-if($USER->id == $submission->student || $issupervisor) {
+if($ownsubmission || $issupervisor) {
     $studentanonymous = false;
 }
 $markeranonymous = $emarking->anonymous === "1" || $emarking->anonymous === "3";
@@ -246,7 +247,7 @@ $readonly = true;
 // Validate grading capability and stop and log unauthorized access
 if (! $usercangrade) {
     // If the student owns the exam
-    if ($USER->id == $userid) {
+    if ($ownsubmission) {
         $readonly = true;
     } else {
         if (has_capability('mod/emarking:submit', $context)) { // If the student belongs to the course and is allowed to submit
@@ -357,6 +358,11 @@ switch ($action) {
         break;
     
     case 'getalltabs':
+        if($ownsubmission) {
+            $submission->seenbystudent = 1;
+            $submission->timemodified = time();
+            $DB->update_record("emarking_submission", $submission);
+        }
         $alltabs = emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context);
         emarking_json_resultset($alltabs);
         break;

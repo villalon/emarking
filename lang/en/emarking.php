@@ -139,6 +139,7 @@ $string['secondstagedate'] = 'Max date for agreement';
 $string['secondstagedate_help'] = 'Maximum date for markers to reach agreement';
 $string ['justice.graph.student.name'] = 'Name';
 $string['justice.graph.test.performance'] = 'Your performance in the exam';
+$string['mustseefeedbackbeforejustice'] = 'You must review your exam feedback before you can give your opinion.';
 
 // PREDEFINED COMMENTS
 $string['datahasheaders'] = 'Ignore first row';

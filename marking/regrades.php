@@ -257,7 +257,7 @@ $table = new html_table();
 $table->head = array(
     get_string('criterion', 'mod_emarking'),
     get_string('marking', 'mod_emarking'),
-    get_string('status', 'mod_emarking'),
+    get_string('regraderequest', 'mod_emarking'),
     get_string('regrade', 'mod_emarking'),
     get_string('actions', 'mod_emarking')
 );
@@ -289,9 +289,7 @@ foreach ($questions as $question) {
             $status = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
         }
         $status .= '<br/>' . emarking_get_regrade_type_string($question->motive);
-        $status .= '<br/>' . substr($question->comment, 0, min(strlen($question->comment), 25));
-        if (strlen($question->comment) > 25)
-            $status .= '...';
+        $status .= '<br/><div style="overflow: auto;">' . $question->comment . '</div>';
     } elseif ($requestswithindate && $emarkingdraft->status >= EMARKING_STATUS_PUBLISHED) {
         $linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('t/add', 'Solicitar'));
     } else {

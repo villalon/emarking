@@ -757,17 +757,26 @@ if ($publishgradesform && $unpublishedsubmissions > 0 && $rubriccriteria) {
         echo "<script>$('#select_all').hide();</script>";
     }
 
+$submission = $DB->get_record('emarking_submission', array(
+    'emarking' => $emarking->id,
+    'student' => $USER->id
+));
+    
 // If the user is a tutor or teacher we don't include justice perception
-if($usercangrade) {
+if($usercangrade || !$submission) {
     echo $OUTPUT->footer();
     die();
 }
 
 // JUSTICE PERCEPTION FOR CURRENT USER
-$submission = $DB->get_record('emarking_submission', array(
-    'emarking' => $emarking->id,
-    'student' => $USER->id
-));
+
+if($emarking->justiceperception != EMARKING_JUSTICE_DISABLED
+    && !$submission->seenbystudent) {
+    echo $OUTPUT->heading(get_string("justice", "mod_emarking"), 4);
+    echo $OUTPUT->notification(get_string("mustseefeedbackbeforejustice", "mod_emarking"), "notifymessage");
+    echo $OUTPUT->footer();
+    die();
+}
 
 $record = $submission ? $DB->get_record('emarking_perception', array(
     "submission" => $submission->id
@@ -791,16 +800,14 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
     }
     
     $mform = new justice_form_criterion($urlemarking, array('rubriccriteria'=>$rubriccriteria), 'post');
-    $mform->set_data($record);
     $mform->set_data($prevdata);
-    
     if ($mform->get_data()) {
         if (! $record) {
             $record = new stdClass();
+            $record->overall_fairness = 0;
+            $record->expectation_reality = 0;
         }
         $record->submission = $submission->id;
-        $record->overall_fairness = $mform->get_data()->overall_fairness;
-        $record->expectation_reality = $mform->get_data()->expectation_reality;
         $record->timecreated = time();
         $transaction = $DB->start_delegated_transaction();
         if (isset($record->id)) {
@@ -833,15 +840,6 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
     $mform->display();
 } else if ($emarking->justiceperception == EMARKING_JUSTICE_PER_SUBMISSION) {
     require_once $CFG->dirroot . '/mod/emarking/forms/justice_form.php';
-    
-    $submission = $DB->get_record('emarking_submission', array(
-        'emarking' => $emarking->id,
-        'student' => $USER->id
-    ));
-    
-    $record = $submission ? $DB->get_records('emarking_perception', array(
-        "submission" => $submission->id
-    )) : null;
     
     $mform = new justice_form($urlemarking, null, 'post');
     $mform->set_data($record);
