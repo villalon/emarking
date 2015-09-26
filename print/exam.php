@@ -70,6 +70,9 @@ $usercangrade = has_capability("mod/emarking:grade", $context);
 $url = new moodle_url("/mod/emarking/print/exam.php", array(
     "id" => $cmid
 ));
+$urlcourse = new moodle_url("/course/view.php", array(
+    "id" => $courseid
+));
 
 // URL for adding a new print order
 $params = $cmid > 0 ? array(
@@ -279,6 +282,7 @@ if (has_capability("mod/emarking:downloadexam", $context)) {
 <?php
 }
 
+echo $OUTPUT->single_button($urlcourse, get_string("backcourse", "mod_emarking"));
 echo $OUTPUT->footer();
 
 ?>

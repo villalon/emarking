@@ -31,8 +31,12 @@ $string['scan'] = 'Scan';
 $string['none'] = 'None';
 $string['activatemodules'] = 'Activate modules';
 $string['enablescan'] = 'Enable scan';
+$string['scanisenabled'] = 'Scanning is enabled. Marking is done manually and student answers are digitized and uploaded to the system.';
+$string['scanwasenabled'] = 'Scan was enabled successfully';
+$string['osmisenabled'] = 'Scanning is enabled. Student answers are digitized and uploaded to the system for On Screen Marking using a rubric.';
 $string['enableosm'] = 'Enable OSM';
 $string['enableosm_help'] = 'You must enable scan before you can enable OSM';
+$string['osmwasenabled'] = 'OSM was enabled successfully';
 $string['updateemarkingtype'] = 'You are about to {$a->message} in {$a->name}. There are no risks in doing so, you can change this later in settings at any time.';
 
 $string['printsettings'] = 'Print settings';
@@ -115,10 +119,13 @@ $string['of3'] = '3';
 $string['of4'] = '4 (extremely fair)';
 $string['justiceperceptionprocess'] = 'How would you rate the fairness of the marking of the evaluation?';
 $string['justiceperceptionexpectation'] = 'How does your grade for the first assignment compare to the mark you think you deserved to get for this assignment?';
+$string['justiceperceptionprocesscriterion'] = 'How would you rate the fairness of the marking of this criterion?';
+$string['justiceperceptionexpectationcriterion'] = 'How does your score for this question compare to the score you think you deserved?';
 $string['thanksforjusticeperception'] = 'Thanks for expressing your opinion';
 $string['justicedisabled'] = 'Disabled';
 $string['justicepersubmission'] = 'Ask one opinion per exam';
 $string['justicepercriterion'] = 'Ask one opinion per criterion';
+$string['justice'] = 'Justice';
 $string['justiceperception'] = 'Ask students for their justice perception';
 $string['justiceperception_help'] = 'This options allows students to provide their perception of justice regarding the marking process (procedural justice) and the result (distributive justice). It can be set to ask for one opinion for the whole exam, or one opinion per criterion.';
 $string['agreementflexibility'] = 'Agreement flexibility';
@@ -132,6 +139,14 @@ $string['secondstagedate'] = 'Max date for agreement';
 $string['secondstagedate_help'] = 'Maximum date for markers to reach agreement';
 $string ['justice.graph.student.name'] = 'Name';
 $string['justice.graph.test.performance'] = 'Your performance in the exam';
+
+// PREDEFINED COMMENTS
+$string['datahasheaders'] = 'Ignore first row';
+$string['confirmimportpredefinedcomments'] = 'The predefined comments in the preview will be imported. Are you sure?';
+$string['addpredefinedcomments'] = 'Import predefined comments from Excel';
+$string['predefinedcomments'] = 'Predefined comments';
+$string['predefinedcomments_help'] = 'Paste a column from Excel (with or without a header) to import all the rows as predefined comments.';
+$string['onlyfirstcolumn'] = 'Only the first column will be imported. A sample of the data is shown below:';
 
 $string['mobilephoneregex'] = 'Mobile phone regex';
 $string['mobilephoneregex_help'] = 'A regular expression to validate a correct mobile phone';
@@ -155,11 +170,7 @@ $string['usernotloggedin'] = 'User is not logged in';
 $string['invalidsessionkey'] = 'Invalid session key';
 
 $string['emarkingsecuritycode'] = 'eMarking security code';
-$string['datahasheaders'] = 'Ignore first row';
-$string['confirmimportpredefinedcomments'] = 'The predefined comments in the preview will be imported. Are you sure?';
-$string['addpredefinedcomments'] = 'Import predefined comments from Excel';
-$string['predefinedcomments'] = 'Predefined comments';
-$string['predefinedcomments_help'] = 'Paste a column from Excel (with or without a header) to import all the rows as predefined comments.';
+
 $string ['savechanges'] = 'Save changes';
 $string ['changessaved'] = 'Changes saved';
 

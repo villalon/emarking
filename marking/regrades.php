@@ -115,11 +115,19 @@ if (! $emarkingdraft = $DB->get_record('emarking_draft', array(
 }
 
 $regrade = null;
+$emarkingcomment = null;
 if ($criterionid) {
     $regrade = $DB->get_record('emarking_regrade', array(
         'draft' => $emarkingdraft->id,
         'criterion' => $criterionid
     ));
+    $emarkingcomment = $DB->get_record_sql('
+		SELECT ec.*
+		FROM {emarking_comment} AS ec
+		WHERE ec.levelid in (
+            SELECT id FROM {gradingform_rubric_levels} as l
+            WHERE l.criterionid = :criterionid) AND ec.draft = :draft',
+        array('criterionid'=>$criterionid, 'draft'=>$emarkingdraft->id));
 }
 
 $requestswithindate = emarking_is_regrade_requests_allowed($emarking);
@@ -147,6 +155,12 @@ if ($criterionid && ! $delete && $requestswithindate) {
             if (! $regrade) {
                 $regrade = new stdClass();
                 $regrade->timecreated = time();
+                if($emarkingcomment) {
+                    $regrade->levelid = $emarkingcomment->levelid;
+                    $regrade->markerid = $emarkingcomment->markerid;
+                    $regrade->bonus = $emarkingcomment->bonus;
+                }
+            
             }
             $regrade->student = $USER->id;
             $regrade->draft = $emarkingdraft->id;
@@ -199,6 +213,11 @@ $query = "SELECT
                 rg.accepted AS rgaccepted,
                 rg.motive,
                 rg.comment,
+                ol.score as originalscore,
+                rg.bonus as originalbonus,
+                ol.definition as originaldefinition,
+                b.score as currentscore,
+                b.definition as currentdefinition,
                 comment.bonus
                 FROM {emarking_submission}  AS s
                 INNER JOIN {emarking_draft} AS dr ON (s.emarking = :emarkingid AND dr.submissionid = s.id AND dr.qualitycontrol=0)
@@ -224,7 +243,8 @@ $query = "SELECT
                 INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
                 INNER JOIN {course}  AS co ON (sg.course = co.id)
                 LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
-                ORDER BY s.student,a.description";
+                LEFT JOIN {gradingform_rubric_levels} AS ol on (ol.id = rg.levelid)
+                ORDER BY s.student, a.sortorder";
 
 $questions = $DB->get_records_sql($query, array(
     'userid' => $USER->id,
@@ -236,10 +256,9 @@ $questions = $DB->get_records_sql($query, array(
 $table = new html_table();
 $table->head = array(
     get_string('criterion', 'mod_emarking'),
-    get_string('score', 'mod_emarking'),
-    get_string('markingcomment', 'mod_emarking'),
+    get_string('marking', 'mod_emarking'),
     get_string('status', 'mod_emarking'),
-    get_string('regradingcomment', 'mod_emarking'),
+    get_string('regrade', 'mod_emarking'),
     get_string('actions', 'mod_emarking')
 );
 $data = array();
@@ -279,13 +298,21 @@ foreach ($questions as $question) {
         $linktext = '&nbsp;';
     }
     
+    $originalinfo = round($question->originalscore, 2) . ' / ' . round($question->maxscore, 2) . ' : ' . $question->originaldefinition;
+    if($question->feedback && core_text::strlen($question->feedback) > 0) {
+        $originalinfo .= '<br/>' . $question->feedback;
+    }
+    $currentinfo = round($question->score, 2) . ' / ' . round($question->maxscore, 2) . ' : ' . $question->currentdefinition;
+    if($question->markercomment && core_text::strlen($question->markercomment) > 0) {
+        $currentinfo .= '<br/>' . $question->markercomment;
+    }
+    
     $row = array();
     
     $row[] = $question->description;
-    $row[] = round($question->score, 2) . ' / ' . round($question->maxscore, 2);
-    $row[] = $question->feedback;
+    $row[] = $question->rgaccepted ? $originalinfo : $currentinfo;
     $row[] = $status;
-    $row[] = $question->markercomment;
+    $row[] = $question->rgaccepted ? $currentinfo : '';
     $row[] = $linktext;
     
     $data[] = $row;
@@ -300,11 +327,7 @@ $data = new stdClass();
 $data->regradesclosedate = userdate($emarking->regradesclosedate);
 if (! $requestswithindate) {
     echo $OUTPUT->notification(get_string('regraderestricted', 'mod_emarking', $data), 'notifyproblem');
-    echo $OUTPUT->footer();
-    die();
-} else 
-    if ($requestswithindate)
-        echo $OUTPUT->notification(get_string('regraderestricted', 'mod_emarking', $data), 'notifyproblem');
+}
 
 echo html_writer::table($table);
 

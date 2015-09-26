@@ -225,13 +225,13 @@ if ($action == 'list') {
                 $predefinedcomment->markerid = $USER->id;
                 $predefinedcomment->id = $DB->insert_record("emarking_predefined_comment", $predefinedcomment);
             }
-            echo $OUTPUT->notification("Saving data", "notifysuccess");
+            echo $OUTPUT->notification(get_string("changessaved", "mod_emarking"), "notifysuccess");
             $continue = new moodle_url("/mod/emarking/marking/predefinedcomments.php", array(
                 "id" => $cm->id
             ));
             echo $OUTPUT->single_button($continue, get_string("continue"));
         } else {
-            echo $OUTPUT->notification("Only the first column will be imported. A sample of the data is shown below:");
+            echo $OUTPUT->notification(get_string("onlyfirstcolumn", "mod_emarking"), "notifymessage");
             
             $table = new html_table();
             $table->data = $data;

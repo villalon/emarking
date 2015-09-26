@@ -49,12 +49,13 @@ if(!$course = $DB->get_record("course", array("id"=>$courseid))) {
 	print_error(get_string("invalidcourseid", "mod_emarking"));
 }
 
+$coursecat = $DB->get_record("course_categories", array("id"=>$course->category));
+
 // Both contexts, from course and category, for permissions later
-$context = context_course::instance($course->id);
+$context = context_coursecat::instance($coursecat->id);
 
 // If a download form was requested
 if($examid && $downloadform) {
-	$coursecat = $DB->get_record("course_categories", array("id"=>$course->category));
 	$requestedbyuser = $DB->get_record("user", array("id"=>$newexam->requestedby));
 
 	emarking_create_printform($context,
@@ -67,10 +68,10 @@ if($examid && $downloadform) {
 }
 
 // Ony users that can grade can see exams
-require_capability ( "mod/emarking:grade", $context );
+require_capability ( "mod/emarking:downloadexam", $context );
 
 // URL for current page
-$url = new moodle_url("/mod/emarking/print/exams.php", array("id"=>$cmid, "course"=>$course->id));
+$url = new moodle_url("/mod/emarking/print/exams.php", array("course"=>$course->id));
 // URL for adding a new print order
 $params = array("course"=>$course->id);
 
@@ -134,8 +135,7 @@ foreach($exams as $exam) {
 	// Show download button if the user has capability for downloading within 
 	// the category or if she is a teacher and has download capability for the 
 	// course and teacher downloads are allowed in the system
-	if (has_capability ( "mod/emarking:downloadexam", $contextcat )
-	    || has_capability ( "mod/emarking:downloadexam", $contextcourse)) {
+	if (has_capability ( "mod/emarking:downloadexam", $context)) {
 		$actions .= html_writer::div($OUTPUT->pix_icon("i/down", get_string("download"), null,
 		    array("examid"=>$exam->id,"class"=>"downloademarking")));
     }
@@ -190,11 +190,6 @@ foreach($exams as $exam) {
 }
 
 echo html_writer::table($examstable);
-
-if($cmid == 0) {
-    echo $OUTPUT->single_button($urladd, get_string("newprintorder", "mod_emarking"), 
-        "get", array("class"=>"newprintorder"));
-}
 
 $downloadurl = new moodle_url("/mod/emarking/print/download.php");
 

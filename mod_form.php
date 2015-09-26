@@ -353,7 +353,8 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addElement('header', 'scan', get_string('scan', "mod_emarking"));
         
         // Due date settings
-        $mform->addElement('static', 'enablescan', get_string('enablescan', 'mod_emarking'), 'wtf');
+        $mform->addElement('html', '<div id="scanisenabled">' . get_string('scanisenabled', 'mod_emarking') . '</div>');
+        $mform->addElement('html', '<div id="osmisenabled">' . get_string('osmisenabled', 'mod_emarking') . '</div>');
         
         $mform->addElement('header', 'osm', get_string('onscreenmarking', "mod_emarking"));
         
@@ -469,7 +470,6 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addElement('checkbox', 'regraderestrictdates', get_string('regraderestrictdates', 'mod_emarking'));
         $mform->addHelpButton('regraderestrictdates', 'regraderestrictdates', 'mod_emarking');
         $mform->setAdvanced('regraderestrictdates');
-        $mform->disabledIf('regraderestrictdates', 'type', 'eq', '2');
         
         $mform->addElement('date_time_selector', 'regradesopendate', get_string('regradesopendate', 'mod_emarking'), array(
             'startyear' => date('Y'),
@@ -481,7 +481,6 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('regradesopendate', 'regradesopendate', 'mod_emarking');
         $mform->setAdvanced('regradesopendate');
         $mform->disabledIf('regradesopendate', 'regraderestrictdates');
-        $mform->disabledIf('regradesopendate', 'type', 'eq', '2');
         
         $date->modify('+2 months');
         $mform->addElement('date_time_selector', 'regradesclosedate', get_string('regradesclosedate', 'mod_emarking'), array(
@@ -494,7 +493,6 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('regradesclosedate', 'regradesclosedate', 'mod_emarking');
         $mform->setAdvanced('regradesclosedate');
         $mform->disabledIf('regradesclosedate', 'regraderestrictdates');
-        $mform->disabledIf('regradesclosedate', 'type', 'eq', '2');
         
         $mform->addElement('header', 'markerstraining', get_string('type_markers_training', 'mod_emarking'));
         $mform->setExpanded('markerstraining');
@@ -962,10 +960,6 @@ class mod_emarking_mod_form extends moodleform_mod
     {
         parent::display();
         
-        // Hide button save and back to course
-        // echo "<style>#id_scan, #id_osm, #id_modstandardgrade, #id_markerstraining, #id_submitbutton2 {display:none;}</style>";
-        
-        // #id_experimental, #id_marking, #id_regrade, #id_modstandardgrade, #id_modstandardelshdr
         echo "<script>
 	        function showFullForm() {
 	           var e = document.getElementById('id_type');
@@ -973,14 +967,16 @@ class mod_emarking_mod_form extends moodleform_mod
 	           if (strUser == '0') {
                     document.getElementById('id_print').style.display = 'block';
                     document.getElementById('id_scan').style.display = 'none';
-	                document.getElementById('id_osm').style.display = 'none';
+                    document.getElementById('id_osm').style.display = 'none';
                     document.getElementById('id_markerstraining').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else if (strUser == '1') {
                     document.getElementById('id_print').style.display = 'block';
                     document.getElementById('id_scan').style.display = 'block';
-	                document.getElementById('id_osm').style.display = 'block';
+                    document.getElementById('scanisenabled').style.display = 'none';
+                    document.getElementById('osmisenabled').style.display = 'block';
+                    document.getElementById('id_osm').style.display = 'block';
                     document.getElementById('id_markerstraining').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'block';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
@@ -994,13 +990,16 @@ class mod_emarking_mod_form extends moodleform_mod
                 } else if(strUser == '5') {
                     document.getElementById('id_print').style.display = 'block';
 	                document.getElementById('id_scan').style.display = 'block';
+                    document.getElementById('scanisenabled').style.display = 'block';
+                    document.getElementById('osmisenabled').style.display = 'none';
                     document.getElementById('id_osm').style.display = 'none';
                     document.getElementById('id_markerstraining').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else {
                     document.getElementById('id_print').style.display = 'none';
-	                document.getElementById('id_experimental').style.display = 'none';
+                    document.getElementById('id_scan').style.display = 'none';
+                    document.getElementById('id_experimental').style.display = 'none';
                     document.getElementById('id_marking').style.display = 'none';
                     document.getElementById('id_regrade').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';

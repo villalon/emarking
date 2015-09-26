@@ -4,8 +4,8 @@
 	display: none;
 }
 
-#page-mod-emarking-view .commands {
-	min-width: 100px;
+#page-mod-emarking-view .actions {
+	min-width: 170px;
 }
 
 #page-mod-emarking-marking-markers .lastcol {
@@ -66,7 +66,6 @@ input[type="text"] {
 }
 
 #page-mod-emarking-view .flexible .c3 {
-    min-width: 140px;
     text-align: right;
 }
 

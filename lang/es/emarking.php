@@ -31,8 +31,12 @@ $string['scan'] = 'Digitalizar';
 $string['none'] = 'Ninguno';
 $string['activatemodules'] = 'Activar módulos';
 $string['enablescan'] = 'Habilitar digitalización';
+$string['scanisenabled'] = 'Digitalización está habilitada. La corrección es manual, las respuestas se digitalizan y se suben al sistema como respaldo.';
+$string['scanwasenabled'] = 'Digitalización habilitada exitosamente.';
+$string['osmisenabled'] = 'Digitalización está habilitada. Las respuestas se digitalizan y se suben al sistema para ser corregidas en pantalla usando una rúbrica.';
 $string['enableosm'] = 'Habilitar corrección en pantalla';
 $string['enableosm_help'] = 'Debe habilitar la digitalización para poder habilitar la corrección en pantalla';
+$string['osmwasenabled'] = 'Corrección en pantalla habilitada exitosamente.';
 $string['updateemarkingtype'] = 'Usted va a {$a->message} en {$a->name}. No hay riesgos en hacer esto, usted puede cambiarlo después en los ajustes de la actividad en cualquier momento.';
 
 $string['printsettings'] = 'Configuración de impresión';
@@ -115,7 +119,13 @@ $string['of3'] = '3';
 $string['of4'] = '4 (extremadamente justa)';
 $string ['justiceperceptionprocess'] = '¿Cómo evaluaría cuan justa fue la corrección de esta evaluación?';
 $string ['justiceperceptionexpectation'] = '¿Cómo se compara su calificación en esta evaluación con la que usted piensa que se merecía?';
+$string['justiceperceptionprocesscriterion'] = '¿Cómo evaluaría cuan justa fue la corrección de cada pregunta?';
+$string['justiceperceptionexpectationcriterion'] = '¿Cómo se compara su puntaje en cada pregunta con el que usted piensa que se merecía?';
 $string ['thanksforjusticeperception'] = 'Gracias por expresar su opinión';
+$string['justicedisabled'] = 'Deshabilitada';
+$string['justicepersubmission'] = 'Solicitar una opinión por prueba';
+$string['justicepercriterion'] = 'Solicitar una opinión por criterio de la rúbrica';
+$string['justice'] = 'Justicia';
 $string['justiceperception'] = 'Preguntar percepción de justicia';
 $string['justiceperception_help'] = 'Esta opción permite a los estudiantes entregar su percepción de justicia respecto del proceso de corrección (justicia procedural) y su resultado (justicia distributiva). Se puede preguntar por la prueba en general o por cada criterio de la rúbrica.';
 $string['agreementflexibility'] = 'Flexibilidad de acuerdo';
@@ -127,6 +137,15 @@ $string['firststagedate'] = 'Fecha límite para corregir';
 $string['firststagedate_help'] = 'Fecha límite en la que los correctores deben corregir todas sus pruebas';
 $string['secondstagedate'] = 'Fecha límite para acuerdo';
 $string['secondstagedate_help'] = 'Fecha límite en la que los correctores deben alcanzar el acuerdo';
+
+// PREDEFINED COMMENTS
+$string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
+$string['datahasheaders'] = 'Ignorar primera fila';
+$string['confirmimportpredefinedcomments'] = 'Los comentarios que se muestran en vista previa serán importados. ¿Está seguro(a)?';
+$string['addpredefinedcomments'] = 'Importar comentarios desde Excel';
+$string['predefinedcomments'] = 'Comentarios predefinidos';
+$string['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';
+$string['onlyfirstcolumn'] = 'Solo la primera columna es importada. Un ejemplo de los datos a importar se muestra abajo:';
 
 $string['mobilephoneregex'] = 'Expresión regular de celulares';
 $string['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
@@ -149,12 +168,6 @@ $string['replied'] = 'Contestada';
 $string['usernotloggedin'] = 'Usuario no está logueado';
 $string['invalidsessionkey'] = 'Clave de sesión inválida';
 
-$string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
-$string['datahasheaders'] = 'Ignorar primera fila';
-$string['confirmimportpredefinedcomments'] = 'Los comentarios que se muestran en vista previa serán importados. ¿Está seguro(a)?';
-$string['addpredefinedcomments'] = 'Importar comentarios desde Excel';
-$string['predefinedcomments'] = 'Comentarios predefinidos';
-$string['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';
 $string['savechanges'] = 'Guardar cambios';
 $string ['changessaved'] = 'Cambios guardados exitosamente';
 

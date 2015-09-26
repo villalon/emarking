@@ -948,7 +948,7 @@ function emarking_rotate_image($pageno, $submission, $context)
             'contextid' => $context->id,
             'component' => 'mod_emarking',
             'filearea' => 'pages',
-            'itemid' => $submission->emarkingid,
+            'itemid' => $submission->emarking,
             'filepath' => '/',
             'filename' => $filenameanonymous,
             'timecreated' => $timecreatedanonymous,
@@ -958,12 +958,12 @@ function emarking_rotate_image($pageno, $submission, $context)
             'license' => 'allrightsreserved'
         );
         
-        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarkingid, '/', $filename)) {
+        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarking, '/', $filename)) {
             $file->delete();
         }
         $fileinfo = $fs->create_file_from_pathname($file_record, $tmppath . '.png');
         
-        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarkingid, '/', $filenameanonymous)) {
+        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarking, '/', $filenameanonymous)) {
             $fileanonymous->delete();
         }
         $fileinfoanonymous = $fs->create_file_from_pathname($file_record_anonymous, $tmppath . '_a.png');
@@ -972,9 +972,9 @@ function emarking_rotate_image($pageno, $submission, $context)
         $page->fileanonymous = $fileinfoanonymous->get_id();
         $DB->update_record('emarking_page', $page);
         
-        $imgurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarkingid . '/' . $fileinfo->get_filename());
+        $imgurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarking . '/' . $fileinfo->get_filename());
         $imgurl .= "?r=" . random_string(15);
-        $imgurlanonymous = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarkingid . '/' . $fileinfoanonymous->get_filename());
+        $imgurlanonymous = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarking . '/' . $fileinfoanonymous->get_filename());
         $imgurlanonymous .= "?r=" . random_string(15);
         return array(
             $imgurl,
@@ -1012,11 +1012,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
         $definition = $rubriccontroller->get_definition();
     }
     
-    $managerubricurl = new moodle_url('/grade/grading/manage.php', array(
-        'contextid' => $context->id,
-        'component' => 'mod_emarking',
-        'area' => 'attempt'
-    ));
+    $managerubricurl = $gradingmanager->get_management_url();
     
     // Validate that activity has a rubric ready
     if ($gradingmethod !== 'rubric' || ! $definition || $definition == null) {

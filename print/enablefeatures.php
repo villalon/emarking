@@ -85,6 +85,16 @@ $url = new moodle_url("/mod/emarking/print/enablefeatures.php", array(
 $continue = new moodle_url("/mod/emarking/print/enablefeatures.php", array("id"=>$cmid, "type"=>$newtype, "confirm"=>"true"));
 $cancel = new moodle_url("/mod/emarking/view.php", array("id"=>$cmid));
 
+if($confirm) {
+    $emarking->type = $newtype;
+    if(!$DB->update_record("emarking", $emarking)) {
+        print_error("Error updating emarking activity");
+    }
+    $success = new moodle_url("/mod/emarking/view.php", array("id"=>$cmid, "enabled"=>$newtype));
+    redirect($success);
+    die();
+}
+
 // URL for adding a new print order
 $params = $cmid > 0 ? array(
     "cm" => $cm->id
@@ -109,17 +119,6 @@ echo $OUTPUT->header();
 // Heading and tabs if we are within a course module
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $label);
-
-if($confirm) {
-        $emarking->type = $newtype;
-        if(!$DB->update_record("emarking", $emarking)) {
-            print_error("Error updating emarking activity");
-        }
-        echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), "notifysuccess");
-        redirect($cancel);
-        echo $OUTPUT->footer();
-        die();
-}
 
 $emarking->message = core_text::strtolower($title);
 echo $OUTPUT->box(get_string("updateemarkingtype", "mod_emarking", $emarking));
