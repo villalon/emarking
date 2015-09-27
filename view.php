@@ -86,9 +86,8 @@ if(!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id)))
     }
 }
 
-if(!($emarking->type == EMARKING_TYPE_NORMAL 
-    || $emarking->type == EMARKING_TYPE_MARKER_TRAINING 
-    || $emarking->type == EMARKING_TYPE_PRINT_SCAN)) {
+// If we have a print only emarking we send the user to the exam view
+if($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
     redirect(new moodle_url("/mod/emarking/print/exam.php", array("id"=>$cmid)));
     die();
 }
@@ -108,8 +107,9 @@ if (isguestuser()) {
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context);
 $usercangrade = has_capability('mod/assign:grade', $context);
 
+// Supervisors and site administrators can see everything always
 if ($issupervisor || is_siteadmin($USER)) {
-    $emarking->anonymous = 2;
+    $emarking->anonymous = EMARKING_ANON_NONE;
 }
 
 // Download Excel if it is the case
@@ -798,6 +798,7 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
             $prevdata['er-'.$criterionjustice->criterion] = $criterionjustice->expectation_reality;
         }
     }
+    $prevdata['comment'] = $record->comment;
     
     $mform = new justice_form_criterion($urlemarking, array('rubriccriteria'=>$rubriccriteria), 'post');
     $mform->set_data($prevdata);
@@ -809,6 +810,7 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
         }
         $record->submission = $submission->id;
         $record->timecreated = time();
+        $record->comment = $mform->get_data()->comment;
         $transaction = $DB->start_delegated_transaction();
         if (isset($record->id)) {
             $DB->update_record('emarking_perception', $record);
@@ -851,6 +853,7 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
         $record->overall_fairness = $mform->get_data()->overall_fairness;
         $record->expectation_reality = $mform->get_data()->expectation_reality;
         $record->timecreated = time();
+        $record->comment = $mform->get_data()->comment;
         if (isset($record->id)) {
             $DB->update_record('emarking_perception', $record);
         } else {

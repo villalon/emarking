@@ -44,6 +44,10 @@ function emarking_get_regrade_type_string($type)
             return get_string('unclearfeedback', 'mod_emarking');
         case EMARKING_REGRADE_STATEMENT_PROBLEM:
             return get_string('statementproblem', 'mod_emarking');
+        case EMARKING_REGRADE_ERROR_CARRIED_FORWARD:
+            return get_string('errorcarriedforward', 'mod_emarking');
+        case EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER:
+            return get_string('correctalternativeanswer', 'mod_emarking');
         case EMARKING_REGRADE_OTHER:
             return get_string('other', 'mod_emarking');
         default:
@@ -56,9 +60,11 @@ function emarking_get_regrade_type_string($type)
  *
  * @param int $time
  *            in unixtime
+ * @param string $small
+ *            indicates if the time should be enclosed in a div with a small font
  * @return string
  */
-function emarking_time_ago($time)
+function emarking_time_ago($time, $small = false)
 {
     $time = time() - $time; // to get the time since that moment
     
@@ -76,10 +82,31 @@ function emarking_time_ago($time)
         if ($time < $unit)
             continue;
         $numberOfUnits = floor($time / $unit);
-        return core_text::strtotitle(get_string('ago', 'core_message', $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '')));
+        $message = core_text::strtotitle(get_string('ago', 'core_message', $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '')));
+        if($small) {
+            $message = html_writer::div($message, "timeago");
+        }
+        return $message;
     }
 }
 
+/**
+ * Returns the HTML for a jquery dialog which will show the content
+ * @param string $title
+ * @param string $content
+ * @param string $prefix
+ * @param int $id
+ * @return string
+ */
+function emarking_view_more($title, $content, $prefix, $id) {
+    $output = "<div id='$prefix" . "-$id' style='display:none;'>";
+    $output .= $content;
+    $output .= "</div>";
+    $output .= "<a style='cursor:pointer; font-size: 8pt;' onclick='$(\"#$prefix"."-$id\").dialog({title:\"$title\",show: { effect: \"scale\", duration: 200 },modal:true,buttons:{".get_string("close", "mod_emarking").": function(){\$(this).dialog(\"close\");}}});'>"
+    . $title . "</a>";
+
+    return $output;
+}
 /**
  * Gets the icon used the a submission status
  *

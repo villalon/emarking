@@ -49,6 +49,32 @@ $string['exam_help'] = 'You must associate an e-marking activity with a printed 
 
 $string['emarkingviewed']='Feedback viewed';
 
+// REGRADES
+$string ['justification'] = 'Justification';
+$string ['justification_help'] = 'You must justify your regrade request';
+$string ['noregraderequests'] = 'There are no regrade requests';
+$string ['regradedatecreated'] = 'Date created';
+$string ['regradelastchange'] = 'Last change';
+$string ['score'] = 'Score';
+$string ['markingcomment'] = 'Marking comment';
+$string ['regrade'] = 'Regrade';
+$string ['regradingcomment'] = 'Regrading comment';
+$string ['missasignedscore'] = 'Missasigned score';
+$string ['unclearfeedback'] = 'Unclear feedback';
+$string ['statementproblem'] = 'Question statement problem';
+$string ['errorcarriedforward'] = 'Error carried forward';
+$string ['correctalternativeanswer'] = 'Alternative answer which is correct';
+$string ['other'] = 'Other';
+$string ['regradespending'] = 'regrades';
+$string ['regraderestricted'] = 'Regrade requests are not allowed anymore. The final date expire on {$a->regradesclosedate}.';
+$string ['regraderestrictdates'] = 'Restrict dates for regrading';
+$string ['regraderestrictdates_help'] = 'Sets open and close dates for submitting regrade requests';
+$string ['regradesopendate'] = 'Regrade requests open date';
+$string ['regradesopendate_help'] = 'Date from which the students can submit regrading requests';
+$string ['regradesclosedate'] = 'Regrade requests close date';
+$string ['regradesclosedate_help'] = 'Date until the students can submit regrading requests';
+$string ['mustseeexambeforeregrade'] = 'You must review your exam feedback before you can request a regrade.';
+
 // MARKERS AND PAGES OSM CONFIGURATION
 $string['markerspercriteria']='Markers per criteria';
 $string['pagespercriteria']='Pages per criteria';
@@ -303,18 +329,11 @@ $string ['overallfairnessrequired'] = 'Overall fairness is required';
 $string ['expectationrealityrequired'] = 'Expectation is required';
 $string ['choose'] = 'Choose';
 
-$string ['regradespending'] = 'regrades';
-$string ['regraderestricted'] = 'Regrade requests are not allowed anymore. The final date expire on {$a->regradesclosedate}.';
-$string ['regraderestrictdates'] = 'Restrict dates for regrading';
-$string ['regraderestrictdates_help'] = 'Sets open and close dates for submitting regrade requests';
-$string ['regradesopendate'] = 'Regrade requests open date';
-$string ['regradesopendate_help'] = 'Date from which the students can submit regrading requests';
-$string ['regradesclosedate'] = 'Regrade requests close date';
-$string ['regradesclosedate_help'] = 'Date until the students can submit regrading requests';
 $string ['markingduedate'] = 'Marking due date';
 $string ['markingduedate_help'] = 'Defines a due date that will help notify markers and teachers on pending jobs';
 $string ['enableduedate'] = 'Enable marking due date';
 $string ['verifyregradedate'] = 'Verify that the opening is less than the closing';
+$string ['original'] = 'Original';
 
 $string ['emarkingprints'] = 'Emarking Printers';
 $string ['adminprints'] = 'Manage printers';
@@ -368,20 +387,6 @@ $string ['gradescale'] = 'Grades scale';
 $string ['rubricscores'] = 'Max score';
 
 $string ['ranking'] = 'Ranking';
-
-$string ['noregraderequests'] = 'There are no regrade requests';
-$string ['regradedatecreated'] = 'Date created';
-$string ['regradelastchange'] = 'Last change';
-
-$string ['score'] = 'Score';
-$string ['markingcomment'] = 'Marking comment';
-$string ['regrade'] = 'Regrade';
-$string ['regradingcomment'] = 'Regrading comment';
-
-$string ['missasignedscore'] = 'Missasigned score';
-$string ['unclearfeedback'] = 'Unclear feedback';
-$string ['statementproblem'] = 'Question statement problem';
-$string ['other'] = 'Other';
 
 $string ['stdev'] = 'Deviation';
 $string ['min'] = 'Minimum';
@@ -488,8 +493,6 @@ $string ['invalidsize'] = 'Invalid size from Image';
 $string ['invalidstatus'] = 'Invalid status';
 $string ['invalidtoken'] = 'Invalid token trying to download exam.';
 $string ['invalidzipnoanonymous'] = 'Invalid ZIP file, it does not contain the anonymous version of answers. It is possible that it has been generated with an old version of the eMarking desktop tool.';
-$string ['justification'] = 'Justification';
-$string ['justification_help'] = 'You must justify your regrade request';
 $string ['lastmodification'] = 'Last modification';
 $string ['logo'] = 'Logo for header';
 $string ['logodesc'] = 'Logo to include in personalized exam headers';

@@ -1467,6 +1467,21 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015092501, 'emarking');
     }
     
+    if ($oldversion < 2015092701) {
     
+        // Define table emarking_perception to be created.
+        $table = new xmldb_table ( 'emarking_perception' );
+    
+        // Adding fields to table emarking_perception.
+		$field = new xmldb_field ( 'comment', XMLDB_TYPE_TEXT, null, null, null, null, null, null);
+            
+        // Conditionally launch add field comment.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint ( true, 2015092701, 'emarking' );
+    }
     return true;
 }

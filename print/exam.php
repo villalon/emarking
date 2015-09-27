@@ -170,6 +170,9 @@ if ($usercangrade) {
             $examstatus = get_string("examstatusprinted", "mod_emarking");
             break;
     }
+    if (has_capability("mod/emarking:downloadexam", $context)) {
+        $examstatus .= "&nbsp;<a class='downloademarking' examid ='$exam->id'>" . get_string("downloadexam", "mod_emarking")."</a>";
+    }
     
     $examstable->data[] = array(
         get_string("status", "mod_emarking"),
@@ -224,13 +227,6 @@ echo html_writer::table($examstable);
 // the category or if she is a teacher and has download capability for the
 // course and teacher downloads are allowed in the system
 if (has_capability("mod/emarking:downloadexam", $context)) {
-    echo html_writer::empty_tag("input", array(
-        "type" => "submit",
-        "value" => get_string("downloadexam", "mod_emarking"),
-        "class" => "downloademarking",
-        "examid" => $exam->id,
-        "name" => "submitbutton"
-    ));
     
     $downloadurl = new moodle_url("/mod/emarking/print/download.php");
     

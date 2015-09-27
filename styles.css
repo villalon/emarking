@@ -1,8 +1,15 @@
-#page-mod-emarking-marking-markers .generaltable tbody tr .rowactions,
+.generaltable tbody tr .rowactions,
 #page-mod-emarking-view .flexible tbody tr .printactions,
 #page-mod-emarking-view .flexible tbody tr .timemodified  {
 	display: none;
 }
+
+.generaltable tbody tr:hover .rowactions,
+#page-mod-emarking-view .flexible tbody tr:hover .printactions,
+#page-mod-emarking-view .flexible tbody tr:hover .timemodified {
+    display: block;
+}
+
 
 #page-mod-emarking-view .actions {
 	min-width: 170px;
@@ -12,8 +19,16 @@
 	width: 70%;
 }
 
+#page-mod-emarking-marking-regraderequests .c0 {
+	max-width: 150px;
+}
+
 input[type="text"] {
 	height: inherit;
+}
+
+.timeago {
+	font-size: 8pt;
 }
 
 #page-mod-emarking-marking-markers .userpicture {
@@ -29,15 +44,16 @@ input[type="text"] {
     background-color: #005aa8;
     color: #fff;
 }
+
+.regradecomment {
+	max-height: 50px;
+	max-width: 150px;
+	overflow-y: scroll;
+}
+
 .rowactions {
 	text-decoration: underline;
 	float: right;
-}
-
-#page-mod-emarking-marking-markers .generaltable tbody tr:hover .rowactions,
-#page-mod-emarking-view .flexible tbody tr:hover .printactions,
-#page-mod-emarking-view .flexible tbody tr:hover .timemodified {
-    display: block;
 }
 
 .timemodified {

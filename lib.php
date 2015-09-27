@@ -70,6 +70,8 @@ define('EMARKING_STATUS_ACCEPTED', 40); // Student accepted the submission
 define('EMARKING_REGRADE_MISASSIGNED_SCORE', 1);
 define('EMARKING_REGRADE_UNCLEAR_FEEDBACK', 2);
 define('EMARKING_REGRADE_STATEMENT_PROBLEM', 3);
+define('EMARKING_REGRADE_ERROR_CARRIED_FORWARD', 4);
+define('EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER', 5);
 define('EMARKING_REGRADE_OTHER', 10);
 
 // //////////////////////////////////////////////////////////////////////////////

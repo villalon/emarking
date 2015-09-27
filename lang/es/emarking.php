@@ -47,7 +47,39 @@ $string['markingtypemandatory'] = 'Debe seleccionar un tipo de corrección';
 $string['selectexam'] = 'Enviar después';
 $string['exam_help'] = 'Debe asociar esta corrección a una prueba enviada a imprimir. Seleccione la prueba entre las que ya se han enviado o indique que la enviará después.';
 
-$string['emarkingviewed']='Ver prueba';
+$string ['emarkingviewed'] = 'Ver prueba';
+
+// REGRADES
+$string ['justification'] = 'Justificación';
+$string ['justification_help'] = 'Usted debe justificar su solicitud de recorrección';
+$string ['noregraderequests'] = 'No hay solicitudes de recorrección';
+$string ['regradedatecreated'] = 'Fecha creación';
+$string ['regradelastchange'] = 'Último cambio';
+$string ['score'] = 'Puntaje';
+$string ['markingcomment'] = 'Comentario de corrección';
+$string ['regrade'] = 'Recorrección';
+$string ['regradingcomment'] = 'Comentario de recorrección';
+$string ['missasignedscore'] = 'Puntaje mal calculado';
+$string ['unclearfeedback'] = 'La corrección no explica qué está incorrecto';
+$string ['statementproblem'] = 'Problemas con el enunciado';
+$string ['errorcarriedforward'] = 'Error de arrastre';
+$string ['correctalternativeanswer'] = 'Mi respuesta es correcta aunque no idéntica a la pauta';
+$string ['other'] = 'Otro';
+$string ['regradespending'] = 'recorrecciones';
+$string ['regraderestricted'] = 'Ya no se aceptan nuevas solicitudes de recorrección. El período de recorrecciones cerró el {$a->regradesclosedate}.';
+$string ['regraderestrictdates'] = 'Restringir fechas para recorrecciones';
+$string ['regraderestrictdates_help'] = 'Los estudiantes podrán solicitar recorrecciones solamente dentro de límites de fecha de apertura y cierre.';
+$string ['regradesopendate'] = 'Apertura recorrecciones';
+$string ['regradesopendate_help'] = 'Fecha desde la cual los estudiantes pueden enviar solicitudes de recorrección';
+$string ['regradesclosedate'] = 'Cierre recorrecciones';
+$string ['regradesclosedate_help'] = 'Fecha límite para que los estudiantes envíen solicitudes de recorrección';
+$string ['mustseeexambeforeregrade'] = 'Debes revisar la corrección de tu prueba antes de solicitar recorrección.';
+
+$string ['markingduedate'] = 'Fecha límite corrección';
+$string ['markingduedate_help'] = 'Si define una fecha límite para finalizar la corrección, ésta se usará para notificar a correctores y profesores respecto del avance de la corrección.';
+$string ['enableduedate'] = 'Habilitar fecha límite';
+$string ['verifyregradedate'] = 'Verificar que la fecha de apertura sea menor que el cierre';
+$string ['original'] = 'Original';
 
 // MARKERS AND PAGES OSM CONFIGURATION
 $string['markerspercriteria']='Correctores por criterio';
@@ -299,18 +331,6 @@ $string ['overallfairnessrequired'] = 'El campo es obligatorio';
 $string ['expectationrealityrequired'] = 'El campo es obligatorio';
 $string ['choose'] = 'Escoger';
 
-$string ['regradespending'] = 'recorrecciones';
-$string ['regraderestricted'] = 'Ya no se aceptan nuevas solicitudes de recorrección. El período de recorrecciones cerró el {$a->regradesclosedate}.';
-$string ['regraderestrictdates'] = 'Restringir fechas para recorrecciones';
-$string ['regraderestrictdates_help'] = 'Los estudiantes podrán solicitar recorrecciones solamente dentro de límites de fecha de apertura y cierre.';
-$string ['regradesopendate'] = 'Apertura recorrecciones';
-$string ['regradesopendate_help'] = 'Fecha desde la cual los estudiantes pueden enviar solicitudes de recorrección';
-$string ['regradesclosedate'] = 'Cierre recorrecciones';
-$string ['regradesclosedate_help'] = 'Fecha límite para que los estudiantes envíen solicitudes de recorrección';
-$string ['markingduedate'] = 'Fecha límite corrección';
-$string ['markingduedate_help'] = 'Si define una fecha límite para finalizar la corrección, ésta se usará para notificar a correctores y profesores respecto del avance de la corrección.';
-$string ['enableduedate'] = 'Habilitar fecha límite';
-$string ['verifyregradedate'] = 'Verificar que la fecha de apertura sea menor que el cierre';
 
 $string ['emarkingprints'] = 'Emarking impresoras';
 $string ['adminprints'] = 'Administrar impresoras';
@@ -364,20 +384,6 @@ $string ['gradescale'] = 'Escala de calificaciones';
 $string ['rubricscores'] = 'Puntaje total';
 
 $string ['ranking'] = 'Ranking';
-
-$string ['noregraderequests'] = 'No hay solicitudes de recorrección';
-$string ['regradedatecreated'] = 'Fecha creación';
-$string ['regradelastchange'] = 'Último cambio';
-
-$string ['score'] = 'Puntaje';
-$string ['markingcomment'] = 'Comentario de corrección';
-$string ['regrade'] = 'Recorrección';
-$string ['regradingcomment'] = 'Comentario de recorrección';
-
-$string ['missasignedscore'] = 'Puntaje mal asignado';
-$string ['unclearfeedback'] = 'Retroalimentación poco clara';
-$string ['statementproblem'] = 'Problemas con el enunciado';
-$string ['other'] = 'Otro';
 
 $string ['stdev'] = 'Desviación';
 $string ['min'] = 'Mínimo';
@@ -530,8 +536,6 @@ $string ['justice.review'] = 'Revisar';
 $string ['justice.yourgrade'] = 'Tu calificación';
 $string ['justiceexperiment'] = 'Experimento en percepción de justicia';
 $string ['justiceexperiment_help'] = 'Muestra a la mitad de los estudiantes las estadísticas de la evaluación, de manera de tener grupos experimental y control.';
-$string ['justification'] = 'Justificación';
-$string ['justification_help'] = 'Usted debe justificar su solicitud de recorrección';
 $string ['lastmodification'] = 'Última Modificación';
 $string ['logo'] = 'Logo para encabezado';
 $string ['logodesc'] = 'Logo para incluir en encabezado de pruebas';

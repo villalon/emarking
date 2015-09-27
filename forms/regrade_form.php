@@ -46,6 +46,12 @@ class emarking_justice_regrade_form extends moodleform {
         		emarking_get_regrade_type_string(EMARKING_REGRADE_MISASSIGNED_SCORE), 
                 EMARKING_REGRADE_MISASSIGNED_SCORE);
         $motives[] =& $mform->createElement('radio', 'motive', '', 
+        		emarking_get_regrade_type_string(EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER), 
+                EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER);
+        $motives[] =& $mform->createElement('radio', 'motive', '', 
+        		emarking_get_regrade_type_string(EMARKING_REGRADE_ERROR_CARRIED_FORWARD), 
+                EMARKING_REGRADE_ERROR_CARRIED_FORWARD);        
+        $motives[] =& $mform->createElement('radio', 'motive', '', 
         		emarking_get_regrade_type_string(EMARKING_REGRADE_UNCLEAR_FEEDBACK), 
                 EMARKING_REGRADE_UNCLEAR_FEEDBACK);
         $motives[] =& $mform->createElement('radio', 'motive', '', 
@@ -62,7 +68,7 @@ class emarking_justice_regrade_form extends moodleform {
         $mform->addHelpButton ( 'radioar', 'motive', 'mod_emarking' );
         
         // Add justification as text area
-        $mform->addElement('textarea', 'comment', get_string('justification', 'mod_emarking'), array('wrap'=>'virtual','rows'=>20, 'cols'=>50));
+        $mform->addElement('textarea', 'comment', get_string('justification', 'mod_emarking'), array('wrap'=>'virtual','rows'=>10, 'cols'=>80));
         $mform->addRule ( 'comment', get_string ( 'required' ), 'required', null, 'client' );
         $mform->addRule('comment', get_string('maximumchars', '', 500), 'maxlength', 500, 'client');
         $mform->setType ( 'comment', PARAM_TEXT);

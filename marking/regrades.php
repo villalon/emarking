@@ -92,6 +92,9 @@ $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_url($url);
+$PAGE->requires->jquery();
+$PAGE->requires->jquery_plugin('ui');
+$PAGE->requires->jquery_plugin('ui-css');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
@@ -112,6 +115,12 @@ if (! $emarkingdraft = $DB->get_record('emarking_draft', array(
     'qualitycontrol' => 0
 ))) {
     print_error('Fatal error! Couldn\'t find emarking draft');
+}
+
+if(!$emarkingsubmission->seenbystudent) {
+    echo $OUTPUT->notification(get_string('mustseeexambeforeregrade', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->footer();
+    die();
 }
 
 $regrade = null;
@@ -275,7 +284,7 @@ foreach ($questions as $question) {
     ));
     
     $linktext = "";
-    $status = get_string("statusnotsent", "mod_emarking");
+    $statusicon = get_string("statusnotsent", "mod_emarking");
     if ($question->regradeid != null) {
         if ($requestswithindate && ! $question->rgaccepted) {
             $linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('i/manual_item', get_string('edit')));
@@ -284,12 +293,12 @@ foreach ($questions as $question) {
             $linktext = '&nbsp;';
         }
         if ($question->rgaccepted) {
-            $status = $OUTPUT->pix_icon("i/valid", get_string('replied', 'mod_emarking'));
+            $statusicon = $OUTPUT->pix_icon("i/valid", get_string('replied', 'mod_emarking'));
         } else {
-            $status = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
+            $statusicon = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
         }
-        $status .= '<br/>' . emarking_get_regrade_type_string($question->motive);
-        $status .= '<br/><div style="overflow: auto;">' . $question->comment . '</div>';
+        $statusicon .= '<br/>' . emarking_get_regrade_type_string($question->motive);
+        $statusicon .= '<br/>' . emarking_view_more(get_string("regradingcomment", "mod_emarking"), $question->comment, "cc", $question->regradeid);
     } elseif ($requestswithindate && $emarkingdraft->status >= EMARKING_STATUS_PUBLISHED) {
         $linktext = $OUTPUT->action_link($urledit, null, null, null, new pix_icon('t/add', 'Solicitar'));
     } else {
@@ -309,7 +318,7 @@ foreach ($questions as $question) {
     
     $row[] = $question->description;
     $row[] = $question->rgaccepted ? $originalinfo : $currentinfo;
-    $row[] = $status;
+    $row[] = $statusicon;
     $row[] = $question->rgaccepted ? $currentinfo : '';
     $row[] = $linktext;
     

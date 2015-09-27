@@ -31,14 +31,14 @@ require_once ('locallib.php');
 global $DB, $CFG, $SCRIPT, $USER;
 
 $categoryid = required_param('category', PARAM_INT);
-$status = optional_param('status', 1, PARAM_INT);
+$statusicon = optional_param('status', 1, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = 10;
 
 emarking_verify_logo();
 
 // Validate status (print orders or history)
-if ($status < 1 || $status > 2) {
+if ($statusicon < 1 || $statusicon > 2) {
     print_error(get_string("invalidstatus", "mod_emarking"));
 }
 
@@ -61,7 +61,7 @@ $url = new moodle_url('/mod/emarking/print/statistics.php', array(
 ));
 $ordersurl = new moodle_url('/mod/emarking/print/printorders.php', array(
     'category' => $categoryid,
-    'status' => $status
+    'status' => $statusicon
 ));
 $categoryurl = new moodle_url('/course/index.php', array(
     'categoryid' => $categoryid
@@ -72,7 +72,7 @@ if (! has_capability('mod/emarking:printordersview', $context)) {
     print_error('Not allowed!');
 }
 
-$pagetitle = $status == 1 ? get_string('printorders', 'mod_emarking') : get_string('records', 'mod_emarking');
+$pagetitle = $statusicon == 1 ? get_string('printorders', 'mod_emarking') : get_string('records', 'mod_emarking');
 
 $PAGE->set_context($context);
 $PAGE->set_url($url);
@@ -93,9 +93,9 @@ $examstable->head = array(
     get_string('course'),
     get_string('details', 'mod_emarking'),
     get_string('requestedby', 'mod_emarking'),
-    $status == 1 ? get_string('sent', "mod_emarking") : get_string('examdateprinted', 'mod_emarking'),
-    $status == 1 ? ucfirst(get_string('pages', 'mod_emarking')) : get_string('actions'),
-    $status == 1 ? get_string('actions') : get_string('printnotification', 'mod_emarking')
+    $statusicon == 1 ? get_string('sent', "mod_emarking") : get_string('examdateprinted', 'mod_emarking'),
+    $statusicon == 1 ? ucfirst(get_string('pages', 'mod_emarking')) : get_string('actions'),
+    $statusicon == 1 ? get_string('actions') : get_string('printnotification', 'mod_emarking')
 );
 
 $examstable->size = array(
@@ -117,13 +117,13 @@ $examstable->align = array(
     'center',
     'center',
     'center',
-    $status == 1 ? 'right' : 'center'
+    $statusicon == 1 ? 'right' : 'center'
 );
 
 $examstable->colclasses[1] = 'exams_examname';
 
 // Parameters for SQL calls
-if($status == 1) {
+if($statusicon == 1) {
     $statuses = array(EMARKING_EXAM_UPLOADED);
 } else {
     $statuses = array(EMARKING_EXAM_SENT_TO_PRINT, EMARKING_EXAM_PRINTED);
@@ -131,7 +131,7 @@ if($status == 1) {
 
 list($statussql, $params) = $DB->get_in_or_equal($statuses);
 
-$order = $status == 1 ? "e.examdate asc, c.shortname ASC" : "e.examdate desc, c.shortname ASC";
+$order = $statusicon == 1 ? "e.examdate asc, c.shortname ASC" : "e.examdate desc, c.shortname ASC";
 
 list($childrensql, $childrenparams) = $DB->get_in_or_equal(emarking_get_categories_childs($categoryid));
 
@@ -227,9 +227,9 @@ foreach ($exams as $exam) {
         $OUTPUT->action_link($urlcourse, $exam->coursefullname),
         $exam->category . '<br/>' . $enrolments,
         $OUTPUT->action_link($urlprofile, $exam->userfullname),
-        $status == 1 ? emarking_time_ago($exam->timecreated) : emarking_time_ago($exam->printdate),
-        $status == 1 ? $pagestoprint : $actions,
-        $status == 1 ? $actions : $notification
+        $statusicon == 1 ? emarking_time_ago($exam->timecreated) : emarking_time_ago($exam->printdate),
+        $statusicon == 1 ? $pagestoprint : $actions,
+        $statusicon == 1 ? $actions : $notification
     );
     
     $current++;
@@ -237,14 +237,14 @@ foreach ($exams as $exam) {
 
 echo $OUTPUT->header();
 
-$activetab = $status == 1 ? 'printorders' : 'printordershistory';
+$activetab = $statusicon == 1 ? 'printorders' : 'printordershistory';
 echo $OUTPUT->tabtree(emarking_printoders_tabs($category), $activetab);
 
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 
 if (count($exams) > 0) {
     echo html_writer::table($examstable); // print the table
-    echo $OUTPUT->paging_bar($examscount, $page, $perpage, $CFG->wwwroot . '/mod/emarking/print/printorders.php?category=' . $categoryid . '&status=' . $status . '&page=');
+    echo $OUTPUT->paging_bar($examscount, $page, $perpage, $CFG->wwwroot . '/mod/emarking/print/printorders.php?category=' . $categoryid . '&status=' . $statusicon . '&page=');
 } else {
     echo $OUTPUT->notification(get_string('noexamsforprinting', 'mod_emarking'), 'notifyproblem');
 }

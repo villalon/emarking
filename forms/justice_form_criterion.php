@@ -84,7 +84,12 @@ class justice_form_criterion extends moodleform {
         }
         
         $mform->addElement('html', '</table>');
-
+        
+        // Comment
+        $mform->addElement('textarea', 'comment', get_string('comment', 'mod_emarking'), array('wrap'=>'virtual','rows'=>7, 'cols'=>80));
+        $mform->addRule('comment', get_string('maximumchars', '', 1500), 'maxlength', 1500, 'client');
+        $mform->setType ( 'comment', PARAM_TEXT);        
+        
         // Action buttons
         $this->add_action_buttons(false);
     }
