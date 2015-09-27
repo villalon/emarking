@@ -38,6 +38,7 @@ $string['enableosm'] = 'Enable OSM';
 $string['enableosm_help'] = 'You must enable scan before you can enable OSM';
 $string['osmwasenabled'] = 'OSM was enabled successfully';
 $string['updateemarkingtype'] = 'You are about to {$a->message} in {$a->name}. There are no risks in doing so, you can change this later in settings at any time.';
+$string['emarkingwithnoexam'] = 'There is a configuration problem with your activity. Please notify the administrator.';
 
 $string['printsettings'] = 'Print settings';
 $string['printsettings_help'] = 'Help for print settings';

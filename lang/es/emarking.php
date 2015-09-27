@@ -38,6 +38,7 @@ $string['enableosm'] = 'Habilitar corrección en pantalla';
 $string['enableosm_help'] = 'Debe habilitar la digitalización para poder habilitar la corrección en pantalla';
 $string['osmwasenabled'] = 'Corrección en pantalla habilitada exitosamente.';
 $string['updateemarkingtype'] = 'Usted va a {$a->message} en {$a->name}. No hay riesgos en hacer esto, usted puede cambiarlo después en los ajustes de la actividad en cualquier momento.';
+$string['emarkingwithnoexam'] = 'Existe un problema de configuración con su actividad. Por favor notifique al administrador.';
 
 $string['printsettings'] = 'Configuración de impresión';
 $string['printsettings_help'] = 'Help for print settings';
