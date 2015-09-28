@@ -151,13 +151,13 @@ class emarking_addrelationship_userprint_form extends moodleform{
 		
 		$sqlusers = "SELECT u.id, u.username, u.lastname, u.email
 				FROM {user} as u INNER JOIN {role_assignments} as ra ON (u.id = ra.userid)
-				INNER JOIN {role_capabilities} as rc ON (rc.roleid = ra.roleid)
+				LEFT JOIN {role_capabilities} as rc ON (rc.roleid = ra.roleid)
 				INNER JOIN {role} as r ON (r.id = ra.roleid)
-				WHERE rc.capability like ?
+				WHERE rc.capability = ?
 				AND rc.permission = ?
 				GROUP BY u.id";
 		
-		$users = $DB->get_records_sql($sqlusers, array('%emarking:downloadexam%', '1'));
+		$users = $DB->get_records_sql($sqlusers, array('mod/emarking:downloadexam', '1'));
 		$data = array();
 		foreach( $users as $user ){
 			$data[$user->id] = $user->username." ".$user->lastname." (".$user->email.")";
