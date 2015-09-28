@@ -1001,7 +1001,7 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, $
         }
     }
     
-    if (is_siteadmin($USER) || (has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enablemanageprinters)) {
+    if (is_siteadmin($USER) || (has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enableprinting)) {
         $settingnode = $settingsnav->add(get_string('emarkingprints', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
         $thingnode = $settingnode->add(get_string('adminprints', 'mod_emarking'), new moodle_url("/mod/emarking/print/printers.php", array(
             'sesskey' => $USER->sesskey

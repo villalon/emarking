@@ -198,7 +198,7 @@ if( $action == "edit" ){
 	$editform->display();
 }
 
-if( $action == "view" && $CFG->emarking_enablemanageprinters ){
+if( $action == "view" && $CFG->emarking_enableprinting ){
 	$PAGE->set_title(get_string("adminprints", "mod_emarking"));
 	$PAGE->set_heading(get_string("adminprints", "mod_emarking"));
 	echo $OUTPUT->header();
@@ -210,7 +210,7 @@ if( $action == "view" && $CFG->emarking_enablemanageprinters ){
 		echo html_writer::table($printerstable);
 	}
 	echo html_writer::nonempty_tag("div", $OUTPUT->single_button($buttonurl, get_string("addprinter", "mod_emarking")), array("align" => "center"));
-}else if( !$CFG->emarking_enablemanageprinters ){
+}else if( !$CFG->emarking_enableprinting ){
 	echo html_writer::nonempty_tag("h4", 
 			get_string("notenablemanageprinters", "mod_emarking", $CFG->wwwroot."/admin/settings.php?section=modsettingemarking"), 
 			array("align" => "center")
