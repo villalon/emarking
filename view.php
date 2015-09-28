@@ -798,7 +798,7 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
             $prevdata['er-'.$criterionjustice->criterion] = $criterionjustice->expectation_reality;
         }
     }
-    $prevdata['comment'] = $record->comment;
+    $prevdata['comment'] = $record ? $record->comment : '';
     
     $mform = new justice_form_criterion($urlemarking, array('rubriccriteria'=>$rubriccriteria), 'post');
     $mform->set_data($prevdata);
