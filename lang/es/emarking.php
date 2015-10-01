@@ -770,3 +770,15 @@ $string ['eventunauthorizedccessgranted'] = 'WARNING: Acceso no autorizado a la 
 $string ['eventmarkersconfigcalled'] = 'Se ingresa al markers config';
 $string ['eventmarkersassigned'] = 'Correctores han sido assignado';
 $string ['eventemarkingcalled'] = 'Llamada al emarking';
+
+/**
+ * Delphi's strings
+ */
+$string ['marking_progress'] = 'Progreso de corrección';
+$string ['marking_marker'] = 'Corrector';
+$string ['delphi_stage_one'] = 'Corrección';
+$string ['marking_deadline'] = 'Tiempo restante';
+$string ['stage_general_progress'] = 'Progreso general';
+$string ['delphi_stage_two'] = 'Delphi';
+$string ['delphi_tittle'] = 'Delphi ';
+$string ['marking_completed'] = 'Bien hecho, ahora debes esperar a los demás correctores para la etapa dos.';
