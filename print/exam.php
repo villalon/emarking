@@ -82,13 +82,16 @@ $params = $cmid > 0 ? array(
 );
 
 $PAGE->set_url($url);
-$PAGE->requires->js("/mod/emarking/js/printorders.js");
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string("emarking", "mod_emarking"));
 $PAGE->set_pagelayout("incourse");
 $PAGE->navbar->add(get_string("print", "mod_emarking"));
+
+if (has_capability("mod/emarking:downloadexam", $context)) {
+    $PAGE->requires->js("/mod/emarking/js/printorders.js");
+}
 
 echo $OUTPUT->header();
 

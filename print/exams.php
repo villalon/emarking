@@ -67,6 +67,7 @@ if (has_capability ( "mod/emarking:downloadexam", $context)) {
 
 echo $OUTPUT->header();
 
+echo $OUTPUT->heading($course->fullname);
 
 // Parameters to retrieve all exams for this course or emarking
 $params = array("course"=>$course->id);

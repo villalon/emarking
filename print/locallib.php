@@ -1109,7 +1109,7 @@ function emarking_exam_get_parallels($exam)
     // Find all exams with the same PDF file
     $multi = $DB->get_records('emarking_exams', array(
         'file' => $exam->file
-    ), 'course ASC');
+    ), 'courseshortname ASC');
     foreach ($multi as $mult) {
         if ($mult->status >= EMARKING_EXAM_SENT_TO_PRINT) {
             $canbedeleted = false;
@@ -1124,7 +1124,7 @@ function emarking_exam_get_parallels($exam)
             ));
         }
     }
-    asort($courses, SORT_STRING);
+    sort($courses, SORT_NATURAL | SORT_FLAG_CASE);
     $multicourse = implode("<br/>", $courses);
     
     return array(

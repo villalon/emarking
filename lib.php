@@ -259,6 +259,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
                         $newexam->id = null;
                         $newexam->totalstudents = $studentsnumber;
                         $newexam->course = $thiscourse->id;
+                        $newexam->courseshortname = $thiscourse->shortname;
                         $newexam->emarking = 0;
                         $newexam->id = $DB->insert_record('emarking_exams', $newexam);
                         
