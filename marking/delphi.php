@@ -1,10 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ *
+ * @package mod
+ * @subpackage emarking
+ * @copyright 2015 Francisco García <frgarcia@alumnos.uai.cl>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
 
-global $CFG, $DB, $OUTPUT, $PAGE, $USER;
+global $CFG, $DB, $OUTPUT, $PAGE;
 
 // Course module id
 $cmid = required_param('id', PARAM_INT);
@@ -39,7 +62,7 @@ $context = context_module::instance($cm->id);
 // Get rubric instance
 list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
 
-$urlprinters = new moodle_url("/mod/emarking/delphi/index.php");
+
 // Page navigation and URL settings
 $PAGE->set_url($urlemarking);
 $PAGE->set_context($context);
@@ -64,82 +87,10 @@ if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($grad
 	}
 }
 
-$sql=" 
-SELECT      STUDENTS.*,   
-			ROUND((((ABS((CENTROID.avgscore - STUDENTS.score) / CENTROID.avgscore) - STUDENTS.agreementflexibility) / ABS(ABS((CENTROID.avgscore - STUDENTS.score) / CENTROID.avgscore) - STUDENTS.agreementflexibility)) + 1) / 2, 0) as outlier,   
-            CENTROID.avgscore,   
-            CENTROID.minscore,   
-            CENTROID.maxscore     
-			FROM ( SELECT  s.student as studentid,                        
-				   d.id as draftid,
-				   rl.score,
-				   rl.criterionid, 
-					MAX(c.markerid) as markerid,
-					e.agreementflexibility
-					FROM mdl_emarking AS e 
-					INNER JOIN mdl_emarking_submission AS s ON (e.id = 1 AND e.id = s.emarking) 
-					INNER JOIN mdl_emarking_draft AS d ON (d.submissionid = s.id)
-					INNER JOIN mdl_emarking_comment AS c ON (c.draft = d.id)
-					INNER JOIN mdl_gradingform_rubric_levels AS rl ON (c.levelid=rl.id)
-					GROUP BY d.id, rl.criterionid     ) AS STUDENTS    
-			INNER JOIN ( SELECT  s.student,
-						AVG(rl.score * (1 - e.agreementflexibility)) as minscore, 
-						AVG(rl.score) as avgscore, 
-						AVG(rl.score * (1 + e.agreementflexibility)) as maxscore, 
-						rl.criterionid
-						FROM mdl_emarking AS e  
-						INNER JOIN mdl_emarking_submission AS s ON (e.id = 1 AND e.id = s.emarking) 
-						INNER JOIN mdl_emarking_draft AS d ON (d.submissionid = s.id) 
-						INNER JOIN mdl_emarking_comment AS c ON (c.draft = d.id)
-						INNER JOIN mdl_gradingform_rubric_levels AS rl ON (c.levelid=rl.id)
-          GROUP BY s.student, rl.criterionid     ) AS CENTROID ON (STUDENTS.criterionid = CENTROID.criterionid AND STUDENTS.studentid = CENTROID.student)				
-";
-$max=1.2;
-$min=0.8;
-$sqlquerybystudent ="select student, sum(outlierpercentage)/sum(ndrafts) as percentage from ($sql  group by t1.criterionid,t1.student) as calc group by student";
-
-$outliersbystudent=$DB->get_recordset_sql($sqlquerybystudent, array($max,$min,$cm->instance,$cm->instance));
-
-$sqlquerybycriterion ="select criterionid,criterianame ,sum(outlierpercentage)/sum(ndrafts) as percentage from ($sql group by t1.criterionid,t1.student) as calc group by criterionid";
-
-$outliersbycriterion=$DB->get_recordset_sql($sqlquerybycriterion, array($max,$min,$cm->instance,$cm->instance));
-
-$sqlmarker="$sql group by t1.markerid";
-
-$outliersbymarker=$DB->get_recordset_sql($sqlmarker, array($max,$min,$cm->instance,$cm->instance));
-
-$sqldelphiprogress="select sum(percentage)/count(student) as delphiprogress from(  $sqlquerybystudent) as progress";
-$delphiprogress=$DB->get_record_sql($sqldelphiprogress, array($max,$min,$cm->instance,$cm->instance));
 
 // Show header
 echo $OUTPUT->header();
-echo $OUTPUT->tabtree(emarking_tabs_markers_training($context, $cm, $emarking,100,floor((float)$delphiprogress->delphiprogress)), "second","first");
-
-$k=0;
-$firststagetable = new html_table();
-$firststagetable->data[]=Array("<h4>Por Estudiante</h4>");
-foreach($outliersbystudent as $outliers){
-	$k++;
-	$firststagetable->data[]=Array("Estudiante: ".$k.create_progress_graph(floor($outliers->percentage)));
-}
+echo $OUTPUT->tabtree(emarking_tabs_markers_training($context, $cm, $emarking,100,0), "second","first");
 
 
-
-$secondstagetable = new html_table();
-$secondstagetable->data[]=Array("<h4>Por Criterio<h4>");
-foreach($outliersbycriterion as $outliers){
-	$secondstagetable->data[]=Array($outliers->criterianame.": ".create_progress_graph(floor($outliers->percentage)));
-}
-
-
-$thirdstagetable = new html_table();
-$thirdstagetable->data[]=Array("<h4>Por Marker</h4>");
-foreach($outliersbymarker as $outliers){
-
-	$thirdstagetable->data[]=Array("Marker: ".$outliers->fakeid.": ".create_progress_graph(floor($outliers->outlierpercentage)));
-}
-
-$maintable=new html_table();
-$maintable->data[]=Array(html_writer::table($firststagetable),html_writer::table($secondstagetable),html_writer::table($thirdstagetable));
-echo html_writer::table($maintable);
 echo $OUTPUT->footer();
