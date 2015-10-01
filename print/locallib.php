@@ -1119,11 +1119,12 @@ function emarking_exam_get_parallels($exam)
                 'id' => $mult->course
             ));
             list ($academicperiod, $campus, $coursecode, $section, $term, $year) = emarking_parse_shortname($shortname->shortname);
-            $courses[] = html_writer::div("$campus-$section", null, array(
+            $courses[] = html_writer::span("$campus-$section", null, array(
                 "title" => "$shortname->fullname"
             ));
         }
     }
+    asort($courses, SORT_STRING);
     $multicourse = implode("<br/>", $courses);
     
     return array(
