@@ -259,6 +259,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
                         $newexam->id = null;
                         $newexam->totalstudents = $studentsnumber;
                         $newexam->course = $thiscourse->id;
+                        $newexam->emarking = 0;
                         $newexam->id = $DB->insert_record('emarking_exams', $newexam);
                         
                         $thiscontext = context_course::instance($thiscourse->id);
@@ -292,7 +293,64 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
         $DB->update_record('emarking_exams', $exam);
     }
     
+    $headerqr = isset($mform->get_data()->headerqr) ? 1 : 0;
+    setcookie("emarking_headerqr", $headerqr, time()+3600*24*365*10, '/');
+    
+    $defaultexam = new stdClass();
+    $defaultexam->headerqr = $exam->headerqr;
+    $defaultexam->printrandom = $exam->printrandom;
+    $defaultexam->printlist = $exam->printlist;
+    $defaultexam->extrasheets = $exam->extrasheets;
+    $defaultexam->extraexams = $exam->extraexams;
+    $defaultexam->usebackside = $exam->usebackside;
+    $defaultexam->enrolments = $exam->enrolments;
+    setcookie("emarking_exam_defaults", json_encode($defaultexam), time()+3600*24*365*10, '/');
+    
     return $id;
+}
+
+/**
+ * Creates a copy of the emarking in the database.
+ * 
+ * @param unknown $original_emarking
+ * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
+ */
+function emarking_copy_to_cm($original_emarking)
+{
+    require_once ($CFG->dirroot . "/course/lib.php");
+    require_once ($CFG->dirroot . "/mod/emarking/mod_form.php");
+    
+    $emarkingmod = $DB->get_record('modules', array(
+        'name' => 'emarking'
+    ));
+    
+    $emarking = new stdClass();
+    $emarking = $original_emarking;
+    $emarking->id = null;
+    $emarking->id = emarking_add_instance($emarking);
+    
+    // Add coursemodule
+    $mod = new stdClass();
+    $mod->course = $emarking->course;
+    $mod->module = $emarkingmod->id;
+    $mod->instance = $emarking->id;
+    $mod->section = 0;
+    $mod->visible = 0; // Hide the forum
+    $mod->visibleold = 0; // Hide the forum
+    $mod->groupmode = 0;
+    $mod->grade = 100;
+    
+    if (! $cmid = add_course_module($mod)) {
+        return false;
+    }
+    
+    $sectionid = course_add_cm_to_section($mod->course, $cmid, 0);
+    
+    return array(
+        $emarking->id,
+        $cmid,
+        $sectionid
+    );
 }
 
 /**
@@ -310,25 +368,27 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 function emarking_update_instance(stdClass $emarking, mod_emarking_mod_form $mform = null)
 {
     global $DB, $CFG, $COURSE;
-
-    // If there is NO exam for the emarking activity and the user selected she 
+    
+    // If there is NO exam for the emarking activity and the user selected she
     // wouldn't use a previous exam there is something wrong
-    if((!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->instance)))
-        && $mform->get_data()->exam == 0) {
-            return false;
-    }
-
-    // If there is NO exam with the id selected by the user there is something wrong
-    // (When the emarking already has an exam, the data comes in a hidden field
-    if(!$exam = $DB->get_record("emarking_exams", array("id"=>$mform->get_data()->exam))) {
+    if ((! $exam = $DB->get_record("emarking_exams", array(
+        "emarking" => $emarking->instance
+    ))) && $mform->get_data()->exam == 0) {
         return false;
     }
-
+    
+    // If there is NO exam with the id selected by the user there is something wrong
+    // (When the emarking already has an exam, the data comes in a hidden field
+    if (! $exam = $DB->get_record("emarking_exams", array(
+        "id" => $mform->get_data()->exam
+    ))) {
+        return false;
+    }
+    
     // We update the exam row
     $exam->name = $emarking->name;
     $exam->emarking = $emarking->instance;
     $DB->update_record("emarking_exams", $exam);
-    
     
     if (! isset($mform->get_data()->linkrubric)) {
         $emarking->linkrubric = 0;
@@ -591,6 +651,7 @@ function emarking_print_recent_mod_activity($activity, $courseid, $detail, $modn
  * Function to be run periodically according to the moodle cron
  * This function searches for things that need to be done, such
  * as sending out mail, toggling flags etc .
+ *
  *
  *
  *

@@ -33,10 +33,6 @@ global $DB, $USER, $CFG;
 
 // Course id, if the user comes from a course
 $courseid = required_param("course", PARAM_INT);
-// Exam id in case an exam was just created
-$examid = optional_param("examid", 0, PARAM_INT);
-// If the user is downloading a print form
-$downloadform = optional_param("downloadform", false, PARAM_BOOL);
 
 // First check that the user is logged in
 require_login();
@@ -49,49 +45,31 @@ if(!$course = $DB->get_record("course", array("id"=>$courseid))) {
 	print_error(get_string("invalidcourseid", "mod_emarking"));
 }
 
-$coursecat = $DB->get_record("course_categories", array("id"=>$course->category));
-
 // Both contexts, from course and category, for permissions later
-$context = context_coursecat::instance($coursecat->id);
-
-// If a download form was requested
-if($examid && $downloadform) {
-	$requestedbyuser = $DB->get_record("user", array("id"=>$newexam->requestedby));
-
-	emarking_create_printform($context,
-		$newexam,
-		$USER,
-		$requestedbyuser,
-		$coursecat,
-		$course);
-	die();
-}
-
-// Ony users that can grade can see exams
-require_capability ( "mod/emarking:downloadexam", $context );
+$context = context_course::instance($course->id);
 
 // URL for current page
 $url = new moodle_url("/mod/emarking/print/exams.php", array("course"=>$course->id));
+
 // URL for adding a new print order
 $params = array("course"=>$course->id);
 
 $PAGE->set_url($url);
-$PAGE->requires->js("/mod/emarking/js/printorders.js");
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_title(get_string("emarking", "mod_emarking"));
 $PAGE->set_pagelayout("incourse");
 $PAGE->navbar->add(get_string("myexams","mod_emarking"));
 
-echo $OUTPUT->header();
-
-// If a new exam was recently added, show success message and instructions
-if($examid) {
-	echo $OUTPUT->notification(get_string("newprintordersuccessinstructions", "mod_emarking",$newexam),"notifysuccess");
+if (has_capability ( "mod/emarking:downloadexam", $context)) {
+    $PAGE->requires->js("/mod/emarking/js/printorders.js");
 }
 
+echo $OUTPUT->header();
+
+
 // Parameters to retrieve all exams for this course or emarking
-    $params = array("course"=>$course->id);
+$params = array("course"=>$course->id);
 
 // Retrieve all exams for this course
 $exams = $DB->get_records("emarking_exams", $params, "examdate DESC");
@@ -130,19 +108,18 @@ $examstable->colclasses = array(
 
 // Now fill the table with exams data
 foreach($exams as $exam) {
-	$actions = html_writer::start_tag("div", array("class"=>"printactions"));
-	
 	// Show download button if the user has capability for downloading within 
 	// the category or if she is a teacher and has download capability for the 
 	// course and teacher downloads are allowed in the system
-	if (has_capability ( "mod/emarking:downloadexam", $context)) {
+	$actions = html_writer::start_tag("div", array("class"=>"printactions"));
+    if (has_capability ( "mod/emarking:downloadexam", $context)) {
 		$actions .= html_writer::div($OUTPUT->pix_icon("i/down", get_string("download"), null,
 		    array("examid"=>$exam->id,"class"=>"downloademarking")));
     }
-
+    $actions .= html_writer::end_tag("div");
+    
 	list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 
-	$actions .= html_writer::end_tag("div");
 	$details = html_writer::start_tag("div", array("class"=>"printdetails"));
 	
 	if($exam->headerqr) {
@@ -190,6 +167,11 @@ foreach($exams as $exam) {
 }
 
 echo html_writer::table($examstable);
+
+if (!has_capability ( "mod/emarking:downloadexam", $context)) {
+    echo $OUTPUT->footer();
+    die();
+}
 
 $downloadurl = new moodle_url("/mod/emarking/print/download.php");
 

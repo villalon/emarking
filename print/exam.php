@@ -154,7 +154,7 @@ $details .= html_writer::end_tag("div");
 
 $examstable->data[] = array(
     get_string("examdate", "mod_emarking"),
-    date("l jS F Y, g:ia", $exam->examdate)
+    date("l jS F Y, g:ia", usertime($exam->examdate))
 );
 
 if ($usercangrade) {

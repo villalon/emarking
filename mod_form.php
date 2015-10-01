@@ -656,6 +656,28 @@ class mod_emarking_mod_form extends moodleform_mod
         
         parent::data_preprocessing($default_values);
         
+        if(isset($_COOKIE["emarking_headerqr"])) {
+            if($_COOKIE["emarking_headerqr"] == 1) {
+                $default_values["headerqr"] = 1;
+            } else {
+                $default_values["headerqr"] = 0;
+            }
+        }
+        
+        if(isset($_COOKIE["emarking_exam_defaults"])) {
+            if($json = json_decode($_COOKIE["emarking_exam_defaults"])) {
+                $default_values["headerqr"] = $json->headerqr;
+                $default_values["printrandom"] = $json->printrandom;
+                $default_values["printlist"] = $json->printlist;
+                $default_values["extrasheets"] = $json->extrasheets;
+                $default_values["extraexams"] = $json->extraexams;
+                $default_values["usebackside"] = $json->usebackside;
+                $default_values["enrolments"] = $json->enrolments;
+            }
+        }
+        
+        $default_values["visible"] = 0;
+        
         if ($this->_instance) {
             $markers = $DB->get_records('emarking_markers', array(
                 'emarking' => $this->_instance
