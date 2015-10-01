@@ -145,3 +145,34 @@ input[type="text"] {
 .examtoday {
     border-left: 4px solid green;
 }
+clear{
+clear:both;}
+.graphcont {
+padding-top:10px;
+color:#000;
+font-weight:700;
+float:left;
+}
+
+.graph {
+float:right;
+background-color:#cecece;
+position:relative;
+width:200px;
+padding:0;
+}
+
+.graph .bar {
+display:block;
+position:relative;
+background-color:#7cd603;
+background-position:right center;
+background-repeat:repeat-x;
+border-right:#538e02 1px solid;
+text-align:center;
+color:#fff;
+height:12px;
+font-size:12px;
+line-height:1.2em;
+}
+

@@ -765,4 +765,99 @@ function emarking_set_finalgrade(
 			$previouscomment
 	);
 }
+/**
+ * Creates an especial array with the navigation tabs for emarking markers training mode
+ *
+ * @param unknown $context
+ *            The course context to validate capabilit
+ * @param unknown $cm
+ *            The course module (emarking activity)
+ * @return multitype:tabobject
+ */
+function emarking_tabs_markers_training($context, $cm, $emarking,$generalprogress,$delphiprogress){
+
+	global $CFG;
+	global $USER;
+	global $OUTPUT;
+
+
+	//tab's icons
+	$timeicon = $OUTPUT->pix_icon('i/scheduled', null);
+	$scalesicon = $OUTPUT->pix_icon('i/scales', null);
+
+	//array for tabs data
+	$tabs = array();
+
+	$firststagetable = new html_table();
+	$firststagetable->data[]=Array(get_string('delphi_stage_one', 'mod_emarking'),
+			$timeicon,
+			get_string('marking_deadline', 'mod_emarking'),
+			stage_countdown($emarking->firststagedate));
+	$firststagetable->data[]=Array(get_string('marking', 'mod_emarking'),
+			$scalesicon,
+			get_string('stage_general_progress', 'mod_emarking'),
+			create_progress_graph($generalprogress));
+	//first stage tab
+	$firststage = new tabobject("first", "#", html_writer::table($firststagetable));
+
+
+	$secondstagetable = new html_table();
+	$secondstagetable->data[]=Array(get_string('delphi_stage_two', 'mod_emarking'),
+			$timeicon,
+			get_string('marking_deadline', 'mod_emarking'),
+			stage_countdown($emarking->secondstagedate));
+	$secondstagetable->data[]=Array(get_string('delphi_tittle', 'mod_emarking'),
+			$scalesicon,
+			get_string('stage_general_progress', 'mod_emarking'),
+			create_progress_graph($delphiprogress));
+	//second stage tab
+	$secondstage = new tabobject("second", "#", html_writer::table($secondstagetable));
+
+	// Tabs sequence
+	$tabs[] = $firststage;
+	$tabs[] = $secondstage;
+
+
+	return $tabs;
+
+}
+
+/**
+ * Creates progreph graph of delphi or marking in tabs
+ *
+ * @param unknown $progress
+ *            Marking progress or delphi's progress
+ * @return string
+ */
+function create_progress_graph($progress){
+
+	$width="width:$progress%;";
+	$strong=html_writer::span($progress,'bar',array("style"=>$width));
+	$graph= html_writer::div($strong,'graph');
+	$graphcont= html_writer::div($graph,'graphcont');
+	$rating= html_writer::div($graphcont,'rating');
+
+	return $rating;
+
+}
+/**
+ * Countdown to especific deadline
+ *
+ * @param unknown $deadline
+ *            Deadline in unixtime
+ * @return string
+ */
+function stage_countdown($deadline){
+	$remaining=$deadline - time();
+	if($remaining < 0)
+		$remaining=0;
+
+	$days_remaining = floor($remaining / 86400);
+	$hours_remaining = floor(($remaining % 86400) / 3600);
+	$minutes_remaining = floor((($remaining % 86400) % 3600)/ 60);
+
+	$countdown=$days_remaining." ".get_string('days')." ".$hours_remaining." ".get_string('hours')." ".$minutes_remaining." ".get_string('minutes');
+
+	return $countdown;
+}
 
