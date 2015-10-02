@@ -270,6 +270,9 @@ NM.grademax as grademax,
 NM.grademin as grademin,
 NM.sort,
 NM.commentsassignedids,
+NM.flexibility as flexibility,
+NM.firststagedate as firststagedate,
+NM.secondstagedate as secondstagedate,
 GROUP_CONCAT(NM.criteriaids SEPARATOR '#') as criteriaids,
 GROUP_CONCAT(NM.criteriascores SEPARATOR '#') as criteriascores,
 GROUP_CONCAT(IFNULL(um.picture, '') SEPARATOR '#') as markerpicture,
@@ -307,6 +310,9 @@ nm.course,
 nm.id,
 nm.grade as grademax,
 nm.grademin as grademin,
+nm.agreementflexibility as flexibility,
+nm.secondstagedate as secondstagedate,
+nm.firststagedate as firststagedate,
 round(sum(l.score),2) as score,
 round(sum(c.bonus),2) as bonus,
 d.sort
@@ -416,6 +422,16 @@ if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_
     
     // Run the query on the database
     $drafts = $DB->get_recordset_sql($sqlstudents, $params, $page * $perpage, $perpage);
+}elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+	$params = array(
+			$emarking->id,
+			$emarking->id,
+			$USER->id
+	);
+	
+	// Run the query on the database
+	$drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
+	
 } else {
     $params = array(
         $emarking->id,
@@ -425,6 +441,78 @@ if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_
     
     // Run the query on the database
     $drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
+}
+
+if ($emarking->type == EMARKING_TYPE_NORMAL) {
+	// Navigation tabs
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark");
+}
+elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
+	// Navigation tabs
+
+
+	$PAGE->requires->js_call_amd("mod_emarking/charts", "chart");
+
+	$chartstable = new html_table();
+
+	$array[]=get_string('marking_progress', 'mod_emarking');
+	$sqlnumdrafts="Select 0,count(*) numdrafts from {emarking_draft} where emarkingid=? group by teacher limit 1";
+	$numdrafts = $DB->get_records_sql($sqlnumdrafts, array($cm->instance));
+	$criteriaxdrafts=$numcriteria*$numdrafts[0]->numdrafts;
+
+$sqlnumcomments="
+SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
+From {role_assignments} AS e
+LEFT JOIN (
+		SELECT ec.markerid, count(ec.id) AS totalcomments, ec.levelid, ec.criterionid 
+		FROM {emarking_comment} AS ec
+		INNER JOIN {emarking_draft} AS ed on (ec.draft=ed.id AND ed.emarkingid=?)
+		WHERE ec.criterionid != 0 AND ec.levelid!= 0 
+		GROUP BY ec.markerid)  AS cc ON (e.userid=cc.markerid)
+WHERE  e.roleid=4 AND e.contextid=?
+ORDER BY orderby ASC";
+
+
+	$coursecontext =context_course::instance($course->id);
+
+	if($numcomments = $DB->get_records_sql($sqlnumcomments, array($USER->id,$emarking->id,$coursecontext->id))){
+
+		$markercount=0;
+		$totalprogress=0;
+		foreach ($numcomments as $data){
+			$markercount++;
+
+			$percentage=($data->totalcomments*100)/$criteriaxdrafts;
+			if($USER->id==$data->userid){
+				$array[]="Your";
+				$userpercentage=$percentage;
+			}else{
+				$array[]=get_string('marking_marker', 'mod_emarking').$markercount;
+
+			}
+			$array[]=floor($percentage)."%";
+
+			$totalprogress=$totalprogress + $percentage;
+		}
+		
+		$chartstable->data[]=$array;
+		$generalprogress=floor($totalprogress/$markercount);
+	}
+
+	echo $OUTPUT->tabtree(emarking_tabs_markers_training($context, $cm, $emarking,$generalprogress,0), "first","second");
+			
+	echo html_writer::table($chartstable);
+	if(isset($userpercentage) && floor($userpercentage)==100){
+
+		echo get_string('marking_completed', 'mod_emarking');
+
+
+	}
+
+}
+else{
+	// Navigation tabs
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark");
 }
 
 // Counting students for pagination
