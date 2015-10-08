@@ -1046,7 +1046,7 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, $
     
     // Course context is used as this can work outside of the module
     $context = $PAGE->context;
-    
+    /*
     if ($context instanceof context_course && isset($settingsnav) && $context->instanceid > 1 && is_siteadmin()) {
         $settingnode = $settingsnav->add(get_string('emarking', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
         $thingnode = $settingnode->add(get_string('quizprinting', 'local_galyleo'), new moodle_url('/local/galyleo/quizzes.php', array(
@@ -1062,7 +1062,7 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, $
             )));
         }
     }
-    
+    */
     if (is_siteadmin($USER) || (has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enableprinting)) {
         $settingnode = $settingsnav->add(get_string('emarkingprints', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
         $thingnode = $settingnode->add(get_string('adminprints', 'mod_emarking'), new moodle_url("/mod/emarking/print/printers.php", array(

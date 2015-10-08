@@ -445,7 +445,7 @@ if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_
 
 if ($emarking->type == EMARKING_TYPE_NORMAL) {
 	// Navigation tabs
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark");
+	//echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark");
 }
 elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	// Navigation tabs
@@ -460,18 +460,15 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	$numdrafts = $DB->get_records_sql($sqlnumdrafts, array($cm->instance));
 	$criteriaxdrafts=$numcriteria*$numdrafts[0]->numdrafts;
 
-$sqlnumcomments="
-SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
-From {role_assignments} AS e
-LEFT JOIN (
-		SELECT ec.markerid, count(ec.id) AS totalcomments, ec.levelid, ec.criterionid 
-		FROM {emarking_comment} AS ec
-		INNER JOIN {emarking_draft} AS ed on (ec.draft=ed.id AND ed.emarkingid=?)
-		WHERE ec.criterionid != 0 AND ec.levelid!= 0 
-		GROUP BY ec.markerid)  AS cc ON (e.userid=cc.markerid)
-WHERE  e.roleid=4 AND e.contextid=?
-ORDER BY orderby ASC";
-
+	$sqlnumcomments = "SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
+			FROM {role_assignments} AS e LEFT JOIN (
+				SELECT ec.markerid, count(ec.id) AS totalcomments, ec.levelid, ec.criterionid 
+				FROM {emarking_comment} AS ec
+				INNER JOIN {emarking_draft} AS ed on (ec.draft=ed.id AND ed.emarkingid=?)
+				WHERE ec.criterionid != 0 AND ec.levelid!= 0 
+				GROUP BY ec.markerid)  AS cc ON (e.userid=cc.markerid)
+			WHERE  e.roleid=4 AND e.contextid=?
+			ORDER BY orderby ASC";
 
 	$coursecontext =context_course::instance($course->id);
 
