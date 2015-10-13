@@ -219,7 +219,7 @@ function emarking_tabs($context, $cm, $emarking)
     if (! $usercangrade) {
         if ($emarking->peervisibility) {
             $markingtab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
-            $markingtab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("justice.peercheck", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("reviewpeersfeedback", 'mod_emarking'));
         }
         $markingtab->subtree[] = new tabobject("regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
     } else {
