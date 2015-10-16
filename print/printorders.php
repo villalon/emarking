@@ -30,10 +30,21 @@ require_once ('locallib.php');
 
 global $DB, $CFG, $SCRIPT, $USER;
 
+// Category with courses
 $categoryid = required_param('category', PARAM_INT);
+
+// Status icon
 $statusicon = optional_param('status', 1, PARAM_INT);
+
+// Page
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = 10;
+
+// Exam id in case an exam required to be downloaded through a form
+$examid = optional_param("examid", 0, PARAM_INT);
+
+// If the user is downloading a print form
+$downloadform = optional_param("downloadform", false, PARAM_BOOL);
 
 emarking_verify_logo();
 
@@ -49,13 +60,46 @@ if (! $category = $DB->get_record('course_categories', array(
     print_error(get_string('invalidcategoryid', 'mod_emarking'));
 }
 
+// We are in the category context
 $context = context_coursecat::instance($categoryid);
 
+// User must be logged in
 require_login();
 if (isguestuser()) {
     die();
 }
 
+// And have printordersview capability
+if (! has_capability('mod/emarking:printordersview', $context)) {
+    // TODO: Log invalid access to printorders
+    print_error('Not allowed!');
+}
+
+// If the form is being downloaded
+if($examid && $downloadform) {
+    if(!$newexam = $DB->get_record("emarking_exams", array("id"=>$examid))) {
+        print_error(get_string('invalidcategoryid', 'mod_emarking'));
+    }
+    
+    if(!$course = $DB->get_record("course", array("id"=>$newexam->course))) {
+        print_error(get_string('invalidcategoryid', 'mod_emarking'));
+    }
+
+    if(!$coursecat = $DB->get_record("course_categories", array("id"=>$course->category))) {
+        print_error(get_string('invalidcategoryid', 'mod_emarking'));
+    }
+    
+    $requestedbyuser = $DB->get_record("user", array("id"=>$newexam->requestedby));
+    
+    emarking_create_printform($context,
+        $newexam,
+        $USER,
+        $requestedbyuser,
+        $coursecat,
+        $course);
+    die();
+}
+    
 $url = new moodle_url('/mod/emarking/print/statistics.php', array(
     'category' => $categoryid
 ));
@@ -66,11 +110,6 @@ $ordersurl = new moodle_url('/mod/emarking/print/printorders.php', array(
 $categoryurl = new moodle_url('/course/index.php', array(
     'categoryid' => $categoryid
 ));
-
-if (! has_capability('mod/emarking:printordersview', $context)) {
-    // TODO: Log invalid access to printorders
-    print_error('Not allowed!');
-}
 
 $pagetitle = $statusicon == 1 ? get_string('printorders', 'mod_emarking') : get_string('records', 'mod_emarking');
 
@@ -198,8 +237,8 @@ foreach ($exams as $exam) {
     }
     
     // Download print form
-    $urldownloadform = new moodle_url('/mod/emarking/print/exams.php', array(
-        'course' => $exam->course,
+    $urldownloadform = new moodle_url('/mod/emarking/print/printorders.php', array(
+        'category' => $categoryid,
         'examid' => $exam->id,
         'downloadform' => 'true'
     ));
