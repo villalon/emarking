@@ -217,6 +217,19 @@ $gradinginstancerecord = $DB->get_record ( 'grading_instances', array (
     'definitionid' => $definition->id
 ) );
 
+// Use the last marking rater id to get the instance
+$raterid = $USER->id;
+$itemid = null;
+if ($gradinginstancerecord) {
+    if ($gradinginstancerecord->raterid > 0) {
+        $raterid = $gradinginstancerecord->raterid;
+    }
+    $itemid = $gradinginstancerecord->id;
+}
+
+// Get or create grading instance (in case submission has not been graded)
+$gradinginstance = $rubriccontroller->get_or_create_instance ( $itemid, $raterid, $emarkingdraft->id );
+
 $query = "select
 		c.id AS id,
 		c.description AS description,
@@ -250,7 +263,7 @@ INNER JOIN mdl_user  AS u on (s.student = u.id)
 			MAX(l.score) AS maxscore,
             MIN(l.score) AS minscore
 			FROM mdl_emarking AS s
-			INNER JOIN mdl_course_modules  AS cm on (s.id = 5 AND s.id = cm.instance)
+			INNER JOIN mdl_course_modules  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
 			INNER JOIN mdl_context  AS c on (c.instanceid = cm.id)
 			INNER JOIN mdl_grading_areas  AS ar on (ar.contextid = c.id)
 			INNER JOIN mdl_grading_definitions  AS d on (ar.id = d.areaid)
@@ -260,7 +273,7 @@ INNER JOIN mdl_user  AS u on (s.student = u.id)
 		) AS T ON (s.emarking = T.emarkingid AND T.criterionid = c.id)
 		INNER JOIN mdl_emarking  AS sg ON (s.emarking = sg.id)
 		INNER JOIN mdl_course  AS co ON (sg.course = co.id)
-        LEFT JOIN mdl_gradingform_rubric_fillings as rf ON (rf.criterionid = c.id AND rf.instanceid = 24)
+        LEFT JOIN mdl_gradingform_rubric_fillings as rf ON (rf.criterionid = c.id AND rf.instanceid = :gradinginstanceid)
         LEFT JOIN mdl_gradingform_rubric_levels as b ON (b.criterionid = c.id AND b.id = rf.levelid)
 		LEFT JOIN mdl_emarking_comment AS comment ON (comment.draft = dr.id AND comment.levelid = b.id)
 		LEFT JOIN mdl_emarking_page AS page ON (page.submission = s.id AND comment.page = page.id)
@@ -272,6 +285,8 @@ $questions = $DB->get_records_sql($query, array(
     'emarkingid' => $emarking->id,
     'userid' => $USER->id,
     'definitionid' => $definition->id,
+    'emarkingid2' => $emarking->id,
+    'gradinginstanceid' => $gradinginstance->get_id(),
 ));
 
 $table = new html_table();
