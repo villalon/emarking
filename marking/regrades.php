@@ -211,55 +211,62 @@ $gradingmethod = $gradingmanager->get_active_method();
 $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
 $definition = $rubriccontroller->get_definition();
 
-$query = "SELECT
-                a.id AS id,
-                a.description AS description,
-                round(b.score + comment.bonus,2) AS score,
-                round(T.maxscore,2) AS maxscore,
-                comment.rawtext AS feedback,
-                rg.id AS regradeid,
-                rg.markercomment AS markercomment,
-                rg.accepted AS rgaccepted,
-                rg.motive,
-                rg.comment,
-                ol.score as originalscore,
-                rg.bonus as originalbonus,
-                ol.definition as originaldefinition,
-                b.score as currentscore,
-                b.definition as currentdefinition,
-                comment.bonus
-                FROM {emarking_submission}  AS s
-                INNER JOIN {emarking_draft} AS dr ON (s.emarking = :emarkingid AND dr.submissionid = s.id AND dr.qualitycontrol=0)
-                INNER JOIN {user}  AS u on (s.student = :userid AND s.student = u.id)
-                INNER JOIN {emarking_page} AS page ON (page.submission = s.id)
-                INNER JOIN {emarking_comment} AS comment ON (comment.page = page.id AND comment.draft = dr.id)
-                INNER JOIN {gradingform_rubric_levels}  AS b on (b.id = comment.levelid)
-                INNER JOIN {gradingform_rubric_criteria}  AS a on (a.id = b.criterionid)
-                INNER JOIN (
-                        SELECT
-                        s.id AS emarkingid,
-                        a.id AS criterionid,
-                        MAX(l.score) AS maxscore
-                        FROM {emarking} AS s
-                        INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
-                        INNER JOIN {context}  AS c on (c.instanceid = cm.id)
-                        INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
-                        INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
-                        INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
-                        INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
-                        GROUP BY s.id, criterionid
-                ) AS T ON (s.emarking = T.emarkingid AND T.criterionid = b.criterionid)
-                INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
-                INNER JOIN {course}  AS co ON (sg.course = co.id)
-                LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
-                LEFT JOIN {gradingform_rubric_levels} AS ol on (ol.id = rg.levelid)
-                ORDER BY s.student, a.sortorder";
+$query = "SELECT 
+		a.id AS id,
+		a.description AS description,
+        CASE WHEN b.score is null AND comment.bonus is null THEN T.minscore
+            WHEN b.score is null THEN round(T.minscore + comment.bonus,2)
+            WHEN comment.bonus is null THEN round(b.score,2)
+			ELSE  round(b.score + comment.bonus,2) END
+        AS score,
+		round(T.maxscore,2) AS maxscore,
+        round(T.minscore,2) AS minscore,
+		f.remark AS feedback,
+		rg.id AS regradeid,
+		rg.markercomment AS markercomment,
+		rg.accepted AS rgaccepted,
+		rg.motive,
+		rg.comment,
+		comment.bonus,
+        ol.score as originalscore,
+        rg.bonus as originalbonus,
+        ol.definition as originaldefinition,
+        b.score as currentscore,
+        b.definition as currentdefinition    
+		FROM {emarking_submission}  AS s
+		INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
+        INNER JOIN {user}  AS u on (s.student = :userid AND s.student = u.id)
+		INNER JOIN {grading_instances}  AS i on (s.id = i.itemid AND i.definitionid = :definitionid)
+		INNER JOIN {gradingform_rubric_fillings}  AS f on (f.instanceid = i.id)
+		INNER JOIN {gradingform_rubric_criteria}  AS a on (a.id = f.criterionid)
+		INNER JOIN {gradingform_rubric_levels}  AS b on (b.id = f.levelid)
+		INNER JOIN (
+			SELECT
+			s.id AS emarkingid,
+			a.id AS criterionid,
+			MAX(l.score) AS maxscore,
+            MIN(l.score) AS minscore
+			FROM {emarking} AS s
+			INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid AND s.id = cm.instance)
+			INNER JOIN {context}  AS c on (c.instanceid = cm.id)
+			INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
+			INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
+			INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
+			INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
+			GROUP BY s.id, criterionid
+		) AS T ON (s.emarking = T.emarkingid AND T.criterionid = a.id)
+		INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
+		INNER JOIN {course}  AS co ON (sg.course = co.id)
+		LEFT JOIN {emarking_comment} AS comment ON (comment.draft = dr.id AND comment.levelid = b.id)
+		LEFT JOIN {emarking_page} AS page ON (page.submission = s.id AND comment.page = page.id)
+		LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
+        LEFT JOIN {gradingform_rubric_levels} AS ol on (ol.id = rg.levelid)
+        ORDER BY s.student,a.description";
 
 $questions = $DB->get_records_sql($query, array(
     'userid' => $USER->id,
+    'definitionid' => $definition->id,
     'emarkingid' => $emarking->id,
-    'definition' => $definition->id,
-    'emarkingid2' => $emarking->id
 ));
 
 $table = new html_table();
