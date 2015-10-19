@@ -51,7 +51,7 @@ if (emarking_create_response_pdf($draft,$user,$context, $cm->id)) {
 	    emarking_publish_grade($draft);
 	}
 
-	$nextsubmission = emarking_get_next_submission($emarking, $submission);
+	$nextsubmission = emarking_get_next_submission($emarking, $draft, $context, $user, $issupervisor);
 	
 	// Send the output
 	$output = array('error'=>'',

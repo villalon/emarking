@@ -70,6 +70,15 @@ if ($criterionid && ! $criterion = $DB->get_record('gradingform_rubric_criteria'
     print_error("No criterion");
 }
 
+if($criterionid && ! $minlevel = $DB->get_record_sql("
+					SELECT id, score
+					FROM {gradingform_rubric_levels}
+					WHERE criterionid = ?
+					ORDER BY score ASC LIMIT 1",
+    array ($criterionid))) {
+    print_error("Criterion with no minimum level");
+}
+
 $gradeitem = $gradeitemobj->id;
 
 $context = context_module::instance($cm->id);
@@ -168,8 +177,15 @@ if ($criterionid && ! $delete && $requestswithindate) {
                     $regrade->levelid = $emarkingcomment->levelid;
                     $regrade->markerid = $emarkingcomment->markerid;
                     $regrade->bonus = $emarkingcomment->bonus;
+                } else {
+                    $regrade->levelid = $minlevel->id;
+                    $regrade->markerid = $USER->id;
+                    $regrade->bonus = 0;
                 }
-            
+            } else if($regrade->levelid == 0) {
+                $regrade->levelid = $minlevel->id;
+                $regrade->markerid = $USER->id;
+                $regrade->bonus = 0;
             }
             $regrade->student = $USER->id;
             $regrade->draft = $emarkingdraft->id;
@@ -187,6 +203,9 @@ if ($criterionid && ! $delete && $requestswithindate) {
             
             $emarkingsubmission->status = EMARKING_STATUS_REGRADING;
             $DB->update_record('emarking_submission', $emarkingsubmission);
+            
+            $emarkingdraft->status = EMARKING_STATUS_REGRADING;
+            $DB->update_record('emarking_draft', $emarkingdraft);
             
             $successmessage = get_string('saved', 'mod_emarking');
         } else {
