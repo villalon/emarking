@@ -29,6 +29,18 @@ global $CFG;
 require_once $CFG->dirroot . '/lib/coursecatlib.php';
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
 
+function emarking_get_regrade_motives_array() {
+    $output = array(
+    EMARKING_REGRADE_MISASSIGNED_SCORE,
+    EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER,
+    EMARKING_REGRADE_ERROR_CARRIED_FORWARD,
+    EMARKING_REGRADE_UNCLEAR_FEEDBACK,
+    EMARKING_REGRADE_STATEMENT_PROBLEM,
+    EMARKING_REGRADE_OTHER);
+    
+    return $output;
+}
+
 /**
  * Get regrade type in human readable string
  *
@@ -180,6 +192,25 @@ function emarking_get_statuses_as_array()
     $statuses[] = EMARKING_STATUS_REGRADING;
     $statuses[] = EMARKING_STATUS_ACCEPTED;
     return $statuses;
+}
+
+/**
+ * Returns an associative array with regrade motives IDs and their
+ * descriptions
+ * 
+ * @return multitype:associative array with keys and descriptions
+ */
+function emarking_get_regrade_motives() {
+    $motives = array();
+    
+    foreach(emarking_get_regrade_motives_array() as $m) {
+        $motive = new stdClass();
+        $motive->id = $m;
+        $motive->description = emarking_get_regrade_type_string($m);
+        $motives[] = $motive;
+    }
+    
+    return $motives;
 }
 
 /**
@@ -812,14 +843,15 @@ function emarking_get_totalscore($draft, $controller, $fillings)
  * @param unknown $emarking            
  * @param unknown $draft            
  * @param unknown $context            
- * @param unknown $student            
+ * @param unknown $student      
+ * @param unknown $issupervisor      
  * @return number
  */
-function emarking_get_next_submission($emarking, $draft, $context, $student)
+function emarking_get_next_submission($emarking, $draft, $context, $student, $issupervisor)
 {
     global $DB, $USER;
     
-    $levelids = '';
+    $levelids = 0;
     if ($criteria = $DB->get_records('emarking_marker_criterion', array(
         'emarking' => $emarking->id,
         'marker' => $USER->id
@@ -839,8 +871,8 @@ function emarking_get_next_submission($emarking, $draft, $context, $student)
         }
         $levelids = implode(",", $levelsarray);
     }
-    
-    $sortsql = $emarking->anonymous < 2 ? " d.sort ASC" : " u.lastname ASC";
+
+    $sortsql = ($emarking->anonymous < 2 && !$issupervisor) ? " d.sort ASC" : " u.lastname ASC";
     
     $criteriafilter = $levelids == 0 ? "" : " AND d.id NOT IN (SELECT d.id
 	FROM {emarking_draft} as d
@@ -849,40 +881,50 @@ function emarking_get_next_submission($emarking, $draft, $context, $student)
 	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.draft = d.id AND c.levelid IN ($levelids))
 	GROUP BY d.id)";
     
-    $sortfilter = $emarking->anonymous < 2 ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
+    $sortfilter = ($emarking->anonymous < 2  && !$issupervisor) ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
     
-    $basesql = "SELECT d.id
-			FROM {emarking_draft} AS d
-            INNER JOIN {emarking_submission} AS s ON (d.submissionid = s.id)
-			INNER JOIN {user} as u ON (s.student = u.id)
-			WHERE s.emarking = :emarkingid AND d.id <> :draftid AND d.status < 20 AND d.status >= 10";
+    $basesql = "SELECT d.id, d.status, d.sort, COUNT(rg.id) as regrades
+			FROM mdl_emarking_draft AS d
+            INNER JOIN mdl_emarking_submission AS s ON (d.submissionid = s.id)
+			INNER JOIN mdl_user as u ON (s.student = u.id)
+            LEFT JOIN mdl_emarking_regrade as rg ON (rg.draft = d.id AND rg.accepted = 0)
+			WHERE s.emarking = :emarkingid AND d.id <> :draftid AND d.status >= 10";
     
     $sql = "$basesql
 	$criteriafilter
 	$sortfilter
+	GROUP BY d.id
 	ORDER BY $sortsql";
+    
     // Gets the next submission id, limits start from 0 and get a total of 1
     $nextsubmissions = $DB->get_records_sql($sql, array(
         'emarkingid' => $emarking->id,
         'draftid' => $draft->id
-    ), 0, 1);
+    ));
     $id = 0;
     foreach ($nextsubmissions as $nextsubmission) {
-        $id = $nextsubmission->id;
+        if($nextsubmission->status < 20 || ($nextsubmission->status >= 20 && $nextsubmission->regrades > 0)) {
+            $id = $nextsubmission->id;
+            break;
+        }
     }
     
     // If we could not find a submission using the sortorder, we try from the beginning
     if ($id == 0) {
         $sql = "$basesql
 		$criteriafilter
+		GROUP BY d.id
 		ORDER BY $sortsql";
         
         $nextsubmissions = $DB->get_records_sql($sql, array(
             'emarkingid' => $emarking->id,
             'draftid' => $draft->id
-        ), 0, 1);
+        ));
         foreach ($nextsubmissions as $nextsubmission) {
-            $id = $nextsubmission->id;
+            if($nextsubmission->status < 20 || ($nextsubmission->status >= 20 && $nextsubmission->regrades > 0)) {
+                $id = $nextsubmission->id;
+                break;
+            }
         }
     }
     return $id;

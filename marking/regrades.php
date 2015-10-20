@@ -70,6 +70,15 @@ if ($criterionid && ! $criterion = $DB->get_record('gradingform_rubric_criteria'
     print_error("No criterion");
 }
 
+if($criterionid && ! $minlevel = $DB->get_record_sql("
+					SELECT id, score
+					FROM {gradingform_rubric_levels}
+					WHERE criterionid = ?
+					ORDER BY score ASC LIMIT 1",
+    array ($criterionid))) {
+    print_error("Criterion with no minimum level");
+}
+
 $gradeitem = $gradeitemobj->id;
 
 $context = context_module::instance($cm->id);
@@ -168,8 +177,15 @@ if ($criterionid && ! $delete && $requestswithindate) {
                     $regrade->levelid = $emarkingcomment->levelid;
                     $regrade->markerid = $emarkingcomment->markerid;
                     $regrade->bonus = $emarkingcomment->bonus;
+                } else {
+                    $regrade->levelid = $minlevel->id;
+                    $regrade->markerid = $USER->id;
+                    $regrade->bonus = 0;
                 }
-            
+            } else if($regrade->levelid == 0) {
+                $regrade->levelid = $minlevel->id;
+                $regrade->markerid = $USER->id;
+                $regrade->bonus = 0;
             }
             $regrade->student = $USER->id;
             $regrade->draft = $emarkingdraft->id;
@@ -187,6 +203,9 @@ if ($criterionid && ! $delete && $requestswithindate) {
             
             $emarkingsubmission->status = EMARKING_STATUS_REGRADING;
             $DB->update_record('emarking_submission', $emarkingsubmission);
+            
+            $emarkingdraft->status = EMARKING_STATUS_REGRADING;
+            $DB->update_record('emarking_draft', $emarkingdraft);
             
             $successmessage = get_string('saved', 'mod_emarking');
         } else {
@@ -211,55 +230,82 @@ $gradingmethod = $gradingmanager->get_active_method();
 $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
 $definition = $rubriccontroller->get_definition();
 
-$query = "SELECT
-                a.id AS id,
-                a.description AS description,
-                round(b.score + comment.bonus,2) AS score,
-                round(T.maxscore,2) AS maxscore,
-                comment.rawtext AS feedback,
-                rg.id AS regradeid,
-                rg.markercomment AS markercomment,
-                rg.accepted AS rgaccepted,
-                rg.motive,
-                rg.comment,
-                ol.score as originalscore,
-                rg.bonus as originalbonus,
-                ol.definition as originaldefinition,
-                b.score as currentscore,
-                b.definition as currentdefinition,
-                comment.bonus
-                FROM {emarking_submission}  AS s
-                INNER JOIN {emarking_draft} AS dr ON (s.emarking = :emarkingid AND dr.submissionid = s.id AND dr.qualitycontrol=0)
-                INNER JOIN {user}  AS u on (s.student = :userid AND s.student = u.id)
-                INNER JOIN {emarking_page} AS page ON (page.submission = s.id)
-                INNER JOIN {emarking_comment} AS comment ON (comment.page = page.id AND comment.draft = dr.id)
-                INNER JOIN {gradingform_rubric_levels}  AS b on (b.id = comment.levelid)
-                INNER JOIN {gradingform_rubric_criteria}  AS a on (a.id = b.criterionid)
-                INNER JOIN (
-                        SELECT
-                        s.id AS emarkingid,
-                        a.id AS criterionid,
-                        MAX(l.score) AS maxscore
-                        FROM {emarking} AS s
-                        INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
-                        INNER JOIN {context}  AS c on (c.instanceid = cm.id)
-                        INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
-                        INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
-                        INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
-                        INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
-                        GROUP BY s.id, criterionid
-                ) AS T ON (s.emarking = T.emarkingid AND T.criterionid = b.criterionid)
-                INNER JOIN {emarking}  AS sg ON (s.emarking = sg.id)
-                INNER JOIN {course}  AS co ON (sg.course = co.id)
-                LEFT JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id AND a.id = rg.criterion)
-                LEFT JOIN {gradingform_rubric_levels} AS ol on (ol.id = rg.levelid)
-                ORDER BY s.student, a.sortorder";
+// Get the grading instance we should already have
+$gradinginstancerecord = $DB->get_record ( 'grading_instances', array (
+    'itemid' => $emarkingdraft->id,
+    'definitionid' => $definition->id
+) );
+
+// Use the last marking rater id to get the instance
+$raterid = $USER->id;
+$itemid = null;
+if ($gradinginstancerecord) {
+    if ($gradinginstancerecord->raterid > 0) {
+        $raterid = $gradinginstancerecord->raterid;
+    }
+    $itemid = $gradinginstancerecord->id;
+}
+
+// Get or create grading instance (in case submission has not been graded)
+$gradinginstance = $rubriccontroller->get_or_create_instance ( $itemid, $raterid, $emarkingdraft->id );
+
+$query = "select
+		c.id AS id,
+		c.description AS description,
+        CASE WHEN b.score is null AND comment.bonus is null THEN T.minscore
+            WHEN b.score is null THEN round(T.minscore + comment.bonus,2)
+            WHEN comment.bonus is null THEN round(b.score,2)
+			ELSE  round(b.score + comment.bonus,2) END
+        AS score,
+		round(T.maxscore,2) AS maxscore,
+        round(T.minscore,2) AS minscore,
+		rf.remark AS feedback,
+		rg.id AS regradeid,
+		rg.markercomment AS markercomment,
+		rg.accepted AS rgaccepted,
+		rg.motive,
+		rg.comment,
+		comment.bonus,
+        ol.score as originalscore,
+        rg.bonus as originalbonus,
+        ol.definition as originaldefinition,
+        b.score as currentscore,
+        b.definition as currentdefinition 
+from mdl_gradingform_rubric_criteria AS c
+inner join mdl_emarking_submission  AS s ON (s.emarking = :emarkingid AND s.student = :userid AND c.definitionid = :definitionid)
+INNER JOIN mdl_emarking_draft AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
+INNER JOIN mdl_user  AS u on (s.student = u.id)
+		INNER JOIN (
+			SELECT
+			s.id AS emarkingid,
+			a.id AS criterionid,
+			MAX(l.score) AS maxscore,
+            MIN(l.score) AS minscore
+			FROM mdl_emarking AS s
+			INNER JOIN mdl_course_modules  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
+			INNER JOIN mdl_context  AS c on (c.instanceid = cm.id)
+			INNER JOIN mdl_grading_areas  AS ar on (ar.contextid = c.id)
+			INNER JOIN mdl_grading_definitions  AS d on (ar.id = d.areaid)
+			INNER JOIN mdl_gradingform_rubric_criteria  AS a on (d.id = a.definitionid)
+			INNER JOIN mdl_gradingform_rubric_levels  AS l on (a.id = l.criterionid)
+			GROUP BY s.id, criterionid
+		) AS T ON (s.emarking = T.emarkingid AND T.criterionid = c.id)
+		INNER JOIN mdl_emarking  AS sg ON (s.emarking = sg.id)
+		INNER JOIN mdl_course  AS co ON (sg.course = co.id)
+        LEFT JOIN mdl_gradingform_rubric_fillings as rf ON (rf.criterionid = c.id AND rf.instanceid = :gradinginstanceid)
+        LEFT JOIN mdl_gradingform_rubric_levels as b ON (b.criterionid = c.id AND b.id = rf.levelid)
+		LEFT JOIN mdl_emarking_comment AS comment ON (comment.draft = dr.id AND comment.levelid = b.id)
+		LEFT JOIN mdl_emarking_page AS page ON (page.submission = s.id AND comment.page = page.id)
+		LEFT JOIN mdl_emarking_regrade AS rg ON (rg.draft = dr.id AND c.id = rg.criterion)
+        LEFT JOIN mdl_gradingform_rubric_levels AS ol on (ol.id = rg.levelid)
+        ORDER BY s.student,c.sortorder";
 
 $questions = $DB->get_records_sql($query, array(
-    'userid' => $USER->id,
     'emarkingid' => $emarking->id,
-    'definition' => $definition->id,
-    'emarkingid2' => $emarking->id
+    'userid' => $USER->id,
+    'definitionid' => $definition->id,
+    'emarkingid2' => $emarking->id,
+    'gradinginstanceid' => $gradinginstance->get_id(),
 ));
 
 $table = new html_table();

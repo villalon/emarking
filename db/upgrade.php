@@ -1483,5 +1483,30 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint ( true, 2015092701, 'emarking' );
     }
+    
+    if ($oldversion < 2015101902) {
+    
+        // Update all regrade objects with no levelid information
+        if($instances = $DB->get_records_sql('SELECT * FROM {emarking_regrade} WHERE levelid = 0 AND criterion > 0')) {
+            foreach($instances as $instance) {
+                if($minlevel = $DB->get_record_sql("
+					SELECT id, score
+					FROM {gradingform_rubric_levels}
+					WHERE criterionid = ?
+					ORDER BY score ASC LIMIT 1",
+                    array ($instance->criterion))) {
+    
+                        $instance->levelid = $minlevel->id;
+                        $instance->bonus = 0;
+                        $DB->update_record('emarking_regrade', $instance);
+                }
+            }
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015101902, 'emarking');
+    }
+    
+    
     return true;
 }
