@@ -189,17 +189,28 @@ function emarking_get_student_picture($student, $userimgdir)
  *
  * @param unknown_type $courseid            
  */
-function emarking_get_students_count_for_printing($courseid)
+function emarking_get_students_count_for_printing($courseid, $exam = NULL)
 {
     global $DB;
     
-    $query = 'SELECT count(u.id) as total
+    $sqlenrolments = "";
+    $parts = explode(',', $exam->enrolments);
+    if ($exam != null && count($parts) > 0) {
+        $enrolments = array();
+        foreach ($parts as $part) {
+            $enrolments[] = "'$part'";
+        }
+        $sqlenrolments = implode(',', $enrolments);
+        $sqlenrolments = " AND e.enrol IN ($sqlenrolments)";
+    }
+    
+    $query = "SELECT count(u.id) as total
 			FROM {user_enrolments} ue
-			JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
+			JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ? $sqlenrolments)
 			JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
 			JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
 			JOIN {user} u ON (ue.userid = u.id)
-			GROUP BY e.courseid';
+			GROUP BY e.courseid";
     
     // Se toman los resultados del query dentro de una variable.
     $rs = $DB->get_record_sql($query, array(
@@ -215,15 +226,15 @@ function emarking_get_students_count_for_printing($courseid)
  *
  * creates email to course manager, teacher and non-editingteacher, when a printing order has been created.
  *
- * @param unknown_type $emarking
- * @param unknown_type $course
+ * @param unknown_type $emarking            
+ * @param unknown_type $course            
  */
 function emarking_send_processanswers_notification($emarking, $course)
 {
     global $USER;
-
+    
     $postsubject = $course->fullname . ' : ' . $emarking->name . '. ' . get_string('uploadanswersuccessful', 'mod_emarking') . ' [' . $emarking->id . ']';
-
+    
     // Create the email to be sent
     $posthtml = '';
     $posthtml .= '<table><tr><th colspan="2">' . get_string('uploadanswersuccessful', 'mod_emarking') . '</th></tr>';
@@ -231,32 +242,31 @@ function emarking_send_processanswers_notification($emarking, $course)
     $posthtml .= '<tr><td>' . get_string('fullnamecourse') . '</td><td>' . $course->fullname . ' (' . $course->shortname . ')' . '</td></tr>';
     $posthtml .= '</table>';
     $posthtml .= '';
-
+    
     // Create the email to be sent
-    $posttext =  get_string('uploadanswersuccessful', 'mod_emarking') . '\n';
+    $posttext = get_string('uploadanswersuccessful', 'mod_emarking') . '\n';
     $posttext .= get_string('emarking', 'mod_emarking') . ' : ' . $emarking->name . '. [' . $emarking->id . ']\n';
     $posttext .= get_string('fullnamecourse') . ' : ' . $course->fullname . ' (' . $course->shortname . ')' . '\n';
-
+    
     $users = get_enrolled_users(context_course::instance($course->id), "mod/emarking:receivenotification");
     
-    foreach($users as $user) {
-    $eventdata = new stdClass();
-    $eventdata->component = 'mod_emarking';
-    $eventdata->name = 'notification';
-    $eventdata->userfrom = $USER;
-    $eventdata->userto = $user->id;
-    $eventdata->subject = $postsubject;
-    $eventdata->fullmessage = $posttext;
-    $eventdata->fullmessageformat = FORMAT_HTML;
-    $eventdata->fullmessagehtml = $posthtml;
-    $eventdata->smallmessage = $postsubject;
-    
-    $eventdata->notification = 1;
-    
-    message_send($eventdata);
+    foreach ($users as $user) {
+        $eventdata = new stdClass();
+        $eventdata->component = 'mod_emarking';
+        $eventdata->name = 'notification';
+        $eventdata->userfrom = $USER;
+        $eventdata->userto = $user->id;
+        $eventdata->subject = $postsubject;
+        $eventdata->fullmessage = $posttext;
+        $eventdata->fullmessageformat = FORMAT_HTML;
+        $eventdata->fullmessagehtml = $posthtml;
+        $eventdata->smallmessage = $postsubject;
+        
+        $eventdata->notification = 1;
+        
+        message_send($eventdata);
     }
 }
-
 
 /**
  *
@@ -273,7 +283,7 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
     
     $postsubject = $course->fullname . ' : ' . $exam->name . '. ' . get_string('newprintorder', 'mod_emarking') . ' [' . $exam->id . ']';
     
-    if($title) {
+    if ($title) {
         $postsubject = $course->fullname . ' : ' . $exam->name . '. ' . $title . ' [' . $exam->id . ']';
     }
     
@@ -293,7 +303,7 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
     }
     $teacherstring = implode(',', $teachersnames);
     
-    if(!$title) {
+    if (! $title) {
         $title = get_string('newprintorder', 'mod_emarking');
     }
     
@@ -400,8 +410,6 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
     require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
     require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
     
-   
-    
     $originalsheets = $exam->totalpages + $exam->extrasheets;
     $copies = $exam->totalstudents + $exam->extraexams;
     $totalpages = emarking_exam_total_pages_to_print($exam);
@@ -413,11 +421,11 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
     $pdf->AddPage();
     $tplIdx = $pdf->importPage(1);
     $pdf->useTemplate($tplIdx, 0, 0, 0, 0, $adjustPageSize = true);
-                                                                    
+    
     // Copy / Printing
     $pdf->SetXY(32, 48.5);
     $pdf->Write(1, "x");
-
+    
     // Date
     $pdf->SetXY(153, 56);
     $pdf->Write(1, core_text::strtoupper(date('d')));
@@ -425,27 +433,27 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
     $pdf->Write(1, core_text::strtoupper(date('m')));
     $pdf->SetXY(173, 56);
     $pdf->Write(1, core_text::strtoupper(date('Y')));
-
+    
     // Requested by
     $pdf->SetXY(95, 69);
     $pdf->Write(1, core_text::strtoupper($useraccepts->firstname . " " . $useraccepts->lastname));
-
+    
     // Cost center
     $pdf->SetXY(95, 75.5);
     $pdf->Write(1, core_text::strtoupper($category->idnumber));
-
+    
     // UAI campus
     $pdf->SetXY(95, 80.8);
     $pdf->Write(1, core_text::strtoupper(""));
-
+    
     // Originals
     $pdf->SetXY(35, 106.5);
     $pdf->Write(1, core_text::strtoupper($originalsheets));
-
+    
     // Copies
     $pdf->SetXY(60, 106.5);
     $pdf->Write(1, core_text::strtoupper("--"));
-
+    
     // Number of printings
     $pdf->SetXY(84, 106.5);
     $pdf->Write(1, core_text::strtoupper($copies));
@@ -453,23 +461,23 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
     // Black and white
     $pdf->SetXY(106, 106.5);
     $pdf->Write(1, "x");
-
+    
     // Total pages
     $pdf->SetXY(135, 106.5);
     $pdf->Write(1, core_text::strtoupper($totalpages));
-
+    
     // Number of printings Total
     $pdf->SetXY(84, 133.8);
     $pdf->Write(1, core_text::strtoupper(""));
-
+    
     // Total pages Total
     $pdf->SetXY(135, 133.8);
     $pdf->Write(1, core_text::strtoupper(""));
-
+    
     // PÃ¡ginas totales Total
     $pdf->SetXY(43, 146);
     $pdf->Write(1, core_text::strtoupper($course->fullname . " , " . $exam->name));
-
+    
     // Recepcionado por Nombre
     $pdf->SetXY(30, 164.5);
     $pdf->Write(1, core_text::strtoupper(""));
@@ -540,7 +548,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
             }
         }
     }  // Markers training - One draft per marker
-    else 
+else 
         if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
             // Get all users with permission to grade in emarking
             $markers = get_enrolled_users($context, 'mod/emarking:grade');
@@ -563,7 +571,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
                 $DB->insert_record('emarking_draft', $draft);
             }
         }  // Students training
-    else 
+else 
             if ($emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {
                 // Get all users with permission to grade in emarking
                 $students = get_enrolled_users($context, 'mod/emarking:submit');
@@ -583,7 +591,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
                     $DB->insert_record('emarking_draft', $draft);
                 }
             }  // Peer review
-    else 
+else 
                 if ($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
                     // TODO: Implement peer review (this is a hard one)
                 }
@@ -875,8 +883,8 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
     if (! $student) {
         throw new Exception("Invalid student to submit page");
     }
-        
-        // Filesystem
+    
+    // Filesystem
     $fs = get_file_storage();
     
     $userid = isset($student->firstname) ? $student->id : $USER->id;
@@ -1660,7 +1668,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
 			FROM {emarking_printers}
 			WHERE id = ?";
     $printerinfo = $DB->get_record_sql($sqlprinter, array(
-    		$idprinter
+        $idprinter
     ));
     
     // If we have to print directly
@@ -1669,11 +1677,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         
         // Check if we have to print the students list
         if ($downloadexam->printlist == 1) {
-            $printresult = emarking_print_file($printerinfo->name, 
-            		$printerinfo->command, 
-            		$studentlistpdffile, 
-            		$debugprinting
-            );
+            $printresult = emarking_print_file($printerinfo->name, $printerinfo->command, $studentlistpdffile, $debugprinting);
             if (! $printresult) {
                 $debugprintingmsg .= 'Problems printing ' . $studentlistpdffile . '<hr>';
             } else {
@@ -1694,11 +1698,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
                 continue;
             }
             
-            $printresult = emarking_print_file($printerinfo->name, 
-            		$printerinfo->command, 
-            		$stinfo->examfile, 
-            		$debugprinting
-            );
+            $printresult = emarking_print_file($printerinfo->name, $printerinfo->command, $stinfo->examfile, $debugprinting);
             if (! $printresult) {
                 $debugprintingmsg .= 'Problems printing ' . $stinfo->examfile . '<hr>';
             } else {
@@ -1802,7 +1802,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     
     // Notify everyone that the exam was downloaded
     emarking_send_examdownloaded_notification($downloadexam, $course);
-        
+    
     $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
     $downloadexam->printdate = time();
     $DB->update_record('emarking_exams', $downloadexam);
@@ -1831,10 +1831,10 @@ function emarking_print_file($printername, $command, $file, $debugprinting)
     
     if (! $printername)
         return null;
-
+    
     $command = explode("#", $command);
     
-    $cups = $command[0].$printername.$command[1]." ".$file;
+    $cups = $command[0] . $printername . $command[1] . " " . $file;
     
     $printresult = null;
     if (! $debugprinting) {
@@ -1850,18 +1850,18 @@ function emarking_print_file($printername, $command, $file, $debugprinting)
 
 /**
  * Draws the personalized header in a PDF
- * 
- * @param unknown $pdf
- * @param unknown $stinfo
- * @param unknown $examname
- * @param unknown $pagenumber
- * @param unknown $fileimgpath
- * @param unknown $logofilepath
- * @param unknown $course
- * @param string $totalpages
- * @param string $bottomqr
- * @param string $isanswersheet
- * @param number $attemptid
+ *
+ * @param unknown $pdf            
+ * @param unknown $stinfo            
+ * @param unknown $examname            
+ * @param unknown $pagenumber            
+ * @param unknown $fileimgpath            
+ * @param unknown $logofilepath            
+ * @param unknown $course            
+ * @param string $totalpages            
+ * @param string $bottomqr            
+ * @param string $isanswersheet            
+ * @param number $attemptid            
  */
 function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true, $isanswersheet = false, $attemptid = 0)
 {
@@ -1934,11 +1934,11 @@ function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpat
 
 /**
  * Creates a QR image based on a string
- * 
- * @param unknown $fileimg
- * @param unknown $qrstring
- * @param unknown $stinfo
- * @param unknown $i
+ *
+ * @param unknown $fileimg            
+ * @param unknown $qrstring            
+ * @param unknown $stinfo            
+ * @param unknown $i            
  * @return multitype:string
  */
 function emarking_create_qr_image($fileimg, $qrstring, $stinfo, $i)
@@ -1950,10 +1950,10 @@ function emarking_create_qr_image($fileimg, $qrstring, $stinfo, $i)
     $hash = random_string(15);
     $img = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . ".png";
     $imgrotated = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . "r.png";
-
+    
     // The image is generated based on the string
     QRcode::png($qrstring, $img);
-
+    
     // Same image but rotated
     QRcode::png($qrstring . "-R", $imgrotated);
     $gdimg = imagecreatefrompng($imgrotated);
@@ -2020,9 +2020,9 @@ function emarking_rrmdir($dir)
 function emarking_send_sms($message, $number)
 {
     global $CFG;
-
+    
     // this line loads the library
-    require($CFG->dirroot . '/mod/emarking/lib/twilio/Services/Twilio.php');
+    require ($CFG->dirroot . '/mod/emarking/lib/twilio/Services/Twilio.php');
     
     $account_sid = $CFG->emarking_smsuser;
     $auth_token = $CFG->emarking_smspassword;
@@ -2031,8 +2031,8 @@ function emarking_send_sms($message, $number)
     
     $obj = $client->account->messages->create(array(
         'To' => "$number",
-        'From' => "+".$CFG->emarking_smsurl,
-        'Body' => "$message",
+        'From' => "+" . $CFG->emarking_smsurl,
+        'Body' => "$message"
     ));
     
     return $obj->status === "queued";
@@ -2092,51 +2092,37 @@ function emarking_clean_filename($filename, $slash = false)
     return $newfile;
 }
 
-//gets an ipv4 address in dotted format and returns true if the format
-//is acceptable
+// gets an ipv4 address in dotted format and returns true if the format
+// is acceptable
 function emarking_validate_ipv4_address($ipv4)
 {
-	$valid = true;
-	$pattern = '/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/';
-	if (preg_match($pattern, $ipv4, $parts)) {
-		if (
-				$parts[1] > 0 &&
-				$parts[1] <= 255 &&
-				$parts[2] >= 0 &&
-				$parts[2] <= 255 &&
-				$parts[3] >= 0 &&
-				$parts[3] <= 255 &&
-				$parts[4] >= 0 &&
-				$parts[4] <= 255
-		) {
-			$valid = false;
-		}
-	}
-	return $valid;
+    $valid = true;
+    $pattern = '/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/';
+    if (preg_match($pattern, $ipv4, $parts)) {
+        if ($parts[1] > 0 && $parts[1] <= 255 && $parts[2] >= 0 && $parts[2] <= 255 && $parts[3] >= 0 && $parts[3] <= 255 && $parts[4] >= 0 && $parts[4] <= 255) {
+            $valid = false;
+        }
+    }
+    return $valid;
 }
 
-
-//gets an ipv6 in hex format and returns true if the format is acceptable
+// gets an ipv6 in hex format and returns true if the format is acceptable
 function emarking_validate_ipv6_address($ipv6)
 {
-	$flag=true;
-
-	//uncompressed form
-	if (strpos($ipv6, '::') === false )
-	{
-
-		$pattern='/^([a-f0-9]{1,4}\:){7}([a-f0-9]{1,4})$/i';
-		if(preg_match($pattern, $ipv6))
-			$flag=false;
-
-	}elseif(substr_count($ipv6, '::')==1){
-
-		$pattern='/^([a-f0-9]{1,4}::?){1,}([a-f0-9]{1,4})$/i';
-		if(preg_match($pattern, $ipv6))
-			$flag=false;
-
-	}
-	return $flag;
-
+    $flag = true;
+    
+    // uncompressed form
+    if (strpos($ipv6, '::') === false) {
+        
+        $pattern = '/^([a-f0-9]{1,4}\:){7}([a-f0-9]{1,4})$/i';
+        if (preg_match($pattern, $ipv6))
+            $flag = false;
+    } elseif (substr_count($ipv6, '::') == 1) {
+        
+        $pattern = '/^([a-f0-9]{1,4}::?){1,}([a-f0-9]{1,4})$/i';
+        if (preg_match($pattern, $ipv6))
+            $flag = false;
+    }
+    return $flag;
 }
 
