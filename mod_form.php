@@ -396,12 +396,8 @@ class mod_emarking_mod_form extends moodleform_mod
             EMARKING_JUSTICE_PER_SUBMISSION => get_string('justicepersubmission', 'mod_emarking'),
             EMARKING_JUSTICE_PER_CRITERION => get_string('justicepercriterion', 'mod_emarking')
         );
-        if (has_capability('mod/emarking:manageanonymousmarking', $ctx)) {
-            $mform->addElement('select', 'justiceperception', get_string('justiceperception', 'mod_emarking'), $justiceoptions);
-            $mform->addHelpButton('justiceperception', 'justiceperception', 'mod_emarking');
-        } else {
-            $mform->addElement('hidden', 'justiceperception');
-        }
+        $mform->addElement('select', 'justiceperception', get_string('justiceperception', 'mod_emarking'), $justiceoptions);
+        $mform->addHelpButton('justiceperception', 'justiceperception', 'mod_emarking');
         $mform->setDefault('justiceperception', 0);
         $mform->setType('justiceperception', PARAM_INT);
         $mform->disabledIf('justiceperception', 'type', 'eq', '2');

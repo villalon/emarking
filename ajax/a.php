@@ -230,6 +230,7 @@ if ($action === 'ping') {
         'collaborativefeatures' => $emarking->collaborativefeatures,
         'coursemodule'=> $cm->id,
         'nodejspath'=> $nodejspath,
+        'motives' => emarking_get_regrade_motives(),
         'version' => $module->version
     ));
 }
@@ -369,7 +370,7 @@ switch ($action) {
     
     case 'getnextsubmission':
         
-        $nextsubmission = emarking_get_next_submission($emarking, $draft, $context, $user);
+        $nextsubmission = emarking_get_next_submission($emarking, $draft, $context, $user, $issupervisor);
         emarking_json_array(array(
             'nextsubmission' => $nextsubmission
         ));

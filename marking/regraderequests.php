@@ -54,45 +54,55 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades" );
 
-$sql = "SELECT
+$sql = "select 
 			rg.*,
 			u.id AS userid,
 			u.firstname,
 			u.lastname,
 			c.description AS criterion,
-			d.id AS ids,
-			d.status AS status,
-            l.definition AS currentdefinition,
-            l.score AS currentscore,
-            ec.bonus AS currentbonus,
-            l2.definition AS originaldefinition,
-            l2.score AS originalscore,
-            rg.bonus AS originalbonus,
-            T.maxscore
-        FROM {emarking_submission} AS s 
-		INNER JOIN {emarking_draft} AS d ON (s.emarking = :emarking AND d.submissionid = s.id AND d.qualitycontrol = 0) 
-		INNER JOIN {emarking_regrade} as rg ON (d.id = rg.draft)
-		INNER JOIN {user} AS u ON (u.id = s.student)
-		INNER JOIN {gradingform_rubric_criteria} as c ON (c.id = rg.criterion)
-		INNER JOIN {gradingform_rubric_levels} as l ON (l.criterionid = rg.criterion)
-        INNER JOIN {emarking_comment} AS ec ON (ec.draft = d.id AND ec.levelid = l.id)
-		INNER JOIN {gradingform_rubric_levels} as l2 ON (l2.id = rg.levelid)
-        INNER JOIN (
-            SELECT
-            s.id AS emarkingid,
-            a.id AS criterionid,
-            MAX(l.score) AS maxscore
-            FROM {emarking} AS s
-            INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
-            INNER JOIN {context}  AS c on (c.instanceid = cm.id)
-            INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
-            INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
-            INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
-            INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
-            GROUP BY s.id, criterionid
-        ) AS T ON (s.emarking = T.emarkingid AND T.criterionid = l.criterionid)
-    
-		ORDER BY u.lastname ASC";
+			dr.id AS ids,
+			dr.status AS status,
+            T.maxscore,
+            T.minscore,
+        CASE WHEN b.score is null AND comment.bonus is null THEN T.minscore
+            WHEN b.score is null THEN round(T.minscore + comment.bonus,2)
+            WHEN comment.bonus is null THEN round(b.score,2)
+			ELSE  round(b.score + comment.bonus,2) END
+        AS currentscore,
+		round(T.maxscore,2) AS maxscore,
+        round(T.minscore,2) AS minscore,
+		comment.bonus as currentbonus,
+        ol.score as originalscore,
+        rg.bonus as originalbonus,
+        ol.definition as originaldefinition,
+        b.definition as currentdefinition
+from mdl_emarking AS e
+inner join mdl_emarking_submission  AS s ON (s.emarking = :emarking AND s.emarking = e.id)
+INNER JOIN mdl_emarking_draft AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
+INNER JOIN mdl_emarking_regrade AS rg ON (rg.draft = dr.id)
+INNER JOIN mdl_gradingform_rubric_levels AS ol on (ol.id = rg.levelid)
+INNER JOIN mdl_user  AS u on (s.student = u.id)
+INNER JOIN (
+			SELECT
+			s.id AS emarkingid,
+			a.id AS criterionid,
+			MAX(l.score) AS maxscore,
+            MIN(l.score) AS minscore
+			FROM mdl_emarking AS s
+			INNER JOIN mdl_course_modules  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
+			INNER JOIN mdl_context  AS c on (c.instanceid = cm.id)
+			INNER JOIN mdl_grading_areas  AS ar on (ar.contextid = c.id)
+			INNER JOIN mdl_grading_definitions  AS d on (ar.id = d.areaid)
+			INNER JOIN mdl_gradingform_rubric_criteria  AS a on (d.id = a.definitionid)
+			INNER JOIN mdl_gradingform_rubric_levels  AS l on (a.id = l.criterionid)
+			GROUP BY s.id, criterionid
+		) AS T ON (s.emarking = T.emarkingid AND T.criterionid = ol.criterionid)
+INNER JOIN mdl_course  AS co ON (e.course = co.id)
+INNER JOIN mdl_gradingform_rubric_criteria AS c on (ol.criterionid = c.id)
+LEFT JOIN mdl_emarking_comment AS comment ON (comment.draft = dr.id AND comment.criterionid = c.id AND comment.levelid > 0)
+LEFT JOIN mdl_gradingform_rubric_levels AS b on (b.id = comment.levelid)
+LEFT JOIN mdl_emarking_page AS page ON (page.submission = s.id AND comment.page = page.id)
+ORDER BY u.lastname ASC, c.sortorder";
 $records = $DB->get_records_sql($sql,array("emarking"=>$emarking->id, "emarkingid2"=>$emarking->id));
 
 if(count($records) == 0) {

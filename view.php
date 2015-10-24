@@ -78,7 +78,7 @@ if(!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id)))
         "course" => $course->id,
         "emarking" => 0
     ));
-    if($availableexams && has_capability("mod:emarking/addinstance", $context)) {
+    if($availableexams && has_capability("mod/emarking:addinstance", $context)) {
         redirect(new moodle_url("/course/modedit.php", array("update"=>$cmid, "return"=>1)));
         die();
     } else {
