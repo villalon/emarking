@@ -733,4 +733,14 @@ $string ['eventmarkersconfigcalled'] = 'The markers config was called';
 $string ['eventmarkersassigned'] = 'Markers have been assigned';
 $string ['eventemarkingcalled'] = 'Emarking Called';
 
-
+/**
+ * Delphi's strings
+ */
+$string ['marking_progress'] = 'Marking progress';
+$string ['marking_marker'] = 'Marker';
+$string ['delphi_stage_one'] = 'Stage one: Mark';
+$string ['marking_deadline'] = 'Stage countdown';
+$string ['stage_general_progress'] = 'general progress';
+$string ['delphi_stage_two'] = 'Stage two: Delphi';
+$string ['delphi_tittle'] = 'Delphi ';
+$string ['marking_completed'] = 'Well done, just wait for the others markers for the stage two';

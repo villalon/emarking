@@ -1507,6 +1507,21 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015101902, 'emarking');
     }
     
+    if ($oldversion < 2015102500) {
+    
+    	// Define field status to be added to emarking_comment.
+    	$table = new xmldb_table('emarking_comment');
+    	$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'timemodified');
+    
+    	// Conditionally launch add field status.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2015102500, 'emarking');
+    }
+    
     
     return true;
 }
