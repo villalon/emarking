@@ -105,9 +105,16 @@ if(!$rubriccontroller instanceof gradingform_rubric_controller) {
 
 $definition = $rubriccontroller->get_definition();
 
+$maxpages = $DB->count_records_sql("
+SELECT MAX(p.page) AS maxpages
+FROM {emarking_page} AS p
+INNER JOIN {emarking_submission} AS s ON (p.submission = s.id AND s.emarking=:emarking)
+GROUP BY s.emarking", array("emarking"=>$emarking->id));
+
+$totalpages = max($exam->totalpages, $maxpages);
 
 $mform_pages = new emarking_pages_form(null,
-    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "totalpages"=> $exam->totalpages, "action"=>"addpages"));
+    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "totalpages"=> $totalpages, "action"=>"addpages"));
 
 if($mform_pages->get_data()) {
     $newpages = process_mform($mform_pages, "addpages", $emarking);

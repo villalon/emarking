@@ -756,8 +756,10 @@ class mod_emarking_mod_form extends moodleform_mod
             
             if ($totalmarkers < 2) {
                 $errors['type'] = get_string('notenoughmarkersfortraining', 'mod_emarking');
-                return;
+                return $errors;
             }
+            
+            return $errors;
         }
         
         // Get the exam if we are updating an emarking activity
