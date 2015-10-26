@@ -73,7 +73,8 @@ if (! $course = $DB->get_record('course', array(
 $context = context_module::instance($cm->id);
 
 // Get the associated exam
-if(!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id))) {
+if(!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id))
+    && $emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
     $availableexams = $DB->get_records("emarking_exams", array(
         "course" => $course->id,
         "emarking" => 0
@@ -456,8 +457,11 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	$chartstable = new html_table();
 
 	$array[]=get_string('marking_progress', 'mod_emarking');
-	$sqlnumdrafts="Select 0,count(*) numdrafts from {emarking_draft} where emarkingid=? group by teacher limit 1";
-	$numdrafts = $DB->get_records_sql($sqlnumdrafts, array($cm->instance));
+	$sqlnumdrafts="SELECT COUNT(*) AS numdrafts
+	    FROM {emarking_draft} AS d 
+	    INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id)
+	    GROUP BY teacher LIMIT 1";
+	$numdrafts = $DB->count_records($sqlnumdrafts, array("emarking"=>$cm->instance));
 	$criteriaxdrafts=$numcriteria*$numdrafts[0]->numdrafts;
 
 	$sqlnumcomments = "SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
