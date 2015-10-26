@@ -151,7 +151,8 @@ $tabname = $scan ? "scanlist" : "mark";
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, false, !$scan);
+list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, 
+    $emarking->type == EMARKING_TYPE_MARKER_TRAINING, !$scan);
 
 // User filter checking capabilities. If user can not grade, then she can not
 // see other users

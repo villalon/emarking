@@ -116,6 +116,7 @@ if(!$result) {
 echo "<br/>";
 echo html_writer::table($table);
 
-$continue_url = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id, 'scan'=>true));
+$continue_url = new moodle_url('/mod/emarking/view.php', 
+    array('id'=>$cm->id, 'scan'=>$emarking->type != EMARKING_TYPE_MARKER_TRAINING));
 echo $OUTPUT->continue_button($continue_url);
 echo $OUTPUT->footer();
