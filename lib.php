@@ -124,6 +124,10 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     $data->id = $id;
     emarking_grade_item_update($data);
     
+    if($data->type == EMARKING_TYPE_MARKER_TRAINING) {
+        return $id;
+    }
+    
     foreach ($data as $k => $v) {
         $parts = explode('-', $k);
         if (count($parts) > 1 && $parts[0] === 'marker') {
