@@ -33,6 +33,10 @@ global $DB, $USER, $CFG;
 
 // Course id, if the user comes from a course
 $courseid = required_param("course", PARAM_INT);
+// Exam id in case an exam was just created
+$examid = optional_param("examid", 0, PARAM_INT);
+// If the user is downloading a print form
+$downloadform = optional_param("downloadform", false, PARAM_BOOL);
 
 // First check that the user is logged in
 require_login();
@@ -44,6 +48,33 @@ if (isguestuser()) {
 if(!$course = $DB->get_record("course", array("id"=>$courseid))) {
 	print_error(get_string("invalidcourseid", "mod_emarking"));
 }
+
+$coursecat = $DB->get_record("course_categories", array("id"=>$course->category));
+
+// Both contexts, from course and category, for permissions later
+$context = context_coursecat::instance($coursecat->id);
+
+// An exam id means either a new exam was sent, or a a download form
+// was requested
+if($examid) {
+	$newexam = $DB->get_record("emarking_exams", array("id"=>$examid));
+}
+
+// If a download form was requested
+if($examid && $downloadform) {
+	$requestedbyuser = $DB->get_record("user", array("id"=>$newexam->requestedby));
+	
+	emarking_create_printform($context,
+				$newexam,
+				$USER,
+				$requestedbyuser,
+				$coursecat,
+				$course
+	);
+	
+	die();
+}
+
 
 // Both contexts, from course and category, for permissions later
 $context = context_course::instance($course->id);
