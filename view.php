@@ -494,6 +494,12 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		
 		$chartstable->data[]=$array;
 		$generalprogress=floor($totalprogress/$markercount);
+		if($generalprogress==100){
+			$urldelphi = new moodle_url('/mod/emarking/marking/delphi.php', array(
+					'id' => $cm->id
+			));
+			die("<script>location.href = '$urldelphi'</script>");
+		}
 	}
 
 	echo $OUTPUT->tabtree(emarking_tabs_markers_training($context, $cm, $emarking,$generalprogress,0), "first","second");
