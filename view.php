@@ -459,10 +459,14 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	$array[]=get_string('marking_progress', 'mod_emarking');
 	$sqlnumdrafts="SELECT COUNT(*) AS numdrafts
 	    FROM {emarking_draft} AS d 
-	    INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id)
-	    GROUP BY teacher LIMIT 1";
-	$numdrafts = $DB->count_records($sqlnumdrafts, array("emarking"=>$cm->instance));
-	$criteriaxdrafts=$numcriteria*$numdrafts[0]->numdrafts;
+	    INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id)";
+	$numdrafts = $DB->count_records_sql($sqlnumdrafts, array("emarking"=>$cm->instance));
+	$criteriaxdrafts=$numcriteria*$numdrafts;
+	
+	if($numdrafts == 0) {
+	    redirect(new moodle_url("/mod/emarking/print/uploadanswers.php", array("id"=>$cm->id)));
+	    die();
+	}
 
 	$sqlnumcomments = "SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
 			FROM {role_assignments} AS e LEFT JOIN (
