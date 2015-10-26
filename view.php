@@ -73,7 +73,7 @@ if (! $course = $DB->get_record('course', array(
 $context = context_module::instance($cm->id);
 
 // Get the associated exam
-if(!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id))
+if((!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id)))
     && $emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
     $availableexams = $DB->get_records("emarking_exams", array(
         "course" => $course->id,
