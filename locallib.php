@@ -875,6 +875,11 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
         $levelids = implode(",", $levelsarray);
     }
 
+    $sqlemarkingtype = "";
+    if($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
+    	$sqlemarkingtype = "AND d.teacher = $USER->id";
+    }
+    
     $sortsql = ($emarking->anonymous < 2 && !$issupervisor) ? " d.sort ASC" : " u.lastname ASC";
     
     $criteriafilter = $levelids == 0 ? "" : " AND d.id NOT IN (SELECT d.id
@@ -884,13 +889,13 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
 	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.draft = d.id AND c.levelid IN ($levelids))
 	GROUP BY d.id)";
     
-    $sortfilter = ($emarking->anonymous < 2  && !$issupervisor) ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
+    $sortfilter = ($emarking->anonymous < EMARKING_ANON_NONE  && !$issupervisor) ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
     
     $basesql = "SELECT d.id, d.status, d.sort, COUNT(rg.id) as regrades
-			FROM mdl_emarking_draft AS d
-            INNER JOIN mdl_emarking_submission AS s ON (d.submissionid = s.id)
-			INNER JOIN mdl_user as u ON (s.student = u.id)
-            LEFT JOIN mdl_emarking_regrade as rg ON (rg.draft = d.id AND rg.accepted = 0)
+			FROM {emarking_draft} AS d
+            INNER JOIN {emarking_submission} AS s ON (d.submissionid = s.id $sqlemarkingtype)
+			INNER JOIN {user} as u ON (s.student = u.id)
+            LEFT JOIN {emarking_regrade} as rg ON (rg.draft = d.id AND rg.accepted = 0)
 			WHERE s.emarking = :emarkingid AND d.id <> :draftid AND d.status >= 10";
     
     $sql = "$basesql
@@ -906,7 +911,8 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
     ));
     $id = 0;
     foreach ($nextsubmissions as $nextsubmission) {
-        if($nextsubmission->status < 20 || ($nextsubmission->status >= 20 && $nextsubmission->regrades > 0)) {
+        if($nextsubmission->status < EMARKING_STATUS_PUBLISHED || 
+        		($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
             $id = $nextsubmission->id;
             break;
         }
@@ -924,7 +930,8 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
             'draftid' => $draft->id
         ));
         foreach ($nextsubmissions as $nextsubmission) {
-            if($nextsubmission->status < 20 || ($nextsubmission->status >= 20 && $nextsubmission->regrades > 0)) {
+            if($nextsubmission->status < EMARKING_STATUS_PUBLISHED || 
+            		($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
                 $id = $nextsubmission->id;
                 break;
             }
