@@ -450,19 +450,44 @@ if ($emarking->type == EMARKING_TYPE_NORMAL) {
 	//echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark");
 }
 elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
+	
+	//only for moodle 2.9
+	//$PAGE->requires->js_call_amd("mod_emarking/charts", "chart");
+	$coursecontext = context_course::instance($course->id);
+	
 	// Navigation tabs
-
-
-	$PAGE->requires->js_call_amd("mod_emarking/charts", "chart");
-
 	$chartstable = new html_table();
-
-	$array[]=get_string('marking_progress', 'mod_emarking');
+	$array[] = get_string('marking_progress', 'mod_emarking');
+	
+	$sqlisadmin = "";
+	if(!is_siteadmin($USER)){
+		$sqlisadmin = " AND d.teacher =:currentuser";
+	}
+	
 	$sqlnumdrafts="SELECT COUNT(*) AS numdrafts
 	    FROM {emarking_draft} AS d 
-	    INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id)";
-	$numdrafts = $DB->count_records_sql($sqlnumdrafts, array("emarking"=>$cm->instance));
-	$criteriaxdrafts=$numcriteria*$numdrafts;
+	    INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)";
+
+	$numdrafts = $DB->count_records_sql($sqlnumdrafts, array(
+			"emarking"=>$cm->instance, 
+			"currentuser"=>$USER->id			
+	));
+
+	$sqlnummarkers=" SELECT e.userid
+			FROM {role_assignments} AS e LEFT JOIN {emarking_draft} AS d ON (e.userid = d.teacher)
+			WHERE d.emarkingid = ? AND e.roleid = 4 AND e.contextid = ? 
+			GROUP BY e.userid";
+	
+	$nummarkers = $DB->get_records_sql($sqlnummarkers, array(
+			$emarking->id,
+			$coursecontext->id
+	));
+	
+	if(is_siteadmin($USER)){
+		$criteriaxdrafts = ($numcriteria * $numdrafts)/count($nummarkers);
+	}else{
+		$criteriaxdrafts = $numcriteria * $numdrafts;
+	}
 	
 	if($numdrafts == 0) {
 	    redirect(new moodle_url("/mod/emarking/print/uploadanswers.php", array("id"=>$cm->id)));
@@ -479,31 +504,31 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 			WHERE  e.roleid=4 AND e.contextid=?
 			ORDER BY orderby ASC";
 
-	$coursecontext =context_course::instance($course->id);
-
 	if($numcomments = $DB->get_records_sql($sqlnumcomments, array($USER->id,$emarking->id,$coursecontext->id))){
 
-		$markercount=0;
-		$totalprogress=0;
-		foreach ($numcomments as $data){
+		$markercount = 0;
+		$totalprogress = 0;
+		
+		foreach($numcomments as $data){
+			
 			$markercount++;
-
-			$percentage=($data->totalcomments*100)/$criteriaxdrafts;
-			if($USER->id==$data->userid){
-				$array[]="Your";
-				$userpercentage=$percentage;
+			$percentage = ($data->totalcomments*100)/$criteriaxdrafts;
+			
+			if($USER->id == $data->userid){
+				$array[] = "Your";
+				$userpercentage = $percentage;
 			}else{
-				$array[]=get_string('marking_marker', 'mod_emarking').$markercount;
-
+				$array[] = get_string('marking_marker', 'mod_emarking').$markercount;
 			}
-			$array[]=floor($percentage)."%";
-
-			$totalprogress=$totalprogress + $percentage;
+			
+			$array[] = floor($percentage)."%";
+			$totalprogress = $totalprogress + $percentage;
 		}
 		
 		$chartstable->data[]=$array;
-		$generalprogress=floor($totalprogress/$markercount);
-		if($generalprogress==100){
+		$generalprogress = floor($totalprogress/$markercount);
+		
+		if($generalprogress == 100){
 			$urldelphi = new moodle_url('/mod/emarking/marking/delphi.php', array(
 					'id' => $cm->id
 			));
@@ -514,11 +539,9 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	echo $OUTPUT->tabtree(emarking_tabs_markers_training($context, $cm, $emarking,$generalprogress,0), "first","second");
 			
 	echo html_writer::table($chartstable);
-	if(isset($userpercentage) && floor($userpercentage)==100){
-
+	
+	if(isset($userpercentage) && floor($userpercentage) == 100){
 		echo get_string('marking_completed', 'mod_emarking');
-
-
 	}
 
 }

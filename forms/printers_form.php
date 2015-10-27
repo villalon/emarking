@@ -166,7 +166,7 @@ class emarking_addrelationship_userprint_form extends moodleform{
 		$selectusers->setMultiple(true);
 			
 		if($printers = $DB->get_records("emarking_printers")){
-		$data = array();
+			$data = array();
 			foreach( $printers as $printer ){
 				$data[$printer->id] = $printer->name;
 			}
