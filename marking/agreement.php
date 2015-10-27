@@ -29,7 +29,7 @@ require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 
 // Check that user is logued in the course
-require_login($course->id);
+require_login();
 if (isguestuser()) {
 	die();
 }
