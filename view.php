@@ -134,6 +134,28 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
+if($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
+	
+	$sqlisadmin = "";
+	if(!is_siteadmin($USER)){
+		$sqlisadmin = " AND d.teacher =:currentuser";
+	}
+	
+	$sqlnumdrafts="SELECT COUNT(*) AS numdrafts
+		FROM {emarking_draft} AS d
+		INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)";
+	
+	$numdrafts = $DB->count_records_sql($sqlnumdrafts, array(
+			"emarking"=>$cm->instance,
+			"currentuser"=>$USER->id
+	));
+	
+	if($numdrafts == 0) {
+		redirect(new moodle_url("/mod/emarking/print/uploadanswers.php", array("id"=>$cm->id)));
+		die();
+	}
+}
+
 // Show header and heading
 echo $OUTPUT->header();
 
@@ -459,20 +481,7 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	$chartstable = new html_table();
 	$array[] = get_string('marking_progress', 'mod_emarking');
 	
-	$sqlisadmin = "";
-	if(!is_siteadmin($USER)){
-		$sqlisadmin = " AND d.teacher =:currentuser";
-	}
 	
-	$sqlnumdrafts="SELECT COUNT(*) AS numdrafts
-	    FROM {emarking_draft} AS d 
-	    INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)";
-
-	$numdrafts = $DB->count_records_sql($sqlnumdrafts, array(
-			"emarking"=>$cm->instance, 
-			"currentuser"=>$USER->id			
-	));
-
 	$sqlnummarkers=" SELECT e.userid
 			FROM {role_assignments} AS e LEFT JOIN {emarking_draft} AS d ON (e.userid = d.teacher)
 			WHERE d.emarkingid = ? AND e.roleid = 4 AND e.contextid = ? 
@@ -487,11 +496,6 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		$criteriaxdrafts = ($numcriteria * $numdrafts)/count($nummarkers);
 	}else{
 		$criteriaxdrafts = $numcriteria * $numdrafts;
-	}
-	
-	if($numdrafts == 0) {
-	    redirect(new moodle_url("/mod/emarking/print/uploadanswers.php", array("id"=>$cm->id)));
-	    die();
 	}
 
 	$sqlnumcomments = "SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
