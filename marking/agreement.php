@@ -37,6 +37,10 @@ if (isguestuser()) {
 // Course module id
 $cmid = required_param('id', PARAM_INT);
 
+$markerid = optional_param('marker', 0, PARAM_INT);
+$examid = optional_param('exam', 0, PARAM_INT);
+$criterionid = optional_param('criterion', 0, PARAM_INT);
+
 // Validate course module
 if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
     print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
@@ -65,6 +69,15 @@ $context = context_module::instance($cm->id);
 // Get rubric instance
 list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
 
+$filter = "";
+
+if($examid != 0) {
+    $filter = "AND es.student = $examid";
+} else if ($markerid != 0) {
+    $filter = "AND 1=1";
+} else if ($criterionid != 0) {
+    $filter = "AND ec.criterionid = $criterionid";
+}
 
 // Page navigation and URL settings
 $PAGE->set_url($urlemarking);
@@ -80,6 +93,7 @@ $sqldata="SELECT ec.id AS commentid,
 		ec.levelid,
         es.student,
         total.levelid AS agreement,
+        case when ec.levelid = total.levelid then 1 else 0 end as sort,
         ec.markerid,
         grc.description,
         grl.definition,
@@ -90,8 +104,7 @@ INNER JOIN {gradingform_rubric_criteria}  AS grc ON (grc.id = ec.criterionid)
 INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
 INNER JOIN {gradingform_rubric_levels} as grl ON (grl.id = ec.levelid)
 LEFT JOIN (SELECT  GROUP_CONCAT(id) AS grupo, criterionid 
-		   FROM {gradingform_rubric_levels} GROUP BY criterionid) AS levels ON (levels.criterionid = ec.criterionid
-		  )
+		   FROM {gradingform_rubric_levels} GROUP BY criterionid) AS levels ON (levels.criterionid = ec.criterionid)
 LEFT JOIN (SELECT MAX(ad.count),
 					ad.levelid,
                     ad.student,
@@ -113,8 +126,10 @@ LEFT JOIN (SELECT MAX(ad.count),
 		   ) AS ad
 			GROUP BY ad.criterionid, ad.student
 ) AS total ON (total.student=es.student AND ec.criterionid=total.criterionid)
-WHERE ec.markerid = ? AND ec.status = 1
-GROUP BY ec.criterionid, es.student";
+WHERE ec.markerid = ? AND ec.status = 1 
+$filter 
+GROUP BY ec.criterionid, es.student
+ORDER BY sort";
 
 $params = array(
 		$cm->instance,
@@ -125,7 +140,12 @@ $agreements = $DB->get_recordset_sql($sqldata, $params);
 
 //TODO: si no tengo outliers, es decir no soy ayudante, no crear la tabla.
 $firststagetable = new html_table();
-$firststagetable->head = array("Pregunta","Estudiante","Tú selección", "Acuerdo", "Status");
+$firststagetable->head = array(
+    get_string("criterion", "mod_emarking"), 
+    get_string("exam", "mod_emarking"),
+    get_string("yourmarking", "mod_emarking"), 
+    get_string("agreement", "mod_emarking"),
+    get_string("status", "mod_emarking"));
 
 foreach($agreements as $agree){
 	$square = "";
@@ -146,14 +166,14 @@ foreach($agreements as $agree){
 	
 	foreach($grupo as $data){
 		if($data == $agree->levelid){
-			$square .='<div style="float:left;width:20px;height:20px;border:2px solid #000;background-color:#F3F36F;border-color: #48D063"><center>'.$data.'</center></div>';
+			$square .='<div style="float:left;height:20px;border:2px solid #000;background-color:#F3F36F;border-color: #48D063"><center>'.$data.'</center></div>';
 		}else{
-			$square .='<div style="float:left;width:20px;height:20px;border:2px solid #000;background-color:#ffffff;border-color: #48D063"><center>'.$data.'</center></div>';
+			$square .='<div style="float:left;height:20px;border:2px solid #000;background-color:#ffffff;border-color: #48D063"><center>'.$data.'</center></div>';
 		}
 		if($data == $agree->agreement){
-			$squareagreement .='<div style="float:left;width:20px;height:20px;border:2px solid #000;background-color:#FF7878;border-color: #48D063"><center>'.$data.'</center></div>';
+			$squareagreement .='<div style="float:left;height:20px;border:2px solid #000;background-color:#FF7878;border-color: #48D063"><center>'.$data.'</center></div>';
 		}else{
-			$squareagreement .='<div style="float:left;width:20px;height:20px;border:2px solid #000;background-color:#ffffff;border-color: #48D063"><center>'.$data.'</center></div>';
+			$squareagreement .='<div style="float:left;height:20px;border:2px solid #000;background-color:#ffffff;border-color: #48D063"><center>'.$data.'</center></div>';
 		}
 	}
 
@@ -169,7 +189,7 @@ foreach($agreements as $agree){
 // Show header
 echo $OUTPUT->header();
 //TODO: se debe agregar el avance de delphi al tabtree
-echo $OUTPUT->tabtree(emarking_tabs_markers_training($context, $cm, $emarking,100,0), "second","first");
+echo emarking_tabs_markers_training($context, $cm, $emarking,100,0);
 
 echo html_writer::table($firststagetable);
 

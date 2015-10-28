@@ -202,7 +202,7 @@ echo $OUTPUT->header();
 $outlierxstudents = $DB->get_records_sql($sqlcountperstudent, $param);
 
 $firststagetable = new html_table();
-$firststagetable->data[] = array("<h4>Por Estudiante</h4>");
+$firststagetable->data[] = array($OUTPUT->heading("Por prueba", 5));
 
 $avg=0;
 $numberstudent=0;
@@ -210,17 +210,19 @@ foreach ($outlierxstudents as $outlier){
 	$numberstudent++;
 	$value = (1-($sumbystudent[$outlier->student]/$outlier->count))*100;
 	$avg = $avg+$value;
-	$firststagetable->data[] = array("Estudiante: ".$numberstudent.create_progress_graph(floor($value)));
+	$examurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "exam"=>$outlier->student));
+	$firststagetable->data[] = array($OUTPUT->action_link($examurl, get_string("exam","mod_emarking"). ": ".$numberstudent.emarking_create_progress_graph(floor($value))));
 	
 }
 $avg=$avg/$numberstudent;
 $secondstagetable = new html_table();
-$secondstagetable->data[] = array("<h4>Por Criterio<h4>");
+$secondstagetable->data[] = array($OUTPUT->heading("Por Criterio", 5));
 $outlierxcriteria = $DB->get_records_sql($sqlcountpercriteria, $param);
 
 foreach ($outlierxcriteria as $outlier){
 	$value = (1-($sumbycriteria[$outlier->criterionid]/$outlier->count))*100;
-	$secondstagetable->data[] = array($outlier->criterianame.": ".create_progress_graph(floor($value)));
+	$criterionurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "criterion"=>$outlier->criterionid));
+	$secondstagetable->data[] = array($OUTPUT->action_link($criterionurl, $outlier->criterianame.": ".emarking_create_progress_graph(floor($value))));
 }
 
 $param = array(
@@ -228,14 +230,15 @@ $param = array(
 		$cm->instance
 );
 $thirdstagetable = new html_table();
-$thirdstagetable->data[] = array("<h4>Por Corrector</h4>");
+$thirdstagetable->data[] = array($OUTPUT->heading("Por Corrector", 5));
 $outlierxmarker = $DB->get_records_sql($sqlcountpermarker, $param);
 
 $numbermarker = 0;
 foreach ($outlierxmarker as $outlier){
 	$numbermarker++;
 	$value = (1-($outlier->count/$outlier->otro))*100;
-	$thirdstagetable->data[] = array("Corrector: ".$numbermarker.": ".create_progress_graph(floor($value)));
+	$markerurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "marker"=>$outlier->markerid));
+	$thirdstagetable->data[] = array($OUTPUT->action_link($markerurl, get_string("marker", "mod_emarking").": ".$numbermarker.": ".emarking_create_progress_graph(floor($value))));
 }
 
 // Get the course module for the emarking, to build the emarking url
@@ -243,19 +246,14 @@ $urlagreement = new moodle_url('/mod/emarking/marking/agreement.php', array(
 		'id' => $cm->id
 ));
 
-echo $OUTPUT->tabtree(emarking_tabs_markers_training(
+echo emarking_tabs_markers_training(
 		$context, 
 		$cm, 
 		$emarking,
 		100,
-		floor($avg)), 
-		"second",
-		"first"
-);
+		floor($avg));
 
 echo "<h4>Porcentajes de acuerdo</h4>";
-
-echo $OUTPUT->single_button($urlagreement, 'Revisar los outliers', 'GET');
 
 $maintable = new html_table();
 $maintable->data[] = array(
@@ -264,7 +262,5 @@ $maintable->data[] = array(
 		html_writer::table($thirdstagetable)
 );
 echo html_writer::table($maintable);
-
-echo $OUTPUT->single_button($urlagreement, 'Revisar los outliers','GET');
 
 echo $OUTPUT->footer();

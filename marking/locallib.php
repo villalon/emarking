@@ -789,36 +789,30 @@ function emarking_tabs_markers_training($context, $cm, $emarking,$generalprogres
 	$tabs = array();
 
 	$firststagetable = new html_table();
-	$firststagetable->data[]=Array(get_string('delphi_stage_one', 'mod_emarking'),
-			$timeicon,
-			get_string('marking_deadline', 'mod_emarking'),
-			stage_countdown($emarking->firststagedate));
-	$firststagetable->data[]=Array(get_string('marking', 'mod_emarking'),
-			$scalesicon,
-			get_string('stage_general_progress', 'mod_emarking'),
-			create_progress_graph($generalprogress));
-	//first stage tab
-	$firststage = new tabobject("first", "#", html_writer::table($firststagetable));
+	
+	$firststagetable->data[] = array(
+	    get_string('stage', 'mod_emarking'),
+		$timeicon . " " . get_string('marking_deadline', 'mod_emarking'),
+	    $scalesicon . " " . get_string('stage_general_progress', 'mod_emarking'));
+	
+	if($generalprogress >= 100) {
+	   $firststagetable->data[] = array(
+	      get_string('delphi_stage_one', 'mod_emarking'),
+		  "&nbsp;",
+		  $OUTPUT->pix_icon('i/grade_correct', ""));
+	} else {
+	    $firststagetable->data[] = array(
+	        get_string('delphi_stage_one', 'mod_emarking'),
+	        emarking_time_difference($emarking->firststagedate, time(), false),
+	        emarking_create_progress_graph($generalprogress));
+	}
+	
+	$firststagetable->data[] = array(
+	    get_string('delphi_stage_two', 'mod_emarking'),
+		emarking_time_difference($emarking->secondstagedate, time(), false),
+		emarking_create_progress_graph($delphiprogress));
 
-
-	$secondstagetable = new html_table();
-	$secondstagetable->data[]=Array(get_string('delphi_stage_two', 'mod_emarking'),
-			$timeicon,
-			get_string('marking_deadline', 'mod_emarking'),
-			stage_countdown($emarking->secondstagedate));
-	$secondstagetable->data[]=Array(get_string('delphi_tittle', 'mod_emarking'),
-			$scalesicon,
-			get_string('stage_general_progress', 'mod_emarking'),
-			create_progress_graph($delphiprogress));
-	//second stage tab
-	$secondstage = new tabobject("second", "#", html_writer::table($secondstagetable));
-
-	// Tabs sequence
-	$tabs[] = $firststage;
-	$tabs[] = $secondstage;
-
-
-	return $tabs;
+	return html_writer::table($firststagetable);
 
 }
 
@@ -829,11 +823,11 @@ function emarking_tabs_markers_training($context, $cm, $emarking,$generalprogres
  *            Marking progress or delphi's progress
  * @return string
  */
-function create_progress_graph($progress){
+function emarking_create_progress_graph($progress){
 
-	$width="width:$progress%;";
-	$strong=html_writer::span($progress,'bar',array("style"=>$width));
-	$graph= html_writer::div($strong,'graph');
+	$width="width:$progress%; height: 20px; line-height: 20px; border-radius: 3px 0px 0px 3px;";
+	$strong=html_writer::span($progress."%",'bar',array("style"=>$width));
+	$graph= html_writer::div($strong,'graph',array("style"=>"border-radius:3px;"));
 	$graphcont= html_writer::div($graph,'graphcont');
 	$rating= html_writer::div($graphcont,'rating');
 
@@ -847,7 +841,7 @@ function create_progress_graph($progress){
  *            Deadline in unixtime
  * @return string
  */
-function stage_countdown($deadline){
+function emarking_stage_countdown($deadline){
 	$remaining=$deadline - time();
 	if($remaining < 0)
 		$remaining=0;

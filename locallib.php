@@ -78,7 +78,23 @@ function emarking_get_regrade_type_string($type)
  */
 function emarking_time_ago($time, $small = false)
 {
-    $time = time() - $time; // to get the time since that moment
+    return emarking_time_difference(time(), $time, $small);
+    
+}
+
+/**
+ * Returns a string indicating how long ago something happened
+ *
+ * @param int $time
+ *            in unixtime
+ * @param string $small
+ *            indicates if the time should be enclosed in a div with a small font
+ * @return string
+ */
+function emarking_time_difference($time1, $time2, $small = false)
+{
+    $time = abs($time1 - $time2); // to get the time since that moment
+    $ispast = $time1 <= $time2;
     
     $tokens = array(
         31536000 => get_string('year'),
@@ -94,7 +110,12 @@ function emarking_time_ago($time, $small = false)
         if ($time < $unit)
             continue;
         $numberOfUnits = floor($time / $unit);
-        $message = core_text::strtotitle(get_string('ago', 'core_message', $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '')));
+        $message = $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '');
+        if($ispast) {
+            $message = core_text::strtotitle(get_string('ago', 'core_message', $message));
+        } else {
+            $message = core_text::strtotitle($message);
+        }
         if($small) {
             $message = html_writer::div($message, "timeago");
         }

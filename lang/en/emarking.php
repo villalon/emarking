@@ -738,9 +738,12 @@ $string ['eventemarkingcalled'] = 'Emarking Called';
  */
 $string ['marking_progress'] = 'Marking progress';
 $string ['marking_marker'] = 'Marker';
-$string ['delphi_stage_one'] = 'Stage one: Mark';
-$string ['marking_deadline'] = 'Stage countdown';
+$string ['delphi_stage_one'] = 'Marking';
+$string ['marking_deadline'] = 'Finishes in';
 $string ['stage_general_progress'] = 'general progress';
-$string ['delphi_stage_two'] = 'Stage two: Delphi';
+$string ['delphi_stage_two'] = 'Discussion';
 $string ['delphi_tittle'] = 'Delphi ';
 $string ['marking_completed'] = 'Well done, just wait for the others markers for the stage two';
+$string ['stage'] = 'Stage';
+$string ['agreement'] = 'Agreement';
+$string ['yourmarking'] = 'Your marking';

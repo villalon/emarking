@@ -479,7 +479,6 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	
 	// Navigation tabs
 	$chartstable = new html_table();
-	$array[] = get_string('marking_progress', 'mod_emarking');
 	
 	
 	$sqlnummarkers=" SELECT e.userid
@@ -518,14 +517,16 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 			$markercount++;
 			$percentage = ($data->totalcomments*100)/$criteriaxdrafts;
 			
+			$userprogress = "";
 			if($USER->id == $data->userid){
-				$array[] = "Your";
+				$userprogress = core_text::strtotitle(get_string('yourself'));
 				$userpercentage = $percentage;
 			}else{
-				$array[] = get_string('marking_marker', 'mod_emarking').$markercount;
+			    $marker = $DB->get_record("user", array("id"=>$data->userid));
+			    $userprogress = $OUTPUT->user_picture($marker, array("size"=>24, "popup"=>true));
 			}
 			
-			$array[] = floor($percentage)."%";
+			$array[] = $userprogress . " " . floor($percentage)."%";
 			$totalprogress = $totalprogress + $percentage;
 		}
 		
@@ -540,8 +541,8 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		}
 	}
 
-	echo $OUTPUT->tabtree(emarking_tabs_markers_training($context, $cm, $emarking,$generalprogress,0), "first","second");
-			
+	echo emarking_tabs_markers_training($context, $cm, $emarking,$generalprogress,0);
+	echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);
 	echo html_writer::table($chartstable);
 	
 	if(isset($userpercentage) && floor($userpercentage) == 100){
