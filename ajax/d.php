@@ -31,7 +31,7 @@ require_once $CFG->libdir.'/accesslib.php';
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 
 $action = required_param('action', PARAM_ALPHA);
-$username = required_param('username', PARAM_ALPHANUMEXT);
+$username = required_param('username', PARAM_RAW_TRIMMED);
 $password = required_param('password', PARAM_RAW_TRIMMED);
 $courseid = optional_param('course', -1, PARAM_INT);
 
