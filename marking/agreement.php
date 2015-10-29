@@ -156,7 +156,8 @@ foreach($agreements as $agree){
 		$link = new moodle_url ('/mod/emarking/marking/modify.php', array(		
 				'id' => $cm->id,
 				'criterionid'=>$agree->criterionid,
-				'commentid'=>$agree->commentid
+				'commentid'=>$agree->commentid,
+				'emarkingid'=>$emarking->id
 		));
 		
 		$status= $OUTPUT->action_link($link, 'Modify', new popup_action ('click', $link));
@@ -194,3 +195,10 @@ echo emarking_tabs_markers_training($context, $cm, $emarking,100,0);
 echo html_writer::table($firststagetable);
 
 echo $OUTPUT->footer();
+
+?>
+<script type="text/javascript" >
+function popUpClosed() {
+    window.location.reload();
+}
+</script>
