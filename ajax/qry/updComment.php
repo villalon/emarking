@@ -24,8 +24,6 @@ require_once("$CFG->dirroot/grade/grading/form/rubric/lib.php");
 
 // Required and optional params for emarking
 $commentid = required_param('cid', PARAM_INT);
-$posx = required_param('posx', PARAM_INT);
-$posy = required_param('posy', PARAM_INT);
 $commentrawtext = required_param('comment', PARAM_RAW_TRIMMED);
 $bonus = optional_param('bonus', 0, PARAM_FLOAT);
 $levelid = optional_param('levelid', 0, PARAM_INT);
@@ -34,9 +32,13 @@ $regradeid = optional_param('regradeid', 0, PARAM_INT);
 $regrademarkercomment = optional_param('regrademarkercomment', null, PARAM_RAW_TRIMMED);
 $regradeaccepted = optional_param('regradeaccepted', 0, PARAM_INT);
 
-/**  Measures the correction window **/
-$winwidth = required_param('windowswidth', PARAM_NUMBER);
-$winheight =required_param('windowsheight', PARAM_NUMBER);
+if($emarking->type != EMARKING_TYPE_MARKER_TRAINING){
+	$posx = required_param('posx', PARAM_INT);
+	$posy = required_param('posy', PARAM_INT);
+	/**  Measures the correction window **/
+	$winwidth = required_param('windowswidth', PARAM_NUMBER);
+	$winheight =required_param('windowsheight', PARAM_NUMBER);
+}
 
 if(!$comment = $DB->get_record('emarking_comment', array('id'=>$commentid))){
 	emarking_json_error("Invalid comment",array("id"=>$commentid));
