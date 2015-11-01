@@ -194,14 +194,16 @@ function emarking_get_students_count_for_printing($courseid, $exam = NULL)
     global $DB;
     
     $sqlenrolments = "";
-    $parts = explode(',', $exam->enrolments);
-    if ($exam != null && count($parts) > 0) {
-        $enrolments = array();
-        foreach ($parts as $part) {
-            $enrolments[] = "'$part'";
+    if ($exam != null) {
+        $parts = explode(',', $exam->enrolments);
+        if (count($parts) > 0) {
+            $enrolments = array();
+            foreach ($parts as $part) {
+                $enrolments[] = "'$part'";
+            }
+            $sqlenrolments = implode(',', $enrolments);
+            $sqlenrolments = " AND e.enrol IN ($sqlenrolments)";
         }
-        $sqlenrolments = implode(',', $enrolments);
-        $sqlenrolments = " AND e.enrol IN ($sqlenrolments)";
     }
     
     $query = "SELECT count(u.id) as total
@@ -676,7 +678,7 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     // Write each student
     $current = 0;
     foreach ($studentinfo as $stlist) {
-        if (! $stlist->idnumber && $downloadexam->extraexams > 0) {
+        if (! $stlist->id && $downloadexam->extraexams > 0) {
             error_log(print_r($stlist, true));
             continue;
         }

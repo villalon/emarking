@@ -550,10 +550,6 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	}
 
 }
-else{
-	// Navigation tabs
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark");
-}
 
 // Counting students for pagination
 $allstudents = emarking_get_students_for_printing($cm->course);

@@ -176,3 +176,23 @@ font-size:12px;
 line-height:1.2em;
 }
 
+/** Agreement **/
+.agreement-selected, .agreement-not-selected, .agreement-yours-selected, .agreement-yours-not-selected {
+	cursor: pointer;	
+	float:left;
+	height:20px;
+    width:20px;
+	border:2px solid #000;
+	background-color:#ffffff;
+	border-color: #48D063;
+	text-align: center;
+	font-size: 10pt;
+}
+
+.agreement-not-selected {
+    background-color:#FF7878;
+}
+
+.agreement-yours-not-selected {
+    background-color:#F3F36F;
+}

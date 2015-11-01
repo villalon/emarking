@@ -66,18 +66,32 @@ $urlemarking = new moodle_url('/mod/emarking/marking/agreement.php', array(
 ));
 $context = context_module::instance($cm->id);
 
+$filter = "AND ec.markerid = $USER->id ";
+
+if(is_siteadmin($USER->id)) {
+    $filter = "";    
+}
+
+if($examid != 0) {
+    $filter .= "AND es.student = $examid";
+} else if ($markerid != 0) {
+    $filter .= "AND ec.markerid = $markerid";
+} else if ($criterionid != 0) {
+    $filter .= "AND ec.criterionid = $criterionid";
+}
+
 // Get rubric instance
 list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
 
-$filter = "";
-
-if($examid != 0) {
-    $filter = "AND es.student = $examid";
-} else if ($markerid != 0) {
-    $filter = "AND 1=1";
-} else if ($criterionid != 0) {
-    $filter = "AND ec.criterionid = $criterionid";
+// As we have a rubric we can get the controller
+$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
+if (! $rubriccontroller instanceof gradingform_rubric_controller) {
+    print_error(get_string('invalidrubric', 'mod_emarking'));
 }
+
+$definition = $rubriccontroller->get_definition();
+
+// var_dump($definition->rubric_criteria);die();
 
 // Page navigation and URL settings
 $PAGE->set_url($urlemarking);
@@ -97,44 +111,37 @@ $sqldata="SELECT ec.id AS commentid,
         ec.markerid,
         grc.description,
         grl.definition,
-        levels.grupo
+        total.selections
 FROM {emarking_comment} AS ec
 INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
 INNER JOIN {gradingform_rubric_criteria}  AS grc ON (grc.id = ec.criterionid)
 INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
 INNER JOIN {gradingform_rubric_levels} as grl ON (grl.id = ec.levelid)
-LEFT JOIN (SELECT  GROUP_CONCAT(id) AS grupo, criterionid 
-		   FROM {gradingform_rubric_levels} GROUP BY criterionid) AS levels ON (levels.criterionid = ec.criterionid)
-LEFT JOIN (SELECT MAX(ad.count),
-					ad.levelid,
+LEFT JOIN (SELECT MAX(ad.count) as selection,
+					group_concat(ad.count) as counts,
                     ad.student,
-					ad.criterionid,
-					ad.draft
+					ad.criterionid
 			FROM (SELECT COUNT(ec.levelid) AS count,
-						 ec.draft,
-                         ec.criterionid,
                          ec.levelid,
-                         ec.markerid,
-                         ed.emarkingid,
-                         es.student
+                         es.student,
+                         ec.criterionid
 				  FROM mdl_emarking_comment AS ec 
-				  INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-				  INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)	
+				  INNER JOIN mdl_emarking_draft AS ed ON (ed.id = ec.draft AND ed.emarkingid = 54)
+				  INNER JOIN mdl_emarking_submission AS es ON (es.id = ed.submissionid)	
 				  WHERE ec.status=1
 				  GROUP BY ec.levelid, es.student
-                  ORDER BY count DESC
+                  ORDER BY es.student, ec.levelid DESC
 		   ) AS ad
 			GROUP BY ad.criterionid, ad.student
-) AS total ON (total.student=es.student AND ec.criterionid=total.criterionid)
-WHERE ec.markerid = ? AND ec.status = 1 
+			ORDER BY ad.student, ad.criterionid) AS total ON (total.student=es.student AND ec.criterionid=total.criterionid)
+WHERE ec.status = 1
 $filter 
 GROUP BY ec.criterionid, es.student
 ORDER BY sort";
 
 $params = array(
 		$cm->instance,
-		$cm->instance,
-		$USER->id
+		$cm->instance
 );
 $agreements = $DB->get_recordset_sql($sqldata, $params);
 
@@ -163,18 +170,16 @@ foreach($agreements as $agree){
 		$status= $OUTPUT->action_link($link, 'Modify', new popup_action ('click', $link));
 	}
 	
-	$grupo = explode(",", $agree->grupo);
-	
-	foreach($grupo as $data){
-		if($data == $agree->levelid){
-			$square .='<div style="float:left;height:20px;border:2px solid #000;background-color:#F3F36F;border-color: #48D063"><center>'.$data.'</center></div>';
-		}else{
-			$square .='<div style="float:left;height:20px;border:2px solid #000;background-color:#ffffff;border-color: #48D063"><center>'.$data.'</center></div>';
+	foreach($definition->rubric_criteria[$agree->criterionid]['levels'] as $data) {
+		if($data['id'] === $agree->levelid) {
+		    $square .= html_writer::div($agree->selections, "agreement-yours-not-selected", array("title"=>$data['definition']));
+		} else {
+			$square .= html_writer::div($agree->selections, "agreement-yours-selected", array("title"=>$data['definition']));
 		}
-		if($data == $agree->agreement){
-			$squareagreement .='<div style="float:left;height:20px;border:2px solid #000;background-color:#FF7878;border-color: #48D063"><center>'.$data.'</center></div>';
-		}else{
-			$squareagreement .='<div style="float:left;height:20px;border:2px solid #000;background-color:#ffffff;border-color: #48D063"><center>'.$data.'</center></div>';
+		if($data['id'] === $agree->agreement) {
+		    $squareagreement .=  html_writer::div($agree->selections, "agreement-not-selected", array("title"=>$data['definition']));
+		} else {
+			$squareagreement .= html_writer::div($agree->selections, "agreement-selected", array("title"=>$data['definition']));
 		}
 	}
 
