@@ -368,7 +368,7 @@ function emarking_printoders_tabs($category)
     )), get_string("records", 'mod_emarking'));
     
     // Statistics
-    $tabs[] = new tabobject("statistics", new moodle_url("/mod/emarking/print/statistics.php", array(
+    $tabs[] = new tabobject("statistics", new moodle_url("/mod/emarking/reports/print.php", array(
         "category" => $category->id
     )), get_string("statistics", 'mod_emarking'));
     

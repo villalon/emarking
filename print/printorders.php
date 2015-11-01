@@ -276,10 +276,11 @@ foreach ($exams as $exam) {
 
 echo $OUTPUT->header();
 
+echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
+
 $activetab = $statusicon == 1 ? 'printorders' : 'printordershistory';
 echo $OUTPUT->tabtree(emarking_printoders_tabs($category), $activetab);
 
-echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 
 if (count($exams) > 0) {
     echo html_writer::table($examstable); // print the table
