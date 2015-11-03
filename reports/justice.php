@@ -98,21 +98,31 @@ if($rubriccriteria = $rubriccontroller->get_definition()) {
 
 $emarkingids = ''.$emarking->id;
 
-var_dump($emarkingids);
-
-$studentsanswered = $DB->count_records_sql("
-                SELECT COUNT(DISTINCT s.student) AS students,
-                    s.emarking
-                FROM {emarking_perception} AS p
-                INNER JOIN {emarking_submission} AS s ON (p.submission = s.id AND s.status >= ".EMARKING_STATUS_PUBLISHED." AND s.emarking in ($emarkingids))
-                GROUP BY s.emarking"
+$studentsanswered = $DB->get_records_sql("
+                SELECT
+	s.emarking,
+	e.course,
+    c.shortname,
+    c.fullname,
+	COUNT(DISTINCT s.student) AS total,
+	COUNT(DISTINCT p.id) AS answered
+FROM mdl_emarking_submission AS s
+INNER JOIN mdl_emarking_draft AS d ON (d.qualitycontrol = 0 AND d.submissionid = s.id AND s.emarking in ($emarkingids) AND d.status >= :status)
+INNER JOIN mdl_emarking AS e ON (s.emarking = e.id)
+INNER JOIN mdl_course AS c ON (e.course = c.id)
+LEFT JOIN mdl_emarking_perception AS p ON (p.submission = s.id)
+GROUP BY s.emarking",
+    array("status"=>EMARKING_STATUS_PUBLISHED)
                 );
-$pending = $totalstudents - $studentsanswered;
 
-$datatable = "['Status', 'Students'],
-                ['Answered', $studentsanswered],
-                ['Not yet', $pending]
-                ";
+foreach($studentsanswered as $section) {
+    $pending = ($section->total - $section->answered);
+    $datatable[$section->emarking] = "['Status', 'Students'],
+    ['Answered', $section->answered],
+    ['Not yet', $pending]
+    ";
+}
+
 
 if($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
     $sqljustice = "SELECT  'of' as name, pc.criterion, c.description, pc.overall_fairness AS level, COUNT(DISTINCT s.student) as total
@@ -214,10 +224,10 @@ if($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
         $datatablejustice .= "]";
     }
 
-?>
+    foreach(explode(",", $emarkingids) as $eid) {
+        echo "<div id='statusdonut$eid' style='width: 100%; height: 300px;'></div>";
+    }
 
-<div id="statusdonut" style="width: 100%; height: 300px;"></div>
-<?php
     if($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
         foreach($criteria as $cid => $criterion) {
             echo '<div id="criteriabarchart-'.$cid.'" style="width: 100%; height: 500px;"></div>';
@@ -231,14 +241,14 @@ if($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
 <script type="text/javascript">
           // TODO: Show friendly message when we couldn't load Google's library
       google.load("visualization", "1", {packages:["corechart"]});
+
+      <?php foreach(explode(",", $emarkingids) as $eid) { ?>
+      google.setOnLoadCallback(drawStatusDonut<?php  echo $eid ?>);
       
-      google.setOnLoadCallback(drawStatusDonut);
-      google.setOnLoadCallback(drawHistogram);
-      
-        function drawStatusDonut() {
+        function drawStatusDonut<?php echo $eid ?>() {
                 var data = google.visualization.arrayToDataTable(
                                 [
-                                <?php echo $datatable; ?>
+                                <?php echo $datatable[$eid]; ?>
                         ]);
 
                 var options = {
@@ -247,10 +257,12 @@ if($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
                         legend: {position: 'bottom'},
                     };
 
-                var chart = new google.visualization.PieChart(document.getElementById('statusdonut'));
+                var chart = new google.visualization.PieChart(document.getElementById('statusdonut<?php echo $eid ?>'));
                 chart.draw(data, options);
     }
+    <?php } ?>
         
+    google.setOnLoadCallback(drawHistogram);
     // Grades histogram
     function drawHistogram() {
 
