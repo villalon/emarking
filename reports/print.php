@@ -41,7 +41,7 @@ if(!$category = $DB->get_record('course_categories', array('id' => $categoryid))
 
 $context = context_coursecat::instance($categoryid);
 
-$url = new moodle_url('/mod/emarking/print/statistics.php', array('category'=>$categoryid));
+$url = new moodle_url('/mod/emarking/reports/print.php', array('category'=>$categoryid));
 $ordersurl = new moodle_url('/mod/emarking/print/printorders.php', array('category'=>$categoryid, 'status'=>1));
 $categoryurl = new moodle_url('/course/index.php', array('categoryid'=>$categoryid));
 
@@ -57,7 +57,6 @@ $PAGE->navbar->add (get_string('statistics', 'mod_emarking'));
 $PAGE->set_context($context);
 $PAGE->set_heading(get_site()->fullname);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->requires->js("/mod/emarking/js/Chart.min.js");
 
 require_login();
 
@@ -69,8 +68,8 @@ echo $OUTPUT->heading(get_string('statisticstotals', 'mod_emarking'));
 echo $OUTPUT->tabtree(emarking_printoders_tabs($category), "statistics" );
 $sqlstats = '
     SELECT
-        IFNULL(year,\'Total\') AS year,
-        IFNULL(month,\'Total anual\') AS month,
+        CASE WHEN year IS NULL THEN \'Total\' ELSE year END AS year,
+        CASE WHEN month IS NULL THEN \'Total anual\' ELSE month END AS month,
         ROUND(SUM(totalpagestoprint)) AS totalpages,
         COUNT(DISTINCT EXAMS.id) AS totalexams,
         COUNT(DISTINCT EXAMS.courseid) AS totalcourses 
@@ -140,17 +139,21 @@ for($i = 0; $i < $months; $i++) {
     } else {
         $row[] = 0;
         $row[] = 0;
+        $row[] = 0;
     }
     $chartdata[] = $row;
 }
 
+$charttitle = new stdClass();
+$charttitle->start = $start->format('d M Y');
+$charttitle->end = $end->format('d M Y');
 
 list($html, $js) = emarking_get_google_chart(
     "print", // DIV id
-    array("Range", "Exams", "Pages"), // Headers 
+    array(get_string("range", "mod_emarking"), get_string("exams", "mod_emarking"), core_text::strtotitle(get_string("pages", "mod_emarking")), get_string("courses")), // Headers 
     $chartdata, // Data
-    "Printing statistics "."from ".$start->format('d M Y')." to ".$end->format('d M Y'), // Chart title 
-    "Months"); // X axis label
+    get_string("printordersrange", "mod_emarking", $charttitle), // Chart title 
+    get_string("months")); // X axis label
 
 echo $html;
 

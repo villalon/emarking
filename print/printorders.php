@@ -100,7 +100,7 @@ if($examid && $downloadform) {
     die();
 }
     
-$url = new moodle_url('/mod/emarking/print/statistics.php', array(
+$url = new moodle_url('/mod/emarking/print/printorders.php', array(
     'category' => $categoryid
 ));
 $ordersurl = new moodle_url('/mod/emarking/print/printorders.php', array(

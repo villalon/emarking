@@ -53,7 +53,7 @@ if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->id)))
 // URLs for current page
 $url = new moodle_url('/mod/emarking/reports/justice.php', array('id'=>$cm->id));
 
-$totalstudents = emarking_get_students_count_for_printing($course->id, $exam);
+$totalstudents = emarking_get_students_count_with_published_grades($emarking->id);
 
 // Course context is used in reports
 $context = context_module::instance($cm->id);
@@ -96,11 +96,17 @@ if($rubriccriteria = $rubriccontroller->get_definition()) {
         $numcriteria = count($rubriccriteria->rubric_criteria);
 }
 
+$emarkingids = ''.$emarking->id;
+
+var_dump($emarkingids);
+
 $studentsanswered = $DB->count_records_sql("
-                SELECT COUNT(DISTINCT s.student) AS students
+                SELECT COUNT(DISTINCT s.student) AS students,
+                    s.emarking
                 FROM {emarking_perception} AS p
-                INNER JOIN {emarking_submission} AS s ON (p.submission = s.id AND s.emarking = :emarkingid)",
-                array('emarkingid'=>$emarking->id));
+                INNER JOIN {emarking_submission} AS s ON (p.submission = s.id AND s.status >= ".EMARKING_STATUS_PUBLISHED." AND s.emarking in ($emarkingids))
+                GROUP BY s.emarking"
+                );
 $pending = $totalstudents - $studentsanswered;
 
 $datatable = "['Status', 'Students'],
@@ -112,6 +118,7 @@ if($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
     $sqljustice = "SELECT  'of' as name, pc.criterion, c.description, pc.overall_fairness AS level, COUNT(DISTINCT s.student) as total
 FROM mdl_emarking_perception as p
 INNER JOIN mdl_emarking_submission as s ON (p.submission = s.id)
+INNER JOIN mdl_emarking_draft as d ON (d.submissionid = s.id AND d.qualitycontrol = 0 AND d.status >= :status)
 INNER JOIN mdl_emarking_perception_criteria as pc ON (p.id = pc.perception)
 INNER JOIN mdl_gradingform_rubric_criteria as c ON (pc.criterion = c.id)
 WHERE s.emarking = :emarkingid
@@ -120,6 +127,7 @@ GROUP BY pc.criterion, pc.overall_fairness
         SELECT 'er' as name, pc.criterion, c.description, pc.expectation_reality AS level, COUNT(DISTINCT s.student) as total
 FROM mdl_emarking_perception as p
 INNER JOIN mdl_emarking_submission as s ON (p.submission = s.id)
+INNER JOIN mdl_emarking_draft as d ON (d.submissionid = s.id AND d.qualitycontrol = 0 AND d.status >= :status2)
 INNER JOIN mdl_emarking_perception_criteria as pc ON (p.id = pc.perception)
 INNER JOIN mdl_gradingform_rubric_criteria as c ON (pc.criterion = c.id)
 WHERE s.emarking = :emarkingid2
@@ -128,18 +136,20 @@ GROUP BY pc.criterion, pc.expectation_reality";
     $sqljustice = "SELECT 'of' as name, overall_fairness AS level, COUNT(DISTINCT s.student) as total
 FROM mdl_emarking_perception as p
 INNER JOIN mdl_emarking_submission as s ON (p.submission = s.id)
+INNER JOIN mdl_emarking_draft as d ON (d.submissionid = s.id AND d.qualitycontrol = 0 AND d.status >= :status)
 WHERE s.emarking = :emarkingid
 GROUP BY overall_fairness
         UNION ALL
         SELECT 'er' as name, expectation_reality AS level, COUNT(DISTINCT s.student) as total
 FROM mdl_emarking_perception as p
 INNER JOIN mdl_emarking_submission as s ON (p.submission = s.id)
+INNER JOIN mdl_emarking_draft as d ON (d.submissionid = s.id AND d.qualitycontrol = 0 AND d.status >= :status2)
 WHERE s.emarking = :emarkingid2
 GROUP BY expectation_reality";
 }
 
 $justiceperception = $DB->get_recordset_sql($sqljustice,
-                array('emarkingid'=>$emarking->id, 'emarkingid2'=>$emarking->id));
+                array('status'=>EMARKING_STATUS_PUBLISHED, 'status2'=>EMARKING_STATUS_PUBLISHED, 'emarkingid'=>$emarking->id, 'emarkingid2'=>$emarking->id));
 
 $fairnessdata = array();
 for($i=-4; $i<=4; $i++) {

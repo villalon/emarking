@@ -77,11 +77,12 @@ function emarking_get_google_chart($divid, array $labels, array $data, $title, $
                                     gridlines: {color: '#ddd'},
                                     format:'#'
                                    },
-                               },
+                                },
                        series: {
                                 0:{targetAxisIndex:0},
                                 1:{targetAxisIndex:1},
-                               }
+                                2:{targetAxisIndex:1},
+}
                       };
 
         var chart = new google.visualization.LineChart(document.getElementById('$divid'));

@@ -245,6 +245,9 @@ $string ['type_peer_review'] = 'Revisión entre pares';
 $string ['type_print_only'] = 'Solo impresión';
 $string ['type_print_scan'] = 'Imprimir y digitalizar';
 
+// EMARKING PRINTING
+$string['printordersrange'] = 'Impresiones desde {$a->start} hasta {$a->end}';
+
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';
 $string ['exporttoexcel'] = 'Exportar a Excel';
 

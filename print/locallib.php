@@ -223,6 +223,29 @@ function emarking_get_students_count_for_printing($courseid, $exam = NULL)
 }
 
 /**
+ * Get students count from a specific emarking activity.
+ *
+ * @param unknown_type $emarkingid            
+ */
+function emarking_get_students_count_with_published_grades($emarkingid)
+{
+    global $DB;
+    
+    $query = " SELECT COUNT(DISTINCT s.student) AS total
+               FROM mdl_emarking_submission AS s
+                INNER JOIN mdl_emarking_draft AS d ON (d.qualitycontrol = 0 AND d.submissionid = s.id)
+                WHERE s.emarking = :emarkingid AND d.status >= :status";
+    
+    // Se toman los resultados del query dentro de una variable.
+    $rs = $DB->get_record_sql($query, array(
+        "emarkingid"=>$emarkingid,
+        "status"=>EMARKING_STATUS_PUBLISHED
+    ));
+    
+    return isset($rs->total) ? $rs->total : null;
+}
+
+/**
  *
  *
  *

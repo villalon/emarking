@@ -242,6 +242,9 @@ $string ['type_peer_review'] = 'Peer review';
 $string ['type_print_only'] = 'Print only';
 $string ['type_print_scan'] = 'Print and scan';
 
+// EMARKING PRINTING
+$string['printordersrange'] = 'Print orders from {$a->start} to {$a->end}';
+
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
 $string ['exporttoexcel'] = 'Export to Excel';
 
