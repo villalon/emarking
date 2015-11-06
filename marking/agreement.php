@@ -67,6 +67,7 @@ $urlemarking = new moodle_url('/mod/emarking/marking/agreement.php', array(
 $context = context_module::instance($cm->id);
 
 $filter = "AND ec.markerid = $USER->id ";
+$markercolumn = get_string("yourmarking", "mod_emarking");
 
 if(is_siteadmin($USER->id)) {
     $filter = "";    
@@ -75,7 +76,9 @@ if(is_siteadmin($USER->id)) {
 if($examid != 0) {
     $filter .= "AND es.student = $examid";
 } else if ($markerid != 0) {
-    $filter .= "AND ec.markerid = $markerid";
+    $filter = "AND ec.markerid = $markerid";
+    $marker = $DB->get_record('user', array('id'=>$markerid));
+    $markercolumn = $marker->firstname . " " . $marker->lastname;
 } else if ($criterionid != 0) {
     $filter .= "AND ec.criterionid = $criterionid";
 }
@@ -117,16 +120,17 @@ INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
 INNER JOIN {gradingform_rubric_criteria}  AS grc ON (grc.id = ec.criterionid)
 INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
 INNER JOIN {gradingform_rubric_levels} as grl ON (grl.id = ec.levelid)
-LEFT JOIN (SELECT MAX(ad.count) as selection,
+LEFT JOIN (SELECT MAX(ad.count) as selections,
 					group_concat(ad.count) as counts,
                     ad.student,
-					ad.criterionid
+					ad.criterionid,
+					ad.levelid
 			FROM (SELECT COUNT(ec.levelid) AS count,
                          ec.levelid,
                          es.student,
                          ec.criterionid
 				  FROM mdl_emarking_comment AS ec 
-				  INNER JOIN mdl_emarking_draft AS ed ON (ed.id = ec.draft AND ed.emarkingid = 54)
+				  INNER JOIN mdl_emarking_draft AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
 				  INNER JOIN mdl_emarking_submission AS es ON (es.id = ed.submissionid)	
 				  WHERE ec.status=1
 				  GROUP BY ec.levelid, es.student
@@ -150,7 +154,7 @@ $firststagetable = new html_table();
 $firststagetable->head = array(
     get_string("criterion", "mod_emarking"), 
     get_string("exam", "mod_emarking"),
-    get_string("yourmarking", "mod_emarking"), 
+    $markercolumn, 
     get_string("agreement", "mod_emarking"),
     get_string("status", "mod_emarking"));
 
