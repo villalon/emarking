@@ -1,15 +1,12 @@
-.generaltable tbody tr .rowactions,
-#page-mod-emarking-view .flexible tbody tr .printactions,
-#page-mod-emarking-view .flexible tbody tr .timemodified  {
+.generaltable tbody tr .rowactions, #page-mod-emarking-view .flexible tbody tr .printactions,
+	#page-mod-emarking-view .flexible tbody tr .timemodified {
 	display: none;
 }
 
-.generaltable tbody tr:hover .rowactions,
-#page-mod-emarking-view .flexible tbody tr:hover .printactions,
-#page-mod-emarking-view .flexible tbody tr:hover .timemodified {
-    display: block;
+.generaltable tbody tr:hover .rowactions, #page-mod-emarking-view .flexible tbody tr:hover .printactions,
+	#page-mod-emarking-view .flexible tbody tr:hover .timemodified {
+	display: block;
 }
-
 
 #page-mod-emarking-view .actions {
 	min-width: 170px;
@@ -39,10 +36,10 @@ input[type="text"] {
 	width: 20px;
 	height: 20px;
 	text-align: center;
-    float: left;
-    margin-left: 5px;
-    background-color: #005aa8;
-    color: #fff;
+	float: left;
+	margin-left: 5px;
+	background-color: #005aa8;
+	color: #fff;
 }
 
 .regradecomment {
@@ -61,8 +58,8 @@ input[type="text"] {
 }
 
 #page-mod-emarking-view .flexible tbody td {
-    vertical-align: middle;
-    background-color: transparent;
+	vertical-align: middle;
+	background-color: transparent;
 }
 
 #page-mod-emarking-view .progress {
@@ -73,42 +70,43 @@ input[type="text"] {
 }
 
 .grade {
-	font-size:12pt;
+	font-size: 12pt;
 	font-weight: bold;
 }
 
 #page-mod-emarking-view .flexible tbody tr:hover {
-    background-color: #eee;
+	background-color: #eee;
 }
 
 #page-mod-emarking-view .flexible .c3 {
-    text-align: right;
+	text-align: right;
 }
 
 .progress-bar {
-  background-color: blue;
-  color: white;
-  font-weight: bold;
-  font-size: 7pt;
-  text-align: center;
+	background-color: blue;
+	color: white;
+	font-weight: bold;
+	font-size: 7pt;
+	text-align: center;
 }
+
 #page-mod-emarking-marking-markers .singlebutton {
-	text-align:center;
+	text-align: center;
 }
 
 .addmarkerstable, .addmarkerstable select {
-	 width: 100%;
+	width: 100%;
 }
 
 .exams_examname {
-    min-width: 200px;
+	min-width: 200px;
 }
 
 .actionscolumn {
 	min-width: 90px;
 }
 
-.printactions div, .printdetails div  {
+.printactions div, .printdetails div {
 	display: table-cell;
 	padding-right: 5px;
 }
@@ -127,72 +125,94 @@ input[type="text"] {
 }
 
 .newprintorder input {
-  color: #fff;
-  background-color: #0038a8;
-  background-image: none;
-  margin-left: auto;
-  margin-right: auto;
+	color: #fff;
+	background-color: #0038a8;
+	background-image: none;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .examisok {
-    border-left: 4px solid lightblue;
+	border-left: 4px solid lightblue;
 }
 
 .examislate {
-    border-left: 4px solid red;
+	border-left: 4px solid red;
 }
 
 .examtoday {
-    border-left: 4px solid green;
+	border-left: 4px solid green;
 }
-clear{
-clear:both;}
+
+clear {
+	clear: both;
+}
+
 .graphcont {
-padding-top:10px;
-color:#000;
-font-weight:700;
-float:left;
+	padding-top: 10px;
+	color: #000;
+	font-weight: 700;
+	float: left;
 }
 
 .graph {
-float:right;
-background-color:#cecece;
-position:relative;
-width:200px;
-padding:0;
+	float: right;
+	background-color: #cecece;
+	position: relative;
+	width: 200px;
+	padding: 0;
 }
 
 .graph .bar {
-display:block;
-position:relative;
-background-color:#7cd603;
-background-position:right center;
-background-repeat:repeat-x;
-border-right:#538e02 1px solid;
-text-align:center;
-color:#fff;
-height:12px;
-font-size:12px;
-line-height:1.2em;
+	display: block;
+	position: relative;
+	background-color: #7cd603;
+	background-position: right center;
+	background-repeat: repeat-x;
+	border-right: #538e02 1px solid;
+	text-align: center;
+	color: #fff;
+	height: 12px;
+	font-size: 12px;
+	line-height: 1.2em;
 }
 
 /** Agreement **/
-.agreement-selected, .agreement-not-selected, .agreement-yours-selected, .agreement-yours-not-selected {
-	cursor: pointer;	
-	float:left;
-	height:20px;
-    width:20px;
-	border:2px solid #000;
-	background-color:#ffffff;
+.agreement-selected, .agreement-not-selected, .agreement-yours-selected,
+	.agreement-yours-not-selected, .agreement-some-selected {
+	cursor: pointer;
+	float: left;
+	height: 20px;
+	width: 20px;
+	border: 2px solid #000;
+	background-color: #ffffff;
 	border-color: #48D063;
 	text-align: center;
 	font-size: 10pt;
 }
 
 .agreement-not-selected {
-    background-color:#FF7878;
+	background-color: #FF7878;
+}
+
+.agreement-some-selected {
+	background-color: #ffff80;
 }
 
 .agreement-yours-not-selected {
-    background-color:#F3F36F;
+	background-color: #F3F36F;
+}
+
+.agreement-modify-level, .agreement-modify-level-selected {
+	border: 1px solid #000;
+	border-color: #48D063;
+	background-color: #ffffff;
+	height: 105px;
+	vertical-align: bottom;
+	max-width: 105px;
+	width: 105px;
+}
+
+.agreement-modify-level-selected {
+	background-color: #FF7878;
 }

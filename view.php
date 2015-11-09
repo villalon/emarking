@@ -134,8 +134,17 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
-if($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
+if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 	
+    if(!$usercangrade) {
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading($emarking->name);
+        echo $OUTPUT->notification(get_string("markerstrainingnotforstudents", "mod_emarking"));
+        echo $OUTPUT->single_button(new moodle_url("/course/view.php", array("id"=>$cm->course)), get_string("back"));        
+        echo $OUTPUT->footer();
+        die();
+    }
+    
 	$sqlisadmin = "";
 	if(!is_siteadmin($USER)){
 		$sqlisadmin = " AND d.teacher =:currentuser";

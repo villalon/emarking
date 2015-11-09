@@ -73,172 +73,195 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 
-// If there is a rubric defined we can get the controller and the parameters for this rubric
-if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($gradingmethod))) {
-	
-	if ($rubriccontroller instanceof gradingform_rubric_controller) {
-		// Getting the number of criteria
-		if ($rubriccriteria = $rubriccontroller->get_definition()) {
-			$numcriteria = count($rubriccriteria->rubric_criteria);
-		}
-		// Getting min and max scores
-		$rubricscores = $rubriccontroller->get_min_max_score();
-	}
+// Get rubric instance
+list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
+
+// As we have a rubric we can get the controller
+$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
+if (! $rubriccontroller instanceof gradingform_rubric_controller) {
+    print_error(get_string('invalidrubric', 'mod_emarking'));
 }
 
+$definition = $rubriccontroller->get_definition();
+
+$markerid = 0;
+$filter = "";
 $sqlagreement="
-SELECT ec.criterionid, GROUP_CONCAT(ec.levelid SEPARATOR '') AS selection, 
-		GROUP_CONCAT(total.levelid SEPARATOR '') AS agreement,
+SELECT
+    submission,
+	student,
+    criterionid,
+    description,
+    GROUP_CONCAT(levelid SEPARATOR '-') AS levels,
+    GROUP_CONCAT(count SEPARATOR '-') AS counts,
+    GROUP_CONCAT(markercount SEPARATOR '-') AS markercounts,
+    GROUP_CONCAT(markers SEPARATOR '-') AS markers,
+    GROUP_CONCAT(drafts SEPARATOR '#') AS drafts,
+    GROUP_CONCAT(teachers SEPARATOR '#') AS teachers,
+    GROUP_CONCAT(comments SEPARATOR '#') AS comments,
+    MAX(count) / SUM(count) AS agreement
+    FROM (
+	SELECT 
+	a.id AS criterionid,
+    a.description,
+    a.sortorder,
+	b.id AS levelid,
+    b.definition,
+    es.student,
+	IFNULL(MARK.count, 0) AS count,
+    IFNULL(MARK.markercount, 0) AS markercount,
+    IFNULL(MARK.markers, '') AS markers,
+    IFNULL(MARK.drafts, '') AS drafts,
+    IFNULL(MARK.teachers, '') AS teachers,
+    IFNULL(MARK.comments, '') AS comments,
+    es.id AS submission
+		FROM mdl_course_modules AS c
+		INNER JOIN {context} AS mc ON (c.id = ? AND mc.contextlevel = 70 AND c.id = mc.instanceid)
+		INNER JOIN {grading_areas} AS ar ON (mc.id = ar.contextid)
+		INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
+		INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)
+		INNER JOIN {gradingform_rubric_levels} AS b ON (a.id = b.criterionid)
+        INNER JOIN {emarking_submission} AS es ON (es.emarking = c.instance)
+	LEFT JOIN (
+		SELECT 
+		GROUP_CONCAT(ed.id SEPARATOR '#') AS drafts,
+		GROUP_CONCAT(ed.teacher SEPARATOR '#') AS teachers,
+		GROUP_CONCAT(ec.id SEPARATOR '#') AS comments,
 		es.student,
-		total.levelid as agree
-FROM {emarking_comment} AS ec
-INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
-LEFT JOIN (SELECT max(ad.count),
-					ad.levelid,
-                    ad.student,
-					ad.criterionid,
-					ad.draft
-			FROM (SELECT COUNT(ec.levelid) AS count,
-						 ec.draft,
-                         ec.criterionid,
-                         ec.levelid,
-                         ec.markerid,
-                         ed.emarkingid,
-                         es.student
-				  FROM {emarking_comment} AS ec 
-				  INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-				  INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
-				  WHERE ec.status = 1
-				  GROUP BY ec.levelid, es.student
-                  ORDER BY count DESC) AS ad
-			GROUP BY ad.criterionid, ad.student
-		) AS total ON (total.student = es.student AND ec.criterionid = total.criterionid)
-WHERE ec.status = 1
-GROUP BY ec.criterionid, es.student";
+		ec.criterionid,
+		ec.levelid,
+		COUNT(DISTINCT ec.markerid) AS count,
+        CASE WHEN GROUP_CONCAT(ec.markerid SEPARATOR '#') LIKE CONCAT('%$markerid%') THEN 1 ELSE 0 END AS markercount,
+        GROUP_CONCAT(ec.markerid SEPARATOR '#') AS markers
+		FROM {emarking_submission} AS es 
+        INNER JOIN {emarking_draft} AS ed ON (ed.emarkingid = ? AND es.id = ed.submissionid)
+		INNER JOIN {emarking_comment} AS ec ON (ed.id = ec.draft AND ec.levelid > 0)
+ 		GROUP BY es.student,ec.levelid                  
+        ORDER BY es.student,ec.levelid) AS MARK
+        ON (b.id = MARK.levelid AND a.id = MARK.criterionid AND es.student = MARK.student)
+ORDER BY a.sortorder,b.score) AS MARKS
+WHERE 1 = 1
+$filter
+GROUP BY student,criterionid
+ORDER BY student,sortorder
+";
 		
 $params = array(
-		$cm->instance,$cm->instance
+	$cm->id,
+    $cm->instance
 );
 
 $agreements = $DB->get_recordset_sql($sqlagreement, $params);
-$sumbycriteria = array();
-$sumbystudent =array();
-$str="1!=1";
 
-if ($agreements->valid()) {
-	foreach($agreements as $agreement){
-		
-		if(!array_key_exists($agreement->criterionid, $sumbycriteria)){
-			$sumbycriteria[$agreement->criterionid] = 0;
-			$sum = 0;
-		}else{
-			$sum = $sumbycriteria[$agreement->criterionid];
-		}
-		if(!array_key_exists($agreement->student, $sumbystudent)){
-			$sumbystudent[$agreement->student] = 0;
-			$plus = 0;
-			
-		}else{
-			$plus = $sumbystudent[$agreement->student];
-		}
-		
-		$algo= $DB->get_records_sql("SELECT  @s:=@s+1 AS val, id 
-				FROM {gradingform_rubric_levels}, (SELECT @s:= 0) AS s 
-				WHERE criterionid=?", 
-				array(
-						$agreement->criterionid
-		));
-		
-		foreach($algo as $info){		
-				$agreement->selection=str_replace($info->id,$info->val,$agreement->selection);
-				$agreement->agreement=str_replace($info->id,$info->val,$agreement->agreement);
-		}
+$sum = array();
 
-		$res = array_diff_assoc(str_split($agreement->selection), str_split($agreement->agreement));
-		$hammingdistance = count($res);
-		$sum = $sum+$hammingdistance;
-		$plus = $plus+$hammingdistance;
-
-		$sumbycriteria[$agreement->criterionid] = $sum;
-		$sumbystudent[$agreement->student] = $plus;
-
-		$str .= " OR (ec.criterionid=$agreement->criterionid AND ec.levelid!=$agreement->agree AND es.student=$agreement->student)";
-	}
+$enrolledmarkers = get_enrolled_users($context, 'mod/assign:grade');
+$markersnames = array();
+foreach ($enrolledmarkers as $enrolledmarker) {
+    $markersnames[$enrolledmarker->id] = $enrolledmarker->firstname . " " . $enrolledmarker->lastname;
+    $markeragreement[$enrolledmarker->id] = array();
 }
-//var_dump($str);
-$sqlcountperstudent = "SELECT es.student, COUNT(es.student) as count
-		FROM {emarking_comment} AS ec 
-		INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-		INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
-		WHERE ec.status = 1
-		GROUP BY es.student";
 
-$sqlcountpercriteria = "SELECT ec.criterionid, COUNT(ec.criterionid) AS count, grc.description AS criterianame 
-		FROM {emarking_comment} AS ec 
-		INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-		INNER JOIN {gradingform_rubric_criteria}  AS grc ON (grc.id = ec.criterionid)
-		GROUP BY ec.criterionid";
 
-$sqlcountpermarker="SELECT ec.markerid, COUNT(ec.markerid) as count, algo.final AS otro
-				  FROM {emarking_comment} AS ec 
-				  INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-				  INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
-				  LEFT JOIN (SELECT count(*) AS final,ec.markerid
-							FROM {emarking_comment} AS ec 
-							INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-							INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid) 
-               				GROUP BY ec.markerid) as algo on (algo.markerid = ec.markerid)
-                  WHERE ($str) AND ec.status=1
-                  GROUP BY ec.markerid";
 
-$param = array(
-		$cm->instance
-);
+foreach($agreements as $agree) {
+		
+		$sum["criteria"][$agree->criterionid][] = $agree->agreement;
+		$sum["student"][$agree->submission][] = $agree->agreement;
+		$sum["total"][] = $agree->agreement;
+		
+		$levels = explode('-', $agree->levels);
+		$counts = explode('-', $agree->counts);
+		$markercounts = explode('-', $agree->markercounts);
+		$markersperlevel = explode('-', $agree->markers);
+		$agreedlevel = array();
+		$markerselection = array();
+		for($i = 0; $i<count($levels); $i++) {
+		    if(!isset($agreedlevel[$agree->criterionid])
+		        || $agreedlevel[$agree->criterionid]["count"] < $counts[$i]) {
+		            $agreedlevel[$agree->criterionid] = array("level"=>$levels[$i],"count"=>$counts[$i]);
+		        }
+		        
+		        $markerselection[$levels[$i]] = $markercounts[$i];
+		        $markers[$levels[$i]] = array();
+		        $levelmarkers = explode("#",$markersperlevel[$i]);
+		        foreach($levelmarkers as $levelmarker) {
+		            if(isset($markersnames[$levelmarker])) {
+		                $markers[$levels[$i]][] = $markersnames[$levelmarker];
+		            }
+		        }
+		}
+		for($i = 0; $i<count($levels); $i++) {
+		        $levelmarkers = explode("#",$markersperlevel[$i]);
+		        foreach($levelmarkers as $levelmarker) {
+		            if(!isset($markeragreement[$levelmarker])) {
+		                $markeragreement[$levelmarker] = array();
+		            }
+		            if($agreedlevel[$agree->criterionid]["level"] == $levels[$i]) {
+		                $markeragreement[$levelmarker][] = 1;
+		            } else {
+		                $markeragreement[$levelmarker][] = 0;
+		            }
+		        }
+		}
+}
+
+$dataexams = array();
+foreach($sum["student"] as $studentid => $agreement) {
+    $total = array_sum($agreement);
+    $avg = count($agreement) == 0 ? 0 : $total / count($agreement);
+    $avg = round($avg * 100, 0);
+    $dataexams[$studentid] = $avg;
+}
+
+$datacriteria = array();
+foreach($sum["criteria"] as $criterionid => $agreement) {
+    $total = array_sum($agreement);
+    $avg = count($agreement) == 0 ? 0 : $total / count($agreement);
+    $avg = round($avg * 100, 0);
+    $datacriteria[$criterionid] = $avg;
+}
+
+$datamarkers = array();
+foreach($markeragreement as $markerid => $agreement) {
+    $total = array_sum($agreement);
+    $avg = count($agreement) == 0 ? 0 : $total / count($agreement);
+    $avg = round($avg * 100, 0);
+    if(isset($markersnames[$markerid]) && count($agreement) > 0) {
+        $datamarkers[$markerid] = $avg;
+    }
+}
+
+$totalagreement = array_sum($sum["total"]);
+$avgagreement = count($sum["total"]) == 0 ? 0 : $totalagreement / count($sum["total"]);
+$avgagreement = round($avgagreement * 100, 0);
 
 // Show header
 echo $OUTPUT->header();
 
-$outlierxstudents = $DB->get_records_sql($sqlcountperstudent, $param);
-
 $firststagetable = new html_table();
 $firststagetable->data[] = array($OUTPUT->heading("Por prueba", 5));
 
-$avg=0;
-$numberstudent=0;
-foreach ($outlierxstudents as $outlier){
-	$numberstudent++;
-	$value = (1-($sumbystudent[$outlier->student]/$outlier->count))*100;
-	$avg = $avg+$value;
-	$examurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "exam"=>$outlier->student));
-	$firststagetable->data[] = array($OUTPUT->action_link($examurl, get_string("exam","mod_emarking"). ": ".$numberstudent.emarking_create_progress_graph(floor($value))));
-	
+foreach ($dataexams as $sid => $d){
+	$examurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "exam"=>$sid));
+	$firststagetable->data[] = array($OUTPUT->action_link($examurl, get_string("exam","mod_emarking") . " " . $sid . emarking_create_progress_graph($d)));	
 }
-$avg=$avg/$numberstudent;
+
 $secondstagetable = new html_table();
 $secondstagetable->data[] = array($OUTPUT->heading("Por Criterio", 5));
-$outlierxcriteria = $DB->get_records_sql($sqlcountpercriteria, $param);
 
-foreach ($outlierxcriteria as $outlier){
-	$value = (1-($sumbycriteria[$outlier->criterionid]/$outlier->count))*100;
-	$criterionurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "criterion"=>$outlier->criterionid));
-	$secondstagetable->data[] = array($OUTPUT->action_link($criterionurl, $outlier->criterianame.": ".emarking_create_progress_graph(floor($value))));
+foreach ($datacriteria as $cid=>$d) {
+    
+	$criterionurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "criterion"=>$cid));
+	$secondstagetable->data[] = array($OUTPUT->action_link($criterionurl, $definition->rubric_criteria[$cid]['description'] . " " . emarking_create_progress_graph($d)));
 }
 
-$param = array(
-		$cm->instance,
-		$cm->instance
-);
 $thirdstagetable = new html_table();
 $thirdstagetable->data[] = array($OUTPUT->heading("Por Corrector", 5));
-$outlierxmarker = $DB->get_records_sql($sqlcountpermarker, $param);
 
-$numbermarker = 0;
-foreach ($outlierxmarker as $outlier){
-	$numbermarker++;
-	$value = (1-($outlier->count/$outlier->otro))*100;
-	$markerurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "marker"=>$outlier->markerid));
-	$thirdstagetable->data[] = array($OUTPUT->action_link($markerurl, get_string("marker", "mod_emarking").": ".$numbermarker.": ".emarking_create_progress_graph(floor($value))));
+foreach ($datamarkers as $mid => $d) {
+	$markerurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "marker"=>$mid));
+	$thirdstagetable->data[] = array($OUTPUT->action_link($markerurl, $markersnames[$mid]." ".emarking_create_progress_graph($d)));
 }
 
 // Get the course module for the emarking, to build the emarking url
@@ -251,7 +274,7 @@ echo emarking_tabs_markers_training(
 		$cm, 
 		$emarking,
 		100,
-		floor($avg));
+		$avgagreement);
 
 echo "<h4>Porcentajes de acuerdo</h4>";
 

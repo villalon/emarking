@@ -455,7 +455,6 @@ switch ($action) {
         break;
     
     case 'updcomment':
-        
         // Add to Moodle log so some auditing can be done
         $item = array(
             'context' => context_module::instance($cm->id),

@@ -25,14 +25,14 @@ require_once("$CFG->dirroot/grade/grading/form/rubric/lib.php");
 // Required and optional params for emarking
 $commentid = required_param('cid', PARAM_INT);
 $commentrawtext = required_param('comment', PARAM_RAW_TRIMMED);
-$bonus = optional_param('bonus', 0, PARAM_FLOAT);
+$bonus = optional_param('bonus', -1, PARAM_FLOAT);
 $levelid = optional_param('levelid', 0, PARAM_INT);
-$format = required_param('format', PARAM_INT);
+$format = optional_param('format', 2, PARAM_INT);
 $regradeid = optional_param('regradeid', 0, PARAM_INT);
 $regrademarkercomment = optional_param('regrademarkercomment', null, PARAM_RAW_TRIMMED);
 $regradeaccepted = optional_param('regradeaccepted', 0, PARAM_INT);
 
-if($emarking->type != EMARKING_TYPE_MARKER_TRAINING){
+if($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
 	$posx = required_param('posx', PARAM_INT);
 	$posy = required_param('posy', PARAM_INT);
 	/**  Measures the correction window **/
@@ -52,17 +52,27 @@ $previousbonus = $comment->bonus;
 $previouslvlid = $comment->levelid;
 $previouscomment = $comment->rawtext;
 
+if($bonus < 0) {
+    $bonus = $previousbonus;
+}
+
+if($commentrawtext === 'delphi') {
+    $commentrawtext = $previouscomment;
+}
+
 if($previouslvlid > 0 && $levelid <= 0) {
 	emarking_json_error("Invalid level id for a rubric id which has a previous level",array("id"=>$commentid,"levelid"=>$previouslvlid));
 }
 
 /** transformation pixels screen to percentages **/
 
-$posx = ($posx/$winwidth);
-$posy = ($posy/$winheight);
-
-$comment->posx = $posx;
-$comment->posy = $posy;
+if($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
+    $posx = ($posx/$winwidth);
+    $posy = ($posy/$winheight);
+    
+    $comment->posx = $posx;
+    $comment->posy = $posy;
+}
 $comment->id = $commentid;
 $comment->rawtext = $commentrawtext;
 $comment->bonus = $bonus;

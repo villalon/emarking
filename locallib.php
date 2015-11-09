@@ -1155,7 +1155,7 @@ function emarking_json_output($jsonOutput)
     $callback = optional_param('callback', null, PARAM_RAW_TRIMMED);
     
     // Headers
-    header('Content-Type: text/javascript');
+    header('Content-Type: text/JSON');
     header('Cache-Control: no-cache');
     header('Pragma: no-cache');
     

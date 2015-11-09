@@ -21,7 +21,6 @@
  * @copyright 2015 Francisco García <frgarcia@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
@@ -31,7 +30,7 @@ global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 // Check that user is logued in the course
 require_login();
 if (isguestuser()) {
-	die();
+    die();
 }
 
 // Course module id
@@ -55,33 +54,16 @@ if (! $emarking = $DB->get_record('emarking', array(
 
 // Validate course
 if (! $course = $DB->get_record('course', array(
-		'id' => $emarking->course
+    'id' => $emarking->course
 ))) {
-	print_error(get_string('invalidcourseid', 'mod_emarking'));
+    print_error(get_string('invalidcourseid', 'mod_emarking'));
 }
 
 // Get the course module for the emarking, to build the emarking url
 $urlemarking = new moodle_url('/mod/emarking/marking/agreement.php', array(
-		'id' => $cm->id
+    'id' => $cm->id
 ));
 $context = context_module::instance($cm->id);
-
-$filter = "AND ec.markerid = $USER->id ";
-$markercolumn = get_string("yourmarking", "mod_emarking");
-
-if(is_siteadmin($USER->id)) {
-    $filter = "";    
-}
-
-if($examid != 0) {
-    $filter .= "AND es.student = $examid";
-} else if ($markerid != 0) {
-    $filter = "AND ec.markerid = $markerid";
-    $marker = $DB->get_record('user', array('id'=>$markerid));
-    $markercolumn = $marker->firstname . " " . $marker->lastname;
-} else if ($criterionid != 0) {
-    $filter .= "AND ec.criterionid = $criterionid";
-}
 
 // Get rubric instance
 list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
@@ -94,7 +76,36 @@ if (! $rubriccontroller instanceof gradingform_rubric_controller) {
 
 $definition = $rubriccontroller->get_definition();
 
-// var_dump($definition->rubric_criteria);die();
+$filter = "";
+$markercolumn = get_string("yourmarking", "mod_emarking");
+$text = $markercolumn;
+
+if ($examid != 0) {
+    $filter .= "AND submission = $examid";
+    $text = get_string("exam", "mod_emarking") . " " . $examid;
+} else 
+    if ($markerid != 0) {
+        $marker = $DB->get_record('user', array(
+            'id' => $markerid
+        ));
+        $markercolumn = $marker->firstname . " " . $marker->lastname;
+        $text = "<A HREF=\"".$CFG->wwwroot."/user/profile.php?id=".$markerid."\">".
+        get_string("marker", "mod_emarking") . " " . $markercolumn."</A>";
+    } else 
+        if ($criterionid != 0) {
+            $filter .= "AND criterionid = $criterionid";
+            $text = $definition->rubric_criteria[$criterionid]['description'];
+        }
+
+if ($markerid == 0) {
+    $markerid = $USER->id;
+}
+
+list ($enrolledmarkers, $userismarker) = emarking_get_markers_in_training($emarking->id, true);
+$markersnames = array();
+foreach ($enrolledmarkers as $enrolledmarker) {
+    $markersnames[$enrolledmarker->id] = $enrolledmarker->firstname . " " . $enrolledmarker->lastname;
+}
 
 // Page navigation and URL settings
 $PAGE->set_url($urlemarking);
@@ -104,109 +115,236 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 
-
-$sqldata="SELECT ec.id AS commentid,
+$sqldata = "
+SELECT
+    submission,
+	student,
+    criterionid,
+    description,
+    GROUP_CONCAT(levelid SEPARATOR '-') AS levels,
+    GROUP_CONCAT(count SEPARATOR '-') AS counts,
+    GROUP_CONCAT(markercount SEPARATOR '-') AS markercounts,
+    GROUP_CONCAT(markers SEPARATOR '-') AS markers,
+    GROUP_CONCAT(drafts SEPARATOR '#') AS drafts,
+    GROUP_CONCAT(teachers SEPARATOR '#') AS teachers,
+    GROUP_CONCAT(comments SEPARATOR '#') AS comments,
+    MAX(count) / SUM(count) AS agreement
+    FROM (
+	SELECT 
+	a.id AS criterionid,
+    a.description,
+    a.sortorder,
+	b.id AS levelid,
+    b.definition,
+    es.student,
+	IFNULL(MARK.count, 0) AS count,
+    IFNULL(MARK.markercount, 0) AS markercount,
+    IFNULL(MARK.markers, '') AS markers,
+    IFNULL(MARK.drafts, '') AS drafts,
+    IFNULL(MARK.teachers, '') AS teachers,
+    IFNULL(MARK.comments, '') AS comments,
+    es.id AS submission
+		FROM mdl_course_modules AS c
+		INNER JOIN {context} AS mc ON (c.id = ? AND mc.contextlevel = 70 AND c.id = mc.instanceid)
+		INNER JOIN {grading_areas} AS ar ON (mc.id = ar.contextid)
+		INNER JOIN {grading_definitions} AS d ON (ar.id = d.areaid)
+		INNER JOIN {gradingform_rubric_criteria} AS a ON (d.id = a.definitionid)
+		INNER JOIN {gradingform_rubric_levels} AS b ON (a.id = b.criterionid)
+        INNER JOIN {emarking_submission} AS es ON (es.emarking = c.instance)
+	LEFT JOIN (
+		SELECT 
+		GROUP_CONCAT(ed.id SEPARATOR '#') AS drafts,
+		GROUP_CONCAT(ed.teacher SEPARATOR '#') AS teachers,
+		GROUP_CONCAT(ec.id SEPARATOR '#') AS comments,
+		es.student,
 		ec.criterionid,
 		ec.levelid,
-        es.student,
-        total.levelid AS agreement,
-        case when ec.levelid = total.levelid then 1 else 0 end as sort,
-        ec.markerid,
-        grc.description,
-        grl.definition,
-        total.selections
-FROM {emarking_comment} AS ec
-INNER JOIN {emarking_draft} AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-INNER JOIN {gradingform_rubric_criteria}  AS grc ON (grc.id = ec.criterionid)
-INNER JOIN {emarking_submission} AS es ON (es.id = ed.submissionid)
-INNER JOIN {gradingform_rubric_levels} as grl ON (grl.id = ec.levelid)
-LEFT JOIN (SELECT MAX(ad.count) as selections,
-					group_concat(ad.count) as counts,
-                    ad.student,
-					ad.criterionid,
-					ad.levelid
-			FROM (SELECT COUNT(ec.levelid) AS count,
-                         ec.levelid,
-                         es.student,
-                         ec.criterionid
-				  FROM mdl_emarking_comment AS ec 
-				  INNER JOIN mdl_emarking_draft AS ed ON (ed.id = ec.draft AND ed.emarkingid = ?)
-				  INNER JOIN mdl_emarking_submission AS es ON (es.id = ed.submissionid)	
-				  WHERE ec.status=1
-				  GROUP BY ec.levelid, es.student
-                  ORDER BY es.student, ec.levelid DESC
-		   ) AS ad
-			GROUP BY ad.criterionid, ad.student
-			ORDER BY ad.student, ad.criterionid) AS total ON (total.student=es.student AND ec.criterionid=total.criterionid)
-WHERE ec.status = 1
-$filter 
-GROUP BY ec.criterionid, es.student
-ORDER BY sort";
+		COUNT(DISTINCT ec.markerid) AS count,
+        CASE WHEN GROUP_CONCAT(ec.markerid SEPARATOR '#') LIKE CONCAT('%$markerid%') THEN 1 ELSE 0 END AS markercount,
+        GROUP_CONCAT(ec.markerid SEPARATOR '#') AS markers
+		FROM {emarking_submission} AS es 
+        INNER JOIN {emarking_draft} AS ed ON (ed.emarkingid = ? AND es.id = ed.submissionid)
+		INNER JOIN {emarking_comment} AS ec ON (ed.id = ec.draft AND ec.levelid > 0)
+ 		GROUP BY es.student,ec.levelid                  
+        ORDER BY es.student,ec.levelid) AS MARK
+        ON (b.id = MARK.levelid AND a.id = MARK.criterionid AND es.student = MARK.student)
+ORDER BY a.sortorder,b.score) AS MARKS
+WHERE 1 = 1
+$filter
+GROUP BY student,criterionid
+ORDER BY student,sortorder
+";
 
 $params = array(
-		$cm->instance,
-		$cm->instance
+    $cm->id,
+    $cm->instance
 );
 $agreements = $DB->get_recordset_sql($sqldata, $params);
 
-//TODO: si no tengo outliers, es decir no soy ayudante, no crear la tabla.
+// TODO: si no tengo outliers, es decir no soy ayudante, no crear la tabla.
 $firststagetable = new html_table();
-$firststagetable->head = array(
-    get_string("criterion", "mod_emarking"), 
-    get_string("exam", "mod_emarking"),
-    $markercolumn, 
-    get_string("agreement", "mod_emarking"),
-    get_string("status", "mod_emarking"));
 
-foreach($agreements as $agree){
-	$square = "";
-	$squareagreement="";
-	if($agree->levelid == $agree->agreement){
-		$status = "OK";
-	}else{
-		$link = new moodle_url ('/mod/emarking/marking/modify.php', array(		
-				'id' => $cm->id,
-				'criterionid'=>$agree->criterionid,
-				'commentid'=>$agree->commentid,
-				'emarkingid'=>$emarking->id
-		));
-		
-		$status= $OUTPUT->action_link($link, 'Modify', new popup_action ('click', $link));
-	}
-	
-	foreach($definition->rubric_criteria[$agree->criterionid]['levels'] as $data) {
-		if($data['id'] === $agree->levelid) {
-		    $square .= html_writer::div($agree->selections, "agreement-yours-not-selected", array("title"=>$data['definition']));
-		} else {
-			$square .= html_writer::div($agree->selections, "agreement-yours-selected", array("title"=>$data['definition']));
-		}
-		if($data['id'] === $agree->agreement) {
-		    $squareagreement .=  html_writer::div($agree->selections, "agreement-not-selected", array("title"=>$data['definition']));
-		} else {
-			$squareagreement .= html_writer::div($agree->selections, "agreement-selected", array("title"=>$data['definition']));
-		}
-	}
-
-	$firststagetable->data[] = array(
-			$agree->description,
-			$agree->student,
-			$square,
-			$squareagreement, 
-			$status
-	);
+$head = array();
+$head[] = get_string("criterion", "mod_emarking");
+$head[] = get_string("exam", "mod_emarking");
+if ($userismarker || $markerid != $USER->id) {
+    $head[] = $markercolumn;
 }
+$head[] = get_string("agreement", "mod_emarking");
+$head[] = get_string("status", "mod_emarking");
+
+$firststagetable->head = $head;
+$sum = array();
+foreach ($agreements as $agree) {
+    
+    $sum[] = $agree->agreement;
+    
+    $levels = explode('-', $agree->levels);
+    $counts = explode('-', $agree->counts);
+    $drafts = explode('#', $agree->drafts);
+    $markerids = explode('#', $agree->teachers);
+    $commentids = explode('#', $agree->comments);
+    $markercounts = explode('-', $agree->markercounts);
+    $markersperlevel = explode('-', $agree->markers);
+    $agreedlevel = array();
+    $markerselection = array();
+    for ($i = 0; $i < count($levels); $i ++) {
+        if (! isset($agreedlevel[$agree->criterionid]) || $agreedlevel[$agree->criterionid]["count"] < $counts[$i]) {
+            $agreedlevel[$agree->criterionid] = array(
+                "level" => $levels[$i],
+                "count" => $counts[$i]
+            );
+        }
+        $markerselection[$levels[$i]] = $markercounts[$i];
+        $markers[$levels[$i]] = array();
+        $levelmarkers = explode("#", $markersperlevel[$i]);
+        foreach ($levelmarkers as $levelmarker) {
+            if (isset($markersnames[$levelmarker])) {
+                $markers[$levels[$i]][] = $markersnames[$levelmarker];
+            }
+        }
+    }
+    
+    $square = "";
+    $squareagreement = "";
+    foreach ($definition->rubric_criteria[$agree->criterionid]['levels'] as $data) {
+        if ($markerselection[$data['id']] == 1) {
+            $square .= html_writer::div("&nbsp;", "agreement-yours-not-selected", array(
+                "title" => $data['definition']
+            ));
+        } else {
+            $square .= html_writer::div("&nbsp;", "agreement-yours-selected", array(
+                "title" => $data['definition']
+            ));
+        }
+        $title = implode("\n", $markers[$data['id']]);
+        if ($data['id'] === $agreedlevel[$agree->criterionid]["level"]) {
+            $squareagreement .= html_writer::div("&nbsp;", "agreement-not-selected", array(
+                "title" => $title
+            ));
+        } else 
+            if (count($markers[$data['id']]) > 0) {
+                $squareagreement .= html_writer::div("&nbsp;", "agreement-some-selected", array(
+                    "title" => $title
+                ));
+            } else {
+                $squareagreement .= html_writer::div("&nbsp;", "agreement-selected", array(
+                    "title" => $title
+                ));
+            }
+    }
+    
+    $popup = "";
+    $status = "";
+    for ($i = 0; $i < count($drafts); $i ++) {
+        
+        if (intval($drafts[$i]) == 0) {
+            continue;
+        }
+        
+        if (! is_siteadmin() && $USER->id != $markerids[$i]) {
+            continue;
+        }
+        
+        // eMarking popup url
+        $popup_url = new moodle_url('/mod/emarking/marking/index.php', array(
+            'id' => $drafts[$i]
+        ));
+        
+        $popup .= $OUTPUT->action_link($popup_url, 
+            get_string("viewsubmission", "mod_emarking") . " " . $drafts[$i], 
+            new popup_action('click', $popup_url, 'emarking' . $agree->student, 
+                array(
+            'menubar' => 'no',
+            'titlebar' => 'no',
+            'status' => 'no',
+            'toolbar' => 'no',
+            'width' => 860,
+            'height' => 600
+        ))) . "<br/>";
+        
+        if ($userismarker && $markerids[$i] == $USER->id) {
+            
+            $link = new moodle_url('/mod/emarking/marking/modify.php', array(
+                'id' => $cm->id,
+                'crid' => $agree->criterionid,
+                'cid' => $commentids[$i],
+                'emarkingid' => $emarking->id,
+                'lid' => $agreedlevel[$agree->criterionid]["level"]
+            ));
+            
+            $popuplink = $OUTPUT->action_link($link, 
+                get_string("annotatesubmission", "mod_emarking"), 
+                new popup_action('click', $link, '',                 array(
+            'menubar' => 'no',
+            'titlebar' => 'no',
+            'status' => 'no',
+            'toolbar' => 'no',
+            'width' => 860,
+            'height' => 600
+        )));
+            
+            $status .= $popuplink . "<br/>";
+        } else {
+            $status = round($agree->agreement * 100, 1);
+        }
+    }
+    
+    $data = array();
+    $data[] = $agree->description;
+    $data[] = $popup;
+    if ($userismarker  || $markerid != $USER->id) {
+        $data[] = $square;
+    }
+    $data[] = $squareagreement;
+    $data[] = $status;
+    
+    $firststagetable->data[] = $data;
+}
+
+$totalagreement = array_sum($sum);
+$avgagreement = count($sum) == 0 ? 0 : $totalagreement / count($sum);
+$avgagreement = round($avgagreement * 100, 0);
 
 // Show header
 echo $OUTPUT->header();
-//TODO: se debe agregar el avance de delphi al tabtree
-echo emarking_tabs_markers_training($context, $cm, $emarking,100,0);
+echo emarking_tabs_markers_training($context, $cm, $emarking, 100, $avgagreement);
+
+echo $OUTPUT->heading($text);
 
 echo html_writer::table($firststagetable);
+
+// Get the course module for the emarking, to build the emarking url
+$urldelphi = new moodle_url('/mod/emarking/marking/delphi.php', array(
+    'id' => $cm->id
+));
+
+echo $OUTPUT->single_button($urldelphi, get_string("back"));
 
 echo $OUTPUT->footer();
 
 ?>
-<script type="text/javascript" >
+<script type="text/javascript">
 function popUpClosed() {
     window.location.reload();
 }

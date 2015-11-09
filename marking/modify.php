@@ -33,13 +33,32 @@ if (isguestuser()) {
 // Course module id
 $cmid = required_param('id', PARAM_INT);
 // Criteria
-$criterionid = required_param('criterionid', PARAM_INT);
+$criterionid = required_param('crid', PARAM_INT);
 // Comment id
-$commentid = required_param('commentid', PARAM_INT);
+$commentid = required_param('cid', PARAM_INT);
+// Agreement level id
+$agreementlevelid = required_param('lid', PARAM_INT);
 
 // Validate course module
 if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
 	print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
+}
+
+if (! $criterion = $DB->get_record('gradingform_rubric_criteria', array("id"=>$criterionid))) {
+	print_error(get_string('invalidcriterionid', 'mod_emarking') . " id: $criterionid");
+}
+
+if(!$comment = $DB->get_record('emarking_comment',array('id'=>$commentid, 
+    'markerid'=>$USER->id))) {
+    print_error("Invalid comment id");
+}
+
+if(!$draft = $DB->get_record('emarking_draft',array('id'=>$comment->draft))) {
+    print_error("Invalid comment id");
+}
+
+if(!$levels = $DB->get_records('gradingform_rubric_levels',array('criterionid'=>$criterionid))) {
+    print_error("Invalid comment id");
 }
 
 $context = context_module::instance($cm->id);
@@ -47,43 +66,29 @@ $context = context_module::instance($cm->id);
 //$PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery();
 $PAGE->set_url('/mod/emarking/marking/modify.php');
-$PAGE->set_pagelayout('base');
+$PAGE->set_pagelayout('popup');
 $PAGE->set_context(context_system::instance());
 
-$comment = $DB->get_record('emarking_comment',array('id'=>$commentid));
-$levels = $DB->get_records('gradingform_rubric_levels',array('criterionid'=>$criterionid));
 
 echo $OUTPUT->header();
-echo "<h4>Modificando Criterio: 2</h4>";
-echo "Seleccione la nueva ";
-echo "<br>";
+echo "<style>#page-mod-emarking-marking-modify #page-header {display:none;}</style>";
+echo $OUTPUT->heading(get_string("updatemark", "mod_emarking").": $criterion->description ".get_string("exam", "mod_emarking")." ".$comment->draft);
 
-foreach($levels as $level){
-	
-	if($level->id == $comment->levelid){
-		echo '<div style="position: relative;float:left;width:150px;height:150px;border:1px solid #000;background-color:#FF7878;border-color: #48D063">'
-				.$level->definition.'<div style="position: absolute;bottom: 0;">
-				<input type="radio" idlevel="'.$level->id.'" checked name="score" draftid="'.$comment->draft.'" commentid="'.$comment->id.'">'
-				.floor($level->score).'puntos<br></div></div>';	
-	}
-	else{
-		echo '<div style="position: relative;float:left;width:150px;height:150px;border:1px solid #000;background-color:#ffffff;border-color: #48D063">'
-				.$level->definition.'<div style="position: absolute;bottom: 0;">
-				<input type="radio" idlevel="'.$level->id.'" name="score" draftid="'.$comment->draft.'" commentid="'.$comment->id.'">'
-				.floor($level->score).'puntos<br></div></div>';	
-	}
+$html = "<table style='margin-left: auto; margin-right: auto;'><tr>";
+foreach($levels as $level) {
+    $class = $level->id == $agreementlevelid ? "agreement-modify-level-selected" : "agreement-modify-level";
+    $checked = $level->id == $comment->levelid ? "checked" : "";
+    $html .= '<td class="'.$class.'">'.$level->definition.'<br/>'.
+        '<div><input type="radio" '.$checked.' name="score" idlevel='.$level->id.'>'
+				.floor($level->score).' puntos</div></td>';
+				
+				
+
 }
+$html .= '</tr></table><br/>';
 
+echo $html;
 
-echo "<br>";
-echo "<br>";
-echo "<br>";
-echo "<br>";
-echo "<br>";
-echo "<br>";
-echo "<br>";
-echo "<br>";
-echo "<br>";
 /*
  Data para ajax
  ids 	: draftid 			- $draft->id
@@ -94,11 +99,12 @@ echo "<br>";
  format	: 2, rubric mark	- "2"
  */
 
-$ajaxurl = $CFG->wwwroot . "/mod/emarking/ajax/a.php";
-$savebutton = "<input type='submit' value='Save' id='addregrade' url=".$ajaxurl.">";
-$closebutton = "<input type='submit' value='Close Window'' onClick='window.close()'>";
-echo $savebutton;
-echo $closebutton;
+$ajaxurl = $CFG->wwwroot . "/mod/emarking/ajax/a.php?action=updcomment&ids=$comment->draft&cid=$comment->id&comment=delphi";
+
+$savebutton = "<input type='submit' style='margin-left:auto;' value='Save' id='addregrade' url=".$ajaxurl.">";
+$closebutton = "<input type='submit' style='margin-left:auto;' value='Cancel' id='cancel' onClick='window.close()'>";
+echo $OUTPUT->box($savebutton . "&nbsp;&nbsp;&nbsp;" . $closebutton, NULL, NULL, 
+    array("style"=>"text-align:center;"));
 
 echo $OUTPUT->footer();
 
@@ -108,22 +114,22 @@ echo $OUTPUT->footer();
 $(document).ready(function(){
 	$("#addregrade").click(function() {
 		var radiobutton = $("input[name='score']:checked");
-		var updcomment = "updcomment";
-		var draftid = radiobutton.attr("draftid");
-		var commentid = radiobutton.attr("commentid");
-		var delphi = "delphi";
 		var idlevel = radiobutton.attr("idlevel");
-		var ajaxurl = $("#addregrade").attr("url");
-		//alert("draft id "+draftid + " commentid " + commentid + " idlevel "+ idlevel);
+		var ajaxurl = $("#addregrade").attr("url") + "&levelid=" + idlevel;
+		// alert(ajaxurl);
 		$.ajax({
-    		type: "GET",
-        	url: ajaxurl,
-        	data: {action : updcomment, ids : draftid, cid : commentid , comment : delphi, levelid : idlevel , format : 2},
-        	success: function(data) {
-         	}
+    		type:"JSON",
+        	url:ajaxurl,
+        	data:{},
+        	success:function(result) {
+            	window.close();
+         	},
+            error:function(exception) {alert('Exeption:'+exception);console.log(exception)}
 		});
-		location.reload();
-	})
+		$("#addregrade").prop('value', 'Saving');
+		$("#addregrade").attr('disabled', 'disabled');
+		$("#cancel").attr('disabled', 'disabled');
+})
 });
 window.onunload = function() {
     if (window.opener && !window.opener.closed) {

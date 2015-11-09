@@ -127,11 +127,10 @@ function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymou
 			}
 				
 			$emarkingpages [] = $emarkingpage;
-		}
-
-		if ($imageinfo = $file->get_imageinfo ()) {
+		} elseif ($imageinfo = $file->get_imageinfo ()) {
 			$imgurl = file_encode_url ( $CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarking . '/' . $file->get_filename () );
 			$emarkingpage = new stdClass ();
+			$emarkingpage->id = $page->id;
 			$emarkingpage->url = $imgurl . "?r=" . random_string ( 15 );
 			$emarkingpage->width = $imageinfo ['width'];
 			$emarkingpage->height = $imageinfo ['height'];
@@ -151,6 +150,56 @@ function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymou
 	}
 	
 	return $emarkingpages;
+}
+
+/**
+ * Returns the list of user objects for markers in a trainig activity.
+ * It can return all potential markers or only participants.
+ * 
+ * @param int $emarkingid
+ * @param string $filterbyparticipation
+ * @return multitype:boolean multitype: |multitype:boolean multitype:unknown
+ */
+function emarking_get_markers_in_training($emarkingid, $filterbyparticipation = FALSE)
+{
+    global $DB, $USER;
+    
+    $userismarker = false;
+    
+    if (! $filterbyparticipation) {
+        $enrolledmarkers = get_enrolled_users($context, 'mod/assign:grade');
+        foreach ($enrolledmarkers as $enrolledmarker) {
+            if ($enrolledmarker->id == $USER->id) {
+                $userismarker = true;
+                break;
+            }
+        }
+        return array(
+            $enrolledmarkers,
+            $userismarker
+        );
+    }
+    
+    $markers = $DB->get_records_sql("
+        SELECT u.*
+        FROM {emarking_draft} AS d
+        INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id)
+        INNER JOIN {user} AS u ON (d.teacher = u.id)
+        GROUP BY u.id", array(
+        "emarking" => $emarkingid
+    ));
+    
+    $markersintraining = array();
+    foreach ($markers as $marker) {
+        if ($marker->id == $USER->id) {
+            $userismarker = true;
+        }
+        $markersintraining[] = $marker;
+    }
+    return array(
+        $markersintraining,
+        $userismarker
+    );
 }
 
 function emarking_get_comments_page($pageno, $draftid, $winwidth, $winheight) {
