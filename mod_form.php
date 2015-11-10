@@ -99,11 +99,13 @@ class mod_emarking_mod_form extends moodleform_mod
         $date->setTimestamp(usertime(time()));
         
         // Expected pages for submissions
-        $types = array(
-            EMARKING_TYPE_PRINT_ONLY => get_string('type_print_only', 'mod_emarking'),
-            EMARKING_TYPE_PRINT_SCAN => get_string('type_print_scan', 'mod_emarking'),
-            EMARKING_TYPE_NORMAL => get_string('type_normal', 'mod_emarking')
-        );
+        $types = array();
+        
+        if (! $this->_instance || ($emarking && $emarking->type != EMARKING_TYPE_MARKER_TRAINING)) {
+        $types[EMARKING_TYPE_PRINT_ONLY] = get_string('type_print_only', 'mod_emarking');
+        $types[EMARKING_TYPE_PRINT_SCAN] = get_string('type_print_scan', 'mod_emarking');
+        $types[EMARKING_TYPE_NORMAL] = get_string('type_normal', 'mod_emarking');
+        }
         
         if (! $this->_instance || ($emarking && $emarking->type == EMARKING_TYPE_MARKER_TRAINING)) {
             $types[EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
@@ -356,6 +358,51 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addElement('html', '<div id="scanisenabled">' . get_string('scanisenabled', 'mod_emarking') . '</div>');
         $mform->addElement('html', '<div id="osmisenabled">' . get_string('osmisenabled', 'mod_emarking') . '</div>');
         
+        // MARKERS TRAINING
+        $mform->addElement('header', 'markerstraining', get_string('type_markers_training', 'mod_emarking'));
+        $mform->setExpanded('markerstraining');
+        
+        $delphidate = new DateTime();
+        $delphidate->setTimestamp(usertime(time()));
+        
+        $delphidate->modify("+1 week");
+        // Delphi agreement date settings
+        $mform->addElement('date_time_selector', 'firststagedate', get_string('firststagedate', 'mod_emarking'), array(
+            'startyear' => date('Y'),
+            'stopyear' => date('Y') + 1,
+            'step' => 5,
+            'defaulttime' => $delphidate->getTimestamp(),
+            'optional' => false
+        ), null);
+        $mform->addHelpButton('firststagedate', 'firststagedate', 'mod_emarking');
+        $mform->disabledIf('firststagedate', 'type', 'neq', '2');
+        
+        $delphidate->modify("+1 week");
+        // Delphi agreement date settings
+        $mform->addElement('date_time_selector', 'secondstagedate', get_string('secondstagedate', 'mod_emarking'), array(
+            'startyear' => date('Y'),
+            'stopyear' => date('Y') + 1,
+            'step' => 5,
+            'defaulttime' => $delphidate->getTimestamp(),
+            'optional' => false
+        ), null);
+        $mform->addHelpButton('secondstagedate', 'secondstagedate', 'mod_emarking');
+        $mform->disabledIf('secondstagedate', 'type', 'neq', '2');
+        
+        // Expected pages for submissions
+        $agreements = array(
+            "0" => get_string('agreementflexibility00', 'mod_emarking'),
+            "0.2" => get_string('agreementflexibility20', 'mod_emarking'),
+            "0.4" => get_string('agreementflexibility40', 'mod_emarking')
+        );
+        // 3 => get_string('type_student_training', 'mod_emarking'),
+        // 4 => get_string('type_peer_review', 'mod_emarking')
+        
+        // MARKING TYPE
+        $mform->addElement('select', 'agreementflexibility', get_string('agreementflexibility', 'mod_emarking'), $agreements);
+        $mform->addHelpButton('agreementflexibility', 'agreementflexibility', 'mod_emarking');
+        $mform->setType('agreementflexibility', PARAM_INT);
+        
         $mform->addElement('header', 'osm', get_string('onscreenmarking', "mod_emarking"));
         
         // Students can see peers answers
@@ -388,7 +435,6 @@ class mod_emarking_mod_form extends moodleform_mod
         }
         $mform->setDefault('anonymous', 0);
         $mform->setType('anonymous', PARAM_INT);
-        $mform->disabledIf('anonymous', 'type', 'eq', '2');
         
         // Justice perception eMarking setting
         $justiceoptions = array(
@@ -422,7 +468,6 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->setDefault('custommarks', '');
         $mform->setType('custommarks', PARAM_TEXT);
         $mform->setAdvanced('custommarks');
-        $mform->disabledIf('custommarks', 'type', 'eq', '2');
         
         // Due date settings
         $mform->addElement('checkbox', 'qualitycontrol', get_string('enablequalitycontrol', 'mod_emarking'));
@@ -489,50 +534,6 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('regradesclosedate', 'regradesclosedate', 'mod_emarking');
         $mform->setAdvanced('regradesclosedate');
         $mform->disabledIf('regradesclosedate', 'regraderestrictdates');
-        
-        $mform->addElement('header', 'markerstraining', get_string('type_markers_training', 'mod_emarking'));
-        $mform->setExpanded('markerstraining');
-        
-        $delphidate = new DateTime();
-        $delphidate->setTimestamp(usertime(time()));
-        
-        $delphidate->modify("+1 week");
-        // Delphi agreement date settings
-        $mform->addElement('date_time_selector', 'firststagedate', get_string('firststagedate', 'mod_emarking'), array(
-            'startyear' => date('Y'),
-            'stopyear' => date('Y') + 1,
-            'step' => 5,
-            'defaulttime' => $delphidate->getTimestamp(),
-            'optional' => false
-        ), null);
-        $mform->addHelpButton('firststagedate', 'firststagedate', 'mod_emarking');
-        $mform->disabledIf('firststagedate', 'type', 'neq', '2');
-        
-        $delphidate->modify("+1 week");
-        // Delphi agreement date settings
-        $mform->addElement('date_time_selector', 'secondstagedate', get_string('secondstagedate', 'mod_emarking'), array(
-            'startyear' => date('Y'),
-            'stopyear' => date('Y') + 1,
-            'step' => 5,
-            'defaulttime' => $delphidate->getTimestamp(),
-            'optional' => false
-        ), null);
-        $mform->addHelpButton('secondstagedate', 'secondstagedate', 'mod_emarking');
-        $mform->disabledIf('secondstagedate', 'type', 'neq', '2');
-        
-        // Expected pages for submissions
-        $agreements = array(
-            "0" => get_string('agreementflexibility00', 'mod_emarking'),
-            "0.2" => get_string('agreementflexibility20', 'mod_emarking'),
-            "0.4" => get_string('agreementflexibility40', 'mod_emarking')
-        );
-        // 3 => get_string('type_student_training', 'mod_emarking'),
-        // 4 => get_string('type_peer_review', 'mod_emarking')
-        
-        // MARKING TYPE
-        $mform->addElement('select', 'agreementflexibility', get_string('agreementflexibility', 'mod_emarking'), $agreements);
-        $mform->addHelpButton('agreementflexibility', 'agreementflexibility', 'mod_emarking');
-        $mform->setType('agreementflexibility', PARAM_INT);
         
         // -------------------------------------------------------------------------------
         // add standard grading elements...
@@ -621,9 +622,6 @@ class mod_emarking_mod_form extends moodleform_mod
         // If we are in editing mode we can not change the type anymore
         if ($this->_instance) {
             $freeze = array();
-            if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
-                $freeze[] = 'type';
-            }
             if ($emarking->type == EMARKING_TYPE_NORMAL) {
                 $freeze[] = 'qualitycontrol';
             }
@@ -983,7 +981,11 @@ class mod_emarking_mod_form extends moodleform_mod
         echo "<script>
 	        function showFullForm() {
 	           var e = document.getElementById('id_type');
+               if(!e) {
+                  return;
+               }
                var strUser = e.options[e.selectedIndex].value;
+            // Print only
 	           if (strUser == '0') {
                     document.getElementById('id_print').style.display = 'block';
                     document.getElementById('id_scan').style.display = 'none';
@@ -992,6 +994,7 @@ class mod_emarking_mod_form extends moodleform_mod
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else if (strUser == '1') {
+            // On Screen Marking
                     document.getElementById('id_print').style.display = 'block';
                     document.getElementById('id_scan').style.display = 'block';
                     document.getElementById('scanisenabled').style.display = 'none';
@@ -1001,13 +1004,24 @@ class mod_emarking_mod_form extends moodleform_mod
                     document.getElementById('id_modstandardgrade').style.display = 'block';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else if(strUser == '2') {
+            // Markers training
                     document.getElementById('id_print').style.display = 'none';
 	                document.getElementById('id_scan').style.display = 'none';
-                    document.getElementById('id_osm').style.display = 'none';
+                    document.getElementById('id_osm').style.display = 'block';
+                    document.getElementById('fitem_id_peervisibility').style.display = 'none';
+                    document.getElementById('fitem_id_justiceperception').style.display = 'none';
+                    document.getElementById('fitem_id_qualitycontrol').style.display = 'none';
+                    document.getElementById('fgroup_id_markers').style.display = 'none';
+                    document.getElementById('fitem_id_enableduedate').style.display = 'none';
+                    document.getElementById('fitem_id_markingduedate').style.display = 'none';
+                    document.getElementById('fitem_id_regraderestrictdates').style.display = 'none';
+                    document.getElementById('fitem_id_regradesopendate').style.display = 'none';
+                    document.getElementById('fitem_id_regradesclosedate').style.display = 'none';
                     document.getElementById('id_markerstraining').style.display = 'block';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else if(strUser == '5') {
+            // Print and scan
                     document.getElementById('id_print').style.display = 'block';
 	                document.getElementById('id_scan').style.display = 'block';
                     document.getElementById('scanisenabled').style.display = 'block';

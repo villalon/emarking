@@ -74,7 +74,6 @@ define('EMARKING_REGRADE_ERROR_CARRIED_FORWARD', 4);
 define('EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER', 5);
 define('EMARKING_REGRADE_OTHER', 10);
 
-
 // //////////////////////////////////////////////////////////////////////////////
 // Moodle core API //
 // //////////////////////////////////////////////////////////////////////////////
@@ -124,7 +123,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     $data->id = $id;
     emarking_grade_item_update($data);
     
-    if($data->type == EMARKING_TYPE_MARKER_TRAINING) {
+    if ($data->type == EMARKING_TYPE_MARKER_TRAINING) {
         return $id;
     }
     
@@ -300,7 +299,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     }
     
     $headerqr = isset($mform->get_data()->headerqr) ? 1 : 0;
-    setcookie("emarking_headerqr", $headerqr, time()+3600*24*365*10, '/');
+    setcookie("emarking_headerqr", $headerqr, time() + 3600 * 24 * 365 * 10, '/');
     
     $defaultexam = new stdClass();
     $defaultexam->headerqr = $exam->headerqr;
@@ -310,15 +309,15 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     $defaultexam->extraexams = $exam->extraexams;
     $defaultexam->usebackside = $exam->usebackside;
     $defaultexam->enrolments = $exam->enrolments;
-    setcookie("emarking_exam_defaults", json_encode($defaultexam), time()+3600*24*365*10, '/');
+    setcookie("emarking_exam_defaults", json_encode($defaultexam), time() + 3600 * 24 * 365 * 10, '/');
     
     return $id;
 }
 
 /**
  * Creates a copy of the emarking in the database.
- * 
- * @param unknown $original_emarking
+ *
+ * @param unknown $original_emarking            
  * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
  */
 function emarking_copy_to_cm($original_emarking)
@@ -375,26 +374,29 @@ function emarking_update_instance(stdClass $emarking, mod_emarking_mod_form $mfo
 {
     global $DB, $CFG, $COURSE;
     
-    // If there is NO exam for the emarking activity and the user selected she
-    // wouldn't use a previous exam there is something wrong
-    if ((! $exam = $DB->get_record("emarking_exams", array(
-        "emarking" => $emarking->instance
-    ))) && $mform->get_data()->exam == 0) {
-        return false;
+    if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
+        // If there is NO exam for the emarking activity and the user selected she
+        // wouldn't use a previous exam there is something wrong
+        if ((! $exam = $DB->get_record("emarking_exams", array(
+            "emarking" => $emarking->instance
+        ))) && $mform->get_data()->exam == 0) {
+            return false;
+        }
+        
+        // If there is NO exam with the id selected by the user there is something wrong
+        // (When the emarking already has an exam, the data comes in a hidden field
+        if (! $exam = $DB->get_record("emarking_exams", array(
+            "id" => $mform->get_data()->exam
+        ))) {
+            return false;
+        }
+    
+        // We update the exam row
+        $exam->name = $emarking->name;
+        $exam->emarking = $emarking->instance;
+        $DB->update_record("emarking_exams", $exam);
     }
     
-    // If there is NO exam with the id selected by the user there is something wrong
-    // (When the emarking already has an exam, the data comes in a hidden field
-    if (! $exam = $DB->get_record("emarking_exams", array(
-        "id" => $mform->get_data()->exam
-    ))) {
-        return false;
-    }
-    
-    // We update the exam row
-    $exam->name = $emarking->name;
-    $exam->emarking = $emarking->instance;
-    $DB->update_record("emarking_exams", $exam);
     
     if (! isset($mform->get_data()->linkrubric)) {
         $emarking->linkrubric = 0;
@@ -657,6 +659,7 @@ function emarking_print_recent_mod_activity($activity, $courseid, $detail, $modn
  * Function to be run periodically according to the moodle cron
  * This function searches for things that need to be done, such
  * as sending out mail, toggling flags etc .
+ *
  *
  *
  *
@@ -1052,22 +1055,22 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, $
     // Course context is used as this can work outside of the module
     $context = $PAGE->context;
     /*
-    if ($context instanceof context_course && isset($settingsnav) && $context->instanceid > 1 && is_siteadmin()) {
-        $settingnode = $settingsnav->add(get_string('emarking', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
-        $thingnode = $settingnode->add(get_string('quizprinting', 'local_galyleo'), new moodle_url('/local/galyleo/quizzes.php', array(
-            'course' => $context->instanceid
-        )));
-    }
-    if ($context instanceof context_module && isset($settingsnav) && is_siteadmin()) {
-        if ($contextcourse = $context->get_course_context(false)) {
-            $settingnode = $settingsnav->add(get_string('galyleo', 'local_galyleo'), null, navigation_node::TYPE_CONTAINER);
-            $thingnode = $settingnode->add(get_string('quizprinting', 'local_galyleo'), new moodle_url('/local/galyleo/quizzes.php', array(
-                'course' => $contextcourse->instanceid,
-                'quiz' => $context->instanceid
-            )));
-        }
-    }
-    */
+     * if ($context instanceof context_course && isset($settingsnav) && $context->instanceid > 1 && is_siteadmin()) {
+     * $settingnode = $settingsnav->add(get_string('emarking', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
+     * $thingnode = $settingnode->add(get_string('quizprinting', 'local_galyleo'), new moodle_url('/local/galyleo/quizzes.php', array(
+     * 'course' => $context->instanceid
+     * )));
+     * }
+     * if ($context instanceof context_module && isset($settingsnav) && is_siteadmin()) {
+     * if ($contextcourse = $context->get_course_context(false)) {
+     * $settingnode = $settingsnav->add(get_string('galyleo', 'local_galyleo'), null, navigation_node::TYPE_CONTAINER);
+     * $thingnode = $settingnode->add(get_string('quizprinting', 'local_galyleo'), new moodle_url('/local/galyleo/quizzes.php', array(
+     * 'course' => $contextcourse->instanceid,
+     * 'quiz' => $context->instanceid
+     * )));
+     * }
+     * }
+     */
     if (is_siteadmin($USER) || (has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enableprinting)) {
         $settingnode = $settingsnav->add(get_string('emarkingprints', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
         $thingnode = $settingnode->add(get_string('adminprints', 'mod_emarking'), new moodle_url("/mod/emarking/print/printers.php", array(
