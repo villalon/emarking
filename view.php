@@ -146,7 +146,7 @@ if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     }
     
 	$sqlisadmin = "";
-	if(!is_siteadmin($USER)){
+	if(!is_siteadmin($USER) && !$issupervisor){
 		$sqlisadmin = " AND d.teacher =:currentuser";
 	}
 	
