@@ -160,7 +160,7 @@ function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymou
  * @param string $filterbyparticipation
  * @return multitype:boolean multitype: |multitype:boolean multitype:unknown
  */
-function emarking_get_markers_in_training($emarkingid, $filterbyparticipation = FALSE)
+function emarking_get_markers_in_training($emarkingid, $context, $filterbyparticipation = FALSE)
 {
     global $DB, $USER;
     
@@ -168,14 +168,17 @@ function emarking_get_markers_in_training($emarkingid, $filterbyparticipation = 
     
     if (! $filterbyparticipation) {
         $enrolledmarkers = get_enrolled_users($context, 'mod/assign:grade');
+        $markers = array();
         foreach ($enrolledmarkers as $enrolledmarker) {
             if ($enrolledmarker->id == $USER->id) {
                 $userismarker = true;
-                break;
+            }
+            if(!has_capability('mod/emarking:supervisegrading', $context, $enrolledmarker)) {
+                $markers[] = $enrolledmarker;
             }
         }
         return array(
-            $enrolledmarkers,
+            $markers,
             $userismarker
         );
     }

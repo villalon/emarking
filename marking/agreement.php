@@ -101,7 +101,7 @@ if ($markerid == 0) {
     $markerid = $USER->id;
 }
 
-list ($enrolledmarkers, $userismarker) = emarking_get_markers_in_training($emarking->id, true);
+list ($enrolledmarkers, $userismarker) = emarking_get_markers_in_training($emarking->id, $context, true);
 $markersnames = array();
 foreach ($enrolledmarkers as $enrolledmarker) {
     $markersnames[$enrolledmarker->id] = $enrolledmarker->firstname . " " . $enrolledmarker->lastname;

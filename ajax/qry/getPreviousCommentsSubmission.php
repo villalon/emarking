@@ -26,15 +26,22 @@ $results = $DB->get_records_sql(
 			T.format AS format, 
 			COUNT(T.id) AS used, 
 			MAX(lastused) AS lastused, 
-			MAX(T.markerid) as markerid
+			GROUP_CONCAT(T.markerid SEPARATOR '-') as markerids,
+            SUM(T.owncomment) as owncomment,
+            GROUP_CONCAT(T.page SEPARATOR '-') as pages,
+            GROUP_CONCAT(T.id SEPARATOR '-') as commentids,
+            GROUP_CONCAT(T.criterionid SEPARATOR '-') as criteria
 			FROM (
 			SELECT c.id AS id, 
 			c.rawtext AS text, 
 			c.textformat AS format, 
 			1 AS used, 
 			c.timemodified AS lastused, 
-			c.markerid
-			FROM {emarking_submission} AS es
+			c.markerid,
+            c.criterionid,
+            CASE WHEN c.markerid = :user THEN 1 ELSE 0 END AS owncomment,
+            CASE WHEN d.id = :draft THEN c.pageno ELSE 0 END AS page
+			FROM mdl_emarking_submission AS es
 			INNER JOIN {emarking_draft} AS d ON (es.emarking = :emarking AND d.submissionid = es.id)
 			INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
 			WHERE c.textformat IN (1,2) AND LENGTH(rawtext) > 0
@@ -44,9 +51,16 @@ $results = $DB->get_records_sql(
 					1, 
 					1, 
 					0, 
-					0
+					0,
+					0,
+                    0,
+                    0
 			from {emarking_predefined_comment}
 			WHERE emarkingid = :emarking2) as T
 			GROUP BY text
 			ORDER BY text"
-		, array('emarking'=>$submission->emarking, 'emarking2'=>$submission->emarking));
+		, array(
+		    'user' => $USER->id,
+		    'draft' => $draft->id,
+		    'emarking'=>$submission->emarking, 
+		    'emarking2'=>$submission->emarking));

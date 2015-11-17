@@ -490,33 +490,23 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	$chartstable = new html_table();
 	
 	
-	$sqlnummarkers=" SELECT e.userid
-			FROM {role_assignments} AS e LEFT JOIN {emarking_draft} AS d ON (e.userid = d.teacher)
-			WHERE d.emarkingid = ? AND e.roleid = 4 AND e.contextid = ? 
-			GROUP BY e.userid";
+	list($markers, $userismarker) = emarking_get_markers_in_training($emarking->id, $context, TRUE);
 	
-	$nummarkers = $DB->get_records_sql($sqlnummarkers, array(
-			$emarking->id,
-			$coursecontext->id
-	));
+	$nummarkers = count($markers);
 	
-	if(is_siteadmin($USER)){
-		$criteriaxdrafts = ($numcriteria * $numdrafts)/count($nummarkers);
-	}else{
-		$criteriaxdrafts = $numcriteria * $numdrafts;
-	}
+    $criteriaxdrafts = $numcriteria * $numdrafts;
 
 	$sqlnumcomments = "SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
 			FROM {role_assignments} AS e LEFT JOIN (
 				SELECT ec.markerid, count(ec.id) AS totalcomments, ec.levelid, ec.criterionid 
 				FROM {emarking_comment} AS ec
 				INNER JOIN {emarking_draft} AS ed on (ec.draft=ed.id AND ed.emarkingid=?)
-				WHERE ec.criterionid != 0 AND ec.levelid!= 0 
+				WHERE ec.criterionid > 0 AND ec.levelid > 0 
 				GROUP BY ec.markerid)  AS cc ON (e.userid=cc.markerid)
 			WHERE  e.roleid=4 AND e.contextid=?
 			ORDER BY orderby ASC";
 
-	if($numcomments = $DB->get_records_sql($sqlnumcomments, array($USER->id,$emarking->id,$coursecontext->id))){
+	if($numcomments = $DB->get_records_sql($sqlnumcomments, array($USER->id,$emarking->id,$coursecontext->id))) {
 
 		$markercount = 0;
 		$totalprogress = 0;
