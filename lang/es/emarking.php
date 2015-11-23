@@ -252,6 +252,29 @@ $string ['type_print_scan'] = 'Imprimir y digitalizar';
 // EMARKING PRINTING
 $string['printordersrange'] = 'Impresiones desde {$a->start} hasta {$a->end}';
 
+// REPORTS
+$string ['reports'] = 'Reportes';
+$string ['gradereport'] = 'Grades report';
+$string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular eMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
+			<strong>Basic statistics:</strong>Shows the average, quartiles and ranges for the course.<br/>
+			<strong>Average graph:</strong>Shows the average and standard deviation.<br/>
+			<strong>Grades histogram:</strong>Shows the number of students per range.<br/>
+			<strong>Approval rate:</strong>Shows the approval rate for the course.<br/>
+			<strong>Criteria efficiency:</strong>Shows the average percentage of the maximum score obtained by the students.';
+$string ['stdev'] = 'Desviación';
+$string ['min'] = 'Mínimo';
+$string ['quartile1'] = '1er Cuartil';
+$string ['median'] = 'Mediana';
+$string ['quartile3'] = '3er Cuartil';
+$string ['max'] = 'Máximo';
+$string ['lessthan'] = 'Menor {$a}';
+$string ['between'] = '{$a->min} a {$a->max}';
+$string ['greaterthan'] = 'Mayor {$a}';
+$string ['pagesperexam'] = 'Páginas por prueba';
+$string ['printdetails'] = 'Detalles impresión';
+
+
+/////////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';
 $string ['exporttoexcel'] = 'Exportar a Excel';
 
@@ -377,14 +400,6 @@ $string ['emptypermissions'] = 'No existen permisos';
 $string ['addpermission'] = 'Agregar permiso';
 
 $string ['printdigitize'] = 'Imprimir/Escanear';
-$string ['reports'] = 'Reportes';
-$string ['gradereport'] = 'Grades report';
-$string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular eMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
-			<strong>Basic statistics:</strong>Shows the average, quartiles and ranges for the course.<br/>
-			<strong>Average graph:</strong>Shows the average and standard deviation.<br/>
-			<strong>Grades histogram:</strong>Shows the number of students per range.<br/>
-			<strong>Approval rate:</strong>Shows the approval rate for the course.<br/>
-			<strong>Criteria efficiency:</strong>Shows the average percentage of the maximum score obtained by the students.';
 $string ['annotatesubmission_help'] = 'eMarking allows to mark digitized exams using rubrics. In this page you can see the course list and their submissions (digitized answers). It also shows the exam status, that can be missing for a student with no answers, submitted if it has not been graded, responded when the marking is finished and regrading when a regrade request was made by a student.';
 $string ['regrades_help'] = 'This page shows the regrade requests made by students.';
 $string ['uploadanswers_help'] = 'In this page you can upload the digitized answers from your students. The format is a zip file containing two png files for each page a student has (one is the anonymous version). This file can be obtained using the eMarking desktop application that can be downloaded <a href="">here</a>';
@@ -394,15 +409,6 @@ $string ['rubricscores'] = 'Puntaje total';
 
 $string ['ranking'] = 'Ranking';
 
-$string ['stdev'] = 'Desviación';
-$string ['min'] = 'Mínimo';
-$string ['quartile1'] = '1er Cuartil';
-$string ['median'] = 'Mediana';
-$string ['quartile3'] = '3er Cuartil';
-$string ['max'] = 'Máximo';
-$string ['lessthan'] = 'Menor {$a}';
-$string ['between'] = '{$a->min} a {$a->max}';
-$string ['greaterthan'] = 'Mayor {$a}';
 
 $string ['areyousure'] = '¿Está seguro?';
 $string ['actions'] = 'Acciones';

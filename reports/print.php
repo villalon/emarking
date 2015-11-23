@@ -66,10 +66,13 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('statisticstotals', 'mod_emarking'));
 
 echo $OUTPUT->tabtree(emarking_printoders_tabs($category), "statistics" );
-$sqlstats = '
+
+$filter = "WHERE (cc.path like '%/$categoryid/%' OR cc.path like '%/$categoryid')";
+
+$sqlstats = "
     SELECT
-        CASE WHEN year IS NULL THEN \'Total\' ELSE year END AS year,
-        CASE WHEN month IS NULL THEN \'Total anual\' ELSE month END AS month,
+        CASE WHEN year IS NULL THEN 'Total' ELSE year END AS year,
+        CASE WHEN month IS NULL THEN 'Total anual' ELSE month END AS month,
         ROUND(SUM(totalpagestoprint)) AS totalpages,
         COUNT(DISTINCT EXAMS.id) AS totalexams,
         COUNT(DISTINCT EXAMS.courseid) AS totalcourses 
@@ -84,13 +87,15 @@ $sqlstats = '
                 ELSE (e.totalstudents + e.extraexams) * (e.extrasheets + e.totalpages)
             END AS totalpagestoprint
             FROM {emarking_exams} AS e 
-            INNER JOIN {course} AS c ON (c.category = ? AND e.status = 2 AND e.course = c.id)
-        ORDER BY examdate asc, c.shortname
+            INNER JOIN {course} AS c ON (e.status = 2 AND e.course = c.id)
+            INNER JOIN {course_categories} AS cc ON (c.category = cc.id)
+            $filter
+    ORDER BY examdate asc, c.shortname
         ) AS EXAMS
     GROUP BY year, month
-    WITH ROLLUP';
+    WITH ROLLUP";
 
-$stats = $DB->get_recordset_sql($sqlstats, array($categoryid));
+$stats = $DB->get_recordset_sql($sqlstats);
 
 $statstable = new html_table();
 $statstable->head = array(

@@ -91,3 +91,34 @@ function emarking_get_google_chart($divid, array $labels, array $data, $title, $
     
     return array($html, $js);
 }
+
+/**
+ * Navigation tabs for reports
+ *
+ * @param unknown $category
+ *            The category object
+ * @return multitype:tabobject array of tabobjects
+ */
+function emarking_reports_tabs($category)
+{
+    $tabs = array();
+
+    // Statistics
+    $statstab = new tabobject("statistics", new moodle_url("/mod/emarking/reports/print.php", array(
+        "category" => $category->id
+    )), get_string("statistics", 'mod_emarking'));
+
+    // Print statistics
+    $statstab->subtree[] = new tabobject("printstatistics", new moodle_url("/mod/emarking/reports/print.php", array(
+        "category" => $category->id
+    )), get_string("statistics", 'mod_emarking'));
+
+    // Print statistics
+    $statstab->subtree[] = new tabobject("printdetails", new moodle_url("/mod/emarking/reports/printdetails.php", array(
+        "category" => $category->id
+    )), get_string("printdetails", 'mod_emarking'));
+
+    $tabs[] = $statstab;
+    return $tabs;
+}
+

@@ -368,9 +368,21 @@ function emarking_printoders_tabs($category)
     )), get_string("records", 'mod_emarking'));
     
     // Statistics
-    $tabs[] = new tabobject("statistics", new moodle_url("/mod/emarking/reports/print.php", array(
+    $statstab = new tabobject("statistics", new moodle_url("/mod/emarking/reports/print.php", array(
+        "category" => $category->id
+    )), get_string("reports", 'mod_emarking'));
+    
+    // Print statistics
+    $statstab->subtree[] = new tabobject("print", new moodle_url("/mod/emarking/reports/print.php", array(
         "category" => $category->id
     )), get_string("statistics", 'mod_emarking'));
+    
+    // Print statistics details
+    $statstab->subtree[] = new tabobject("printdetails", new moodle_url("/mod/emarking/reports/printdetails.php", array(
+        "category" => $category->id
+    )), get_string("printdetails", 'mod_emarking'));
+    
+    $tabs[] = $statstab;
     
     return $tabs;
 }

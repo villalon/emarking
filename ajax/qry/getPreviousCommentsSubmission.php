@@ -30,7 +30,8 @@ $results = $DB->get_records_sql(
             SUM(T.owncomment) as owncomment,
             GROUP_CONCAT(T.page SEPARATOR '-') as pages,
             GROUP_CONCAT(T.id SEPARATOR '-') as commentids,
-            GROUP_CONCAT(T.criterionid SEPARATOR '-') as criteria
+            GROUP_CONCAT(T.criterionid SEPARATOR '-') as criteria,
+            GROUP_CONCAT(T.draftid SEPARATOR '-') as drafts
 			FROM (
 			SELECT c.id AS id, 
 			c.rawtext AS text, 
@@ -39,6 +40,7 @@ $results = $DB->get_records_sql(
 			c.timemodified AS lastused, 
 			c.markerid,
             c.criterionid,
+            d.id AS draftid,
             CASE WHEN c.markerid = :user THEN 1 ELSE 0 END AS owncomment,
             CASE WHEN d.id = :draft THEN c.pageno ELSE 0 END AS page
 			FROM mdl_emarking_submission AS es
@@ -53,6 +55,7 @@ $results = $DB->get_records_sql(
 					0, 
 					0,
 					0,
+                    0,
                     0,
                     0
 			from {emarking_predefined_comment}
