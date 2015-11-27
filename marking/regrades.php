@@ -366,7 +366,7 @@ foreach ($questions as $question) {
     $row[] = $question->description;
     $row[] = $question->rgaccepted ? $originalinfo : $currentinfo;
     $row[] = $statusicon;
-    if($question->rgaccepted && $question->draftstatus == 20){
+    if($question->rgaccepted && $question->draftstatus == EMARKING_STATUS_PUBLISHED){
     	$row[] = $question->rgaccepted ? $currentinfo : '';
     }else{
     	$row[] = " ";
