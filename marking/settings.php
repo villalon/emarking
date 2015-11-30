@@ -71,8 +71,8 @@ if (! has_capability ( 'mod/emarking:supervisegrading', $context )) {
 			'objectid' => $cm->id,
 	);
 	// Add to Moodle log so some auditing can be done
-	\mod_emarking\event\markers_assigned::create ( $item )->trigger ();
-	print_error ( get_string('invalidaccess','mod_emarking' ) );
+	//\mod_emarking\event\markers_assigned::create ( $item )->trigger ();
+	print_error ( get_string('noneditingteacherconfiguration','mod_emarking' ) );
 }
 
 echo $OUTPUT->header();
