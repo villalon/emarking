@@ -86,6 +86,7 @@ $string['markerscanseenothing'] = 'Pages are assigned to criteria but no markers
 $string['markerscanseepageswithcriteria'] = 'Markers can see only those pages assigned to the criteria they can mark.';
 $string['assignedmarkers'] = 'Assigned markers';
 $string['currentstatus'] = 'Current status';
+$string['noneditingteacherconfiguration'] = 'As a Non-editing teacher you can not change de settings.';
 
 // GENERAL
 $string['criteria'] = 'Criteria';
@@ -176,6 +177,8 @@ $string['addpredefinedcomments'] = 'Import predefined comments from Excel';
 $string['predefinedcomments'] = 'Predefined comments';
 $string['predefinedcomments_help'] = 'Paste a column from Excel (with or without a header) to import all the rows as predefined comments.';
 $string['onlyfirstcolumn'] = 'Only the first column will be imported. A sample of the data is shown below:';
+$string['onecolumnrequired'] = 'At least one column is required';
+$string['twolinesrequired'] = 'At least two lines are required';
 
 $string['mobilephoneregex'] = 'Mobile phone regex';
 $string['mobilephoneregex_help'] = 'A regular expression to validate a correct mobile phone';

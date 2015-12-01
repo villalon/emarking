@@ -75,7 +75,7 @@ class emarking_predefined_comments_form extends moodleform
         
         // Validate columns, minimum number and first two to be userid and attemptid
         if (count($reader->get_columns()) < 0) {
-            $errors['comments'] = 'At least one column is required';
+        	$errors['comments'] = get_string('onecolumnrequired', 'mod_emarking');
         }
         
         $reader->init();
@@ -85,7 +85,7 @@ class emarking_predefined_comments_form extends moodleform
         }
         
         if($current < 1) {
-            $errors['comments'] = 'At least one line is required';
+        	$errors['comments'] = get_string('twolinesrequired', 'mod_emarking');
         }
         
         return $errors;

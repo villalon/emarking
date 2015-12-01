@@ -265,6 +265,7 @@ $query = "select
 		rg.accepted AS rgaccepted,
 		rg.motive,
 		rg.comment,
+		dr.status as draftstatus,
 		comment.bonus,
         ol.score as originalscore,
         rg.bonus as originalbonus,
@@ -365,7 +366,11 @@ foreach ($questions as $question) {
     $row[] = $question->description;
     $row[] = $question->rgaccepted ? $originalinfo : $currentinfo;
     $row[] = $statusicon;
-    $row[] = $question->rgaccepted ? $currentinfo : '';
+    if($question->rgaccepted && $question->draftstatus == EMARKING_STATUS_PUBLISHED){
+    	$row[] = $question->rgaccepted ? $currentinfo : '';
+    }else{
+    	$row[] = " ";
+    }
     $row[] = $linktext;
     
     $data[] = $row;

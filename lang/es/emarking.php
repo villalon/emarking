@@ -92,6 +92,7 @@ $string['markerscanseenothing'] = 'Hay páginas asignadas a criterios, pero no c
 $string['markerscanseepageswithcriteria'] = 'Correctores ven solo las páginas de los criterios que tienen asignados.';
 $string['assignedmarkers'] = 'Correctores asignados';
 $string['currentstatus'] = 'Configuración actual';
+$string['noneditingteacherconfiguration'] = 'Como ayudante no puedes modificar la configuración.';
 
 // GENERAL
 $string['criteria'] = 'Criterios';
@@ -181,6 +182,8 @@ $string['addpredefinedcomments'] = 'Importar comentarios desde Excel';
 $string['predefinedcomments'] = 'Comentarios predefinidos';
 $string['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';
 $string['onlyfirstcolumn'] = 'Solo la primera columna es importada. Un ejemplo de los datos a importar se muestra abajo:';
+$string['twolinesrequired'] = 'Debes ingresar dos o mas líneas';
+$string['onecolumnrequired'] = 'Debes ingresar una o mas columnas';
 
 $string['mobilephoneregex'] = 'Expresión regular de celulares';
 $string['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
