@@ -272,7 +272,7 @@ $string ['between'] = '{$a->min} a {$a->max}';
 $string ['greaterthan'] = 'Mayor {$a}';
 $string ['pagesperexam'] = 'Páginas por prueba';
 $string ['printdetails'] = 'Detalles impresión';
-
+$string ['apply'] = 'Aplicar';
 
 /////////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';

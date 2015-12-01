@@ -270,6 +270,7 @@ $string ['between'] = '{$a->min} to {$a->max}';
 $string ['greaterthan'] = 'More than {$a}';
 $string ['pagesperexam'] = 'Pages per exam';
 $string ['printdetails'] = 'Print details';
+$string ['apply'] = 'Apply';
 
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
@@ -761,3 +762,4 @@ $string ['marking_completed'] = 'Well done, just wait for the others markers for
 $string ['stage'] = 'Stage';
 $string ['agreement'] = 'Agreement';
 $string ['yourmarking'] = 'Your marking';
+

@@ -26,10 +26,12 @@ use editor_atto\plugininfo\atto;
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/reports/locallib.php');
+require_once($CFG->dirroot . '/mod/emarking/reports/forms/dates_form.php');
 
 global $DB, $USER;
 
 $categoryid = required_param('category', PARAM_INT);
+$period = optional_param('period', 0, PARAM_INT);
 $startdate = optional_param('start', time()-(3600*24*365), PARAM_INT);
 $enddate = optional_param('end', time(), PARAM_INT);
 
@@ -74,12 +76,27 @@ $pagenumber = optional_param('pag', 1,PARAM_INT );
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('statisticstotals', 'mod_emarking'));
 
-$filter = "WHERE (cc.path like '%/$categoryid/%' OR cc.path like '%/$categoryid')";
-$datefilter = " AND e.examdate >= $startdate AND e.examdate < $enddate";
-
 echo $OUTPUT->tabtree(emarking_printoders_tabs($category), "printdetails" );
 
-echo $OUTPUT->box("Last $months ". get_string('months'));
+$form = new emarking_dates_form(null, 
+    array('period'=>$period, 
+        'startdate'=>$startdate, 
+        'enddate'=>$enddate,
+        'category' => $categoryid
+    ));
+
+$form->display();
+if($form->get_data()) {
+    if($form->get_data()->period == 50) {
+        $startdate = $form->get_data()->startdate;
+        $enddate = $form->get_data()->enddate;
+    } else if($form->get_data()->period == 50) {
+        
+    }
+}
+
+$filter = "WHERE (cc.path like '%/$categoryid/%' OR cc.path like '%/$categoryid')";
+$datefilter = " AND e.examdate >= $startdate AND e.examdate < $enddate";
 
 $sqlstats = "
     SELECT EXAMS.id AS courseid,
