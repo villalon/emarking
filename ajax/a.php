@@ -166,6 +166,7 @@ if (! $cm = get_coursemodule_from_instance("emarking", $emarking->id, $course->i
 $context = context_module::instance($cm->id);
 
 $usercangrade = has_capability('mod/emarking:grade', $context);
+$usercanmanagedelphi = has_capability("mod/emarking:managedelphiprocess", $context);
 $usercanregrade = has_capability('mod/emarking:regrade', $context);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER);
 $isgroupmode = $cm->groupmode == SEPARATEGROUPS;
@@ -187,10 +188,11 @@ if ($submission->status >= EMARKING_STATUS_PUBLISHED && ! $usercanregrade) {
 $userRole = null;
 if ($usercangrade == 1 && $issupervisor == 0) {
     $userRole = "marker";
-} else 
+} else {
     if ($usercangrade == 1 && $issupervisor == 1) {
         $userRole = "teacher";
     }
+}
 
 $linkrubric = $emarking->linkrubric;
 
@@ -220,6 +222,7 @@ if ($action === 'ping') {
         'markeranonymous' => $markeranonymous ? "true" : "false",
         'hascapability' => $usercangrade,
         'supervisor' => $issupervisor,
+    	'managedelphi' => $usercanmanagedelphi,
         'markingtype' => $emarking->type,
         'totalTests' => $totaltest, // Progress bar indicator
         'inProgressTests' => $inprogesstest, // Progress bar indicator
