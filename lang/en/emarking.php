@@ -211,6 +211,7 @@ $string['markersqualitycontrol'] = 'Quality Control markers';
 $string['markersqualitycontrol_help'] = 'Quality Control markers are the ones that will mark and grade the QC exams which will be used to calculate inter-marker agreement.';
 $string['enablequalitycontrol'] = 'Enable Quality Control';
 $string['enablequalitycontrol_help'] = 'If QC in enabled, a set of QC exams will be assigned to the QC markers for extra marking and therefore calculate inter-marker agreement.';
+$string['qualitycontroldescription'] = 'A set of exams will be assigned to the selected markers for extra marking and therefore calculate inter-marker agreement.';
 
 // MARKERS TRAINING
 $string['notenoughmarkersfortraining'] = 'Not enough markers for training, please enrol markers as non editing teachers for training.';

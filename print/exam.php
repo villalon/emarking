@@ -52,7 +52,7 @@ if (! $emarking = $DB->get_record("emarking", array(
 ))) {
     print_error(get_string("invalidid", "mod_emarking"));
 }
-
+var_dump($emarking);
 $courseid = $cm->course;
 
 // Validate that the parameter corresponds to a course
