@@ -470,29 +470,6 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->setAdvanced('custommarks');
         
         // Due date settings
-        $mform->addElement('checkbox', 'qualitycontrol', get_string('enablequalitycontrol', 'mod_emarking'));
-        $mform->addHelpButton('qualitycontrol', 'enablequalitycontrol', 'mod_emarking');
-        $mform->setAdvanced('qualitycontrol');
-        $mform->disabledIf('qualitycontrol', 'type', 'eq', '2');
-        
-        // Get all users with permission to grade in emarking
-        $markers = get_enrolled_users($ctx, 'mod/emarking:grade');
-        $chkmarkers = array();
-        foreach ($markers as $marker) {
-            $chkmarkers[] = $mform->createElement('checkbox', 'marker-' . $marker->id, null, $marker->firstname . " " . $marker->lastname);
-        }
-        
-        // Add markers group as checkboxes
-        $mform->addGroup($chkmarkers, 'markers', get_string('markersqualitycontrol', 'mod_emarking'), array(
-            '<br />'
-        ), false);
-        $mform->addHelpButton('markers', 'markersqualitycontrol', 'mod_emarking');
-        $mform->setType('markers', PARAM_INT);
-        $mform->disabledIf('markers', 'qualitycontrol');
-        $mform->setAdvanced('markers');
-        $mform->disabledIf('markers', 'type', 'eq', '2');
-        
-        // Due date settings
         $mform->addElement('checkbox', 'enableduedate', get_string('enableduedate', 'mod_emarking'));
         $mform->setAdvanced('enableduedate');
         
@@ -534,6 +511,31 @@ class mod_emarking_mod_form extends moodleform_mod
         $mform->addHelpButton('regradesclosedate', 'regradesclosedate', 'mod_emarking');
         $mform->setAdvanced('regradesclosedate');
         $mform->disabledIf('regradesclosedate', 'regraderestrictdates');
+        
+        // Due date settings
+        $mform->addElement("static","qualitycontroldescription",get_string("qualitycontrol", "mod_emarking"), 
+        		get_string("qualitycontroldescription", "mod_emarking"));
+        $mform->addElement('checkbox', 'qualitycontrol', get_string('enablequalitycontrol', 'mod_emarking'));
+        $mform->addHelpButton('qualitycontrol', 'enablequalitycontrol', 'mod_emarking');
+        $mform->setAdvanced('qualitycontrol');
+        $mform->disabledIf('qualitycontrol', 'type', 'eq', '2');
+        
+        // Get all users with permission to grade in emarking
+        $markers = get_enrolled_users($ctx, 'mod/emarking:grade');
+        $chkmarkers = array();
+        foreach ($markers as $marker) {
+        	$chkmarkers[] = $mform->createElement('checkbox', 'marker-' . $marker->id, null, $marker->firstname . " " . $marker->lastname);
+        }
+        
+        // Add markers group as checkboxes
+        $mform->addGroup($chkmarkers, 'markers', get_string('markersqualitycontrol', 'mod_emarking'), array(
+        		'<br />'
+        ), false);
+        $mform->addHelpButton('markers', 'markersqualitycontrol', 'mod_emarking');
+        $mform->setType('markers', PARAM_INT);
+        $mform->disabledIf('markers', 'qualitycontrol');
+        $mform->setAdvanced('markers');
+        $mform->disabledIf('markers', 'type', 'eq', '2');
         
         // -------------------------------------------------------------------------------
         // add standard grading elements...

@@ -214,6 +214,7 @@ $string['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
 $string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
 $string['enablequalitycontrol'] = 'Habilitar Control de Calidad';
 $string['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas serán asignados a los correctores de CC para que sean corregidos nuevamente y así calcular el acuerdo entre correctores.';
+$string['qualitycontroldescription'] = 'Un grupo de pruebas serán asignadas a los correctores seleccionados para que sean corregidas nuevamente y así calcular el acuerdo entre correctores.';
 
 // MARKERS TRAINING
 $string['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
