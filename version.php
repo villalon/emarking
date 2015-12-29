@@ -33,7 +33,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 
-$module->version   = 2015102500;      // The current module version (Date: YYYYMMDDXX)
-$module->requires  = 2013110500;      // Requires this Moodle version
-$module->cron      = 0;               // Period for cron to check this module (secs)
-$module->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place
+$plugin->version   = 2015102500;      // The current module version (Date: YYYYMMDDXX)
+$plugin->requires  = 2013110500;      // Requires this Moodle version
+$plugin->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place

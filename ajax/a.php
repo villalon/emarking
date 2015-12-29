@@ -234,7 +234,7 @@ if ($action === 'ping') {
         'coursemodule'=> $cm->id,
         'nodejspath'=> $nodejspath,
         'motives' => emarking_get_regrade_motives(),
-        'version' => $module->version
+        'version' => $plugin->version
     ));
 }
 

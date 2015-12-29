@@ -777,9 +777,12 @@ foreach ($drafts as $draft) {
         }
         
         $divclass = $usercangrade ? 'printactions' : 'useractions';
-        $actions .= html_writer::start_div($divclass);     
-        $actions .= implode("&nbsp;|&nbsp;", $actionsarray);
-        $actions .= html_writer::end_div();
+        $actionshtml = implode("&nbsp;|&nbsp;", $actionsarray); 
+        
+        if($emarking->type != EMARKING_TYPE_MARKER_TRAINING)
+            $actions .= html_writer::div($actionshtml, $divclass);
+        else     
+            $actions .= $actionshtml . "&nbsp;|&nbsp;";     
         
         $current ++;
     }

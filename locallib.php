@@ -1163,11 +1163,13 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
  */
 function emarking_json_output($jsonOutput)
 {
+    global $OUTPUT;
+    
     // Callback para from webpage
     $callback = optional_param('callback', null, PARAM_RAW_TRIMMED);
     
     // Headers
-    header('Content-Type: text/JSON');
+    header('Content-Type: application/javascript');
     header('Cache-Control: no-cache');
     header('Pragma: no-cache');
     
