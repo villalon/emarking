@@ -30,7 +30,8 @@ require_once ("$CFG->dirroot/lib/weblib.php");
 require_once ($CFG->dirroot . '/repository/lib.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/forms/printexam_form.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php');
+require_once ($CFG->dirroot . "/lib/pdflib.php");
+require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
 require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
 require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
 

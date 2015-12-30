@@ -433,7 +433,8 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
 {
     global $CFG;
     
-    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
+    require_once ($CFG->dirroot . "/lib/pdflib.php");
+	require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
     require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
     
     $originalsheets = $exam->totalpages + $exam->extrasheets;
