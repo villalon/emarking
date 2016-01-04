@@ -97,8 +97,8 @@ $capabilities = array(
 		),
 
 		'mod/emarking:receivenotification'=> array(
-				'captype' => 'write',
-				'contextlevel' =>CONTEXT_SYSTEM,
+				'captype' => 'read',
+				'contextlevel' =>CONTEXT_COURSECAT,
 				'legacy' => array(
 						'student'=>CAP_PROHIBIT,
 						'teacher' => CAP_PROHIBIT,
@@ -106,7 +106,17 @@ $capabilities = array(
 						'manager'=> CAP_PROHIBIT
 				)),
 
-		'mod/emarking:downloadexam' => array(
+		'mod/emarking:receivedigitizingnotification'=> array(
+				'captype' => 'read',
+				'contextlevel' =>CONTEXT_COURSECAT,
+				'legacy' => array(
+						'student'=>CAP_PROHIBIT,
+						'teacher' => CAP_PROHIBIT,
+						'editingteacher' => CAP_ALLOW,
+						'manager'=> CAP_PROHIBIT
+				)),
+
+    'mod/emarking:downloadexam' => array(
 				// Capability type (write, read, etc.)
 				'captype' => 'read',
 				// Context in which the capability can be set (course, category, etc.)

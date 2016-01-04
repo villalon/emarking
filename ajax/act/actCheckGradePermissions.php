@@ -23,7 +23,6 @@
  */
 
 // Checks and logs attempt if we are within an grading action
-
 if($readonly) {
 	$item = array (
 			'context' => context_module::instance ( $cm->id ),

@@ -88,6 +88,18 @@ $settings->add(new admin_setting_configcheckbox('emarking_enableprinting',
     .get_string('viewpermitsprinters', 'mod_emarking', $CFG->wwwroot."/mod/emarking/print/usersprinters.php"),
     0, PARAM_BOOL));
 
+// Message for the digitized answers reminder
+$settings->add(new admin_setting_configtextarea('emarking_digitizedanswersmessage', 
+    new lang_string('digitizedanswersmessage', 'mod_emarking'), 
+    new lang_string('digitizedanswersmessage_desc', 'mod_emarking'), '', PARAM_RAW));
+
+$settings->add(new admin_setting_configselect(
+    'emarking_daysbeforedigitizingreminder',
+    get_string('daysbeforedigitizingreminder', 'mod_emarking'),
+    get_string('daysbeforedigitizingreminder_help', 'mod_emarking'),
+    0,
+    $choices));
+
 // Advanced settings
 $settings->add(new admin_setting_heading('emarking_advancedsettings',
     get_string('settingsadvanced','mod_emarking'),

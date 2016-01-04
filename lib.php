@@ -456,7 +456,7 @@ function emarking_delete_instance($id)
     // If we have an associated exam that was already sent to print
     // we can't delete the e-marking activity
     if ($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
-        return false;
+        throw new moodle_exception("emarking/cannotdeleteprintedemarking", "An already printed emarking activity can not be deleted.");
     }
     
     // Delete dependent records

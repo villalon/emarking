@@ -31,7 +31,6 @@ if (emarking_create_response_pdf($draft,$user,$context, $cm->id)) {
 	
 	// If the pdf was created successfully then update the final grade and feedback
 	list($finalgrade, $previouslvlid, $previouscomment) = emarking_set_finalgrade(
-		$submission->student, 
 		0, 
 		null, 
 		$submission, 

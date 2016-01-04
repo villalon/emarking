@@ -107,7 +107,6 @@ $raterid= $USER->id;
 // Update the final grade
 list($finalgrade, $previouslevel, $previouscomment) = 
 	emarking_set_finalgrade(
-			$userid, 
 			$rubriclevel, 
 			$comment, 
 			$submission, 
@@ -137,33 +136,7 @@ if(!$regrade) {
 
 // Send the output
 if($finalgrade === false) {
-	$output = array('error'=>'Invalid values from finalgrade',
-			'grade' => $finalgrade,
-			'comment' => $emarking_comment->rawtext,
-			'criterionid' => $rubricinfo->criterionid,
-			'definition' => $rubricinfo->definition,
-			'description' => $rubricinfo->description,
-			'score' => $rubricinfo->score,
-			'maxscore' => $maxscorerecord->maxscore,
-			'posx' => $posx,
-			'posy' => $posy,
-			'replaceid' => $removeid,
-			'lvlid' => $rubriclevel,
-			'id' => $commentid,
-			'lvlidprev' => $previouslevel,
-			'type' => 'rubricscore',
-			'criteriondesc' => $rubricinfo->description,
-			'leveldesc' => $rubricinfo->definition,
-			'markerid' => $USER->id,
-			'markername' => $USER->firstname.' '.$USER->lastname,
-			'timemodified' => time(),
-			'regradeid'=>$regrade->id,
-			'regradeaccepted'=>$regrade->accepted,
-			'regrademotive'=>$regrade->motive,
-			'regradecomment'=>$regrade->comment,
-			'regrademarkercomment'=>$regrade->markercomment
-	);
-
+	$output = array('error'=>'Invalid values from finalgrade');
 } else {
 	$output = array('error'=>'',
 			'grade' => $finalgrade,

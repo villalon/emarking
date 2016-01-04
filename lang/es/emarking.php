@@ -255,6 +255,11 @@ $string ['type_print_scan'] = 'Imprimir y digitalizar';
 
 // EMARKING PRINTING
 $string['printordersrange'] = 'Impresiones desde {$a->start} hasta {$a->end}';
+$string['digitizedanswersreminder'] = 'Recordatorio pruebas digitalizadas';
+$string['digitizedanswersmessage'] = 'Mensaje del recordatorio de pruebas digitalizadas';
+$string['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesores luego de cumplido un período de días tras la digitalización de sus pruebas.';
+$string['daysbeforedigitizingreminder'] = 'Días previos al recordatorio';
+$string['daysbeforedigitizingreminder_help'] = 'Número de días tras el cual se enviará el mensaje recordatorio a profesores respecto de la digitalización de sus pruebas.';
 
 // REPORTS
 $string ['reports'] = 'Reportes';
@@ -802,3 +807,4 @@ $string ['marking_completed'] = 'Bien hecho, ahora debes esperar a los demás co
 $string ['stage'] = 'Etapa';
 $string ['agreement'] = 'Acuerdo';
 $string ['yourmarking'] = 'Tu corrección';
+
