@@ -1522,6 +1522,28 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015102500, 'emarking');
     }
     
+    if ($oldversion < 2016010201) {
+    
+        // Define field status to be added to emarking_comment.
+        $table = new xmldb_table('emarking');
+        $field = new xmldb_field('digitizingdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);        
+        
+        // Conditionally launch add field status.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        $field = new xmldb_field('digitizingnotified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+        
+        // Conditionally launch add field status.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016010201, 'emarking');
+    }
+    
     
     return true;
 }

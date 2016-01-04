@@ -625,7 +625,6 @@ function emarking_calculate_grade($emarking, $totalscore, $totalrubricscore) {
 
 /**
  * 
- * @param number $userid
  * @param number $levelid
  * @param string $levelfeedback
  * @param object $submission
@@ -638,7 +637,6 @@ function emarking_calculate_grade($emarking, $totalscore, $totalrubricscore) {
  * @return multitype:boolean |NULL|multitype:number NULL
  */
 function emarking_set_finalgrade(
-		$userid = 0, 
 		$levelid = 0, 
 		$levelfeedback = '', 
 		$submission = null, 
@@ -653,7 +651,7 @@ function emarking_set_finalgrade(
 	require_once ($CFG->dirroot . '/grade/grading/lib.php');
 
 	// Validate parameters
-	if ($userid == 0 || ($levelid == 0 && $cmid == 0) || $draft == null || $submission == null || $context == null) {
+	if (($levelid == 0 && $cmid == 0) || $draft == null || $submission == null || $context == null) {
 		return array (
 				false,
 				false,

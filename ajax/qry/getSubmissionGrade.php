@@ -1,4 +1,5 @@
 <?php 
+use Depotwarehouse\OAuth2\Client\Provider\BattleNet;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -20,6 +21,19 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$draftssql = "
+    SELECT d.id
+    FROM {emarking_draft} AS d
+    INNER JOIN {emarking_submission} AS s ON (d.submissionid = s.id)
+    WHERE s.id = :submissionid";
+
+$drafts = $DB->get_records_sql($draftssql, array("submissionid"=>$draft->submissionid));
+$draftids = array();
+foreach($drafts as $d) {
+    $draftids[] = $d->id;
+}
+$draftids = implode(",", $draftids);
+
 // Gets the grade for this submission if any
 $gradesql = "SELECT d.id, 
 	IFNULL(d.grade,nm.grademin) as finalgrade, 
@@ -30,9 +44,9 @@ $gradesql = "SELECT d.id,
 	nm.name as activityname,
 	nm.grademin,
 	nm.grade as grademax,
-	u.firstname,
-	u.lastname,
-	u.id as studentid,
+	IFNULL(u.firstname, '') as firstname,
+	IFNULL(u.lastname, '') as lastname,
+	IFNULL(u.id, 0) as studentid,
 	u.email as email,
 	c.fullname as coursename,
 	c.shortname as courseshort,
@@ -41,7 +55,8 @@ $gradesql = "SELECT d.id,
 	nm.regraderestrictdates,
 	nm.regradesopendate,
 	nm.regradesclosedate,
-	nm.markingduedate
+	nm.markingduedate,
+    '$draftids' as drafts
 FROM {emarking_draft} as d
 	INNER JOIN {emarking} as nm ON (d.id = ? AND d.emarkingid = nm.id)
 	INNER JOIN {emarking_submission} as s ON (s.id = d.submissionid)

@@ -256,7 +256,7 @@ function emarking_get_students_count_with_published_grades($emarkingid)
  */
 function emarking_send_processanswers_notification($emarking, $course)
 {
-    global $USER;
+    global $USER, $DB;
     
     $postsubject = $course->fullname . ' : ' . $emarking->name . '. ' . get_string('uploadanswersuccessful', 'mod_emarking') . ' [' . $emarking->id . ']';
     
@@ -273,6 +273,7 @@ function emarking_send_processanswers_notification($emarking, $course)
     $posttext .= get_string('emarking', 'mod_emarking') . ' : ' . $emarking->name . '. [' . $emarking->id . ']\n';
     $posttext .= get_string('fullnamecourse') . ' : ' . $course->fullname . ' (' . $course->shortname . ')' . '\n';
     
+    // Get all users that should be notified
     $users = get_enrolled_users(context_course::instance($course->id), "mod/emarking:receivenotification");
     
     foreach ($users as $user) {
@@ -290,6 +291,86 @@ function emarking_send_processanswers_notification($emarking, $course)
         $eventdata->notification = 1;
         
         message_send($eventdata);
+    }
+    
+    // Save the date of the digitization
+    $emarking->digitizingdate = time();
+    
+    $DB->update_record('emarking', $emarking);
+}
+
+/**
+ * Sends an email to everyone with the receivedigitizingnotification capability (usually teachers)
+ * indicating instructions for post digitizing steps
+ * 
+ * @param string $cron
+ * @param string $debug
+ * @param string $debugsend
+ * @param number $course
+ */
+function emarking_send_digitizing_notification($cron = true, $debug = false, $debugsend = false, $course = 0)
+{
+    global $USER, $DB;
+    
+    if($course) {
+        $emarkingactivities = $DB->get_records_sql('
+            SELECT *
+            FROM {emarking}
+            WHERE digitizingnotified = 0 AND digitizingdate > 0');
+    } else {
+        $emarkingactivities = $DB->get_records_sql('
+            SELECT *
+            FROM {emarking}
+            WHERE digitizingnotified = 0 AND digitizingdate > 0 AND course = :courseid', array('courseid'=>$course));
+    }
+    
+    if(!$emarkingactivities) {
+        return;
+    }
+    
+    foreach($emarkingactivities as $emarking) {
+    if($emarking->digitizingnotified > 0) {
+        break;
+    }
+    
+    $postsubject = $course->fullname . ' : ' . $emarking->name . '. ' . get_string('digitizedanswersreminder', 'mod_emarking');
+    
+    // Create the email to be sent
+    $posthtml = '';
+    $posthtml .= '<h3>' . get_string('digitizedanswersreminder', 'mod_emarking') . '</h3>';
+    $posthtml .= '<p>';
+    $posthtml .= $CFG->emarking_digitizedanswersmessage;
+    $posthtml .= '</p>';
+    $posthtml .= '';
+    
+    // Create the email to be sent
+    $posttext = get_string('digitizedanswersreminder', 'mod_emarking') . '\n';
+    $posttext .= $CFG->emarking_digitizedanswersmessage . '\n';
+    $posttext .= '\n';
+    
+    // Get all users that should be notified
+    $users = get_enrolled_users(context_course::instance($course), "mod/emarking:receivedigitizingnotification");
+    
+    foreach ($users as $user) {
+        $eventdata = new stdClass();
+        $eventdata->component = 'mod_emarking';
+        $eventdata->name = 'notification';
+        $eventdata->userfrom = $USER;
+        $eventdata->userto = $user->id;
+        $eventdata->subject = $postsubject;
+        $eventdata->fullmessage = $posttext;
+        $eventdata->fullmessageformat = FORMAT_HTML;
+        $eventdata->fullmessagehtml = $posthtml;
+        $eventdata->smallmessage = $postsubject;
+        
+        $eventdata->notification = 1;
+        
+        message_send($eventdata);
+    }
+    
+    // Save the date of the digitization
+    $emarking->digitizingnotified = 1;
+    $DB->update_record('emarking', $emarking);
     }
 }
 

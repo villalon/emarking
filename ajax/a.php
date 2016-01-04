@@ -71,7 +71,7 @@ if (! isloggedin() && ! $testingmode) {
         'url' => $CFG->wwwroot . '/login/index.php'
     ));
 }
-    
+
 // A valid submission is required
 if (! $draft = $DB->get_record('emarking_draft', array(
     'id' => $ids
@@ -86,24 +86,27 @@ if (! $submission = $DB->get_record('emarking_submission', array(
     emarking_json_error('Invalid submission');
 }
 
+// Assignment to which the submission belong
+if (! $emarking = $DB->get_record("emarking", array(
+    "id" => $draft->emarkingid
+))) {
+    emarking_json_error('Invalid emarking activity');
+}
+
 // The submission's student
 $userid = $submission->student;
 $ownsubmission = $USER->id == $userid;
 
 // User object for student
-if (! $user = $DB->get_record('user', array(
-    'id' => $userid
-))) {
-    emarking_json_error('Invalid user from submission');
-}
-
-// Assignment to which the submission belong
-
-if (! $emarking = $DB->get_record("emarking", array(
-    "id" => $draft->emarkingid
-))) {
-    emarking_json_error('Invalid assignment');
-}
+if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+    $ownsubmission = false;
+    $user = null;
+} else 
+    if (! $user = $DB->get_record('user', array(
+        'id' => $userid
+    ))) {
+        emarking_json_error('Invalid user from submission');
+    }
 
 // Progress querys
 $totaltest = $DB->count_records_sql("SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id");
@@ -161,8 +164,7 @@ if (! $cm = get_coursemodule_from_instance("emarking", $emarking->id, $course->i
     emarking_json_error('Invalid emarking course module');
 }
 
-    
-    // Create the context within the course module
+// Create the context within the course module
 $context = context_module::instance($cm->id);
 
 $usercangrade = has_capability('mod/emarking:grade', $context);
@@ -172,16 +174,12 @@ $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_
 $isgroupmode = $cm->groupmode == SEPARATEGROUPS;
 
 $studentanonymous = $emarking->anonymous === "0" || $emarking->anonymous === "1";
-if($ownsubmission || $issupervisor) {
+if ($ownsubmission || $issupervisor) {
     $studentanonymous = false;
 }
 $markeranonymous = $emarking->anonymous === "1" || $emarking->anonymous === "3";
-if($issupervisor) {
+if ($issupervisor) {
     $markeranonymous = false;
-}
-
-if ($submission->status >= EMARKING_STATUS_PUBLISHED && ! $usercanregrade) {
-    $readonly = true;
 }
 
 // Get actual user role
@@ -196,6 +194,29 @@ if ($usercangrade == 1 && $issupervisor == 0) {
 
 $linkrubric = $emarking->linkrubric;
 
+// readonly by default for security
+$readonly = true;
+if (($usercangrade && $submission->status >= EMARKING_STATUS_SUBMITTED  && $submission->status < EMARKING_STATUS_PUBLISHED) // If the user can grade and the submission was at least submitted 
+    || ($usercanregrade && $submission->status >= EMARKING_STATUS_PUBLISHED) // Once published it requires regrade permissions
+    ) { // In markers training the user must be the assigned marker
+    $readonly = false;
+}
+
+if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING && $draft->teacher != $USER->id) {
+    $readonly = true;
+}
+
+// Validate grading capability and stop and log unauthorized access
+if (! $usercangrade && ! $ownsubmission && ! has_capability('mod/emarking:submit', $context)) {
+    $item = array(
+        'context' => context_module::instance($cm->id),
+        'objectid' => $cm->id
+    );
+    // Add to Moodle log so some auditing can be done
+    \mod_emarking\event\unauthorized_granted::create($item)->trigger();
+    emarking_json_error('Unauthorized access!');
+}
+
 // $totaltest, $inprogesstest, $publishtest
 // Ping action for fast validation of user logged in and communication with server
 if ($action === 'ping') {
@@ -204,7 +225,7 @@ if ($action === 'ping') {
     
     // Start with a default Node JS path, and get the configuration one if any
     $nodejspath = 'http://127.0.0.1:9091';
-    if(isset($CFG->emarking_nodejspath)) {
+    if (isset($CFG->emarking_nodejspath)) {
         $nodejspath = $CFG->emarking_nodejspath;
     }
     
@@ -220,9 +241,9 @@ if ($action === 'ping') {
         'cm' => $cm->id,
         'studentanonymous' => $studentanonymous ? "true" : "false",
         'markeranonymous' => $markeranonymous ? "true" : "false",
-        'hascapability' => $usercangrade,
+        'readonly' => $readonly,
         'supervisor' => $issupervisor,
-    	'managedelphi' => $usercanmanagedelphi,
+        'managedelphi' => $usercanmanagedelphi,
         'markingtype' => $emarking->type,
         'totalTests' => $totaltest, // Progress bar indicator
         'inProgressTests' => $inprogesstest, // Progress bar indicator
@@ -231,8 +252,8 @@ if ($action === 'ping') {
         'heartbeat' => $emarking->heartbeatenabled,
         'linkrubric' => $linkrubric,
         'collaborativefeatures' => $emarking->collaborativefeatures,
-        'coursemodule'=> $cm->id,
-        'nodejspath'=> $nodejspath,
+        'coursemodule' => $cm->id,
+        'nodejspath' => $nodejspath,
         'motives' => emarking_get_regrade_motives(),
         'version' => $plugin->version
     ));
@@ -247,38 +268,15 @@ $url = new moodle_url('/mod/emarking/ajax/a.php', array(
     'pageno' => $pageno
 ));
 
-$readonly = true;
-// Validate grading capability and stop and log unauthorized access
-if (! $usercangrade) {
-    // If the student owns the exam
-    if ($ownsubmission) {
-        $readonly = true;
-    } else {
-        if (has_capability('mod/emarking:submit', $context)) { // If the student belongs to the course and is allowed to submit
-            $readonly = true;
-        } else { // This is definitely a hacking attempt
-            $item = array(
-                'context' => context_module::instance($cm->id),
-                'objectid' => $cm->id
-            );
-            // Add to Moodle log so some auditing can be done
-            \mod_emarking\event\unauthorized_granted::create($item)->trigger();
-            emarking_json_error('Unauthorized access!');
-        }
-    }
-} else {
-    $readonly = false;
-}
-
 // Switch according to action
 switch ($action) {
     
-	case 'addchatmessage':
-		
-		include "act/actAddChatMessage.php";
-		emarking_json_array($output);
-		break;
-	
+    case 'addchatmessage':
+        
+        include "act/actAddChatMessage.php";
+        emarking_json_array($output);
+        break;
+    
     case 'addcomment':
         
         // Add to Moodle log so some auditing can be done
@@ -362,7 +360,7 @@ switch ($action) {
         break;
     
     case 'getalltabs':
-        if($ownsubmission) {
+        if ($ownsubmission) {
             $submission->seenbystudent = 1;
             $submission->timemodified = time();
             $DB->update_record("emarking_submission", $submission);
@@ -398,16 +396,20 @@ switch ($action) {
         $output->coursemodule = $cm->id;
         $output->markerfirstname = $USER->firstname;
         $output->markerlastname = $USER->lastname;
-	    $output->markeremail = $USER->email;
+        $output->markeremail = $USER->email;
         $output->markerid = $USER->id;
-	    emarking_json_array($output);
+        
+        include "qry/getRubricSubmission.php";
+        $output->rubric = $results;
+        
+        emarking_json_array($output);
         break;
     
     case 'getchathistory':
-		include "qry/getChatHistory.php";
-    	emarking_json_array($output);
-    	break;
-        
+        include "qry/getChatHistory.php";
+        emarking_json_array($output);
+        break;
+    
     case 'prevcomments':
         
         include "qry/getPreviousCommentsSubmission.php";
@@ -445,7 +447,7 @@ switch ($action) {
             'objectid' => $cm->id
         );
         \mod_emarking\event\sortpages_switched::create($item)->trigger();
-
+        
         $neworder = required_param('neworder', PARAM_SEQUENCE);
         $neworderarr = explode(',', $neworder);
         if (! emarking_sort_submission_pages($submission, $neworderarr)) {

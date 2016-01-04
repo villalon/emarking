@@ -45,7 +45,6 @@ $DB->delete_records('emarking_comment',array('id'=>$comment->id));
 // Update the final grade for the submission
 list($finalgrade, $previouslvlid, $previouscomment) = 
 	emarking_set_finalgrade(
-			$userid, 
 			$rubriclevel, 
 			'', 
 			$submission, 
@@ -57,10 +56,7 @@ list($finalgrade, $previouslvlid, $previouscomment) =
 
 // Send the output if everything went well
 if($finalgrade === false) {
-	$output = array('error'=>'Invalid values from finalgrade',
-			'grade' => $finalgrade,
-			'lvlidprev' => $previouslvlid,
-			'timemodified' => time());
+	$output = array('error'=>'Invalid values from finalgrade');
 } else {
 	$output = array('error'=>'',
 			'grade' => $finalgrade,

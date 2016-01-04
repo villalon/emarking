@@ -150,9 +150,13 @@ if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 		$sqlisadmin = " AND d.teacher =:currentuser";
 	}
 	
-	$sqlnumdrafts="SELECT COUNT(*) AS numdrafts
+	$sqlnumdrafts="
+	    SELECT 
+	       COUNT(DISTINCT d.id) AS numdrafts
 		FROM {emarking_draft} AS d
-		INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)";
+		INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)
+	    GROUP BY d.teacher
+	    LIMIT 1";
 	
 	$numdrafts = $DB->count_records_sql($sqlnumdrafts, array(
 			"emarking"=>$cm->instance,
@@ -494,43 +498,58 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	
 	$nummarkers = count($markers);
 	
+	$mids = array();
+	foreach($markers as $m) {
+	    $mids[] = $m->id;
+	}
+	$mids = implode(",", $mids);
+	
     $criteriaxdrafts = $numcriteria * $numdrafts;
 
-	$sqlnumcomments = "SELECT  e.userid ,ifnull(cc.totalcomments,0) AS totalcomments, ifnull(nullif(e.userid,?),0) AS orderby
-			FROM {role_assignments} AS e LEFT JOIN (
-				SELECT ec.markerid, count(ec.id) AS totalcomments, ec.levelid, ec.criterionid 
+	$sqlnumcomments = "
+	    SELECT
+	       USERS.userid,
+	       cc.totalcomments,
+	       (cc.totalcomments / $criteriaxdrafts) * 100 AS percentage 
+	    FROM
+	    (SELECT  
+	       u.id AS userid
+	       FROM {user} AS u
+	       WHERE u.id IN ($mids)) AS USERS
+	       LEFT JOIN (
+				SELECT ed.teacher as markerid, 
+				    count(ec.id) AS totalcomments 
 				FROM {emarking_comment} AS ec
 				INNER JOIN {emarking_draft} AS ed on (ec.draft=ed.id AND ed.emarkingid=?)
 				WHERE ec.criterionid > 0 AND ec.levelid > 0 
-				GROUP BY ec.markerid)  AS cc ON (e.userid=cc.markerid)
-			WHERE  e.roleid=4 AND e.contextid=?
-			ORDER BY orderby ASC";
+				GROUP BY ed.teacher)  AS cc 
+		   ON (USERS.userid=cc.markerid)
+		   ORDER BY userid ASC";
 
-	if($numcomments = $DB->get_records_sql($sqlnumcomments, array($USER->id,$emarking->id,$coursecontext->id))) {
+	if($numcomments = $DB->get_records_sql($sqlnumcomments, array($emarking->id))) {
 
 		$markercount = 0;
 		$totalprogress = 0;
 		
 		foreach($numcomments as $data){
 			
-			$markercount++;
-			$percentage = ($data->totalcomments*100)/$criteriaxdrafts;
-			
+			$markercount++;			
 			$userprogress = "";
+			
 			if($USER->id == $data->userid){
 				$userprogress = core_text::strtotitle(get_string('yourself'));
-				$userpercentage = $percentage;
+				$userpercentage = $data->percentage;
 			}else{
 			    $marker = $DB->get_record("user", array("id"=>$data->userid));
 			    $userprogress = $OUTPUT->user_picture($marker, array("size"=>24, "popup"=>true));
 			}
 			
-			$array[] = $userprogress . " " . floor($percentage)."%";
-			$totalprogress = $totalprogress + $percentage;
+			$array[] = $userprogress . " " . floor($data->percentage)."%";
+			$totalprogress += $data->totalcomments;
 		}
 		
 		$chartstable->data[]=$array;
-		$generalprogress = floor($totalprogress/$markercount);
+		$generalprogress = floor($totalprogress/($numcriteria * $nummarkers * $numdrafts)*100);
 		
 		if($generalprogress == 100){
 			$urldelphi = new moodle_url('/mod/emarking/marking/delphi.php', array(

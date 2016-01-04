@@ -252,6 +252,11 @@ $string ['type_print_scan'] = 'Print and scan';
 
 // EMARKING PRINTING
 $string['printordersrange'] = 'Print orders from {$a->start} to {$a->end}';
+$string['digitizedanswersreminder'] = 'Digitized answers reminder';
+$string['digitizedanswersmessage'] = 'Digitized answers reminder message';
+$string['digitizedanswersmessage_desc'] = 'This message will be sent to teachers once the period after digitizing the answers expires.';
+$string['daysbeforedigitizingreminder'] = 'Days before reminder';
+$string['daysbeforedigitizingreminder_help'] = 'Number of days to wait before sending the reminder message to teachers regarding the digitizing of the answers to her exam.';
 
 // REPORTS
 $string ['reports'] = 'Reports';

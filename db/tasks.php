@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,20 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package mod
- * @subpackage emarking
- * @copyright 2012 Jorge Villalón {@link http://www.uai.cl}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 
-// Checks and logs attempt if we are within an grading action
-if($readonly) {
-	$item = array (
-			'context' => context_module::instance ( $cm->id ),
-			'objectid' => $cm->id,
-	);
-	// Add to Moodle log so some auditing can be done
-	\mod_emarking\event\unauthorized_granted::create ( $item )->trigger ();
-	emarking_json_error('Unauthorized access!');
-}
+/**
+ *
+ *
+ * @package    mod
+ * @subpackage emarking
+ * @copyright  2015 Jorge Villalon
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+defined('MOODLE_INTERNAL') || die();
+
+$tasks = array(
+    array(
+        'classname' => 'mod_emarking\task\notify_digitized_answers',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '8',
+        'day' => '*',
+        'dayofweek' => '0',
+        'month' => '*'
+    )
+);
