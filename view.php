@@ -546,6 +546,11 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		}
 		
 		$chartstable->data[]=$array;
+		
+		if( is_siteadmin($USER) || !$issupervisor ){
+			$nummarkers = 1;
+		}
+		
 		$generalprogress = floor($totalprogress/($numcriteria * $nummarkers * $numdrafts)*100);
 		
 		if($generalprogress == 100){
@@ -576,7 +581,7 @@ foreach ($allstudents as $student){
 $totalstudents = $countstudents;
 
 $actionsheader = "";
-if(has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubriccriteria) {
+if(has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubriccriteria && ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) ) {
     $actionsheader .= $usercangrade ? '&nbsp;<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
 }
 
