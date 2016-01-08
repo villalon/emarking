@@ -547,7 +547,7 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		
 		$chartstable->data[]=$array;
 		
-		if( is_siteadmin($USER) || !$issupervisor ){
+		if( is_siteadmin($USER) || $issupervisor ){
 			$nummarkers = 1;
 		}
 		
