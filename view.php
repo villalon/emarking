@@ -42,7 +42,7 @@ $scan = optional_param('scan', false, PARAM_BOOL);
 // If a feature was just enabled
 $enabled = optional_param('enabled', 0, PARAM_INT);
 
-$exportcsv = optional_param('exportcsv', false, PARAM_BOOL);
+$exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
 
 // Rows per page
 $perpage = 100;
@@ -114,7 +114,7 @@ if ($issupervisor || is_siteadmin($USER)) {
 }
 
 // Download Excel if it is the case
-if ($exportcsv && $usercangrade && $issupervisor) {
+if ($exportcsv && $exportcsv === 'grades' && $usercangrade && $issupervisor) {
     emarking_download_excel($emarking);
     die();
 }
@@ -233,7 +233,7 @@ if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($grad
 if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL && $rubriccriteria) {
     $csvurl = new moodle_url('view.php', array(
         'id' => $cm->id,
-        'exportcsv' => true
+        'exportcsv' => 'grades'
     ));
     echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
 }

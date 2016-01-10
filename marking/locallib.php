@@ -355,7 +355,8 @@ function emarking_publish_grade($draft) {
 	// Copy final grade to gradebook
 	$grade_item = grade_item::fetch ( array (
 			'itemmodule' => 'emarking',
-			'iteminstance' => $submission->emarking
+			'iteminstance' => $submission->emarking,
+	        'gradetype' => 1 // Type 1 is for final grade (type 2 for outcomes)
 	) );
 
 	$feedback = $draft->generalfeedback ? $draft->generalfeedback : '';
@@ -485,14 +486,148 @@ function emarking_download_excel($emarking) {
 
     $tabledata = $newtabledata;
 
-    $downloadfilename = clean_filename ( "$emarking->name.xls" );
+    $excelfilename = clean_filename ( "$emarking->name.xls" );
+    
+    emarking_save_data_to_excel($headers, $tabledata, $excelfilename);
+}
+
+
+/**
+ * Exports student opinions on justice for this exam
+ *
+ * @param unknown $emarking
+ */
+function emarking_download_excel_perception($emarking, $context) {
+    global $DB;
+
+    list($enrolleduserssql, $params) = get_enrolled_sql($context);
+    
+    $csvsql = "
+SELECT 
+    u.id,
+	c.fullname as course,
+        e.name as exam, 
+    c.shortname, 
+    u.username, 
+    u.firstname, 
+    u.lastname, 
+    u.idnumber, 
+    cr.id AS criterion, 
+    cr.description, 
+    epc.overall_fairness, 
+    epc.expectation_reality, 
+    ep.comment,
+    d.grade
+FROM {emarking} AS e
+INNER JOIN {emarking_submission} AS s ON (e.id = :emarking AND s.emarking = e.id)
+INNER JOIN {emarking_draft} AS d ON (d.submissionid = s.id)
+INNER JOIN {user} AS u ON (s.student = u.id)
+INNER JOIN {course} AS c ON (e.course = c.id)
+LEFT JOIN {emarking_perception} AS ep ON (s.id = ep.submission)
+LEFT JOIN {emarking_perception_criteria} AS epc ON (ep.id = epc.perception)
+LEFT JOIN {gradingform_rubric_criteria} AS cr ON (epc.criterion=cr.id)
+WHERE u.id IN ($enrolleduserssql)
+ORDER BY c.shortname, u.lastname, u.firstname";
+
+    $params['emarking'] = $emarking->id;
+    
+    // Get data and generate a list of questions
+    $rows = $DB->get_recordset_sql ( $csvsql, $params);
+
+    $questions = array ();
+    foreach ( $rows as $row ) {
+        if (array_search ( $row->description, $questions ) === FALSE
+            && $row->description)
+            $questions [] = $row->description;
+    }
+    
+    // var_dump($questions);echo"<hr>";
+
+    $current = 0;
+    $laststudent = 0;
+    $headers = array (
+        '00course' => get_string ( 'course' ),
+        '01exam' => get_string ( 'exam', 'mod_emarking' ),
+        '02idnumber' => get_string ( 'idnumber' ),
+        '03lastname' => get_string ( 'lastname' ),
+        '04firstname' => get_string ( 'firstname' )
+    );
+    $tabledata = array ();
+    $data = null;
+
+    $rows = $DB->get_recordset_sql ( $csvsql, $params);
+
+    $studentname = '';
+    $lastrow = null;
+    foreach ( $rows as $row ) {
+        $index = 10 + array_search ( $row->description, $questions );
+        $keyquestion = $index . "" . $row->description;
+        if (! isset ( $headers [$keyquestion."-OF"] ) && $row->description) {
+            $headers [$keyquestion."-OF"] = "OF-".$row->description;
+            $headers [$keyquestion."-ER"] = "ER-".$row->description;
+        }
+        if ($laststudent != $row->id) {
+            if ($laststudent > 0) {
+                $tabledata [$studentname] = $data;
+                $current ++;
+            }
+            $data = array (
+                '00course' => $row->course,
+                '01exam' => $row->exam,
+                '02idnumber' => $row->idnumber,
+                '03lastname' => $row->lastname,
+                '04firstname' => $row->firstname,
+                '99grade' => $row->grade
+            );
+            $laststudent = intval ( $row->id );
+            $studentname = $row->lastname . ',' . $row->firstname;
+        }
+        if ($row->description) {
+            $data [$keyquestion."-OF"] = $row->overall_fairness;
+            $data [$keyquestion."-ER"] = $row->expectation_reality;
+        }
+        $lastrow = $row;
+       //  var_dump($data);echo "<hr>";
+    }
+    $studentname = $lastrow->lastname . ',' . $lastrow->firstname;
+    $tabledata [$studentname] = $data;
+    $headers ['99grade'] = get_string ( 'grade' );
+    ksort ( $tabledata );
+    
+    $current = 0;
+    $newtabledata = array ();
+    foreach ( $tabledata as $data ) {
+        foreach ( $questions as $q ) {
+            $index = 10 + array_search ( $q, $questions );
+            if (! isset ( $data [$index . "" . $q."-OF"] )) {
+                $data [$index . "" . $q."-OF"] = '0.000';
+            }
+            if (! isset ( $data [$index . "" . $q."-ER"] )) {
+                $data [$index . "" . $q."-ER"] = '0.000';
+            }
+        }
+        ksort ( $data );
+        $current ++;
+        $newtabledata [] = $data;
+    }
+
+    $tabledata = $newtabledata;
+    
+    // var_dump($tabledata);die();
+
+    $excelfilename = clean_filename ( $emarking->name . "-justice" . ".xls");
+    
+    emarking_save_data_to_excel($headers, $tabledata, $excelfilename);
+}
+
+function emarking_save_data_to_excel($headers, $tabledata, $excelfilename) {
     // Creating a workbook
     $workbook = new MoodleExcelWorkbook ( "-" );
     // Sending HTTP headers
-    $workbook->send ( $downloadfilename );
+    $workbook->send ( $excelfilename );
     // Adding the worksheet
     $myxls = $workbook->add_worksheet ( get_string ( 'emarking', 'mod_emarking' ) );
-
+    
     // Writing the headers in the first row
     $row = 0;
     $col = 0;
@@ -516,7 +651,6 @@ function emarking_download_excel($emarking) {
     }
     $workbook->close ();
 }
-
 
 function emarking_publish_all_grades($emarking) {
 	global $DB, $USER, $CFG;

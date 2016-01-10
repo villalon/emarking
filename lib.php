@@ -94,6 +94,8 @@ function emarking_supports($feature)
             return true;
         case FEATURE_ADVANCED_GRADING:
             return true;
+        case FEATURE_GRADE_OUTCOMES:
+            return true;
         case FEATURE_RATE:
             return false;
         default:
