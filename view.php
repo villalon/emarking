@@ -230,12 +230,14 @@ if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($grad
 }
 
 // Show export to Excel button if supervisor and there are students to export
-if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL && $rubriccriteria) {
+if ($issupervisor && $rubriccriteria) {
+    if($emarking->type == EMARKING_TYPE_NORMAL) {
     $csvurl = new moodle_url('view.php', array(
         'id' => $cm->id,
         'exportcsv' => 'grades'
     ));
     echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+    }
 }
 
 $publishgradesform = $emarking->type == EMARKING_TYPE_NORMAL 
