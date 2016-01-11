@@ -41,9 +41,14 @@ $tsort = optional_param('tsort', '', PARAM_ALPHA);
 $scan = optional_param('scan', false, PARAM_BOOL);
 // If a feature was just enabled
 $enabled = optional_param('enabled', 0, PARAM_INT);
-
+$testqr = optional_param('testqr', false, PARAM_BOOL);
 $exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
 
+if($testqr) {
+    include "print/locallib.php";
+    emarking_create_qr_from_string("Hello world");
+    die();
+}
 // Rows per page
 $perpage = 100;
 
