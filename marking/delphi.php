@@ -248,14 +248,6 @@ $avgagreement = round($avgagreement * 100, 0);
 // Show header
 echo $OUTPUT->header();
 
-if($emarking->type == EMARKING_TYPE_MARKER_TRAINING && $issupervisor) {
-    $csvurl = new moodle_url('/mod/emarking/marking/delphi.php', array(
-        'id' => $cm->id,
-        'exportcsv' => 'delphi'
-    ));
-    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
-}
-
 $firststagetable = new html_table();
 $firststagetable->data[] = array($OUTPUT->heading("Por prueba", 5));
 
@@ -292,6 +284,17 @@ echo emarking_tabs_markers_training(
 		$emarking,
 		100,
 		$avgagreement);
+
+// Show export to Excel button if supervisor and there are students to export
+if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+        $csvurl = new moodle_url('delphi.php', array(
+            'id' => $cm->id,
+            'exportcsv' => 'delphi'
+        ));
+        echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+}
+
+
 
 echo "<h4>Porcentajes de acuerdo</h4>";
 

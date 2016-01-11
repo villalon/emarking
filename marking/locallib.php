@@ -707,7 +707,6 @@ ORDER BY c.shortname, u.lastname, u.firstname";
             $data [$keyquestion."-ER"] = $row->expectation_reality;
         }
         $lastrow = $row;
-       //  var_dump($data);echo "<hr>";
     }
     $studentname = $lastrow->lastname . ',' . $lastrow->firstname;
     $tabledata [$studentname] = $data;
