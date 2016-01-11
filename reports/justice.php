@@ -25,11 +25,14 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
+require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
+require_once ($CFG->dirroot . '/lib/excellib.class.php');
 
 global $DB, $USER;
 
 // Get course module id
 $cmid = required_param('id', PARAM_INT);
+$exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
 
 // Validate course module
 if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
@@ -50,13 +53,17 @@ if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->id)))
     print_error('e-marking sin examen');
 }
 
+// Course context is used in reports
+$context = context_module::instance($cm->id);
+
+// Check if user has an editingteacher role
+$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
+$usercangrade = has_capability('mod/assign:grade', $context);
+
 // URLs for current page
 $url = new moodle_url('/mod/emarking/reports/justice.php', array('id'=>$cm->id));
 
 $totalstudents = emarking_get_students_count_with_published_grades($emarking->id);
-
-// Course context is used in reports
-$context = context_module::instance($cm->id);
 
 // Validate the user has grading capabilities
 if(!has_capability ( 'mod/assign:grade', $context )) {
@@ -67,6 +74,12 @@ if(!has_capability ( 'mod/assign:grade', $context )) {
 require_login($course->id);
 if (isguestuser()) {
         die();
+}
+
+// Download Excel if it is the case
+if ($exportcsv && $exportcsv==='justice' && $usercangrade && $issupervisor) {
+    emarking_download_excel_perception($emarking, $context);
+    die();
 }
 
 // Page settings (URL, breadcrumbs and title)
@@ -82,6 +95,14 @@ echo $OUTPUT->heading($emarking->name);
 
 // Print eMarking tabs
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "justicereport" );
+
+if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL && $emarking->justiceperception) {
+    $csvurl = new moodle_url('justice.php', array(
+        'id' => $cm->id,
+        'exportcsv' => 'justice'
+    ));
+    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+}
 
 // Get rubric instance
 list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true, true);

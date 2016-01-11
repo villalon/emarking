@@ -257,9 +257,12 @@ function emarking_tabs($context, $cm, $emarking)
     
     // Scan tab
     $scantab = new tabobject("scan", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string('scan', 'mod_emarking'));
-    $scantab->subtree[] = new tabobject("scanlist", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string("exams", 'mod_emarking'));
+    $scanlist = new tabobject("scanlist", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string("exams", 'mod_emarking'));
+    $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
+
+    $scantab->subtree[] = $scanlist;
     if($usercangrade) {
-        $scantab->subtree[] = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
+        $scantab->subtree[] = $uploadanswers;
     }
     
     // Settings tab
@@ -316,10 +319,12 @@ function emarking_tabs($context, $cm, $emarking)
         }
         
         // Scan or enablescan tab
-        if ($emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_NORMAL) {
+        if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
             $tabs[] = $scantab;
         } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
-                $tabs[] = $activatescan;
+            $tabs[] = $activatescan;
+        } else if ($emarking->type == EMARKING_TYPE_NORMAL) {
+            $markingtab->subtree[] = $uploadanswers;
         }
         
         // OSM tabs, either marking, reports and settings or enable osm
