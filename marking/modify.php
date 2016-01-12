@@ -99,7 +99,7 @@ echo $html;
  format	: 2, rubric mark	- "2"
  */
 
-$ajaxurl = $CFG->wwwroot . "/mod/emarking/ajax/a.php?action=updcomment&ids=$comment->draft&cid=$comment->id&comment=delphi";
+$ajaxurl = $CFG->wwwroot . "/mod/emarking/ajax/a.php?action=updcomment&ids=$comment->draft&cid=$comment->id&comment=delphi&posx=$comment->posx&posy=$comment->posy";
 
 $savebutton = "<input type='submit' style='margin-left:auto;' value='Save' id='addregrade' url=".$ajaxurl.">";
 $closebutton = "<input type='submit' style='margin-left:auto;' value='Cancel' id='cancel' onClick='window.close()'>";
@@ -124,12 +124,13 @@ $(document).ready(function(){
         	success:function(result) {
             	window.close();
          	},
-            error:function(exception) {alert('Exeption:'+exception);console.log(exception)}
+         	//  error:function(exception) {alert('Exeption:'+exception);console.log(exception)}
+            error:function(exception) {window.close();console.log(exception)}
 		});
 		$("#addregrade").prop('value', 'Saving');
 		$("#addregrade").attr('disabled', 'disabled');
 		$("#cancel").attr('disabled', 'disabled');
-})
+	})
 });
 window.onunload = function() {
     if (window.opener && !window.opener.closed) {

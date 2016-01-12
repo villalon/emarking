@@ -64,6 +64,7 @@ $urlemarking = new moodle_url('/mod/emarking/marking/agreement.php', array(
     'id' => $cm->id
 ));
 $context = context_module::instance($cm->id);
+$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
 
 // Get rubric instance
 list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
@@ -256,13 +257,14 @@ foreach ($agreements as $agree) {
     
     $popup = "";
     $status = "";
+    
     for ($i = 0; $i < count($drafts); $i ++) {
         
         if (intval($drafts[$i]) == 0) {
             continue;
         }
         
-        if (! is_siteadmin() && $USER->id != $markerids[$i]) {
+        if (! is_siteadmin() && $USER->id != $markerids[$i] && !$issupervisor) {
             continue;
         }
         

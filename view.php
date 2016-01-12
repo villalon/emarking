@@ -155,12 +155,9 @@ if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 	}
 	
 	$sqlnumdrafts="
-	    SELECT 
-	       COUNT(DISTINCT d.id) AS numdrafts
+	    SELECT COUNT(DISTINCT d.id) AS numdrafts
 		FROM {emarking_draft} AS d
-		INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)
-	    GROUP BY d.teacher
-	    LIMIT 1";
+		INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)";
 	
 	$numdrafts = $DB->count_records_sql($sqlnumdrafts, array(
 			"emarking"=>$cm->instance,
@@ -555,6 +552,11 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		}
 		
 		$chartstable->data[]=$array;
+		
+		if( is_siteadmin($USER) || $issupervisor ){
+			$nummarkers = 1;
+		}
+		
 		$generalprogress = floor($totalprogress/($numcriteria * $nummarkers * $numdrafts)*100);
 		
 		if($generalprogress == 100){
@@ -593,7 +595,7 @@ foreach ($allstudents as $student){
 $totalstudents = $countstudents;
 
 $actionsheader = "";
-if(has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubriccriteria) {
+if(has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubriccriteria && ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) ) {
     $actionsheader .= $usercangrade ? '&nbsp;<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
 }
 
