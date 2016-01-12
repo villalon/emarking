@@ -114,8 +114,12 @@ if ($issupervisor || is_siteadmin($USER)) {
 }
 
 // Download Excel if it is the case
-if ($exportcsv && $exportcsv === 'grades' && $usercangrade && $issupervisor) {
-    emarking_download_excel($emarking);
+if ($exportcsv && $usercangrade && $issupervisor) {
+    if($exportcsv === 'grades' ) {
+        emarking_download_excel($emarking);
+    } elseif($exportcsv === 'delphi') {
+        emarking_download_excel_markers_training($emarking);
+    }
     die();
 }
 
@@ -227,12 +231,14 @@ if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($grad
 }
 
 // Show export to Excel button if supervisor and there are students to export
-if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL && $rubriccriteria) {
+if ($issupervisor && $rubriccriteria) {
+    if($emarking->type == EMARKING_TYPE_NORMAL) {
     $csvurl = new moodle_url('view.php', array(
         'id' => $cm->id,
         'exportcsv' => 'grades'
     ));
     echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+    }
 }
 
 $publishgradesform = $emarking->type == EMARKING_TYPE_NORMAL 
@@ -564,6 +570,14 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	echo emarking_tabs_markers_training($context, $cm, $emarking,$generalprogress,0);
 	echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);
 	echo html_writer::table($chartstable);
+
+	if($emarking->type == EMARKING_TYPE_MARKER_TRAINING && $issupervisor) {
+	    $csvurl = new moodle_url('/mod/emarking/marking/delphi.php', array(
+	        'id' => $cm->id,
+	        'exportcsv' => 'delphi'
+	    ));
+	    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+	}
 	
 	if(isset($userpercentage) && floor($userpercentage) == 100){
 		echo get_string('marking_completed', 'mod_emarking');

@@ -25,6 +25,7 @@
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
+require_once ($CFG->dirroot . '/lib/excellib.class.php');
 
 global $CFG, $DB, $OUTPUT, $PAGE;
 
@@ -36,6 +37,7 @@ if (isguestuser()) {
 
 // Course module id
 $cmid = required_param('id', PARAM_INT);
+$exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
 
 // Validate course module
 if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
@@ -62,6 +64,16 @@ $urlemarking = new moodle_url('/mod/emarking/marking/delphi.php', array(
 ));
 $context = context_module::instance($cm->id);
 
+// Check if user has an editingteacher role
+$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
+$usercangrade = has_capability('mod/assign:grade', $context);
+
+// Download Excel if it is the case
+if ($exportcsv && $exportcsv === 'delphi' && $usercangrade && $issupervisor) {
+    emarking_download_excel_markers_training($emarking);
+    die();
+}
+
 // Get rubric instance
 list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
 
@@ -72,9 +84,6 @@ $PAGE->set_course($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-
-// Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
 
 // As we have a rubric we can get the controller
 $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
@@ -275,6 +284,17 @@ echo emarking_tabs_markers_training(
 		$emarking,
 		100,
 		$avgagreement);
+
+// Show export to Excel button if supervisor and there are students to export
+if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+        $csvurl = new moodle_url('delphi.php', array(
+            'id' => $cm->id,
+            'exportcsv' => 'delphi'
+        ));
+        echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+}
+
+
 
 echo "<h4>Porcentajes de acuerdo</h4>";
 

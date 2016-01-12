@@ -416,7 +416,8 @@ function emarking_download_excel($emarking) {
 
     $questions = array ();
     foreach ( $rows as $row ) {
-        if (array_search ( $row->description, $questions ) === FALSE)
+        if (array_search ( $row->description, $questions ) === FALSE
+            && $row->description)
             $questions [] = $row->description;
     }
 
@@ -441,7 +442,8 @@ function emarking_download_excel($emarking) {
     foreach ( $rows as $row ) {
         $index = 10 + array_search ( $row->description, $questions );
         $keyquestion = $index . "" . $row->description;
-        if (! isset ( $headers [$keyquestion] )) {
+        if (! isset ( $headers [$keyquestion] )
+            && $row->description) {
             $headers [$keyquestion] = $row->description;
         }
         if ($laststudent != $row->id) {
@@ -455,14 +457,15 @@ function emarking_download_excel($emarking) {
                 '02idnumber' => $row->idnumber,
                 '03lastname' => $row->lastname,
                 '04firstname' => $row->firstname,
-                $keyquestion => $row->totalscore,
                 '99grade' => $row->grade
             );
             $laststudent = intval ( $row->id );
             $studentname = $row->lastname . ',' . $row->firstname;
-        } else {
+        }
+        if($row->description) {
             $data [$keyquestion] = $row->totalscore;
         }
+        
         $lastrow = $row;
     }
     $studentname = $lastrow->lastname . ',' . $lastrow->firstname;
@@ -486,9 +489,126 @@ function emarking_download_excel($emarking) {
 
     $tabledata = $newtabledata;
 
-    $excelfilename = clean_filename ( "$emarking->name.xls" );
+    $excelfilename = clean_filename ( $emarking->name."-grades.xls" );
     
-    emarking_save_data_to_excel($headers, $tabledata, $excelfilename);
+    emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
+}
+
+
+/**
+ * Exports all grades and scores in an exam in Excel format
+ *
+ * @param unknown $emarking
+ */
+function emarking_download_excel_markers_training($emarking) {
+    global $DB;
+
+    $csvsql = "
+		SELECT cc.fullname AS course,
+			e.name AS exam,            
+            s.id AS id,
+            s.student,
+            d.id AS draft,
+			CONCAT(u2.id,'-',cr.description) as description,
+            l.score as maxscore,
+			IFNULL(l.score, 0) AS score,
+			IFNULL(c.bonus, 0) AS bonus,
+			IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
+			d.grade,
+			u2.id as markerid,
+			u2.idnumber,
+			u2.lastname,
+			u2.firstname
+		FROM mdl_emarking AS e
+		INNER JOIN mdl_emarking_submission AS s ON (e.id = :emarking AND e.id = s.emarking)
+		INNER JOIN mdl_emarking_draft AS d ON (d.submissionid = s.id AND d.qualitycontrol=0)
+        INNER JOIN mdl_course AS cc ON (cc.id = e.course)
+		INNER JOIN mdl_emarking_page AS p ON (p.submission = s.id)
+		LEFT JOIN mdl_emarking_comment AS c ON (c.page = p.id AND d.id = c.draft)
+        LEFT JOIN mdl_user AS u2 ON (c.markerid = u2.id)
+		LEFT JOIN mdl_gradingform_rubric_levels AS l ON (c.levelid = l.id)
+		LEFT JOIN mdl_gradingform_rubric_criteria AS cr ON (cr.id = l.criterionid)
+        WHERE c.levelid > 0 AND c.criterionid > 0
+		ORDER BY cc.fullname ASC, e.name ASC, id, draft, cr.sortorder
+        ";
+
+    // Get data and generate a list of questions
+    $rows = $DB->get_recordset_sql ( $csvsql, array (
+        'emarking' => $emarking->id
+    ) );
+
+    $questions = array ();
+    foreach ( $rows as $row ) {
+        if (array_search ( $row->description, $questions ) === FALSE
+            && $row->description)
+            $questions [] = $row->description;
+    }
+
+    $current = 0;
+    $laststudent = 0;
+    $headers = array (
+        '00course' => get_string ( 'course' ),
+        '01exam' => get_string ( 'exam', 'mod_emarking' ),
+        '02examid' => get_string ( 'exam', 'mod_emarking' )
+    );
+    $tabledata = array ();
+    $data = null;
+
+    $rows = $DB->get_recordset_sql ( $csvsql, array (
+        'emarking' => $emarking->id
+    ) );
+
+    $studentname = '';
+    $lastrow = null;
+    foreach ( $rows as $row ) {
+        $index = 10 + array_search ( $row->description, $questions );
+        $keyquestion = $index . "" . $row->description;
+        if (! isset ( $headers [$keyquestion] )) {
+            $headers [$keyquestion] = $row->description;
+        }
+        if ($laststudent != $row->id) {
+            if ($laststudent > 0) {
+                $tabledata [$studentname] = $data;
+                $current ++;
+            }
+            $data = array (
+                '00course' => $row->course,
+                '01exam' => $row->exam,
+                '02examid' => $row->id,
+                $keyquestion => $row->totalscore,
+                '99grade' => $row->grade
+            );
+            $laststudent = intval ( $row->id );
+            $studentname = $row->id;
+        } else {
+            $data [$keyquestion] = $row->totalscore;
+        }
+        $lastrow = $row;
+    }
+    $studentname = $lastrow->id;
+    $tabledata [$studentname] = $data;
+    $headers ['99grade'] = get_string ( 'grade' );
+    ksort ( $tabledata );
+
+    $current = 0;
+    $newtabledata = array ();
+    foreach ( $tabledata as $data ) {
+        foreach ( $questions as $q ) {
+            $index = 10 + array_search ( $q, $questions );
+            if (! isset ( $data [$index . "" . $q] )) {
+                $data [$index . "" . $q] = '0.000';
+            }
+        }
+        ksort ( $data );
+        $current ++;
+        $newtabledata [] = $data;
+    }
+
+    $tabledata = $newtabledata;
+
+    $excelfilename = clean_filename ( $emarking->name."-markers.xls" );
+    
+    emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 2);
 }
 
 
@@ -587,7 +707,6 @@ ORDER BY c.shortname, u.lastname, u.firstname";
             $data [$keyquestion."-ER"] = $row->expectation_reality;
         }
         $lastrow = $row;
-       //  var_dump($data);echo "<hr>";
     }
     $studentname = $lastrow->lastname . ',' . $lastrow->firstname;
     $tabledata [$studentname] = $data;
@@ -620,7 +739,7 @@ ORDER BY c.shortname, u.lastname, u.firstname";
     emarking_save_data_to_excel($headers, $tabledata, $excelfilename);
 }
 
-function emarking_save_data_to_excel($headers, $tabledata, $excelfilename) {
+function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $colnumber = 5) {
     // Creating a workbook
     $workbook = new MoodleExcelWorkbook ( "-" );
     // Sending HTTP headers
@@ -640,7 +759,7 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename) {
     foreach ( $tabledata as $data ) {
         $col = 0;
         foreach ( array_values ( $data ) as $d ) {
-            if ($row > 0 && $col >= 5) {
+            if ($row > 0 && $col >= $colnumber) {
                 $myxls->write_number ( $row, $col, $d );
             } else {
                 $myxls->write_string ( $row, $col, $d );

@@ -2048,38 +2048,64 @@ function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpat
     unlink($imgrotated);
 }
 
+
 /**
  * Creates a QR image based on a string
  *
- * @param unknown $fileimg            
- * @param unknown $qrstring            
- * @param unknown $stinfo            
- * @param unknown $i            
+ * @param unknown $fileimg
+ * @param unknown $qrstring
+ * @param unknown $stinfo
+ * @param unknown $i
  * @return multitype:string
  */
 function emarking_create_qr_image($fileimg, $qrstring, $stinfo, $i)
 {
     global $CFG;
     require_once ($CFG->dirroot . '/mod/emarking/lib/phpqrcode/phpqrcode.php');
-    
+
     $h = random_string(15);
     $hash = random_string(15);
     $img = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . ".png";
     $imgrotated = $fileimg . "/qr" . $h . "_" . $stinfo->idnumber . "_" . $i . "_" . $hash . "r.png";
-    
+
     // The image is generated based on the string
     QRcode::png($qrstring, $img);
-    
+
     // Same image but rotated
     QRcode::png($qrstring . "-R", $imgrotated);
     $gdimg = imagecreatefrompng($imgrotated);
     $rotated = imagerotate($gdimg, 180, 0);
     imagepng($rotated, $imgrotated);
-    
+
     return array(
         $img,
         $imgrotated
     );
+}
+
+/**
+ * Creates a QR image based on a string
+ *
+ * @param unknown $qrstring            
+ * @return string
+ */
+function emarking_create_qr_from_string($qrstring)
+{
+    global $CFG;
+    require_once ($CFG->dirroot . '/mod/emarking/lib/phpqrcode/phpqrcode.php');
+
+    $path = emarking_get_temp_dir_path("attendance");
+    if (!file_exists($path)) {
+        mkdir($path, 0777, true);
+    }
+    $hash = random_string(15);
+    $time = time();
+    $img = $path . "/qr" . $time . $hash . ".png";
+    
+    // The image is generated based on the string
+    QRcode::png($qrstring, $img);
+    
+    return $img;
 }
 
 /**
