@@ -35,13 +35,11 @@ $regradeaccepted = optional_param('regradeaccepted', 0, PARAM_INT);
 	
 $posx = required_param('posx', PARAM_INT);
 $posy = required_param('posy', PARAM_INT);
-	
-if($emarking->type != EMARKING_TYPE_MARKER_TRAINING){
 
-	/**  Measures the correction window **/
-	$winwidth = required_param('windowswidth', PARAM_NUMBER);
-	$winheight = required_param('windowsheight', PARAM_NUMBER);
-}
+/**  Measures the correction window **/
+$winwidth = optional_param('windowswidth', '-1' , PARAM_NUMBER);
+$winheight = optional_param('windowsheight', '-1', PARAM_NUMBER);
+
 
 if(!$comment = $DB->get_record('emarking_comment', array('id'=>$commentid))){
 	emarking_json_error("Invalid comment",array("id"=>$commentid));
@@ -68,12 +66,13 @@ if($previouslvlid > 0 && $levelid <= 0) {
 }
 
 /** transformation pixels screen to percentages **/
-
-$posx = ($posx/$winwidth);
-$posy = ($posy/$winheight);
-    
-$comment->posx = $posx;
-$comment->posy = $posy;
+if($winheight != -1 && $winheight != -1){
+	$posx = ($posx/$winwidth);
+	$posy = ($posy/$winheight);
+	    
+	$comment->posx = $posx;
+	$comment->posy = $posy;
+}
 $comment->id = $commentid;
 $comment->rawtext = $commentrawtext;
 $comment->bonus = $bonus;

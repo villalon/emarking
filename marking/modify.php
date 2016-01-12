@@ -116,7 +116,7 @@ $(document).ready(function(){
 		var radiobutton = $("input[name='score']:checked");
 		var idlevel = radiobutton.attr("idlevel");
 		var ajaxurl = $("#addregrade").attr("url") + "&levelid=" + idlevel;
-		 alert(ajaxurl);
+		// alert(ajaxurl);
 		$.ajax({
     		type:"JSON",
         	url:ajaxurl,
