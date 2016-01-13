@@ -284,6 +284,8 @@ $string ['apply'] = 'Apply';
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
 $string ['exporttoexcel'] = 'Export to Excel';
+$string ['exportgrades'] = 'Export grades';
+$string ['exportagreement'] = 'Export agreement';
 
 $string ['comparativereport'] = 'Comparative';
 $string ['comparativereport_help'] = 'Comparative';

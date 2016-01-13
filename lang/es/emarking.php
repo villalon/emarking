@@ -286,6 +286,8 @@ $string ['apply'] = 'Aplicar';
 /////////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';
 $string ['exporttoexcel'] = 'Exportar a Excel';
+$string ['exportgrades'] = 'Exportar calificaciones';
+$string ['exportagreement'] = 'Exportar acuerdo';
 
 $string ['comparativereport'] = 'Comparativo';
 $string ['comparativereport_help'] = 'Comparativo';

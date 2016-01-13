@@ -239,7 +239,10 @@ if ($issupervisor && $rubriccriteria) {
         'id' => $cm->id,
         'exportcsv' => 'grades'
     ));
-    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+    echo $OUTPUT->heading(get_string('exporttoexcel', 'mod_emarking'), 4);
+    echo html_writer::start_div('exportbuttons');
+    echo $OUTPUT->action_icon($csvurl, new pix_icon('i/grades', get_string('exportgrades', 'mod_emarking')));
+    echo html_writer::end_div();    
     }
 }
 
@@ -574,13 +577,18 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	echo html_writer::table($chartstable);
 
 	if($emarking->type == EMARKING_TYPE_MARKER_TRAINING && $issupervisor) {
-	    $csvurl = new moodle_url('/mod/emarking/marking/delphi.php', array(
+	    $csvurl = new moodle_url('/mod/emarking/view.php', array(
 	        'id' => $cm->id,
 	        'exportcsv' => 'delphi'
 	    ));
-	    echo html_writer::start_div();
-	    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
-	    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+	    $csvurlagreement = new moodle_url('/mod/emarking/view.php', array(
+	        'id' => $cm->id,
+	        'exportcsv' => 'agreement'
+	    ));
+	    echo $OUTPUT->heading(get_string('exporttoexcel', 'mod_emarking'), 4);
+	    echo html_writer::start_div('exportbuttons');
+	    echo $OUTPUT->action_icon($csvurl, new pix_icon('i/grades', get_string('exportgrades', 'mod_emarking')));
+	    echo $OUTPUT->action_icon($csvurlagreement, new pix_icon('i/report', get_string('exportagreement', 'mod_emarking')));
 	    echo html_writer::end_div();
 	}
 	
