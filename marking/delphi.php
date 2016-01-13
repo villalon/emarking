@@ -69,8 +69,12 @@ $issupervisor = has_capability('mod/emarking:supervisegrading', $context);
 $usercangrade = has_capability('mod/assign:grade', $context);
 
 // Download Excel if it is the case
-if ($exportcsv && $exportcsv === 'delphi' && $usercangrade && $issupervisor) {
-    emarking_download_excel_markers_training($emarking);
+if ($exportcsv && $usercangrade && $issupervisor) {
+    if($exportcsv === 'delphi') {
+        emarking_download_excel_markers_training($emarking);
+    } elseif ($exportcsv === 'agreement') {
+        emarking_download_excel_markers_agreement($cm, $emarking);
+    }
     die();
 }
 
@@ -291,12 +295,20 @@ if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
             'id' => $cm->id,
             'exportcsv' => 'delphi'
         ));
-        echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+        $csvurlagreement = new moodle_url('delphi.php', array(
+            'id' => $cm->id,
+            'exportcsv' => 'agreement'
+        ));
+        echo $OUTPUT->heading(get_string('exporttoexcel', 'mod_emarking'), 4);
+        echo html_writer::start_div('exportbuttons');
+	    echo $OUTPUT->action_icon($csvurl, new pix_icon('i/grades', get_string('exporttoexcel', 'mod_emarking')));
+	    echo $OUTPUT->action_icon($csvurlagreement, new pix_icon('i/report', get_string('exporttoexcel', 'mod_emarking')));
+	    echo html_writer::end_div();
 }
 
 
 
-echo "<h4>Porcentajes de acuerdo</h4>";
+echo $OUTPUT->heading(get_string('agreement', 'mod_emarking'), 4);
 
 $maintable = new html_table();
 $maintable->data[] = array(

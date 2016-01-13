@@ -612,6 +612,110 @@ function emarking_download_excel_markers_training($emarking) {
 }
 
 
+
+/**
+ * Exports all grades and scores in an exam in Excel format
+ *
+ * @param unknown $emarking
+ */
+function emarking_download_excel_markers_agreement($cm, $emarking) {
+    global $DB;
+
+    $csvsql = "
+		SELECT
+            s.id,
+	        cr.description,
+            CONCAT(cr.description,'-',b.id) as category,
+	        b.definition,
+            COUNT(distinct c.id) as votes
+		FROM {course_modules} AS cm
+		INNER JOIN {context} AS mc ON (cm.id = :cmid AND mc.contextlevel = 70 AND cm.id = mc.instanceid)
+		INNER JOIN {grading_areas} AS ar ON (mc.id = ar.contextid)
+		INNER JOIN {grading_definitions} AS def ON (ar.id = def.areaid)
+		INNER JOIN {gradingform_rubric_criteria} AS cr ON (def.id = cr.definitionid)
+		INNER JOIN {gradingform_rubric_levels} AS b ON (cr.id = b.criterionid)
+        INNER JOIN {emarking} AS e ON (e.id = cm.instance)
+		INNER JOIN {emarking_submission} AS s ON (e.id = s.emarking)
+		INNER JOIN {emarking_draft} AS d ON (d.submissionid = s.id AND d.qualitycontrol=0)
+        INNER JOIN {course} AS cc ON (cc.id = e.course)
+		LEFT JOIN mdl_emarking_comment AS c ON (d.id = c.draft AND c.levelid = b.id)
+        GROUP BY s.id, cr.id, b.id
+        ORDER BY s.id, cr.id, b.id
+        ";
+
+    // Get data and generate a list of questions
+    $rows = $DB->get_recordset_sql ( $csvsql, array (
+        'cmid' => $cm->id
+    ) );
+
+    $questions = array ();
+    foreach ( $rows as $row ) {
+        if (array_search ( $row->category, $questions ) === FALSE
+            && $row->category)
+            $questions [] = $row->category;
+    }
+
+    $current = 0;
+    $laststudent = 0;
+    $headers = array (
+        '00examid' => get_string ( 'exam', 'mod_emarking' )
+    );
+    $tabledata = array ();
+    $data = null;
+
+    $rows = $DB->get_recordset_sql ( $csvsql, array (
+        'cmid' => $cm->id
+    ) );
+
+    $studentname = '';
+    $lastrow = null;
+    foreach ( $rows as $row ) {
+        $index = 10 + array_search ( $row->category, $questions );
+        $keyquestion = $index . "" . $row->category;
+        if (! isset ( $headers [$keyquestion] )) {
+            $headers [$keyquestion] = $row->category;
+        }
+        if ($laststudent != $row->id) {
+            if ($laststudent > 0) {
+                $tabledata [$studentname] = $data;
+                $current ++;
+            }
+            $data = array (
+                '00examid' => $row->id,
+                $keyquestion => $row->votes
+            );
+            $laststudent = intval ( $row->id );
+            $studentname = $row->id;
+        } else {
+            $data [$keyquestion] = $row->votes;
+        }
+        $lastrow = $row;
+    }
+    $studentname = $lastrow->id;
+    $tabledata [$studentname] = $data;
+    ksort ( $tabledata );
+
+    $current = 0;
+    $newtabledata = array ();
+    foreach ( $tabledata as $data ) {
+        foreach ( $questions as $q ) {
+            $index = 10 + array_search ( $q, $questions );
+            if (! isset ( $data [$index . "" . $q] )) {
+                $data [$index . "" . $q] = '0.000';
+            }
+        }
+        ksort ( $data );
+        $current ++;
+        $newtabledata [] = $data;
+    }
+
+    $tabledata = $newtabledata;
+
+    $excelfilename = clean_filename ( $emarking->name."-agreement.xls" );
+    
+    emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 1);
+}
+
 /**
  * Exports student opinions on justice for this exam
  *

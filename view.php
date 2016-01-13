@@ -119,6 +119,8 @@ if ($exportcsv && $usercangrade && $issupervisor) {
         emarking_download_excel($emarking);
     } elseif($exportcsv === 'delphi') {
         emarking_download_excel_markers_training($emarking);
+    } elseif ($exportcsv === 'agreement') {
+        emarking_download_excel_markers_agreement($cm, $emarking);
     }
     die();
 }
@@ -574,7 +576,10 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 	        'id' => $cm->id,
 	        'exportcsv' => 'delphi'
 	    ));
+	    echo html_writer::start_div();
 	    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+	    echo $OUTPUT->single_button($csvurl, get_string('exporttoexcel', 'mod_emarking'));
+	    echo html_writer::end_div();
 	}
 	
 	if(isset($userpercentage) && floor($userpercentage) == 100){

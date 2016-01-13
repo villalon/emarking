@@ -24,6 +24,10 @@ input[type="text"] {
 	height: inherit;
 }
 
+.exportbuttons .singlebutton {
+	
+}
+
 .timeago {
 	font-size: 8pt;
 }
