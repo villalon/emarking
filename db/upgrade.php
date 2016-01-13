@@ -1544,6 +1544,31 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016010201, 'emarking');
     }
     
+    if ($oldversion < 2016011201) {
+    
+    	// Define table emarking_collaborative_work to be created.
+    	$table = new xmldb_table('emarking_collaborative_work');
+    
+    	// Adding fields to table emarking_collaborative_work.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('commentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('type', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('text', XMLDB_TYPE_CHAR, '1000', null, null, null, null);
+    	$table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('createdtime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    
+    	// Adding keys to table emarking_collaborative_work.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Conditionally launch create table for emarking_collaborative_work.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016011201, 'emarking');
+    }
+    
     
     return true;
 }

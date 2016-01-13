@@ -1032,9 +1032,11 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
  */
 function emarking_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm)
 {
+	/*
     $navref->add('Foo', new moodle_url('/mod/emarking/view.php', array(
         'id' => 1
     )), navigation_node::TYPE_SETTING);
+    */
 }
 
 /**
