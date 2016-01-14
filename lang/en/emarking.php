@@ -85,6 +85,11 @@ $string['markerscanseeselectedcriteria'] = 'Markers can see only assigned criter
 $string['markerscanseenothing'] = 'Pages are assigned to criteria but no markers are assigned to criteria. Only admins will be able to see pages.';
 $string['markerscanseepageswithcriteria'] = 'Markers can see only those pages assigned to the criteria they can mark.';
 $string['assignedmarkers'] = 'Assigned markers';
+$string['assignedcriteria'] = 'Assigned criteria';
+$string['assignedoutcomes'] = 'Assigned outcomes';
+$string['nooutcomesassigned'] = 'There are no outcomes associated to this exam\'s rubric';
+$string['assignmarkerstocriteria'] = 'Add markers to criteria';
+$string['assignoutcomestocriteria'] = 'Add outcomes to criteria';
 $string['currentstatus'] = 'Current status';
 $string['noneditingteacherconfiguration'] = 'As a Non-editing teacher you can not change de settings.';
 
@@ -346,7 +351,6 @@ $string ['transactionsuccessfull'] = 'Transaction successfull';
 $string ['setasabsent'] = 'Absent';
 $string ['setassubmitted'] = 'Set as uploaded';
 $string ['markers'] = 'Markers';
-$string ['assignmarkerstocriteria'] = 'Add markers to criteria';
 
 $string ['pctmarked'] = 'Marking progress';
 $string ['saved'] = 'Saved';

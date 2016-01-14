@@ -1569,6 +1569,33 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016011201, 'emarking');
     }
     
+    if ($oldversion < 2016011301) {
+    
+        // Define table emarking_outcomes_criteria to be created.
+        $table = new xmldb_table('emarking_outcomes_criteria');
+    
+        // Adding fields to table emarking_outcomes_criteria.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('emarking', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('criterion', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('outcome', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    
+        // Adding keys to table emarking_outcomes_criteria.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+        // Adding indexes to table emarking_outcomes_criteria.
+        $table->add_index('idx_outcome_criterion_emarking', XMLDB_INDEX_NOTUNIQUE, array('emarking'));
+    
+        // Conditionally launch create table for emarking_outcomes_criteria.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016011301, 'emarking');
+    }
+    
     
     return true;
 }

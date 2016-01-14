@@ -91,6 +91,11 @@ $string['markerscanseeselectedcriteria'] = 'Correctores ven solamente criterios 
 $string['markerscanseenothing'] = 'Hay páginas asignadas a criterios, pero no correctores. Esto provocará que solo los administradores puedan ver las páginas.';
 $string['markerscanseepageswithcriteria'] = 'Correctores ven solo las páginas de los criterios que tienen asignados.';
 $string['assignedmarkers'] = 'Correctores asignados';
+$string['assignedcriteria'] = 'Criterios asignados';
+$string['assignedoutcomes'] = 'Resultados asignados';
+$string['assignoutcomestocriteria'] = 'Agregar resultados a criterios';
+$string['assignmarkerstocriteria'] = 'Agregar correctores a criterios';
+$string['nooutcomesassigned'] = 'No hay resultados asociados a la rúbrica de esta prueba';
 $string['currentstatus'] = 'Configuración actual';
 $string['noneditingteacherconfiguration'] = 'Como ayudante no puedes modificar la configuración.';
 
@@ -348,7 +353,6 @@ $string ['transactionsuccessfull'] = 'Transacción exitosa';
 $string ['setasabsent'] = 'Ausente';
 $string ['setassubmitted'] = 'Marcar como subida';
 $string ['markers'] = 'Correctores';
-$string ['assignmarkerstocriteria'] = 'Agregar correctores a criterios';
 
 $string ['pctmarked'] = '% corregido';
 $string ['saved'] = 'Cambios guardados';

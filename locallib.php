@@ -265,9 +265,6 @@ function emarking_tabs($context, $cm, $emarking)
         $scantab->subtree[] = $uploadanswers;
     }
     
-    // Settings tab
-    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
-    
     // Grade tab
     $markingtab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('onscreenmarking', 'mod_emarking'));
     $markingtab->subtree[] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
@@ -282,6 +279,9 @@ function emarking_tabs($context, $cm, $emarking)
             $markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
     }
     
+    // Settings tab
+    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string("settings", 'mod_emarking'));
+    
     // Settings for marking
     if ($emarking->type == EMARKING_TYPE_NORMAL) {
         $settingstab->subtree[] = new tabobject("osmsettings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
@@ -289,6 +289,7 @@ function emarking_tabs($context, $cm, $emarking)
         if (has_capability('mod/emarking:assignmarkers', $context)) {
             $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markerspercriteria", 'mod_emarking'));
             $settingstab->subtree[] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}", core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
+            $settingstab->subtree[] = new tabobject("outcomes", $CFG->wwwroot . "/mod/emarking/marking/outcomes.php?id={$cm->id}", core_text::strtotitle(get_string("outcomes", "grades")));
         }
     }
     
