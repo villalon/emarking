@@ -1622,7 +1622,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016011500, 'emarking');
     }
     
-    if ($oldversion < 2016011500) {
+    if ($oldversion < 2016011501) {
     
     	// Define field printingcost to be added to emarking_exams.
     	$table = new xmldb_table('emarking_exams');
@@ -1634,7 +1634,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	}
     
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016011500, 'emarking');
+    	upgrade_mod_savepoint(true, 2016011501, 'emarking');
     }
     
     
