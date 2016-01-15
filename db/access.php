@@ -282,6 +282,20 @@ $capabilities = array(
 		
 				)
 		
+		),
+		
+		'mod/emarking:viewcostreport' => array(
+				'riskbitmask' =>  RISK_XSS,
+				'captype' => 'write',
+				'contextlevel' => CONTEXT_COURSECAT,
+				'archetypes' => array(
+						'student' => CAP_PROHIBIT,
+						'teacher' => CAP_PROHIBIT,
+						'editingteacher' => CAP_ALLOW,
+						'manager' => CAP_ALLOW
+		
+				)
+		
 		)
 );
 
