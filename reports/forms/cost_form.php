@@ -41,7 +41,7 @@ class emarking_cost_form extends moodleform {
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
-		$mform->addElement('select', 'category','soy ordinario', $arraycategory);        
+		$mform->addElement('select', 'category','Category', $arraycategory);        
         $mform->addElement('text', 'cost','Cost of printing one page');
         $mform->setType('cost', PARAM_INT);
         $mform->addElement('text', 'costcenter','Cost Center number');

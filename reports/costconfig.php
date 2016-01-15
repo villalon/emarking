@@ -133,6 +133,7 @@ echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 				$arrayupdate[$costs->id] = $costs->id;
 				}
 			}
+			if(!empty($arrayupdate)){
 			list ( $sqlin, $parametrosupdate ) = $DB->get_in_or_equal ( $arrayupdate );
 			$parametros2 = array(
 					$cost,
@@ -143,8 +144,10 @@ echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 			 			SET printingcost = ?, costcenter = ?
 						WHERE category $sqlin";	
 					$DB->execute($sqlupdate,$updateparams);
+			}
+			if(!empty($arrayinsert)){
 			$DB->insert_records("emarking_category_cost", $arrayinsert);
-
+			}
 			}
 	}
 
