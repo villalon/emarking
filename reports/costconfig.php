@@ -26,9 +26,7 @@
  */
 
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
-require_once(dirname(dirname(__FILE__)).'/lib.php');
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once('/forms/cost_form.php');
+require_once ($CFG->dirroot.'/mod/emarking/reports/forms/cost_form.php');
 
 global $CFG, $DB, $OUTPUT; 
 $categoryid = required_param('category', PARAM_INT);
@@ -106,8 +104,8 @@ echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 			// Sql that counts all the resourses since the last time the app was used
 			$sqlcategory = "SELECT id 
 							FROM mdl_course_categories as cc
-							WHERE (cc.path like ? OR cc.id = ?)
-                               ";
+							WHERE (cc.path like ? OR cc.id = ?)";
+			
 			// Gets the information of the above query
 			if($categories = $DB->get_records_sql($sqlcategory, $categoryparams)){
 				foreach($categories AS $category){
@@ -130,7 +128,7 @@ echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 					$record->printingcost = $cost;
 					$record->costcenter = $costcenter;
 					$arrayinsert[]=$record;
-					}
+				}
 				else {
 				$arrayupdate[$costs->id] = $costs->id;
 				}
