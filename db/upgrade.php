@@ -1596,6 +1596,48 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016011301, 'emarking');
     }
     
+    if ($oldversion < 2016011500) {
+    
+    	// Define table emarking_category_cost to be created.
+    	$table = new xmldb_table('emarking_category_cost');
+    
+    	// Adding fields to table emarking_category_cost.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('category', XMLDB_TYPE_INTEGER, '19', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('printingcost', XMLDB_TYPE_INTEGER, '19', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('costcenter', XMLDB_TYPE_INTEGER, '19', null, XMLDB_NOTNULL, null, null);
+    
+    	// Adding keys to table emarking_category_cost.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Adding indexes to table emarking_category_cost.
+    	$table->add_index('category', XMLDB_INDEX_UNIQUE, array('category'));
+    
+    	// Conditionally launch create table for emarking_category_cost.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016011500, 'emarking');
+    }
+    
+    if ($oldversion < 2016011500) {
+    
+    	// Define field printingcost to be added to emarking_exams.
+    	$table = new xmldb_table('emarking_exams');
+    	$field = new xmldb_field('printingcost', XMLDB_TYPE_INTEGER, '19', null, null, null, null, 'enrolments');
+    
+    	// Conditionally launch add field printingcost.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016011500, 'emarking');
+    }
+    
+    
     
     return true;
 }

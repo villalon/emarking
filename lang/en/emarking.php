@@ -286,6 +286,21 @@ $string ['pagesperexam'] = 'Pages per exam';
 $string ['printdetails'] = 'Print details';
 $string ['apply'] = 'Apply';
 
+// EMARKING COST REPORT
+$string['costreport'] = 'Reports';
+$string['totalactivies'] = 'Number of activities';
+$string['emarkingcourses'] = 'Courses with emarking';
+$string['meantestlenght'] = 'Mean test pages';
+$string['totalprintedpages'] = 'Total printed pages';
+$string['reportbuttonsheader'] = 'Important Information';
+$string['courseranking'] = 'Course ranking';
+$string['teacherranking'] = 'Teacher ranking';
+$string['printingcost'] = 'Cost for impresed page';
+$string['printingcost_help'] = 'The cost that have each page you print';
+$string['totalprintingcost'] = 'Total printing cost';
+$string['costsettings'] = 'Settings';
+
+
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
 $string ['exporttoexcel'] = 'Export to Excel';
