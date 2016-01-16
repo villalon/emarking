@@ -433,7 +433,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="commentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="0: defused collaborative button, 1: actived collaborative button"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0: defused collaborative button, 1: actived collaborative button"/>
         <FIELD NAME="text" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="createdtime" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
