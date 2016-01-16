@@ -8,7 +8,7 @@
 	display: block;
 }
 
-#page-mod-emarking-view .actions {
+.actions {
 	min-width: 170px;
 }
 
@@ -21,6 +21,62 @@
 	#page-mod-emarking-marking-pages .c0 {
 	max-width: 150px;
 	min-width: 150px;
+}
+
+#page-mod-emarking-marking-outcomes .c1,
+#page-mod-emarking-marking-pages .c1 {
+	width: 100%;
+}
+
+.deletewidget {
+	position: absolute;
+	margin-top: -30px;
+	background-color: whitesmoke;
+	border-radius: 50%;
+	width: 20px;
+	text-align: center;
+	display: none;
+	margin-left: 40px;
+	color: black;
+    font-weight: bold;
+    box-shadow: 0px 0px 3px #000;
+}
+
+.deletewidget:hover {
+	color:red;
+}
+#page-mod-emarking-marking-pages .widget,
+#page-mod-emarking-marking-markers .widget {
+	border:none;
+}
+
+#page-mod-emarking-marking-markers .widget {
+	background-color: white;
+	box-shadow: none;
+}
+
+#page-mod-emarking-marking-pages .deletewidget {
+    margin-left: 10px;    
+}
+
+#page-mod-emarking-marking-markers .deletewidget {
+    margin-left: 20px;
+    margin-top: -40px;    
+}
+
+.widget:hover .deletewidget {
+	display: block;
+}
+
+.widget {
+	float: left;
+	margin-right: 5px;
+    text-align: center;
+    background-color: #005aa8;
+    color: #fff;
+    padding: 3px;
+    box-shadow: 0px 0px 3px #000;
+    font-weight: bold;
 }
 
 input[type="text"] {
@@ -47,6 +103,10 @@ input[type="text"] {
 	margin-left: 5px;
 	background-color: #005aa8;
 	color: #fff;
+	padding: 3px;
+	border-radius: 50%;
+    box-shadow: 0px 0px 3px #000;
+    font-weight: bold;
 }
 
 .regradecomment {
