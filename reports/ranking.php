@@ -63,10 +63,7 @@ echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'ranking');
 
 // Get the grading manager, then method and finally controller
-list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
-
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-$definition = $rubriccontroller->get_definition();
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
 
 $sqluserid = $usercangrade ? "$USER->id OR 1 = 1" : $USER->id;
 

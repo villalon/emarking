@@ -91,7 +91,7 @@ echo $OUTPUT->heading_with_help(get_string('emarking','mod_emarking'), 'annotate
 // Navigation tabs
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "mark" );
 
-list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
 
 // User filter checking capabilities. If user can not grade, then she can not
 // see other users

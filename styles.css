@@ -16,8 +16,11 @@
 	width: 70%;
 }
 
-#page-mod-emarking-marking-regraderequests .c0 {
+#page-mod-emarking-marking-regraderequests .c0,
+	#page-mod-emarking-marking-outcomes .c0,
+	#page-mod-emarking-marking-pages .c0 {
 	max-width: 150px;
+	min-width: 150px;
 }
 
 input[type="text"] {

@@ -79,7 +79,7 @@ if ($exportcsv && $usercangrade && $issupervisor) {
 }
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
+list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
 
 // Page navigation and URL settings
 $PAGE->set_url($urlemarking);
@@ -88,14 +88,6 @@ $PAGE->set_course($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-
-// As we have a rubric we can get the controller
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-if (! $rubriccontroller instanceof gradingform_rubric_controller) {
-    print_error(get_string('invalidrubric', 'mod_emarking'));
-}
-
-$definition = $rubriccontroller->get_definition();
 
 $markerid = 0;
 $filter = "";

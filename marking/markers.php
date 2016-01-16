@@ -33,6 +33,7 @@ global $DB, $USER;
 // Obtain parameter from URL
 $cmid = required_param('id', PARAM_INT);
 $criterionid = optional_param('criterion', 0, PARAM_INT);
+$markerid = optional_param('marker', 0, PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHA);
 
 if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
@@ -105,15 +106,7 @@ echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "markers");
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
-
-// As we have a rubric we can get the controller
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-if (! $rubriccontroller instanceof gradingform_rubric_controller) {
-    print_error(get_string('invalidrubric', 'mod_emarking'));
-}
-
-$definition = $rubriccontroller->get_definition();
+list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
 
 $mform_markers = new emarking_markers_form(null, array(
     'context' => $context,
@@ -131,6 +124,13 @@ if ($mform_markers->get_data()) {
 if ($action === 'deletemarkers') {
     $DB->delete_records('emarking_marker_criterion', array(
         'emarking' => $emarking->id,
+        'criterion' => $criterion->id
+    ));
+    echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
+} elseif ($action === 'deletesinglemarker') {
+    $DB->delete_records('emarking_marker_criterion', array(
+        'emarking' => $emarking->id,
+        'marker'=>$markerid,
         'criterion' => $criterion->id
     ));
     echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
@@ -177,7 +177,13 @@ foreach ($markercriteria as $d) {
             $u = $DB->get_record("user", array(
                 "id" => $marker
             ));
-            $outcomeshtml .= $OUTPUT->user_picture($u);
+            $urldeletesingle = new moodle_url('/mod/emarking/marking/markers.php', array(
+                'id' => $cm->id,
+                'criterion' => $d->id,
+                'marker' => $marker,
+                'action' => 'deletesinglemarker'
+            ));
+            $outcomeshtml .= html_writer::div($OUTPUT->user_picture($u) . html_writer::link($urldeletesingle, "X", array("class"=>"deletewidget")), 'widget');
         }
         $outcomeshtml .= $OUTPUT->action_link($urldelete, get_string("deleterow", "mod_emarking"), null, array(
             "class" => "rowactions"

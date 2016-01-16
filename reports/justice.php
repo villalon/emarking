@@ -105,11 +105,7 @@ if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL && $emarking->justi
 }
 
 // Get rubric instance
-list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true, true);
-
-// Get the rubric controller from the grading manager and method
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-$definition = $rubriccontroller->get_definition();
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true, true);
 
 // Calculates the number of criteria for this evaluation
 $numcriteria = 0;

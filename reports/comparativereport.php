@@ -86,9 +86,7 @@ echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "comparison");
 
 // Get rubric definitions for both activities
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
-$controller = $gradingmanager->get_controller($gradingmethod);
-$definition = $controller->get_definition();
+list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
 
 $totalsubmissions = $DB->count_records_sql("
 		SELECT COUNT(distinct e.id) AS total
@@ -119,16 +117,13 @@ if ($emarkingsform->get_data()) {
     // Get rubric definition for second activity
     $cm2 = get_coursemodule_from_instance('emarking', $emarking2->id);
     $context2 = context_module::instance($cm2->id);
-    list ($gradingmanager2, $gradingmethod2) = emarking_validate_rubric($context2, false, false);
+    list ($gradingmanager2, $gradingmethod2, $definition2) = emarking_validate_rubric($context2, false, false);
     
     if ($gradingmethod2 == null) {
         echo $OUTPUT->notification(get_string('rubrcismustbeidentical', 'mod_emarking'), 'notifyproblem');
         echo $OUTPUT->footer();
         die();
     }
-    
-    $controller2 = $gradingmanager2->get_controller($gradingmethod2);
-    $definition2 = $controller2->get_definition();
     
     $criteria = array_values($definition->rubric_criteria);
     $criteria2 = array_values($definition2->rubric_criteria);

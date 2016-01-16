@@ -189,7 +189,7 @@ $tabname = $scan ? "scanlist" : "mark";
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, 
+list ($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller) = emarking_validate_rubric($context, 
     $emarking->type == EMARKING_TYPE_MARKER_TRAINING, !$scan);
 
 // User filter checking capabilities. If user can not grade, then she can not
@@ -219,17 +219,10 @@ $rubricscores = array(
     'minscore' => 0
 );
 
-$rubriccriteria = null;
-// If there is a rubric defined we can get the controller and the parameters for this rubric
-if ($gradingmethod && ($rubriccontroller = $gradingmanager->get_controller($gradingmethod))) {
-    if ($rubriccontroller instanceof gradingform_rubric_controller) {
-        // Getting the number of criteria
-        if ($rubriccriteria = $rubriccontroller->get_definition()) {
-            $numcriteria = count($rubriccriteria->rubric_criteria);
-        }
-        // Getting min and max scores
-        $rubricscores = $rubriccontroller->get_min_max_score();
-    }
+if($rubriccriteria) {
+    $numcriteria = count($rubriccriteria->rubric_criteria);
+    // Getting min and max scores
+    $rubricscores = $rubriccontroller->get_min_max_score();
 }
 
 // Show export to Excel button if supervisor and there are students to export

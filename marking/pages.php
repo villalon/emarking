@@ -33,6 +33,7 @@ global $DB, $USER;
 // Obtain parameter from URL
 $cmid = required_param('id', PARAM_INT);
 $criterionid = optional_param('criterion', 0, PARAM_INT);
+$pageid = optional_param('page', 0, PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHA);
 
 if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
@@ -95,15 +96,7 @@ echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "pages" );
 
 // Get rubric instance
-list($gradingmanager, $gradingmethod) = emarking_validate_rubric($context);
-
-// As we have a rubric we can get the controller
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-if(!$rubriccontroller instanceof gradingform_rubric_controller) {
-    print_error(get_string('invalidrubric', 'mod_emarking'));
-}
-
-$definition = $rubriccontroller->get_definition();
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
 
 $maxpages = $DB->count_records_sql("
 SELECT MAX(p.page) AS maxpages
@@ -122,6 +115,9 @@ if($mform_pages->get_data()) {
 
 if($action === 'deletepages') {
     $DB->delete_records('emarking_page_criterion', array('emarking'=>$emarking->id, 'criterion'=>$criterion->id));
+    echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
+} elseif($action === 'deletepagesingle') {
+    $DB->delete_records('emarking_page_criterion', array('emarking'=>$emarking->id, 'criterion'=>$criterion->id, 'page'=>$pageid));
     echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
 }
 
@@ -152,7 +148,10 @@ $pagecriteria = $DB->get_recordset_sql("
         if($d->pages) {
             $pages = explode(",", $d->pages);
             foreach($pages as $page) {
-                $pageshtml .= $OUTPUT->box($page, "pagecriterionbox");
+                $urldeletesingle = new moodle_url('/mod/emarking/marking/pages.php', array('id'=>$cm->id, 'criterion'=>$d->id, 'page'=>$page, 'action'=>'deletepagesingle'));
+                $pageshtml .= $OUTPUT->box($page  . html_writer::link($urldeletesingle, "X", array(
+                "class" => "deletewidget"
+            )), "pagecriterionbox widget");
             }
             
             $pageshtml .= $OUTPUT->action_link($urldelete, get_string("deleterow", "mod_emarking"), null, array("class"=>"rowactions"));
