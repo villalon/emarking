@@ -33,6 +33,7 @@ global $DB, $USER;
 $cmid = required_param('id', PARAM_INT);
 $criterionid = optional_param('criterion', 0, PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHA);
+$outcome = optional_param('outcome', 0, PARAM_INT);
 
 if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
     print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
@@ -99,15 +100,7 @@ echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "outcomes");
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
-
-// As we have a rubric we can get the controller
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-if (! $rubriccontroller instanceof gradingform_rubric_controller) {
-    print_error(get_string('invalidrubric', 'mod_emarking'));
-}
-
-$definition = $rubriccontroller->get_definition();
+list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
 
 $mform_outcomes = new emarking_outcomes_form(null, array(
     'context' => $context,
@@ -125,6 +118,13 @@ if ($action === 'deleteoutcomes') {
     $DB->delete_records('emarking_outcomes_criteria', array(
         'emarking' => $emarking->id,
         'criterion' => $criterion->id
+    ));
+    echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
+} elseif($action === 'deletesingleoutcome') {
+    $DB->delete_records('emarking_outcomes_criteria', array(
+        'emarking' => $emarking->id,
+        'criterion' => $criterion->id,
+        'outcome' => $outcome
     ));
     echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
 }
@@ -164,33 +164,47 @@ foreach ($outcomescriteria as $d) {
         'action' => 'deleteoutcomes'
     ));
     $outcomeshtml = "";
+    $actions = "";
     if ($d->outcomes) {
         $outcomes = explode(",", $d->outcomes);
         foreach ($outcomes as $outcome) {
             $o = $DB->get_record("grade_outcomes", array(
                 "id" => $outcome
             ));
-            $outcomeshtml .= html_writer::div($o->shortname, '', array('title'=>$o->fullname, 'style'=>'float:left; margin-right: 5px; border: 1px solid black; padding: 2px;'));
+            $urldeletesingle = new moodle_url('/mod/emarking/marking/outcomes.php', array(
+                'id' => $cm->id,
+                'criterion' => $d->id,
+                'outcome' => $o->id,
+                'action' => 'deletesingleoutcome'
+            ));
+            $outcomeshtml .= html_writer::div($o->shortname . html_writer::link($urldeletesingle, "X", array(
+                "class" => "deletewidget"
+            )), 'widget', array(
+                'title' => $o->fullname
+            ));
         }
         $outcomeshtml .= $OUTPUT->action_link($urldelete, get_string("deleterow", "mod_emarking"), null, array(
             "class" => "rowactions"
         ));
     }
-
+    
     $data[] = array(
         $d->description,
-        $outcomeshtml
+        $outcomeshtml,
+        $actions
     );
 }
 
 $table = new html_table();
 $table->head = array(
     get_string("criterion", "mod_emarking"),
-    get_string("assignedoutcomes", "mod_emarking")
+    get_string("assignedoutcomes", "mod_emarking"),
+    "&nbsp;"
 );
 $table->colclasses = array(
     null,
-    null
+    null,
+    'actions'
 );
 $table->data = $data;
 
@@ -237,15 +251,15 @@ function process_mform($mform, $action, $emarking)
                 ));
                 $tablename = "emarking_outcomes_criteria";
             }
-                $association = new stdClass();
-                $association->emarking = $emarking->id;
-                $association->criterion = $data->criterion;
-                $association->timecreated = time();
-                $association->timemodified = time();
-                
-                $association->outcome = $data->outcome;
-                
-                $association->id = $DB->insert_record($tablename, $association);
+            $association = new stdClass();
+            $association->emarking = $emarking->id;
+            $association->criterion = $data->criterion;
+            $association->timecreated = time();
+            $association->timemodified = time();
+            
+            $association->outcome = $data->outcome;
+            
+            $association->id = $DB->insert_record($tablename, $association);
         }
         echo $OUTPUT->notification(get_string('saved', 'mod_emarking'), 'notifysuccess');
     }

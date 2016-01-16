@@ -67,15 +67,7 @@ $context = context_module::instance($cm->id);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context);
 
 // Get rubric instance
-list ($gradingmanager, $gradingmethod) = emarking_validate_rubric($context, true);
-
-// As we have a rubric we can get the controller
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-if (! $rubriccontroller instanceof gradingform_rubric_controller) {
-    print_error(get_string('invalidrubric', 'mod_emarking'));
-}
-
-$definition = $rubriccontroller->get_definition();
+list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
 
 $filter = "";
 $markercolumn = get_string("yourmarking", "mod_emarking");

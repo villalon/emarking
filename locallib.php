@@ -124,6 +124,83 @@ function emarking_time_difference($time1, $time2, $small = false)
 }
 
 /**
+ * Copies the settings from a source emarking activity to a destination one
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ */
+function emarking_copy_settings($emarkingsrc, $emarkingdst) {
+    global $DB;
+    
+    $emarkingsrc->id = $emarkingdst->id;
+    $emarkingsrc->name = $emarkingdst->name;
+    $emarkingsrc->intro = $emarkingdst->intro;
+    $emarkingsrc->introformat = $emarkingdst->introformat;
+    $emarkingsrc->type = $emarkingdst->type;
+    $emarkingsrc->timecreated = $emarkingdst->timecreated;
+    
+    $DB->update_record('emarking', $emarkingsrc);
+}
+
+/**
+ * Copies the settings from a source emarking activity to a destination one
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ */
+function emarking_copy_pages($emarkingsrc, $emarkingdst, $context) {
+    global $DB;
+    
+    $cmsrc = get_coursemodule_from_instance('emarking', $emarkingsrc->id);
+    $cmdst = get_coursemodule_from_instance('emarking', $emarkingdst->id);
+    
+    $contextsrc = context_module::instance($cmsrc->id);
+    $contextdst = context_module::instance($cmdst->id);
+    
+    list($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = emarking_validate_rubric($contextsrc);
+    list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst);
+    
+    $criteriasrc = $definitionsrc->rubric_criteria;
+    $criteriadst = $definitiondst->rubric_criteria;
+    
+    if(count($criteriasrc) != count($criteriadst)) {
+        throw new moodle_exception("Invalid rubric pairs, cannot copy pages settings");
+    }
+    
+    $criteriaitems = array();
+    foreach ($criteriasrc as $criterionsrc) {
+        foreach ($criteriadst as $criteriondst) {
+            if($criterionsrc['description'] === $criteriondst['description'])
+                $criteriaitems[$criterionsrc['id']] = $criteriondst['id'];
+        }
+    }
+    
+    if(count($criteriaitems) != count($criteriadst)) {
+        throw new moodle_exception("Invalid names in rubric. Can not copy settings.");
+    }
+
+    $transaction = $DB->start_delegated_transaction();
+    
+    $DB->delete_records('emarking_page_criterion', array('emarking'=>$emarkingdst->id));
+    
+    $pagescriteria = $DB->get_records('emarking_page_criterion', array('emarking'=>$emarkingsrc->id));
+    
+    foreach($pagescriteria as $pagecriterion) {
+        $newpagecriterion = new stdClass();
+        $newpagecriterion->emarking = $emarkingdst->id;
+        $newpagecriterion->page = $pagecriterion->page;
+        $newpagecriterion->criterion = $criteriaitems[$pagecriterion->criterion];
+        $newpagecriterion->block = $pagecriterion->block;
+        $newpagecriterion->timecreated = time();
+        $newpagecriterion->timemodified = time();
+        
+        $DB->insert_record('emarking_page_criterion', $newpagecriterion);
+    }
+    
+    $DB->commit_delegated_transaction($transaction);
+}
+
+/**
  * Returns the HTML for a jquery dialog which will show the content
  * @param string $title
  * @param string $content
@@ -1146,6 +1223,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
             die();
         }
     }
+    
     if (isset($definition->status)) {
         if ($definition->status == 10) {
             echo $OUTPUT->notification(get_string('rubricdraft', 'mod_emarking'), 'notifyproblem');
@@ -1158,7 +1236,9 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
     
     return array(
         $gradingmanager,
-        $gradingmethod
+        $gradingmethod,
+        $definition,
+        $rubriccontroller
     );
 }
 

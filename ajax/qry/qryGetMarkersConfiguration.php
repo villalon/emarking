@@ -3,15 +3,7 @@
 $results = array();
 
 // Get rubric instance
-list($gradingmanager, $gradingmethod, $notification, $button_rubric) = emarking_validate_rubric($context);
-
-// As we have a rubric we can get the controller
-$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-if(!$rubriccontroller instanceof gradingform_rubric_controller) {
-	print_error(get_string('invalidrubric', 'mod_emarking'));
-}
-
-$definition = $rubriccontroller->get_definition();
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
 
 $results['rubricname'] = $definition->name;
 
