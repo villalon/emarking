@@ -114,12 +114,12 @@ $buttonstable->data[] = $buttonsarray;
 echo html_writer::table($buttonstable);
 echo html_writer::end_tag('div');
 // Google chart div
-echo html_writer::start_tag('div',array( 'class' => 'row', 'style' =>'overflow: hidden;'));
-echo html_writer::start_tag('div',array( 'class' => 'chartrank', 'style' => 'float: left;'));
-echo html_writer::tag('div', '', array('id' => 'chart_div', 'style' => 'width: 700px; height: 400px;'));
-echo html_writer::start_tag('div',array( 'class' => 'rankingdiv'));
+//echo html_writer::start_tag('div',array( 'class' => 'row'));
+//echo html_writer::start_tag('div',array( 'class' => 'chartrank', 'style' => 'float: left; width:75%'));
+echo html_writer::tag('div', '', array('id' => 'chart_div', 'style' => 'width:100%; height: 400px;'));
+echo html_writer::start_tag('div',array( 'class' => 'rankingdiv', 'style' => 'width: 100%;'));
 
-echo html_writer::start_tag('div',array( 'class' => 'right-table-ranking'));
+echo html_writer::start_tag('div',array( 'class' => 'left-table-ranking'));
 
 $courseranking=emarking_gettotalpagesbycourse($categoryid);
 $coursetable = new html_table();
@@ -129,41 +129,43 @@ $coursetable->size = [500];
 $detailtable->attributes['class'] = 'left-table-ranking';
 echo html_writer::table($coursetable);
 
-echo html_writer::end_tag('div');
+
 // teachers Ranking
-echo html_writer::start_tag('div',array( 'class' => 'left-table-ranking'));
+
 
 $teacherranking = emarking_getteacherranking($categoryid);
 $teachertable = new html_table();
 $teachertable->head = array(get_string('teacherranking', 'emarking'), 'Number of activities');
 $teachertable->data = $teacherranking;
-$coursetable->size = [500];
+$coursetable->size = '50%';
 $detailtable->attributes['class'] = '';
 echo html_writer::table($teachertable);
 
-echo html_writer::end_tag('div');
-echo html_writer::end_tag('div');
+$totalpagespiechart = emarking_gettotalpagespiechart($categoryid);
+echo html_writer::tag('div', '', array('id' => 'piechartdiv'));
 
 echo html_writer::end_tag('div');
+//echo html_writer::end_tag('div');
 
-echo html_writer::start_tag('div',array( 'style' => 'width: 25%; float: right;'));
+//echo html_writer::end_tag('div');
+
+echo html_writer::start_tag('div',array( 'style' => 'width: 50%; float: right;'));
 
 // Table for showing detailed view
 $students = emarking_getstudents($categoryid);
 $student = html_writer::tag('span', $category->name."<br>"."Number of students:"." ".$students[0], array('id' => 'studentspan'));
 
-$totalpagespiechart = emarking_gettotalpagespiechart($categoryid);
-$toprint = html_writer::tag('div', '', array('id' => 'piechartdiv'));
+
 
 $totalpagesfortable = emarking_gettotalpagesfortable($categoryid);
 $monthtable = new html_table();
-$monthtable->head = ['Facturacion por mes'];
+$monthtable->head = ['Detail information'];
 $monthtable->data = $totalpagesfortable;
 $tablemonth = html_writer::table($monthtable);
 
 $detailtable = new html_table();
 $detailtable->head = ['Facturacion emarking'];
-$detailtable->data = [[$student],[$toprint],[$tablemonth]];
+$detailtable->data = [[$student],[$tablemonth]];
 $detailtable->attributes['class'] = '';
 echo html_writer::table($detailtable);
 
@@ -202,7 +204,8 @@ echo $OUTPUT->footer();
         var options = {
           title: 'Chart',
           hAxis: {title: 'Month',  titleTextStyle: {color: '#333'}},
-          vAxis: {minValue: 0}
+          vAxis: {minValue: 0},
+          legend:{position:'bottom'}
         };
 
         var piechart = new google.visualization.PieChart(document.getElementById('piechartdiv'));
