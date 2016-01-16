@@ -1637,7 +1637,20 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016011501, 'emarking');
     }
     
+    if ($oldversion < 2016011601) {
     
+    	// Define field status to be added to emarking_collaborative_work.
+    	$table = new xmldb_table('emarking_collaborative_work');
+    	$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null, 'type');
+    
+    	// Conditionally launch add field status.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016011601, 'emarking');
+    }
     
     return true;
 }
