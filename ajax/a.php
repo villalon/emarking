@@ -409,9 +409,13 @@ switch ($action) {
         include "qry/getChatHistory.php";
         emarking_json_array($output);
         break;
-    
-    case 'prevcomments':
         
+    case 'getvaluescollaborativebuttons':
+    	include 'qry/getValuesCollaborativeButtons.php';
+    	emarking_json_array($output);
+    	break;
+    
+    case 'prevcomments':     
         include "qry/getPreviousCommentsSubmission.php";
         emarking_json_resultset($results);
         break;
