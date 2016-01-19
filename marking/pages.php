@@ -98,13 +98,16 @@ echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "pages" );
 // Get rubric instance
 list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
 
-$maxpages = $DB->count_records_sql("
+$maxpages = $DB->get_record_sql("
 SELECT MAX(p.page) AS maxpages
 FROM {emarking_page} AS p
 INNER JOIN {emarking_submission} AS s ON (p.submission = s.id AND s.emarking=:emarking)
 GROUP BY s.emarking", array("emarking"=>$emarking->id));
 
-$totalpages = max($exam->totalpages, $maxpages);
+$totalpages = $exam->totalpages;
+
+if($maxpages)
+    $totalpages = max($exam->totalpages, $maxpages->maxpages);
 
 $mform_pages = new emarking_pages_form(null,
     array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "totalpages"=> $totalpages, "action"=>"addpages"));

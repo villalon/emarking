@@ -1,5 +1,4 @@
 <?php
-
 use Guzzle\Plugin\Backoff\AbstractBackoffStrategy;
 // This file is part of Moodle - http://moodle.org/
 //
@@ -42,6 +41,7 @@ class emarking_outcomes_form extends moodleform
         $cmid = $this->_customdata['id'];
         $emarking = $this->_customdata['emarking'];
         $action = $this->_customdata['action'];
+        $outcomes = $this->_customdata['outcomes'];
         
         $mform = $this->_form;
         
@@ -58,19 +58,13 @@ class emarking_outcomes_form extends moodleform
         
         $mform->addElement('html', '<table class="addmarkerstable"><tr><td>');
         
-            // Array of motives for regrading
-            $outcomes = $DB->get_records_sql("
-                SELECT o.* 
-                FROM {grade_outcomes} AS o
-                INNER JOIN mdl_grade_items AS gi ON (gi.courseid = :courseid AND gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' AND gi.gradetype = 2 AND gi.outcomeid = o.id)
-                INNER JOIN {grade_outcomes_courses} AS oc ON (oc.courseid = gi.courseid AND o.id = oc.outcomeid)", 
-                array('courseid'=>$emarking->course));
-            $chkoutcomes = array();
-            foreach ($outcomes as $outcome) {
-                $chkoutcomes[$outcome->id] = $outcome->shortname;
-            }
-            $select = $mform->addElement('select', 'dataoutcomes', get_string('outcomes', 'grades'), $chkoutcomes, null);
-            $select->setMultiple(true);
+        // Array of motives for regrading
+        $chkoutcomes = array();
+        foreach ($outcomes as $outcome) {
+            $chkoutcomes[$outcome->id] = $outcome->shortname;
+        }
+        $select = $mform->addElement('select', 'dataoutcomes', get_string('outcomes', 'grades'), $chkoutcomes, null);
+        $select->setMultiple(true);
         
         $criteriaitems = array();
         foreach ($criteria as $criterion) {

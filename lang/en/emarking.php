@@ -92,6 +92,10 @@ $string['assignmarkerstocriteria'] = 'Add markers to criteria';
 $string['assignoutcomestocriteria'] = 'Add outcomes to criteria';
 $string['currentstatus'] = 'Current status';
 $string['noneditingteacherconfiguration'] = 'As a Non-editing teacher you can not change de settings.';
+$string['coursehasnooutcomes'] = 'The course has no outcomes associated. You must also associate outcomes to the emarking activity. You must associate at least one outcome in order to link them with the rubric.';
+$string['gotooutcomessettings'] = 'Go to outcome settings';
+$string['emarkinghasnooutcomes'] = 'The emarking activity has no outcomes associated. You must associate at least one outcome in order to link them with the rubric.';
+$string['gotoemarkingsettings'] = 'Go to emarking settings';
 
 // GENERAL
 $string['criteria'] = 'Criteria';

@@ -245,7 +245,7 @@ $avgagreement = round($avgagreement * 100, 0);
 echo $OUTPUT->header();
 
 $firststagetable = new html_table();
-$firststagetable->data[] = array($OUTPUT->heading("Por prueba", 5));
+$firststagetable->data[] = array($OUTPUT->heading(get_string("exams", "mod_emarking"), 5));
 
 foreach ($dataexams as $sid => $d){
 	$examurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "exam"=>$sid));
@@ -253,7 +253,7 @@ foreach ($dataexams as $sid => $d){
 }
 
 $secondstagetable = new html_table();
-$secondstagetable->data[] = array($OUTPUT->heading("Por Criterio", 5));
+$secondstagetable->data[] = array($OUTPUT->heading(get_string("criteria", "mod_emarking"), 5));
 
 foreach ($datacriteria as $cid=>$d) {
     
@@ -262,7 +262,7 @@ foreach ($datacriteria as $cid=>$d) {
 }
 
 $thirdstagetable = new html_table();
-$thirdstagetable->data[] = array($OUTPUT->heading("Por Corrector", 5));
+$thirdstagetable->data[] = array($OUTPUT->heading(get_string("marker", "mod_emarking"), 5));
 
 foreach ($datamarkers as $mid => $d) {
 	$markerurl = new moodle_url("/mod/emarking/marking/agreement.php", array("id"=>$cm->id, "marker"=>$mid));

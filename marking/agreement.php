@@ -266,7 +266,7 @@ foreach ($agreements as $agree) {
         ));
         
         $popup .= $OUTPUT->action_link($popup_url, 
-            get_string("viewsubmission", "mod_emarking") . " " . $drafts[$i], 
+            get_string("viewsubmission", "mod_emarking") . " " . $agree->submission, 
             new popup_action('click', $popup_url, 'emarking' . $agree->student, 
                 array(
             'menubar' => 'no',

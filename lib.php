@@ -572,6 +572,13 @@ function emarking_delete_instance($id)
         }
     }
     
+    if (! $DB->delete_records('emarking_exams', array(
+        'emarking' => $emarking->id
+    ))) {
+        $tran->rollback(new Exception('Could not delete emarking_exam object'));
+        return false;
+    }
+    
     if (! $DB->delete_records('emarking', array(
         'id' => $emarking->id
     ))) {

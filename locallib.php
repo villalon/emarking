@@ -132,24 +132,47 @@ function emarking_time_difference($time1, $time2, $small = false)
 function emarking_copy_settings($emarkingsrc, $emarkingdst) {
     global $DB;
     
+    $transaction = $DB->start_delegated_transaction();
+    
     $emarkingsrc->id = $emarkingdst->id;
     $emarkingsrc->name = $emarkingdst->name;
     $emarkingsrc->intro = $emarkingdst->intro;
     $emarkingsrc->introformat = $emarkingdst->introformat;
-    $emarkingsrc->type = $emarkingdst->type;
     $emarkingsrc->timecreated = $emarkingdst->timecreated;
+    $emarkingsrc->course = $emarkingdst->course;
     
-    $DB->update_record('emarking', $emarkingsrc);
+    if(!$DB->update_record('emarking', $emarkingsrc)) {
+        $DB->rollback_delegated_transaction($transaction, new moodle_exception("Could not update emarking destination"));
+        return false;
+    }
+    
+    try {
+        emarking_copy_predefined_comments($emarkingsrc, $emarkingdst);
+
+        emarking_copy_pages($emarkingsrc, $emarkingdst);
+
+        emarking_copy_outcomes($emarkingsrc, $emarkingdst);
+    } catch (moodle_exception $exception) {
+        $DB->rollback_delegated_transaction($transaction, $exception);
+        return false;
+    }
+    
+    $DB->commit_delegated_transaction($transaction);
+    
+    return true;
 }
 
 /**
- * Copies the settings from a source emarking activity to a destination one
+ * Matches the rubrics from two emarking activities making sure it has the same
+ * criteria (two criteria are equal if their description are equal).
  * 
  * @param unknown $emarkingsrc
  * @param unknown $emarkingdst
+ * @param unknown $context
+ * @throws moodle_exception
+ * @return multitype:unknown
  */
-function emarking_copy_pages($emarkingsrc, $emarkingdst, $context) {
-    global $DB;
+function emarking_match_rubrics($emarkingsrc, $emarkingdst) {
     
     $cmsrc = get_coursemodule_from_instance('emarking', $emarkingsrc->id);
     $cmdst = get_coursemodule_from_instance('emarking', $emarkingdst->id);
@@ -157,14 +180,16 @@ function emarking_copy_pages($emarkingsrc, $emarkingdst, $context) {
     $contextsrc = context_module::instance($cmsrc->id);
     $contextdst = context_module::instance($cmdst->id);
     
-    list($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = emarking_validate_rubric($contextsrc);
-    list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst);
+    list($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = 
+        emarking_validate_rubric($contextsrc, false);
+    list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = 
+        emarking_validate_rubric($contextdst, false);
     
     $criteriasrc = $definitionsrc->rubric_criteria;
     $criteriadst = $definitiondst->rubric_criteria;
     
     if(count($criteriasrc) != count($criteriadst)) {
-        throw new moodle_exception("Invalid rubric pairs, cannot copy pages settings");
+        throw new moodle_exception("Invalid rubric for copying, they don't have the same number of criteria");
     }
     
     $criteriaitems = array();
@@ -176,11 +201,23 @@ function emarking_copy_pages($emarkingsrc, $emarkingdst, $context) {
     }
     
     if(count($criteriaitems) != count($criteriadst)) {
-        throw new moodle_exception("Invalid names in rubric. Can not copy settings.");
+        throw new moodle_exception("Not every criterion name matches in both source and destination emarking activities.");
     }
-
-    $transaction = $DB->start_delegated_transaction();
     
+    return $criteriaitems;
+}
+
+/**
+ * Copies the pages settings from a source emarking activity to a destination one
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ */
+function emarking_copy_pages($emarkingsrc, $emarkingdst) {
+    global $DB;
+    
+    $criteriaitems = emarking_match_rubrics($emarkingsrc, $emarkingdst);
+
     $DB->delete_records('emarking_page_criterion', array('emarking'=>$emarkingdst->id));
     
     $pagescriteria = $DB->get_records('emarking_page_criterion', array('emarking'=>$emarkingsrc->id));
@@ -196,8 +233,57 @@ function emarking_copy_pages($emarkingsrc, $emarkingdst, $context) {
         
         $DB->insert_record('emarking_page_criterion', $newpagecriterion);
     }
+}
+
+/**
+ * Copies the outcomes settings from a source emarking activity to a destination one
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ */
+function emarking_copy_outcomes($emarkingsrc, $emarkingdst) {
+    global $DB;
     
-    $DB->commit_delegated_transaction($transaction);
+    $criteriaitems = emarking_match_rubrics($emarkingsrc, $emarkingdst);
+
+    $DB->delete_records('emarking_outcomes_criteria', array('emarking'=>$emarkingdst->id));
+    
+    $outcomescriteria = $DB->get_records('emarking_outcomes_criteria', array('emarking'=>$emarkingsrc->id));
+    
+    foreach($outcomescriteria as $outcomecriterionsrc) {
+        $outcomecriterion = new stdClass();
+        $outcomecriterion->emarking = $emarkingdst->id;
+        $outcomecriterion->outcome = $outcomecriterionsrc->outcome;
+        $outcomecriterion->criterion = $criteriaitems[$outcomecriterionsrc->criterion];
+        $outcomecriterion->timecreated = time();
+        
+        $DB->insert_record('emarking_outcomes_criteria', $outcomecriterion);
+    }
+}
+
+/**
+ * Copies predefined comments from a source emarking activity to a destination one
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ */
+function emarking_copy_predefined_comments($emarkingsrc, $emarkingdst) {
+    global $DB;
+    
+    $predefinedsrc = $DB->get_records('emarking_predefined_comment', 
+        array('emarkingid'=>$emarkingsrc->id));
+    
+    if(!$predefinedsrc || count($predefinedsrc) == 0) {
+        return true;
+    }
+    
+    $DB->delete_records('emarking_predefined_comment', array('emarkingid'=>$emarkingdst->id));
+    
+    foreach ($predefinedsrc as $comment) {
+        unset($comment->id);
+        $comment->emarkingid = $emarkingdst->id;
+        $DB->insert_record('emarking_predefined_comment', $comment);
+    }
 }
 
 /**
@@ -367,6 +453,7 @@ function emarking_tabs($context, $cm, $emarking)
             $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markerspercriteria", 'mod_emarking'));
             $settingstab->subtree[] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}", core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
             $settingstab->subtree[] = new tabobject("outcomes", $CFG->wwwroot . "/mod/emarking/marking/outcomes.php?id={$cm->id}", core_text::strtotitle(get_string("outcomes", "grades")));
+            $settingstab->subtree[] = new tabobject("export", $CFG->wwwroot . "/mod/emarking/marking/export.php?id={$cm->id}", core_text::strtotitle(get_string("export", "mod_data")));
         }
     }
     
@@ -1202,6 +1289,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
     $gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
     $gradingmethod = $gradingmanager->get_active_method();
     $definition = null;
+    $rubriccontroller = null;
     if ($gradingmethod === 'rubric') {
         $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
         $definition = $rubriccontroller->get_definition();

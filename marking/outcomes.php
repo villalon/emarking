@@ -25,6 +25,7 @@
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/grade/grading/form/rubric/renderer.php");
+require_once ($CFG->libdir . "/gradelib.php");
 require_once ("forms/outcomes_form.php");
 
 global $DB, $USER;
@@ -99,6 +100,33 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "outcomes");
 
+$courseoutcomes = grade_outcome::fetch_all_available($course->id);
+
+if(count($courseoutcomes) == 0) {
+    echo $OUTPUT->notification(get_string("coursehasnooutcomes", "mod_emarking"), 'notifyproblem');
+    $outcomesurl = new moodle_url("/grade/edit/outcome/course.php", array("id"=>$course->id));
+    echo $OUTPUT->single_button($outcomesurl, get_string("gotooutcomessettings", "mod_emarking"));
+    echo $OUTPUT->footer();
+    die();
+}
+
+$emarkingoutcomes = $DB->get_records_sql("
+                SELECT o.*
+                FROM {grade_outcomes} AS o
+                INNER JOIN {grade_items} AS gi ON (gi.courseid = :courseid 
+                        AND gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' 
+                        AND gi.gradetype = 2 AND gi.outcomeid = o.id)
+                INNER JOIN {grade_outcomes_courses} AS oc ON (oc.courseid = gi.courseid AND o.id = oc.outcomeid)",
+    array('courseid'=>$course->id));
+
+if(count($emarkingoutcomes) == 0) {
+    echo $OUTPUT->notification(get_string("emarkinghasnooutcomes", "mod_emarking"), 'notifyproblem');
+    $outcomesurl = new moodle_url("/course/modedit.php", array("id"=>$cm->id, "return"=>1));
+    echo $OUTPUT->single_button($outcomesurl, get_string("gotoemarkingsettings", "mod_emarking"));
+    echo $OUTPUT->footer();
+    die();
+}
+
 // Get rubric instance
 list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
 
@@ -107,7 +135,8 @@ $mform_outcomes = new emarking_outcomes_form(null, array(
     'criteria' => $definition->rubric_criteria,
     'id' => $cmid,
     'emarking' => $emarking,
-    'action' => 'addoutcomes'
+    'action' => 'addoutcomes',
+    'outcomes' => $emarkingoutcomes
 ));
 
 if ($mform_outcomes->get_data()) {

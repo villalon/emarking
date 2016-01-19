@@ -557,7 +557,7 @@ elseif($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		
 		$generalprogress = floor($totalprogress/($numcriteria * $nummarkers * $numdrafts)*100);
 		
-		if($generalprogress == 100){
+		if($generalprogress == 100 && intval($emarking->firststagedate) < time()) {
 			$urldelphi = new moodle_url('/mod/emarking/marking/delphi.php', array(
 					'id' => $cm->id
 			));

@@ -1202,7 +1202,7 @@ function emarking_tabs_markers_training($context, $cm, $emarking,$generalprogres
 		$timeicon . " " . get_string('marking_deadline', 'mod_emarking'),
 	    $scalesicon . " " . get_string('stage_general_progress', 'mod_emarking'));
 	
-	if($generalprogress >= 100) {
+	if($generalprogress >= 100 && $emarking->firststagedate < time()) {
 	   $firststagetable->data[] = array(
 	      get_string('delphi_stage_one', 'mod_emarking'),
 		  "&nbsp;",

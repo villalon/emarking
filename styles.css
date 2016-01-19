@@ -226,7 +226,7 @@ clear {
 	float: right;
 	background-color: #cecece;
 	position: relative;
-	width: 200px;
+	min-width: 100px;
 	padding: 0;
 }
 

@@ -98,6 +98,10 @@ $string['assignmarkerstocriteria'] = 'Agregar correctores a criterios';
 $string['nooutcomesassigned'] = 'No hay resultados asociados a la rúbrica de esta prueba';
 $string['currentstatus'] = 'Configuración actual';
 $string['noneditingteacherconfiguration'] = 'Como ayudante no puedes modificar la configuración.';
+$string['coursehasnooutcomes'] = 'El curso no tiene resultados de aprendizaje asociados. Además deberá asociar resultados de aprendizaje a la prueba emarking. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
+$string['gotooutcomessettings'] = 'Ir a configuración de resultados de aprendizaje';
+$string['emarkinghasnooutcomes'] = 'La prueba no tiene asociado ningún resultado de aprendizaje. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
+$string['gotoemarkingsettings'] = 'Ir a configuración de emarking';
 
 // GENERAL
 $string['criteria'] = 'Criterios';
