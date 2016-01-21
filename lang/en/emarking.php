@@ -96,6 +96,11 @@ $string['coursehasnooutcomes'] = 'The course has no outcomes associated. You mus
 $string['gotooutcomessettings'] = 'Go to outcome settings';
 $string['emarkinghasnooutcomes'] = 'The emarking activity has no outcomes associated. You must associate at least one outcome in order to link them with the rubric.';
 $string['gotoemarkingsettings'] = 'Go to emarking settings';
+$string['emarkingdst'] = 'Destination eMarking';
+$string['emarkingdst_help'] = 'Choose the eMarking activities that will copy their settings from the current activity';
+$string['override'] = 'Override rubric in destination eMarking';
+$string['override_help'] = 'Overrides any rubric configured in the destination eMarking activity and copies the current one';
+$string['noparallelemarkings'] = 'There are no eMarking exams in parallel courses';
 
 // GENERAL
 $string['criteria'] = 'Criteria';

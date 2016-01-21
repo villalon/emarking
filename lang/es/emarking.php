@@ -102,6 +102,11 @@ $string['coursehasnooutcomes'] = 'El curso no tiene resultados de aprendizaje as
 $string['gotooutcomessettings'] = 'Ir a configuración de resultados de aprendizaje';
 $string['emarkinghasnooutcomes'] = 'La prueba no tiene asociado ningún resultado de aprendizaje. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
 $string['gotoemarkingsettings'] = 'Ir a configuración de emarking';
+$string['emarkingdst'] = 'eMarking destino';
+$string['emarkingdst_help'] = 'Seleccione las pruebas eMarking a las que copiará la configuración';
+$string['override'] = 'Sobreescribir rúbrica';
+$string['override_help'] = 'Sobreescribe la rúbrica de la prueba eMarking destino, usando la de esta prueba';
+$string['noparallelemarkings'] = 'No hay pruebas eMarking en los cursos paralelos';
 
 // GENERAL
 $string['criteria'] = 'Criterios';

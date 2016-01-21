@@ -29,14 +29,16 @@ global $CFG;
 require_once $CFG->dirroot . '/lib/coursecatlib.php';
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
 
-function emarking_get_regrade_motives_array() {
+function emarking_get_regrade_motives_array()
+{
     $output = array(
-    EMARKING_REGRADE_MISASSIGNED_SCORE,
-    EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER,
-    EMARKING_REGRADE_ERROR_CARRIED_FORWARD,
-    EMARKING_REGRADE_UNCLEAR_FEEDBACK,
-    EMARKING_REGRADE_STATEMENT_PROBLEM,
-    EMARKING_REGRADE_OTHER);
+        EMARKING_REGRADE_MISASSIGNED_SCORE,
+        EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER,
+        EMARKING_REGRADE_ERROR_CARRIED_FORWARD,
+        EMARKING_REGRADE_UNCLEAR_FEEDBACK,
+        EMARKING_REGRADE_STATEMENT_PROBLEM,
+        EMARKING_REGRADE_OTHER
+    );
     
     return $output;
 }
@@ -79,7 +81,6 @@ function emarking_get_regrade_type_string($type)
 function emarking_time_ago($time, $small = false)
 {
     return emarking_time_difference(time(), $time, $small);
-    
 }
 
 /**
@@ -111,12 +112,12 @@ function emarking_time_difference($time1, $time2, $small = false)
             continue;
         $numberOfUnits = floor($time / $unit);
         $message = $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '');
-        if($ispast) {
+        if ($ispast) {
             $message = core_text::strtotitle(get_string('ago', 'core_message', $message));
         } else {
             $message = core_text::strtotitle($message);
         }
-        if($small) {
+        if ($small) {
             $message = html_writer::div($message, "timeago");
         }
         return $message;
@@ -125,14 +126,32 @@ function emarking_time_difference($time1, $time2, $small = false)
 
 /**
  * Copies the settings from a source emarking activity to a destination one
- * 
- * @param unknown $emarkingsrc
+ *
+ * @param unknown $emarkingsrc            
  * @param unknown $emarkingdst
+ * @param unknown $rubricoverride
  */
-function emarking_copy_settings($emarkingsrc, $emarkingdst) {
-    global $DB;
+function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride)
+{
+    global $DB, $OUTPUT;
     
     $transaction = $DB->start_delegated_transaction();
+    
+    $criteriaitems = emarking_match_rubrics($emarkingsrc, $emarkingdst, $rubricoverride);
+    
+    try {
+        emarking_copy_predefined_comments($emarkingsrc, $emarkingdst);
+        
+        emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems);
+        
+        emarking_copy_outcomes($emarkingsrc, $emarkingdst, $criteriaitems, $rubricoverride);
+    } catch (moodle_exception $exception) {
+        $DB->rollback_delegated_transaction($transaction, $exception);
+        return false;
+    }
+    
+    // This goes at the end as the emarking object is left unusable
+    echo $OUTPUT->box("Copying emarking settings");
     
     $emarkingsrc->id = $emarkingdst->id;
     $emarkingsrc->name = $emarkingdst->name;
@@ -141,23 +160,14 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst) {
     $emarkingsrc->timecreated = $emarkingdst->timecreated;
     $emarkingsrc->course = $emarkingdst->course;
     
-    if(!$DB->update_record('emarking', $emarkingsrc)) {
+    if (! $DB->update_record('emarking', $emarkingsrc)) {
         $DB->rollback_delegated_transaction($transaction, new moodle_exception("Could not update emarking destination"));
         return false;
     }
     
-    try {
-        emarking_copy_predefined_comments($emarkingsrc, $emarkingdst);
-
-        emarking_copy_pages($emarkingsrc, $emarkingdst);
-
-        emarking_copy_outcomes($emarkingsrc, $emarkingdst);
-    } catch (moodle_exception $exception) {
-        $DB->rollback_delegated_transaction($transaction, $exception);
-        return false;
-    }
-    
     $DB->commit_delegated_transaction($transaction);
+    
+    echo $OUTPUT->box("Success!");
     
     return true;
 }
@@ -165,14 +175,16 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst) {
 /**
  * Matches the rubrics from two emarking activities making sure it has the same
  * criteria (two criteria are equal if their description are equal).
- * 
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
- * @param unknown $context
+ *
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
+ * @param unknown $context            
  * @throws moodle_exception
  * @return multitype:unknown
  */
-function emarking_match_rubrics($emarkingsrc, $emarkingdst) {
+function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
+{
+    global $DB;
     
     $cmsrc = get_coursemodule_from_instance('emarking', $emarkingsrc->id);
     $cmdst = get_coursemodule_from_instance('emarking', $emarkingdst->id);
@@ -180,27 +192,45 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst) {
     $contextsrc = context_module::instance($cmsrc->id);
     $contextdst = context_module::instance($cmdst->id);
     
-    list($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = 
-        emarking_validate_rubric($contextsrc, false);
-    list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = 
-        emarking_validate_rubric($contextdst, false);
+    list ($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = emarking_validate_rubric($contextsrc, false, false);
+    list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst, false, false);
+    
+    if ($copyrubric) {
+        if(!$rubriccontrollerdst) {
+            $method = $gradingmanagerdst->get_active_method();
+            $rubriccontrollerdst = $gradingmanagerdst->get_controller($method);
+        }
+        if($rubriccontrollerdst->get_definition()) {
+           $rubriccontrollerdst->delete_definition(); 
+        }
+        $rubriccontrollerdst->update_definition($rubriccontrollersrc->get_definition_copy($rubriccontrollerdst));
+        $DB->set_field('grading_definitions', 'timecopied', time(), array(
+            'id' => $definitionsrc->id
+        ));
+        
+        list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst, false);
+    }
+    
+    if (!$definitionsrc || !$definitiondst) {
+        throw new moodle_exception("Invalid rubrics for copying, destination emarking doesn't have a rubric and you didn't selected to copy it.");
+    }
     
     $criteriasrc = $definitionsrc->rubric_criteria;
     $criteriadst = $definitiondst->rubric_criteria;
     
-    if(count($criteriasrc) != count($criteriadst)) {
+    if (count($criteriasrc) != count($criteriadst)) {
         throw new moodle_exception("Invalid rubric for copying, they don't have the same number of criteria");
     }
     
     $criteriaitems = array();
     foreach ($criteriasrc as $criterionsrc) {
         foreach ($criteriadst as $criteriondst) {
-            if($criterionsrc['description'] === $criteriondst['description'])
+            if ($criterionsrc['description'] === $criteriondst['description'])
                 $criteriaitems[$criterionsrc['id']] = $criteriondst['id'];
         }
     }
     
-    if(count($criteriaitems) != count($criteriadst)) {
+    if (count($criteriaitems) != count($criteriadst)) {
         throw new moodle_exception("Not every criterion name matches in both source and destination emarking activities.");
     }
     
@@ -209,20 +239,25 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst) {
 
 /**
  * Copies the pages settings from a source emarking activity to a destination one
- * 
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ *
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  */
-function emarking_copy_pages($emarkingsrc, $emarkingdst) {
-    global $DB;
+function emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems)
+{
+    global $DB, $OUTPUT;
     
-    $criteriaitems = emarking_match_rubrics($emarkingsrc, $emarkingdst);
-
-    $DB->delete_records('emarking_page_criterion', array('emarking'=>$emarkingdst->id));
+    echo $OUTPUT->box("Copying pages settings");
     
-    $pagescriteria = $DB->get_records('emarking_page_criterion', array('emarking'=>$emarkingsrc->id));
+    $DB->delete_records('emarking_page_criterion', array(
+        'emarking' => $emarkingdst->id
+    ));
     
-    foreach($pagescriteria as $pagecriterion) {
+    $pagescriteria = $DB->get_records('emarking_page_criterion', array(
+        'emarking' => $emarkingsrc->id
+    ));
+    
+    foreach ($pagescriteria as $pagecriterion) {
         $newpagecriterion = new stdClass();
         $newpagecriterion->emarking = $emarkingdst->id;
         $newpagecriterion->page = $pagecriterion->page;
@@ -233,6 +268,8 @@ function emarking_copy_pages($emarkingsrc, $emarkingdst) {
         
         $DB->insert_record('emarking_page_criterion', $newpagecriterion);
     }
+    
+    echo $OUTPUT->box("Success!");
 }
 
 /**
@@ -240,17 +277,35 @@ function emarking_copy_pages($emarkingsrc, $emarkingdst) {
  * 
  * @param unknown $emarkingsrc
  * @param unknown $emarkingdst
+ * @param unknown $criteriaitems
+ * @param unknown $override
+ * @throws moodle_exception
  */
-function emarking_copy_outcomes($emarkingsrc, $emarkingdst) {
-    global $DB;
+function emarking_copy_outcomes($emarkingsrc, $emarkingdst, $criteriaitems, $override)
+{
+    global $DB, $OUTPUT;
     
-    $criteriaitems = emarking_match_rubrics($emarkingsrc, $emarkingdst);
-
-    $DB->delete_records('emarking_outcomes_criteria', array('emarking'=>$emarkingdst->id));
+    if(!emarking_validate_outcomes($emarkingsrc, $emarkingdst)) {
+        if(!$override) {
+            throw new moodle_exception("Outcomes in destination emarking do not fit the used in the source and no override was indicated");
+        } else {
+            if(!emarking_copy_course_outcomes($emarkingsrc, $emarkingdst)) {
+                throw new moodle_exception("Overriding outcomes failed, probably due to outcomes being used");
+            }
+        }
+    }
     
-    $outcomescriteria = $DB->get_records('emarking_outcomes_criteria', array('emarking'=>$emarkingsrc->id));
+    echo $OUTPUT->box("Copying outcomes");
     
-    foreach($outcomescriteria as $outcomecriterionsrc) {
+    $DB->delete_records('emarking_outcomes_criteria', array(
+        'emarking' => $emarkingdst->id
+    ));
+    
+    $outcomescriteria = $DB->get_records('emarking_outcomes_criteria', array(
+        'emarking' => $emarkingsrc->id
+    ));
+    
+    foreach ($outcomescriteria as $outcomecriterionsrc) {
         $outcomecriterion = new stdClass();
         $outcomecriterion->emarking = $emarkingdst->id;
         $outcomecriterion->outcome = $outcomecriterionsrc->outcome;
@@ -259,50 +314,217 @@ function emarking_copy_outcomes($emarkingsrc, $emarkingdst) {
         
         $DB->insert_record('emarking_outcomes_criteria', $outcomecriterion);
     }
+    
+    echo $OUTPUT->box("Success!");
+}
+
+/**
+ * Validates that all outcomes required from the emarking source
+ * activity are available in the destination course
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ * @return boolean
+ */
+function emarking_validate_outcomes($emarkingsrc, $emarkingdst) {
+    global $DB, $CFG;
+    
+    require_once ($CFG->libdir . "/grade/grade_outcome.php");
+    
+    if(!$coursesrc = $DB->get_record('course', array('id'=>$emarkingsrc->course)))
+        return false;
+    
+    if(!$coursedst = $DB->get_record('course', array('id'=>$emarkingdst->course)))
+        return false;
+    
+    $outcomessrc = grade_outcome::fetch_all_available($emarkingsrc->course);
+    $outcomesdst = grade_outcome::fetch_all_available($emarkingdst->course);
+    
+    $destinationoutcomes = array();
+    foreach($outcomesdst as $outcomedst) {
+        $destinationoutcomes[] = $outcomedst->id;
+    }
+    
+    foreach($outcomessrc as $outcomesrc) {
+        if(!array_search($outcomesrc->id, $destinationoutcomes)) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Copies the outcomes (and associates to course if necessary) from
+ * a source emarking activity to a destination one
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ * @return boolean
+ */
+function emarking_copy_course_outcomes($emarkingsrc, $emarkingdst) {
+    global $DB, $CFG;
+    
+    require_once ($CFG->libdir . "/gradelib.php");
+    require_once ($CFG->libdir . "/grade/grade_outcome.php");
+    
+    if(!$coursesrc = $DB->get_record('course', array('id'=>$emarkingsrc->course)))
+        return false;
+    
+    if(!$coursedst = $DB->get_record('course', array('id'=>$emarkingdst->course)))
+        return false;
+    
+    $params = array($coursesrc->id, $emarkingsrc->id);
+    $sql = "SELECT outcomeid, itemnumber
+          FROM {grade_items}
+         WHERE courseid=? AND outcomeid IS NOT NULL 
+        AND itemmodule = 'emarking' AND iteminstance = ?
+        AND itemtype = 'mod'";
+    
+    $tocopy = $DB->get_records_sql($sql, $params);
+
+    $outcomesready = array();
+    foreach($tocopy as $outcomeused) {
+        $outcomesready[] = $outcomeused->outcomeid;
+    }
+    
+    $params = array($coursedst->id, $emarkingdst->id);
+    $sql = "SELECT outcomeid, itemnumber
+          FROM {grade_items}
+         WHERE courseid=? AND outcomeid IS NOT NULL 
+        AND itemmodule = 'emarking' AND iteminstance = ?
+        AND itemtype = 'mod'";
+    
+    $realused = $DB->get_records_sql($sql, $params);
+
+    $max_itemnumber = 999;
+    foreach($realused as $outcomeused) {
+        if(array_search($outcomeused->outcomeid, $outcomesready))
+            array_remove_by_value($outcomesready, $outcomeused->outcomeid);
+        if($outcomeused->itemnumber > $max_itemnumber)
+            $max_itemnumber = $outcomeused->itemnumber; 
+    }
+    
+    $outcomesdst = grade_outcome::fetch_all_available($emarkingdst->course);
+    
+    $outcomesavailable = array();
+    foreach($outcomesdst as $outcomedst) {
+        $outcomesavailable[] = $outcomedst->id;
+    }
+    
+    if($max_itemnumber < 1000)
+        $max_itemnumber = 1000;
+    foreach($outcomesready as $outcometocopy) {
+        $outcome = grade_outcome::fetch(array('id'=>$outcometocopy));
+        if(!array_search($outcometocopy, $outcomesavailable)) {
+            $outcome->use_in($emarkingdst->course);
+        }
+            $outcome_item = new grade_item();
+            $outcome_item->courseid     = $emarkingdst->course;
+            $outcome_item->itemtype     = 'mod';
+            $outcome_item->itemmodule   = 'emarking';
+            $outcome_item->iteminstance = $emarkingdst->id;
+            $outcome_item->itemnumber   = $max_itemnumber;
+            $outcome_item->itemname     = $outcome->fullname;
+            $outcome_item->outcomeid    = $outcome->id;
+            $outcome_item->gradetype    = GRADE_TYPE_SCALE;
+            $outcome_item->scaleid      = $outcome->scaleid;
+            $outcome_item->insert();
+            $max_itemnumber++;
+    }
+    
+    return true;
+}
+
+/**
+ * Returns a recordset of emarking objects which are in courses parallel 
+ * to a course parameter
+ *  
+ * @param unknown $course
+ * @return multitype:
+ */
+function emarking_get_parallel_emarkings($course) {
+    global $DB;
+    
+    $parallelcourses = emarking_get_parallel_courses($course);
+    
+    if(!$parallelcourses)
+        return false;
+    
+    $parallelsids = array();
+    foreach ($parallelcourses as $parallelcourse) {
+        if($parallelcourse->id == $course->id)
+            continue;
+        
+        foreach (get_coursemodules_in_course('emarking', $parallelcourse->id) as $cmdst) {
+            $parallelsids[] = $cmdst->instance;
+        }
+    }
+    $parallelsids = implode(",", $parallelsids);
+    
+    $parallelemarkings = $DB->get_records_sql("
+        SELECT e.*, c.id as courseid, c.shortname, c.fullname
+        FROM {emarking} AS e
+        INNER JOIN {course} AS c ON (e.course = c.id AND c.id <> ?)
+        WHERE e.id IN ($parallelsids)
+        ORDER BY c.fullname, e.name", array($course->id));
+    
+    return $parallelemarkings;
 }
 
 /**
  * Copies predefined comments from a source emarking activity to a destination one
- * 
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ *
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  */
-function emarking_copy_predefined_comments($emarkingsrc, $emarkingdst) {
-    global $DB;
+function emarking_copy_predefined_comments($emarkingsrc, $emarkingdst)
+{
+    global $DB, $OUTPUT;
     
-    $predefinedsrc = $DB->get_records('emarking_predefined_comment', 
-        array('emarkingid'=>$emarkingsrc->id));
+    echo $OUTPUT->box("Copying predefined comments");
     
-    if(!$predefinedsrc || count($predefinedsrc) == 0) {
+    $predefinedsrc = $DB->get_records('emarking_predefined_comment', array(
+        'emarkingid' => $emarkingsrc->id
+    ));
+    
+    if (! $predefinedsrc || count($predefinedsrc) == 0) {
+        echo $OUTPUT->box("No comments to copy");
         return true;
     }
     
-    $DB->delete_records('emarking_predefined_comment', array('emarkingid'=>$emarkingdst->id));
+    $DB->delete_records('emarking_predefined_comment', array(
+        'emarkingid' => $emarkingdst->id
+    ));
     
     foreach ($predefinedsrc as $comment) {
         unset($comment->id);
         $comment->emarkingid = $emarkingdst->id;
         $DB->insert_record('emarking_predefined_comment', $comment);
     }
+    
+    echo $OUTPUT->box("Success!");
 }
 
 /**
  * Returns the HTML for a jquery dialog which will show the content
- * @param string $title
- * @param string $content
- * @param string $prefix
- * @param int $id
+ * 
+ * @param string $title            
+ * @param string $content            
+ * @param string $prefix            
+ * @param int $id            
  * @return string
  */
-function emarking_view_more($title, $content, $prefix, $id) {
+function emarking_view_more($title, $content, $prefix, $id)
+{
     $output = "<div id='$prefix" . "-$id' style='display:none;'>";
     $output .= $content;
     $output .= "</div>";
-    $output .= "<a style='cursor:pointer; font-size: 8pt;' onclick='$(\"#$prefix"."-$id\").dialog({title:\"$title\",show: { effect: \"scale\", duration: 200 },modal:true,buttons:{".get_string("close", "mod_emarking").": function(){\$(this).dialog(\"close\");}}});'>"
-    . $title . "</a>";
-
+    $output .= "<a style='cursor:pointer; font-size: 8pt;' onclick='$(\"#$prefix" . "-$id\").dialog({title:\"$title\",show: { effect: \"scale\", duration: 200 },modal:true,buttons:{" . get_string("close", "mod_emarking") . ": function(){\$(this).dialog(\"close\");}}});'>" . $title . "</a>";
+    
     return $output;
 }
+
 /**
  * Gets the icon used the a submission status
  *
@@ -381,13 +603,14 @@ function emarking_get_statuses_as_array()
 /**
  * Returns an associative array with regrade motives IDs and their
  * descriptions
- * 
+ *
  * @return multitype:associative array with keys and descriptions
  */
-function emarking_get_regrade_motives() {
+function emarking_get_regrade_motives()
+{
     $motives = array();
     
-    foreach(emarking_get_regrade_motives_array() as $m) {
+    foreach (emarking_get_regrade_motives_array() as $m) {
         $motive = new stdClass();
         $motive->id = $m;
         $motive->description = emarking_get_regrade_type_string($m);
@@ -422,9 +645,9 @@ function emarking_tabs($context, $cm, $emarking)
     $scantab = new tabobject("scan", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string('scan', 'mod_emarking'));
     $scanlist = new tabobject("scanlist", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string("exams", 'mod_emarking'));
     $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
-
+    
     $scantab->subtree[] = $scanlist;
-    if($usercangrade) {
+    if ($usercangrade) {
         $scantab->subtree[] = $uploadanswers;
     }
     
@@ -463,7 +686,7 @@ function emarking_tabs($context, $cm, $emarking)
     $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
     $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}", get_string("grades", "grades"));
     $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
-    if($emarking->justiceperception > EMARKING_JUSTICE_DISABLED) {
+    if ($emarking->justiceperception > EMARKING_JUSTICE_DISABLED) {
         $gradereporttab->subtree[] = new tabobject("justicereport", $CFG->wwwroot . "/mod/emarking/reports/justice.php?id={$cm->id}", get_string("justice", 'mod_emarking'));
     }
     $gradereporttab->subtree[] = new tabobject("comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string("comparativereport", "mod_emarking"));
@@ -486,30 +709,35 @@ function emarking_tabs($context, $cm, $emarking)
         // Scan or enablescan tab
         if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
             $tabs[] = $scantab;
-        } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
-            $tabs[] = $activatescan;
-        } else if ($emarking->type == EMARKING_TYPE_NORMAL) {
-            $markingtab->subtree[] = $uploadanswers;
-        }
+        } else 
+            if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
+                $tabs[] = $activatescan;
+            } else 
+                if ($emarking->type == EMARKING_TYPE_NORMAL) {
+                    $markingtab->subtree[] = $uploadanswers;
+                }
         
         // OSM tabs, either marking, reports and settings or enable osm
         if ($emarking->type == EMARKING_TYPE_NORMAL) {
             $tabs[] = $markingtab;
             $tabs[] = $gradereporttab;
             $tabs[] = $settingstab;
-        } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
-            $tabs[] = $activateosm;
-        }
-    } else if($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
-        // This case is for students (user can not grade)
-        $tabs = $scantab->subtree;
-    } else if($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
-        // This case is for students (user can not grade)
-        $tabs = array();
-    } else {
-        // This case is for students (user can not grade)
-        $tabs = $markingtab->subtree;
-    } 
+        } else 
+            if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+                $tabs[] = $activateosm;
+            }
+    } else 
+        if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+            // This case is for students (user can not grade)
+            $tabs = $scantab->subtree;
+        } else 
+            if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
+                // This case is for students (user can not grade)
+                $tabs = array();
+            } else {
+                // This case is for students (user can not grade)
+                $tabs = $markingtab->subtree;
+            }
     
     return $tabs;
 }
@@ -1049,8 +1277,8 @@ function emarking_get_totalscore($draft, $controller, $fillings)
  * @param unknown $emarking            
  * @param unknown $draft            
  * @param unknown $context            
- * @param unknown $student      
- * @param unknown $issupervisor      
+ * @param unknown $student            
+ * @param unknown $issupervisor            
  * @return number
  */
 function emarking_get_next_submission($emarking, $draft, $context, $student, $issupervisor)
@@ -1077,13 +1305,13 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
         }
         $levelids = implode(",", $levelsarray);
     }
-
+    
     $sqlemarkingtype = "";
-    if($emarking->type == EMARKING_TYPE_MARKER_TRAINING){
-    	$sqlemarkingtype = "AND d.teacher = $USER->id";
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+        $sqlemarkingtype = "AND d.teacher = $USER->id";
     }
     
-    $sortsql = ($emarking->anonymous < 2 && !$issupervisor) ? " d.sort ASC" : " u.lastname ASC";
+    $sortsql = ($emarking->anonymous < 2 && ! $issupervisor) ? " d.sort ASC" : " u.lastname ASC";
     
     $criteriafilter = $levelids == 0 ? "" : " AND d.id NOT IN (SELECT d.id
 	FROM {emarking_draft} as d
@@ -1092,7 +1320,7 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
 	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.draft = d.id AND c.levelid IN ($levelids))
 	GROUP BY d.id)";
     
-    $sortfilter = ($emarking->anonymous < EMARKING_ANON_NONE  && !$issupervisor) ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
+    $sortfilter = ($emarking->anonymous < EMARKING_ANON_NONE && ! $issupervisor) ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
     
     $basesql = "SELECT d.id, d.status, d.sort, COUNT(rg.id) as regrades
 			FROM {emarking_draft} AS d
@@ -1114,8 +1342,7 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
     ));
     $id = 0;
     foreach ($nextsubmissions as $nextsubmission) {
-        if($nextsubmission->status < EMARKING_STATUS_PUBLISHED || 
-        		($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
+        if ($nextsubmission->status < EMARKING_STATUS_PUBLISHED || ($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
             $id = $nextsubmission->id;
             break;
         }
@@ -1133,8 +1360,7 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
             'draftid' => $draft->id
         ));
         foreach ($nextsubmissions as $nextsubmission) {
-            if($nextsubmission->status < EMARKING_STATUS_PUBLISHED || 
-            		($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
+            if ($nextsubmission->status < EMARKING_STATUS_PUBLISHED || ($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
                 $id = $nextsubmission->id;
                 break;
             }
@@ -1290,10 +1516,14 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
     $gradingmethod = $gradingmanager->get_active_method();
     $definition = null;
     $rubriccontroller = null;
-    if ($gradingmethod === 'rubric') {
-        $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-        $definition = $rubriccontroller->get_definition();
+    
+    if ($gradingmethod !== 'rubric') {
+        $gradingmanager->set_active_method('rubric');
+        $gradingmethod = $gradingmanager->get_active_method();
     }
+    
+    $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
+    $definition = $rubriccontroller->get_definition();
     
     $managerubricurl = $gradingmanager->get_management_url();
     

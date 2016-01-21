@@ -114,15 +114,15 @@ $emarkingoutcomes = $DB->get_records_sql("
                 SELECT o.*
                 FROM {grade_outcomes} AS o
                 INNER JOIN {grade_items} AS gi ON (gi.courseid = :courseid 
-                        AND gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' 
+                        AND gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' AND gi.iteminstance = :emarkingid
                         AND gi.gradetype = 2 AND gi.outcomeid = o.id)
                 INNER JOIN {grade_outcomes_courses} AS oc ON (oc.courseid = gi.courseid AND o.id = oc.outcomeid)",
-    array('courseid'=>$course->id));
+    array('courseid'=>$course->id, 'emarkingid'=>$emarking->id));
 
 if(count($emarkingoutcomes) == 0) {
     echo $OUTPUT->notification(get_string("emarkinghasnooutcomes", "mod_emarking"), 'notifyproblem');
-    $outcomesurl = new moodle_url("/course/modedit.php", array("id"=>$cm->id, "return"=>1));
-    echo $OUTPUT->single_button($outcomesurl, get_string("gotoemarkingsettings", "mod_emarking"));
+    $outcomesurl = new moodle_url("/course/modedit.php", array("update"=>$cm->id, "return"=>1));
+    echo $OUTPUT->single_button($outcomesurl, get_string("gotoemarkingsettings", "mod_emarking"), 'get');
     echo $OUTPUT->footer();
     die();
 }

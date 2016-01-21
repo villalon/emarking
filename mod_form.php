@@ -515,6 +515,8 @@ class mod_emarking_mod_form extends moodleform_mod
         // Due date settings
         $mform->addElement("static","qualitycontroldescription",get_string("qualitycontrol", "mod_emarking"), 
         		get_string("qualitycontroldescription", "mod_emarking"));
+        $mform->setAdvanced('qualitycontroldescription');
+        
         $mform->addElement('checkbox', 'qualitycontrol', get_string('enablequalitycontrol', 'mod_emarking'));
         $mform->addHelpButton('qualitycontrol', 'enablequalitycontrol', 'mod_emarking');
         $mform->setAdvanced('qualitycontrol');
