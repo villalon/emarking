@@ -27,6 +27,7 @@ require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/grade/grading/form/rubric/renderer.php");
 require_once ($CFG->libdir . "/gradelib.php");
 require_once ("forms/outcomes_form.php");
+require_once ("forms/scalelevels_form.php");
 
 global $DB, $USER;
 
@@ -85,12 +86,6 @@ $PAGE->navbar->add(get_string('outcomes', 'grades'));
 
 // Verify capability for security issues
 if (! has_capability('mod/emarking:assignmarkers', $context)) {
-    $item = array(
-        'context' => context_module::instance($cm->id),
-        'objectid' => $cm->id
-    );
-    // Add to Moodle log so some auditing can be done
-    \mod_emarking\event\markers_assigned::create($item)->trigger();
     print_error(get_string('invalidaccess', 'mod_emarking'));
 }
 
@@ -110,13 +105,19 @@ if(count($courseoutcomes) == 0) {
     die();
 }
 
-$emarkingoutcomes = $DB->get_records_sql("
-                SELECT o.*
+$sqloutcomes = "
+                SELECT o.*, 
+                    s.name as scalename,
+                    s.scale as scalelevels,
+                    s.description as scaledescription
                 FROM {grade_outcomes} AS o
                 INNER JOIN {grade_items} AS gi ON (gi.courseid = :courseid 
                         AND gi.itemtype = 'mod' AND gi.itemmodule = 'emarking' AND gi.iteminstance = :emarkingid
                         AND gi.gradetype = 2 AND gi.outcomeid = o.id)
-                INNER JOIN {grade_outcomes_courses} AS oc ON (oc.courseid = gi.courseid AND o.id = oc.outcomeid)",
+                INNER JOIN {grade_outcomes_courses} AS oc ON (oc.courseid = gi.courseid AND o.id = oc.outcomeid)
+                INNER JOIN {scale} AS s ON (o.scaleid = s.id)";
+
+$emarkingoutcomes = $DB->get_records_sql($sqloutcomes,
     array('courseid'=>$course->id, 'emarkingid'=>$emarking->id));
 
 if(count($emarkingoutcomes) == 0) {
@@ -245,6 +246,31 @@ echo html_writer::table($table);
 
 $mform_outcomes->display();
 
+$sqlscales = "
+    SELECT s.* 
+    FROM {grade_outcomes_courses} AS goc
+    INNER JOIN {course} AS c ON (c.id = :courseid AND goc.courseid = c.id)
+    INNER JOIN {grade_outcomes} AS go ON (go.id = goc.outcomeid)
+    INNER JOIN {scale} AS s ON (s.id = go.scaleid)
+    GROUP BY s.id";
+
+$scales = $DB->get_records_sql($sqlscales,
+    array('courseid'=>$course->id));
+
+$mform_scalelevels = new emarking_scalelevels_form(null, array(
+    'context' => $context,
+    'criteria' => $definition->rubric_criteria,
+    'id' => $cmid,
+    'emarking' => $emarking,
+    'scales' => $scales
+));
+
+if($mform_scalelevels->get_data()) {
+    process_mform_scale_levels($mform_scalelevels, $action, $emarking);
+}
+
+$mform_scalelevels->display();
+
 echo $OUTPUT->footer();
 
 function process_mform($mform, $action, $emarking)
@@ -289,6 +315,48 @@ function process_mform($mform, $action, $emarking)
             $association->outcome = $data->outcome;
             
             $association->id = $DB->insert_record($tablename, $association);
+        }
+        echo $OUTPUT->notification(get_string('saved', 'mod_emarking'), 'notifysuccess');
+    }
+}
+
+function process_mform_scale_levels($mform, $action, $emarking)
+{
+    global $DB, $OUTPUT;
+
+    if ($mform->get_data()) {
+        $scales = $mform->get_customdata()['scales'];
+        $toinsert = array();
+        foreach ($scales as $scale) {
+            $levels = explode(',', $scale->scale);
+            if(!isset($toinsert[$scale->id])) {
+                $toinsert[$scale->id] = array();
+            }
+            for($i = 0; $i < count($levels); $i++) {
+                $elementname = 'scalelevels-'.$scale->id.'-'.trim($levels[$i]);
+                $toinsert[$scale->id][] = $mform->get_data()->$elementname;
+            }
+        }
+        
+        foreach ($toinsert as $scaleid => $percentages) {
+            if ($association = $DB->get_record("emarking_scale_levels", array(
+                    "emarking" => $emarking->id,
+                    "scale" => $scaleid
+                ))) {
+            } else {
+                $association = new stdClass();
+                $association->emarking = $emarking->id;
+                $association->scale = $scaleid;
+                $association->timecreated = time();
+            }
+            
+            $association->levels = implode(',', $percentages);
+
+            if(isset($association->id) && $association->id > 0) {
+                $DB->update_record('emarking_scale_levels', $association);
+            } else {
+                $association->id = $DB->insert_record('emarking_scale_levels', $association);
+            }
         }
         echo $OUTPUT->notification(get_string('saved', 'mod_emarking'), 'notifysuccess');
     }

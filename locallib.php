@@ -689,6 +689,7 @@ function emarking_tabs($context, $cm, $emarking)
     if ($emarking->justiceperception > EMARKING_JUSTICE_DISABLED) {
         $gradereporttab->subtree[] = new tabobject("justicereport", $CFG->wwwroot . "/mod/emarking/reports/justice.php?id={$cm->id}", get_string("justice", 'mod_emarking'));
     }
+    $gradereporttab->subtree[] = new tabobject("outcomesreport", $CFG->wwwroot . "/mod/emarking/reports/outcomes.php?id={$cm->id}", get_string("outcomes", "grades"));
     $gradereporttab->subtree[] = new tabobject("comparison", $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}", get_string("comparativereport", "mod_emarking"));
     
     // Active types tab

@@ -101,6 +101,9 @@ $string['emarkingdst_help'] = 'Choose the eMarking activities that will copy the
 $string['override'] = 'Override rubric in destination eMarking';
 $string['override_help'] = 'Overrides any rubric configured in the destination eMarking activity and copies the current one';
 $string['noparallelemarkings'] = 'There are no eMarking exams in parallel courses';
+$string['scalelevels'] = 'Percentages per level';
+$string['studentachievement'] = 'Students %';
+$string['level'] = 'Achievement level';
 
 // GENERAL
 $string['criteria'] = 'Criteria';

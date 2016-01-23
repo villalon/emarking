@@ -107,6 +107,9 @@ $string['emarkingdst_help'] = 'Seleccione las pruebas eMarking a las que copiar�
 $string['override'] = 'Sobreescribir rúbrica';
 $string['override_help'] = 'Sobreescribe la rúbrica de la prueba eMarking destino, usando la de esta prueba';
 $string['noparallelemarkings'] = 'No hay pruebas eMarking en los cursos paralelos';
+$string['scalelevels'] = 'Porcentajes para escala';
+$string['studentachievement'] = '% de estudiantes';
+$string['level'] = 'Nivel de logro';
 
 // GENERAL
 $string['criteria'] = 'Criterios';

@@ -1652,5 +1652,29 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016011602, 'emarking');
     }
     
+    if ($oldversion < 2016012102) {
+
+        // Define table emarking_scale_levels to be created.
+        $table = new xmldb_table('emarking_scale_levels');
+
+        // Adding fields to table emarking_scale_levels.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('emarking', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('scale', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('levels', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table emarking_scale_levels.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for emarking_scale_levels.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016012102, 'emarking');
+    }
+    
     return true;
 }

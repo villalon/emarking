@@ -457,6 +457,18 @@
         <INDEX NAME="idx_outcome_criterion_emarking" UNIQUE="false" FIELDS="emarking"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="emarking_scale_levels" COMMENT="Percentages by which the levels in a scale are chosen">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="EMarking activity"/>
+        <FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of a scale"/>
+        <FIELD NAME="levels" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Percentages separated by comma"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="emarking_category_cost" COMMENT="Category cost">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>

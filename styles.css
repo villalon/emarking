@@ -28,6 +28,11 @@
 	width: 100%;
 }
 
+.scalelevels {
+	font-size: 12px;
+	font-weight: none;
+}
+
 .deletewidget {
 	position: absolute;
 	margin-top: -30px;
