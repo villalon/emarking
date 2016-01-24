@@ -251,6 +251,14 @@ $string['anonymousstudent'] = 'Estudiante anónimo';
 $string['viewpeers'] = 'Estudiantes ven pruebas de otros estudiantes';
 $string['viewpeers_help'] = 'Se le permite a los estudiantes revisar pruebas de sus compañeros de manera anónima';
 
+// EMARKING IMPORT RUBRIC
+$string['rubriclevel'] = 'Nivel';
+$string['importrubric'] = 'Importar rúbrica';
+$string['pastefromexcel'] = 'Pegar desde Excel';
+$string['pastefromexcel_help'] = 'Seleccione las celdas deseadas en Excel, cópielas y luego péguelas en el cuadro de texto';
+$string ['rubricneeded'] = 'eMarking requiere el uso de rúbricas para la corrección. Por favor cree una manualmente o impórtela desde Excel.';
+$string ['rubricdraft'] = 'eMarking requiere una rúbrica lista, la rúbrica se encuentra en estado de borrador. Por favor completar rúbrica';
+
 // E-MARKING TYPES
 $string ['markingtype'] = 'Tipo de corrección';
 $string ['markingtype_help'] = '<h2>Tipos de corrección</h2><br>
@@ -705,8 +713,6 @@ $string ['regrades'] = 'Recorrección';
 $string ['regraderequest'] = 'Solicitud de recorrección';
 $string ['requestedby'] = 'Solicitado Por';
 $string ['results'] = 'Resultados';
-$string ['rubricneeded'] = 'eMarking requiere el uso de rúbricas para la corrección. Por favor cree una.';
-$string ['rubricdraft'] = 'eMarking requiere una rúbrica lista, la rúbrica se encuentra en estado de borrador. Por favor completar rúbrica';
 $string ['selectall'] = 'Seleccionar todas';
 $string ['selectnone'] = 'Seleccionar ninguna';
 $string ['separategroups'] = 'Grupos separados';

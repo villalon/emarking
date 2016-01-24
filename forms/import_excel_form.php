@@ -26,7 +26,7 @@ require_once ($CFG->libdir . '/enrollib.php');
 require_once ($CFG->dirroot . '/course/lib.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 
-class emarking_predefined_comments_form extends moodleform
+class emarking_import_excel_form extends moodleform
 {
 
     function definition()
@@ -42,12 +42,12 @@ class emarking_predefined_comments_form extends moodleform
         $mform->addElement('hidden', 'id', $cmid);
         $mform->setType('id', PARAM_INT);
         
-        $mform->addElement('textarea', 'comments', get_string('addpredefinedcomments', 'mod_emarking'), array(
+        $mform->addElement('textarea', 'comments', get_string('pastefromexcel', 'mod_emarking'), array(
             'rows' => 5,
             'cols' => 100,
             'class' => 'smalltext'
         ));
-        $mform->addHelpButton('comments', 'predefinedcomments', 'mod_emarking');
+        $mform->addHelpButton('comments', 'pastefromexcel', 'mod_emarking');
         $mform->setDefault('comments', '');
         $mform->setType('comments', PARAM_TEXT);
         

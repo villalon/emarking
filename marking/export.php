@@ -82,7 +82,10 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "export");
 
-emarking_validate_rubric($context);
+list($gradingmanager,
+        $gradingmethod,
+        $definition,
+        $rubriccontroller) = emarking_validate_rubric($context);
 
 if (count($emarkingdst) > 0) {
     

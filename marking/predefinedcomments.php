@@ -29,7 +29,7 @@ require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/lib.php");
 require_once ($CFG->dirroot . "/mod/emarking/marking/form.php");
-require_once ($CFG->dirroot . "/mod/emarking/forms/predefined_comments_form.php");
+require_once ($CFG->dirroot . "/mod/emarking/forms/import_excel_form.php");
 require_once ($CFG->libdir . '/csvlib.class.php');
 
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
@@ -184,7 +184,7 @@ if ($action == 'list') {
     }
     
     // Form Display
-    $predefinedform = new emarking_predefined_comments_form(null, array(
+    $predefinedform = new emarking_import_excel_form(null, array(
         'cmid' => $cm->id
     ));
     

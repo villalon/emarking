@@ -267,6 +267,14 @@ $string ['type_peer_review'] = 'Peer review';
 $string ['type_print_only'] = 'Print only';
 $string ['type_print_scan'] = 'Print and scan';
 
+// EMARKING IMPORT RUBRIC
+$string['rubriclevel'] = 'Rubric level';
+$string['importrubric'] = 'Import rubric';
+$string['pastefromexcel'] = 'Paste from Excel';
+$string['pastefromexcel_help'] = 'Select the desired cells in Excel, copy them  and then paste them in the text box';
+$string ['rubricneeded'] = 'eMarking requires a rubric for marking, please create one by hand or import it from Excel';
+$string ['rubricdraft'] = 'eMarking requires a ready rubric, the rubric is in status draft. Please complete rubric';
+
 // EMARKING PRINTING
 $string['printordersrange'] = 'Print orders from {$a->start} to {$a->end}';
 $string['digitizedanswersreminder'] = 'Digitized answers reminder';
@@ -682,8 +690,6 @@ $string ['regrades'] = 'Regrade';
 $string ['regraderequest'] = 'Request regrading';
 $string ['requestedby'] = 'Requested by';
 $string ['results'] = 'Results';
-$string ['rubricneeded'] = 'eMarking requires a rubric for marking, please create one';
-$string ['rubricdraft'] = 'eMarking requires a ready rubric, the rubric is in status draft. Please complete rubric';
 $string ['selectall'] = 'Select all';
 $string ['selectnone'] = 'Select none';
 $string ['separategroups'] = 'Separate groups';

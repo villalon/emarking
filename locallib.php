@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-2016 Jorge Villalon <jorge.villalon@uai.cl>
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -192,8 +192,10 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
     $contextsrc = context_module::instance($cmsrc->id);
     $contextdst = context_module::instance($cmdst->id);
     
-    list ($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = emarking_validate_rubric($contextsrc, false, false);
-    list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst, false, false);
+    list ($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc)
+        = emarking_validate_rubric($contextsrc, false, false);
+    list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) 
+        = emarking_validate_rubric($contextdst, false, false);
     
     if ($copyrubric) {
         if(!$rubriccontrollerdst) {
@@ -208,7 +210,8 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
             'id' => $definitionsrc->id
         ));
         
-        list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst, false);
+        list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst)
+            = emarking_validate_rubric($contextdst, false);
     }
     
     if (!$definitionsrc || !$definitiondst) {
@@ -676,6 +679,7 @@ function emarking_tabs($context, $cm, $emarking)
             $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markerspercriteria", 'mod_emarking'));
             $settingstab->subtree[] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}", core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
             $settingstab->subtree[] = new tabobject("outcomes", $CFG->wwwroot . "/mod/emarking/marking/outcomes.php?id={$cm->id}", core_text::strtotitle(get_string("outcomes", "grades")));
+            $settingstab->subtree[] = new tabobject("importrubric", $CFG->wwwroot . "/mod/emarking/marking/importrubric.php?id={$cm->id}&action=list", get_string("importrubric", 'mod_emarking'));
             $settingstab->subtree[] = new tabobject("export", $CFG->wwwroot . "/mod/emarking/marking/export.php?id={$cm->id}", core_text::strtotitle(get_string("export", "mod_data")));
         }
     }
@@ -1525,8 +1529,8 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
     
     $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
     $definition = $rubriccontroller->get_definition();
-    
     $managerubricurl = $gradingmanager->get_management_url();
+    $importrubricurl = new moodle_url("/mod/emarking/marking/importrubric.php", array("id"=>$context->instanceid));
     
     // Validate that activity has a rubric ready
     if ($gradingmethod !== 'rubric' || ! $definition || $definition == null) {
@@ -1534,7 +1538,10 @@ function emarking_validate_rubric($context, $die = true, $showform = true)
             echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
             
             if (has_capability("mod/emarking:addinstance", $context)) {
-                echo $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'));
+                echo "<table>";
+                echo "<tr><td>".$OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'), "GET")."</td>";
+                echo "<td>".$OUTPUT->single_button($importrubricurl, get_string('importrubric', 'mod_emarking'), "GET")."</td></tr>";
+                echo "</table>";
             }
         }
         if ($die) {
