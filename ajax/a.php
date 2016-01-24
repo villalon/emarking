@@ -34,6 +34,8 @@ require_once ("$CFG->dirroot/grade/grading/form/rubric/lib.php");
 require_once ("$CFG->dirroot/lib/filestorage/file_storage.php");
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
+require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
+require_once ($CFG->dirroot . "/mod/emarking/ajax/locallib.php");
 
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 
@@ -107,50 +109,6 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     ))) {
         emarking_json_error('Invalid user from submission');
     }
-
-// Progress querys
-$totaltest = $DB->count_records_sql("SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id");
-$inprogesstest = $DB->count_records_sql("SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id AND status = 15");
-$publishtest = $DB->count_records_sql("SELECT COUNT(*) from {emarking_draft} WHERE  emarkingid = $emarking->id AND status > 15");
-
-// Agree level query
-$agreeRecords = $DB->get_records_sql("
-		SELECT d.id, 
-		STDDEV(d.grade)*2/6 as dispersion, 
-		d.submissionid, 
-		COUNT(d.id) as conteo
-		FROM {emarking_draft} d
-		INNER JOIN {emarking_submission} s ON (s.emarking = $emarking->id AND s.id = d.submissionid)
-		INNER JOIN {emarking_page} p ON (p.submission = d.id)
-		INNER JOIN {emarking_comment} c ON (c.page= p.id) 
-		GROUP BY d.submissionid
-		HAVING COUNT(*) > 1");
-
-// Set agree level average of all active grading assignments
-if ($agreeRecords) {
-    $agreeLevel = array();
-    foreach ($agreeRecords as $dispersion) {
-        $agreeLevel[] = (float) $dispersion->dispersion;
-    }
-    $agreeLevelAvg = round(100 * (1 - (array_sum($agreeLevel) / count($agreeLevel))), 1);
-} else {
-    $agreeLevelAvg = 0;
-}
-
-// Set agree level average of current active assignment
-$agreeAssignment = $DB->get_record_sql("SELECT d.submissionid, 
-										STDDEV(d.grade)*2/6 as dispersion, 
-										COUNT(d.id) as conteo
-										FROM {emarking_draft} d
-										WHERE d.submissionid = ? 
-										GROUP BY d.submissionid", array(
-    $draft->submissionid
-));
-if ($agreeAssignment) {
-    $agreeAsignmentLevelAvg = $agreeAssignment->dispersion;
-} else {
-    $agreeAssignmentLevelAvg = 0;
-}
 
 // The course to which the assignment belongs
 if (! $course = $DB->get_record("course", array(
@@ -272,90 +230,49 @@ $url = new moodle_url('/mod/emarking/ajax/a.php', array(
 switch ($action) {
     
     case 'addchatmessage':
-        
-        include "act/actAddChatMessage.php";
+        $output = emarking_add_chat_message();
         emarking_json_array($output);
         break;
     
     case 'addcomment':
         
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\addcomment_added::create($item)->trigger();
-        
-        include "act/actCheckGradePermissions.php";
-        include "act/actAddComment.php";
+        emarking_check_grade_permission($readonly, $cm);
+        $output = emarking_add_comment($submission, $draft);
         emarking_json_array($output);
         break;
     
     case 'addmark':
         
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\addmark_added::create($item)->trigger();
-        
-        include "act/actCheckGradePermissions.php";
-        
-        include "act/actAddMark.php";
+        emarking_check_grade_permission($readonly, $cm);
+        $output = emarking_add_mark($submission, $draft, $emarking, $context);
         emarking_json_array($output);
         break;
     
     case 'addregrade':
         
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\addregrade_added::create($item)->trigger();
-        
-        // include "act/actCheckRegradePermissions.php";
-        
-        include "act/actRegrade.php";
+        emarking_check_grade_permission($readonly, $cm);
+        $output = emarking_regrade($emarking, $draft);
         emarking_json_array($output);
         break;
     
     case 'deletecomment':
-        include "act/actDeleteComment.php";
+        
+        $output = emarking_delete_comment();
+        emarking_json_array ( $output );        
         break;
     
     case 'deletemark':
         
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\deletemark_deleted::create($item)->trigger();
-        
-        include "act/actCheckGradePermissions.php";
-        
-        include "act/actDeleteMark.php";
+        emarking_check_grade_permission($readonly, $cm);        
+        $output = emarking_delete_mark($submission, $draft, $emarking, $context);
         emarking_json_array($output);
         break;
     
     case 'finishmarking':
-        
-        require_once ($CFG->dirroot . '/mod/emarking/marking/locallib.php');
-        require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
-        
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\marking_ended::create($item)->trigger();
-        
-        include "act/actCheckGradePermissions.php";
-        include "qry/getRubricSubmission.php";
-        include "act/actFinishMarking.php";
-        
+
+        emarking_check_grade_permission($readonly, $cm);
+        $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
+        $output = emarking_finish_marking($emarking, $submission, $draft, $user, $context, $cm, $issupervisor);
         emarking_json_array($output);
         break;
     
@@ -379,19 +296,19 @@ switch ($action) {
     
     case 'getrubric':
         
-        include "qry/getRubricSubmission.php";
+        $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         emarking_json_resultset($results);
         break;
     
     case 'getstudents':
         
-        include "qry/getStudentsInMarking.php";
+        $results = emarking_get_students_marking($submission, $cm, $anonymous);
         emarking_json_resultset($results);
         break;
     
     case 'getsubmission':
         
-        include "qry/getSubmissionGrade.php";
+        $results = emarking_get_submission_grade($draft);
         $output = $results;
         $output->coursemodule = $cm->id;
         $output->markerfirstname = $USER->firstname;
@@ -399,24 +316,24 @@ switch ($action) {
         $output->markeremail = $USER->email;
         $output->markerid = $USER->id;
         
-        include "qry/getRubricSubmission.php";
+        $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         $output->rubric = $results;
         
         emarking_json_array($output);
         break;
     
     case 'getchathistory':
-        include "qry/getChatHistory.php";
+        $output = emarking_get_chat_history();
         emarking_json_array($output);
         break;
         
     case 'getvaluescollaborativebuttons':
-    	include 'qry/getValuesCollaborativeButtons.php';
+        $output = emarking_get_values_collaborative();
     	emarking_json_array($output);
     	break;
     
     case 'prevcomments':     
-        include "qry/getPreviousCommentsSubmission.php";
+        $results = emarking_get_previous_comments($submission, $draft);
         emarking_json_resultset($results);
         break;
     
@@ -424,12 +341,6 @@ switch ($action) {
         if (! $issupervisor) {
             emarking_json_error('Invalid access');
         }
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\rotatepage_switched::create($item)->trigger();
         
         list ($imageurl, $anonymousurl, $imgwidth, $imgheight) = emarking_rotate_image($pageno, $submission, $context);
         if (strlen($imageurl) == 0)
@@ -445,13 +356,6 @@ switch ($action) {
     
     case 'sortpages':
         
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\sortpages_switched::create($item)->trigger();
-        
         $neworder = required_param('neworder', PARAM_SEQUENCE);
         $neworderarr = explode(',', $neworder);
         if (! emarking_sort_submission_pages($submission, $neworderarr)) {
@@ -464,16 +368,10 @@ switch ($action) {
         break;
     
     case 'updcomment':
-        // Add to Moodle log so some auditing can be done
-        $item = array(
-            'context' => context_module::instance($cm->id),
-            'objectid' => $cm->id
-        );
-        \mod_emarking\event\updcomment_updated::create($item)->trigger();
-        
-        include "act/actCheckGradePermissions.php";
-        
-        include "qry/updComment.php";
+
+        emarking_check_grade_permission($readonly, $cm);
+
+        $newgrade = emarking_update_comment($submission, $draft, $emarking, $context);
         emarking_json_array(array(
             'message' => 'Success!',
             'newgrade' => $newgrade,
