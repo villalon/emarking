@@ -97,10 +97,11 @@ $courseurl = new moodle_url("/mod/emarking/print/exams.php", array("course"=>$co
 // Validate capability in the category context
 if (! (has_capability("mod/emarking:downloadexam", $contextcat) || has_capability("mod/emarking:downloadexam", $contextcourse) )) {
     $item = array(
-        "context" => $contextcourse
+        "context" => $contextcourse,
+        "objectid" => $exam->emarking
     );
     // Add to Moodle log so some auditing can be done
-    \mod_emarking\event\invalidaccess_granted::create($item)->trigger();
+    \mod_emarking\event\invalidaccessdownload_attempted::create($item)->trigger();
     echo json_encode(array(
         "error" => get_string("invalidaccess", "mod_emarking")
     ));
@@ -110,10 +111,11 @@ if (! (has_capability("mod/emarking:downloadexam", $contextcat) || has_capabilit
 // If a token was sent and it was not valid, log and die
 if ($token > 9999 && $_SESSION[$USER->sesskey . "smstoken"] !== $token) {
     $item = array(
-        "context" => $contextcourse
+        "context" => $contextcourse,
+        "objectid" => $exam->emarking
     );
     // Add to Moodle log so some auditing can be done
-    \mod_emarking\event\invalidtoken_granted::create($item)->trigger();
+    \mod_emarking\event\invalidtokendownload_attempted::create($item)->trigger();
     
     $PAGE->set_context($contextcourse);
     $PAGE->set_url($url);
@@ -144,10 +146,11 @@ if ($token > 9999 && $_SESSION[$USER->sesskey . "smstoken"] === $token) {
         die();
     }
     $item = array(
-        "context" => $contextcourse
+        "context" => $contextcourse,
+        "objectid" => $exam->emarking
     );
     // Add to Moodle log so some auditing can be done
-    \mod_emarking\event\successfully_downloaded::create($item)->trigger();
+    \mod_emarking\event\exam_downloaded::create($item)->trigger();
     
     emarking_download_exam($examid, $multiplepdfs, null, null, null, null, true);
     die();

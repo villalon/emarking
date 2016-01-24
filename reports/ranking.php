@@ -100,7 +100,7 @@ if(!$resultset->valid() || count($resultset) == 0) {
 }
 
 // Procesamiento de la data, se definen headers dinámicos y data dinámica
-$nameheader = get_string('justice.graph.student.name','mod_emarking');
+$nameheader = get_string('student','grades');
 $headers = array($nameheader);
 $data = array();
 

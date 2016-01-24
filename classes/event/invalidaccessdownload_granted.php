@@ -14,47 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 /**
- * rotatepage.
+ * An invalid access to download is the more serious threat to eMarking
+ * as someone was trying to download an exam with no permissions
  *
- * @package Emarking
- * @copyright 2015 Xiu-Fong Lin
+ * @package mod
+ * @subpackage emarking
+ * @copyright 2015 Xiu-Fong Lin, 2016 Jorge Villalon
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_emarking\event;
 
 defined ( 'MOODLE_INTERNAL' ) || die ();
-/**
- * rotatepage.
- *
- * @property-read array $other {
- *                rotate page
- *                }
- *               
- * @since Moodle 2.8.2
- * @copyright 2015 Xiu-Fong Lin
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- *         
- */
-class rotatepage_switched extends \core\event\base {
+
+class invalidaccessdownload_attempted extends \core\event\base {
 	protected function init() {
-		$this->data ['crud'] = 'c'; // c(reate), r(ead), u(pdate), d(elete)
-		$this->data ['edulevel'] = self::LEVEL_PARTICIPATING;
-		$this->data ['objecttable'] = 'emarking_submission';
+		$this->data ['crud'] = 'r'; // c(reate), r(ead), u(pdate), d(elete)
+		$this->data ['edulevel'] = self::LEVEL_OTHER;
+		$this->data ['objecttable'] = 'emarking';
 	}
 	public static function get_name() {
-		return get_string ( 'eventrotatepageswitched', 'mod_emarking' );
+		return get_string ( 'invalidaccess', 'mod_emarking' );
 	}
 	public function get_description() {
-		return "The user with id {$this->userid} rotated the item id {$this->objectid}.";
+		return "The user with id '$this->userid' attempted to download an exam with no permissions on eMarking activity '$this->objectid' for the " .
+	    "course module id '$this->contextinstanceid'.";
 	}
 	public function get_legacy_logdata() {
 		// Override if you are migrating an add_to_log() call.
 		return array (
 				$this->courseid,
 				'emarking',
-				'switched',
+				'view',
 				$this->objectid,
-				$this->contextinstanceid 
+				$this->contextinstanceid
 		);
 	}
 }

@@ -67,11 +67,11 @@ $PAGE->navbar->add(get_string('settings','mod_emarking'));
 // Verify capability for security issues
 if (! has_capability ( 'mod/emarking:supervisegrading', $context )) {
 	$item = array (
-			'context' => context_module::instance ( $cm->id ),
-			'objectid' => $cm->id,
+			'context' => $context,
+			'objectid' => $emarking->id,
 	);
 	// Add to Moodle log so some auditing can be done
-	//\mod_emarking\event\markers_assigned::create ( $item )->trigger ();
+	\mod_emarking\event\unauthorizedaccess_attempted::create ( $item )->trigger ();
 	print_error ( get_string('noneditingteacherconfiguration','mod_emarking' ) );
 }
 

@@ -28,6 +28,8 @@ require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
 require_once ($CFG->dirroot . "/lib/externallib.php");
 require_once ($CFG->dirroot . '/lib/excellib.class.php');
+require_once ($CFG->dirroot . "/mod/emarking/classes/event/unauthorizedaccess_attempted.php");
+require_once($CFG->libdir . '/eventslib.php');
 
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
 
@@ -135,7 +137,7 @@ $PAGE->set_course($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-// $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
+
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');

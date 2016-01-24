@@ -26,14 +26,14 @@
 namespace mod_emarking\event;
 defined('MOODLE_INTERNAL') || die();
 
-class emarking_graded extends \core\event\base {
+class emarking_published extends \core\event\base {
     /**
      * Returns description of what happened.
      *
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' graded the eMarking exam with id '$this->objectid' for the " .
+        return "The user with id '$this->userid' published an eMarking exam with id '$this->objectid' for the " .
             "course module id '$this->contextinstanceid'.";
     }
 
@@ -43,7 +43,7 @@ class emarking_graded extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'emarking', 'grade exam', 'marking/index.php?id=' . 
+        return array($this->courseid, 'emarking', 'publish exam', 'marking/index.php?id=' . 
             $this->objectid, $this->objectid, $this->contextinstanceid);
     }
 

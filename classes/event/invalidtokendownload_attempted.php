@@ -16,35 +16,27 @@
 /**
  * eMarking
  *
- * @package Emarking
- * @copyright 2015 Xiu-Fong Lin
+ * @package mod
+ * @subpackage emarking
+ * @copyright 2015 Xiu-Fong Lin, 2016 Jorge Villalon
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_emarking\event;
 
 defined ( 'MOODLE_INTERNAL' ) || die ();
-/**
- * eMarking.
- *
- * @property-read array $other {
- *                starts the emarking
- *                }
- *
- * @since Moodle 2.8.2
- * @copyright 2015 Xiu-Fong Lin
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- *
-*/
-class invalidtoken_granted extends \core\event\base {
+
+class invalidtokendownload_attempted extends \core\event\base {
 	protected function init() {
-		$this->data ['crud'] = 'c'; // c(reate), r(ead), u(pdate), d(elete)
-		$this->data ['edulevel'] = self::LEVEL_PARTICIPATING;
+		$this->data ['crud'] = 'r'; // c(reate), r(ead), u(pdate), d(elete)
+		$this->data ['edulevel'] = self::LEVEL_OTHER;
+		$this->data ['objecttable'] = 'emarking';
 	}
 	public static function get_name() {
-		return get_string ( 'eventinvalidtokengranted', 'mod_emarking' );
+		return get_string ( 'invalidtokendownload', 'mod_emarking' );
 	}
 	public function get_description() {
-		return get_string('invalidtoken', 'mod_emarking');
+		return "The user with id '$this->userid' attempted to download an exam with a wrong token on eMarking activity '$this->objectid' for the " .
+	    "course module id '$this->contextinstanceid'.";
 	}
 	public function get_legacy_logdata() {
 		// Override if you are migrating an add_to_log() call.

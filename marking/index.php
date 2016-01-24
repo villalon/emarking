@@ -70,8 +70,9 @@ $url = new moodle_url('/mod/emarking/marking/index.php', array(
 // Create the context within the course module
 $context = context_module::instance($cm->id);
 
+// Event indicating that a user opened an exam
 $item = array(
-    'context' => context_module::instance($cm->id),
+    'context' => $context,
     'objectid' => $cm->id
 );
 

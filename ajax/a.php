@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -19,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012 Jorge Villalón {@link http://www.uai.cl}
+ * @copyright 2012-onwards Jorge Villalon {@link http://www.uai.cl}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('AJAX_SCRIPT', true);
@@ -167,11 +166,11 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING && $draft->teacher != $USER
 // Validate grading capability and stop and log unauthorized access
 if (! $usercangrade && ! $ownsubmission && ! has_capability('mod/emarking:submit', $context)) {
     $item = array(
-        'context' => context_module::instance($cm->id),
-        'objectid' => $cm->id
+        'context' => $context,
+        'objectid' => $draft->id
     );
     // Add to Moodle log so some auditing can be done
-    \mod_emarking\event\unauthorized_granted::create($item)->trigger();
+    \mod_emarking\event\unauthorizedajax_attempted::create($item)->trigger();
     emarking_json_error('Unauthorized access!');
 }
 
@@ -236,21 +235,37 @@ switch ($action) {
     
     case 'addcomment':
         
-        emarking_check_grade_permission($readonly, $cm);
+        emarking_check_grade_permission($readonly, $draft, $context);
         $output = emarking_add_comment($submission, $draft);
         emarking_json_array($output);
         break;
     
     case 'addmark':
         
-        emarking_check_grade_permission($readonly, $cm);
+        emarking_check_grade_permission($readonly, $draft, $context);
+        
+        $item = array(
+            'context' => $context,
+            'objectid' => $draft->id
+        );
+        // Add to Moodle log so some auditing can be done
+        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        
         $output = emarking_add_mark($submission, $draft, $emarking, $context);
         emarking_json_array($output);
         break;
     
     case 'addregrade':
         
-        emarking_check_grade_permission($readonly, $cm);
+        emarking_check_grade_permission($readonly, $draft, $context);
+        
+        $item = array(
+            'context' => $context,
+            'objectid' => $draft->id
+        );
+        // Add to Moodle log so some auditing can be done
+        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        
         $output = emarking_regrade($emarking, $draft);
         emarking_json_array($output);
         break;
@@ -263,14 +278,30 @@ switch ($action) {
     
     case 'deletemark':
         
-        emarking_check_grade_permission($readonly, $cm);        
+        emarking_check_grade_permission($readonly, $draft, $context);
+        
+        $item = array(
+            'context' => $context,
+            'objectid' => $draft->id
+        );
+        // Add to Moodle log so some auditing can be done
+        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        
         $output = emarking_delete_mark($submission, $draft, $emarking, $context);
         emarking_json_array($output);
         break;
     
     case 'finishmarking':
 
-        emarking_check_grade_permission($readonly, $cm);
+        emarking_check_grade_permission($readonly, $draft, $context);
+        
+        $item = array(
+            'context' => $context,
+            'objectid' => $draft->id
+        );
+        // Add to Moodle log so some auditing can be done
+        \mod_emarking\event\emarking_published::create($item)->trigger();
+        
         $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         $output = emarking_finish_marking($emarking, $submission, $draft, $user, $context, $cm, $issupervisor);
         emarking_json_array($output);
@@ -369,8 +400,15 @@ switch ($action) {
     
     case 'updcomment':
 
-        emarking_check_grade_permission($readonly, $cm);
-
+        emarking_check_grade_permission($readonly, $draft, $context);
+        
+        $item = array(
+            'context' => $context,
+            'objectid' => $draft->id
+        );
+        // Add to Moodle log so some auditing can be done
+        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        
         $newgrade = emarking_update_comment($submission, $draft, $emarking, $context);
         emarking_json_array(array(
             'message' => 'Success!',
