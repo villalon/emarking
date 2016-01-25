@@ -244,12 +244,8 @@ switch ($action) {
         
         emarking_check_grade_permission($readonly, $draft, $context);
         
-        $item = array(
-            'context' => $context,
-            'objectid' => $draft->id
-        );
         // Add to Moodle log so some auditing can be done
-        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        \mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
         
         $output = emarking_add_mark($submission, $draft, $emarking, $context);
         emarking_json_array($output);
@@ -259,12 +255,8 @@ switch ($action) {
         
         emarking_check_grade_permission($readonly, $draft, $context);
         
-        $item = array(
-            'context' => $context,
-            'objectid' => $draft->id
-        );
         // Add to Moodle log so some auditing can be done
-        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        \mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
         
         $output = emarking_regrade($emarking, $draft);
         emarking_json_array($output);
@@ -280,12 +272,8 @@ switch ($action) {
         
         emarking_check_grade_permission($readonly, $draft, $context);
         
-        $item = array(
-            'context' => $context,
-            'objectid' => $draft->id
-        );
         // Add to Moodle log so some auditing can be done
-        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        \mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
         
         $output = emarking_delete_mark($submission, $draft, $emarking, $context);
         emarking_json_array($output);
@@ -295,12 +283,8 @@ switch ($action) {
 
         emarking_check_grade_permission($readonly, $draft, $context);
         
-        $item = array(
-            'context' => $context,
-            'objectid' => $draft->id
-        );
         // Add to Moodle log so some auditing can be done
-        \mod_emarking\event\emarking_published::create($item)->trigger();
+        \mod_emarking\event\emarking_published::create_from_draft($draft, $submission, $context)->trigger();
         
         $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         $output = emarking_finish_marking($emarking, $submission, $draft, $user, $context, $cm, $issupervisor);
@@ -402,12 +386,8 @@ switch ($action) {
 
         emarking_check_grade_permission($readonly, $draft, $context);
         
-        $item = array(
-            'context' => $context,
-            'objectid' => $draft->id
-        );
         // Add to Moodle log so some auditing can be done
-        \mod_emarking\event\emarking_graded::create($item)->trigger();
+        \mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
         
         $newgrade = emarking_update_comment($submission, $draft, $emarking, $context);
         emarking_json_array(array(

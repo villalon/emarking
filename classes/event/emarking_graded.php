@@ -27,13 +27,25 @@ namespace mod_emarking\event;
 defined('MOODLE_INTERNAL') || die();
 
 class emarking_graded extends \core\event\base {
+    
+    public static function create_from_draft($draft, $submission, $context) {
+        
+        $event = self::create(array(
+            'context'       => $context,
+            'objectid'      => $draft->id,
+            'relateduserid' => $submission->student
+        ));
+
+        return $event;
+    }
+    
     /**
      * Returns description of what happened.
      *
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' graded the eMarking exam with id '$this->objectid' for the " .
+        return "The user with id '$this->userid' graded the eMarking exam with id '$this->objectid' for user '$this->relateduserid' in the " .
             "course module id '$this->contextinstanceid'.";
     }
 

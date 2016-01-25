@@ -27,6 +27,18 @@ namespace mod_emarking\event;
 defined('MOODLE_INTERNAL') || die();
 
 class emarking_published extends \core\event\base {
+    
+    public static function create_from_draft($draft, $submission, $context) {
+    
+        $event = self::create(array(
+            'context'       => $context,
+            'objectid'      => $draft->id,
+            'relateduserid' => $submission->student
+        ));
+    
+        return $event;
+    }
+    
     /**
      * Returns description of what happened.
      *

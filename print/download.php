@@ -145,12 +145,9 @@ if ($token > 9999 && $_SESSION[$USER->sesskey . "smstoken"] === $token) {
         echo $OUTPUT->footer();
         die();
     }
-    $item = array(
-        "context" => $contextcourse,
-        "objectid" => $exam->emarking
-    );
+
     // Add to Moodle log so some auditing can be done
-    \mod_emarking\event\exam_downloaded::create($item)->trigger();
+    \mod_emarking\event\exam_downloaded::create_from_exam($exam, $contextcourse)->trigger();
     
     emarking_download_exam($examid, $multiplepdfs, null, null, null, null, true);
     die();
