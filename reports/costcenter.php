@@ -24,40 +24,40 @@
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/reports/locallib.php");
-global $DB, $CFG, $SCRIPT, $USER;
+require_once ($CFG->dirroot . "/mod/emarking/marking/locallib.php");
+require_once ($CFG->dirroot . '/lib/excellib.class.php');
+	global $DB, $CFG;
 
 $categoryid = required_param('category', PARAM_INT);
 
-
+// User must be logged in
+require_login();
+if (isguestuser()) {
+	die();
+}
 // Validate category
-if (! $category = $DB->get_record('course_categories', array(
+if (!$category = $DB->get_record('course_categories', array(
 		'id' => $categoryid
 ))) {
 	print_error(get_string('invalidcategoryid', 'mod_emarking'));
 }
 // We are in the category context
 $context = context_coursecat::instance($categoryid);
-// User must be logged in
-require_login();
-if (isguestuser()) {
-	die();
-}
 // And have viewcostreport capability
-if (! has_capability('mod/emarking:viewcostreport', $context)) {
+if (!has_capability('mod/emarking:viewcostreport', $context)) {
 	// TODO: Log invalid access to printreport
 	print_error('Not allowed!');
 }
-
+// This page url
 $url = new moodle_url('/mod/emarking/reports/costcenter.php', array(
 		'category' => $categoryid
 ));
-
+// Url that lead you to the category page
 $categoryurl = new moodle_url('/course/index.php', array(
 		'categoryid' => $categoryid
 ));
 
 $pagetitle = get_string('costreport', 'mod_emarking');
-
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 //$PAGE->requires->js('/mod/emarking/js/printorders.js');
@@ -84,74 +84,77 @@ $buttonstable->head = array(get_string('reportbuttonsheader', 'emarking'));
 $buttonstable->data[] = $buttonsarray;
 echo html_writer::table($buttonstable);
 echo html_writer::end_tag('div');
-// Google chart div
-echo html_writer::tag('div', '', array('id' => 'chart_div', 'style' => 'width:100%; height: 400px;'));
-echo '<hr class="style-one">';
-echo html_writer::start_tag('div',array( 'class' => 'rankingdiv', 'style' => 'width: 100%;'));
-// Generation of the buttons table
-$piebuttons = emarking_piebuttonstable($categoryid);
-$piebuttonstable = new html_table();
 
+// Google chart div
+echo html_writer::tag('div', '', array('id' => 'areachartdiv', 'style' => 'width:100%; height: 400px;'));
+
+echo '<hr class="style-one">';
+
+// Generation of the buttons table
+$piebuttons = emarking_columnbuttonstable($categoryid);
+$piebuttonstable = new html_table();
 $piebuttonstable->data[] = $piebuttons;
 echo html_writer::table($piebuttonstable);
 
-$totalpagespiechart = json_encode(emarking_gettotalcostpiechart($categoryid));
-echo html_writer::tag('div', '', array('id' => 'piechartdiv'));
+// Sub-category column chart
+echo html_writer::tag('div', '', array('id' => 'columnchartdiv'));
 echo '<hr class="style-one">';
+
+// Rankings div
 echo html_writer::start_tag('div',array( 'class' => 'emarking-left-table-ranking'));
 
-$courseranking=emarking_gettotalpagesbycourse($categoryid);
+// Generation of the ranking table
+$courseranking = emarking_gettotalpagesbycourse($categoryid);
 $coursetable = new html_table();
 $coursetable->head = array(get_string('courseranking', 'emarking'),'Number of pages');
 $coursetable->data = $courseranking;
 echo html_writer::table($coursetable);
 
-// teachers Ranking
+// Generation of the teachers Ranking
 $teacherranking = emarking_getteacherranking($categoryid);
 $teachertable = new html_table();
 $teachertable->head = array(get_string('teacherranking', 'emarking'), 'Number of activities');
 $teachertable->data = $teacherranking;
 echo html_writer::table($teachertable);
 
+// End of ranking div
 echo html_writer::end_tag('div');
-echo html_writer::start_tag('div',array( 'class' => 'emarking-center-table-ranking'));
+// Start of the detailed view table div
+echo html_writer::start_tag('div',array( 'class' => 'emarking-right-table-ranking'));
 
-// Table for showing detailed view
+// Get the students in the category
 $students = emarking_getstudents($categoryid);
 $student = html_writer::tag('span', $category->name."<br>"."Number of students:"." ".$students[0], array('id' => 'studentspan'));
 
-
-
-$totalpagesfortable = emarking_gettotalpagesfortable($categoryid);
-$monthtable = new html_table();
-$monthtable->head = ['Detail information'];
-$monthtable->data = $totalpagesfortable;
-$tablemonth = html_writer::table($monthtable);
-echo html_writer::end_tag('div');
-echo html_writer::start_tag('div',array( 'class' => 'emarking-center-table-ranking'));
+// Generates the detailed information table
 $detailtable = new html_table();
 $detailtable->head = ['Facturacion emarking'];
-$detailtable->data = [[$student],[$tablemonth]];
+$detailtable->data = [[$student]];
 echo html_writer::table($detailtable);
 
-echo html_writer::end_tag('div');
+// Get the monthly cost and gets it in a table
+$totalcostfortable = emarking_gettotalpagesfortable($categoryid);
+$monthtable = new html_table();
+$monthtable->head = ['Detail information'];
+$monthtable->data = $totalcostfortable;
+echo html_writer::table($monthtable);
 
 echo html_writer::end_tag('div');
 
-
-//Area chart variables
+// Area chart data
 $activitiesforchart = json_encode(emarking_getActivitiesbydate($categoryid));
 $emarkingcoursesforchart = json_encode(emarking_getemarkingcoursesbydate($categoryid));
 $meantestlenghforchart = json_encode(emarking_getoriginalpagesbydate($categoryid));
 $totalpagesforchart = json_encode(emarking_gettotalpagesbydate($categoryid));
 $totalcostforchart = json_encode(emarking_gettotalcostbydate($categoryid));
 
-//Pie chart variables
+// Column chart variables
 $activitiespiechart = json_encode(emarking_getactivitiespiechart($categoryid));
 $emarkingcoursespiechart = json_encode(emarking_getemarkingcoursespiechart($categoryid));
 $meanexamlenghtpiechart = json_encode(emarking_getmeanexamlenghtpiechart($categoryid));
 $totalpagespiechart = json_encode(emarking_gettotalpagespiechart($categoryid));
 $totalcostpiechart = json_encode(emarking_gettotalcostpiechart($categoryid));
+
 
 
 echo $OUTPUT->footer();
@@ -163,103 +166,109 @@ echo $OUTPUT->footer();
     <script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
+      
       function drawChart() {
-        var data = google.visualization.arrayToDataTable(<?php echo $activitiesforchart; ?>);
-        var piedata = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
-        var options = {
+          
+        // Initial data for the area and column chart
+        var areadata = google.visualization.arrayToDataTable(<?php echo $activitiesforchart; ?>);
+        var columndata = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
+        
+        // Options for the area chart
+        var areaoptions = {
           title: 'Chart',
           hAxis: {title: 'MONTH',  titleTextStyle: {color: '#3333'}},
           vAxis: {minValue: 0},
-          legend:{position:'top'}
-        };  
- 	   var pieoptions = {
+          legend: {position:'top'}
+        };
+          
+        // Options for the column chart
+ 	   var columnoptions = {
                title: 'Sub-categories chart',
-               legend:{position:'top'}	   
+               legend: {position:'top'}	   
              };     
 
-        
-        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
-        chart.draw(data, options);
+        // Initialize the column chart
+        var areachart = new google.visualization.AreaChart(document.getElementById('areachartdiv'));
+        areachart.draw(areadata, areaoptions);
 
-        var piechart = new google.visualization.ColumnChart(document.getElementById('piechartdiv'));
-        piechart.draw(piedata, pieoptions);
-        
-       function selectHandler(data) {
-    	   var options = {
+     	// Initialize the column chart
+        var columnchart = new google.visualization.ColumnChart(document.getElementById('columnchartdiv'));
+        columnchart.draw(columndata, columnoptions);
+
+        // Funtion to reload the data of the area chart
+        function areaChartHandler(data) {
+    		var areaoptions = {
     		          title: 'Chart',
     		          hAxis: {title: 'MONTH',  titleTextStyle: {color: '#3333'}},
     		          vAxis: {minValue: 0},
-    		          legend:{position:'top'}
+    		          legend: {position:'top'}
     		        };
-        	chart.draw(data, options);;
+    		areachart.draw(data, areaoptions);;
         }
 
-       function pieHandler(data, pieoptions) {
-      	   var pieoptions = {
+        // Funtion to reload the data of the column chart
+        function columnChartHandler(data, columnoptions) {
+      		var columnoptions = {
                    title: 'Sub-categories chart',
-                   legend:{position:'top'}    
+                   legend: {position:'top'}    
                  }; 
-        	piechart.draw(data, pieoptions);
-
+      		columnchart.draw(data, columnoptions);
         }
        
-       $(".emarking-cost-button-style").click(function(){
+       $(".emarking-area-cost-button-style").click(function(){
            
            if( $(this).attr("id") == "activitiesbutton" )
            {
-           	var datos = google.visualization.arrayToDataTable(<?php echo $activitiesforchart; ?>);
+           		var data = google.visualization.arrayToDataTable(<?php echo $activitiesforchart; ?>);
            }
            
            if( $(this).attr("id") == "emarkingcourses" )
            {
-           	var datos = google.visualization.arrayToDataTable(<?php echo $emarkingcoursesforchart; ?>);
+		   		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursesforchart; ?>);
            }
            
            if( $(this).attr("id") == "meantestleangh" )
            {
-        	   var datos = google.visualization.arrayToDataTable(<?php echo $meantestlenghforchart; ?>);
+        		var data = google.visualization.arrayToDataTable(<?php echo $meantestlenghforchart; ?>);
            }
            
            if( $(this).attr("id") == "totalprintedpages" )
            {
-        	   var datos = google.visualization.arrayToDataTable(<?php echo $totalpagesforchart; ?>);
+        		var data = google.visualization.arrayToDataTable(<?php echo $totalpagesforchart; ?>);
            }
            
            if( $(this).attr("id") == "totalprintingcost" )
            {
-        	   var datos = google.visualization.arrayToDataTable(<?php echo $totalcostforchart; ?>);
+        		var data = google.visualization.arrayToDataTable(<?php echo $totalcostforchart; ?>);
            }
-   		selectHandler(datos);
+           areaChartHandler(data);
        	})
 
-       $(".emarking-pie-cost-button-style").click(function(){
+       $(".emarking-column-cost-button-style").click(function(){
            if( $(this).attr("id") == "pieactivitiesbutton" )
            {
-           	var datos = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
+           		var data = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
            }
            if( $(this).attr("id") == "pieemarkingcourses" )
            {
-           	var datos = google.visualization.arrayToDataTable(<?php echo $emarkingcoursespiechart; ?>);
+           		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursespiechart; ?>);
            }
            if( $(this).attr("id") == "piemeantestleangh" )
            {
-        	   var datos = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtpiechart; ?>);
+        	    var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtpiechart; ?>);
            }
            if( $(this).attr("id") == "pietotalprintedpages" )
            {
-        	   var datos = google.visualization.arrayToDataTable(<?php echo $totalpagespiechart; ?>);
+        	    var data = google.visualization.arrayToDataTable(<?php echo $totalpagespiechart; ?>);
            }
            if( $(this).attr("id") == "pietotalprintingcost" )
            {
-        	   var datos = google.visualization.arrayToDataTable(<?php echo $totalcostpiechart; ?>);
+        	    var data = google.visualization.arrayToDataTable(<?php echo $totalcostpiechart; ?>);
            }
-   		pieHandler(datos);
+         columnChartHandler(data);
        	});
       } 
-
-
-    </script>
-    
+    </script>    
   </head>
 </html>
 
