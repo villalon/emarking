@@ -557,6 +557,7 @@ function emarking_add_criterion_markerpage($emarking) {
 function emarking_add_comment($submission, $draft) {
     global $DB, $USER;
     
+    $userid = required_param('markerid',PARAM_INT);
     /** Comment position within the page **/
     $posx = required_param('posx', PARAM_INT);
     $posy = required_param('posy', PARAM_INT);
@@ -606,7 +607,7 @@ function emarking_add_comment($submission, $draft) {
     $emarking_comment->timecreated = time();
     $emarking_comment->timemodified = time();
     $emarking_comment->rawtext = $comment;
-    $emarking_comment->markerid = $USER->id;
+    $emarking_comment->markerid = $userid;
     $emarking_comment->colour = $colour;
     $emarking_comment->levelid = 0;
     $emarking_comment->criterionid = $criterionid;
@@ -630,6 +631,7 @@ function emarking_add_comment($submission, $draft) {
  * @return id insert or update
  */
 function emarking_add_action_collaborativebutton() {
+	global $DB;
 
 	$markerid = required_param("markerid", PARAM_INT);
 	$commentid = required_param("commentid", PARAM_INT);
@@ -676,8 +678,12 @@ function emarking_add_action_collaborativebutton() {
 		}
 	}
 	// Send output info
-	$output = array('error'=>'',
-			'id' => $id);
+	if($id){
+		$id = array($id);
+		emarking_json_resultset($id);
+		break;
+	}
+	$output = $id;
 }
 
 
@@ -860,15 +866,17 @@ function emarking_get_values_collaborative() {
     
     $collaborativevalues = $DB->get_records_sql($sqlvaluesbuttons,array($commentid,'1'));
     
-    if(!$collaborativevalues) {
+    if(!$collaborativevalues || $collaborativevalues == null) {
     	$collaborativevalues = array();
+    	emarking_json_resultset($collaborativevalues);
+    	break;
     }else{
     	foreach ($collaborativevalues as $obj){
     		$output[]=$obj;
     	}
     }
-    
-    return $output;
+
+    return $collaborativevalues;
 }
 
 function emarking_get_markers_configuration($context, $emarking) {
@@ -1184,6 +1192,7 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     require_once("$CFG->dirroot/grade/grading/form/rubric/lib.php");
     
     // Required and optional params for emarking
+    $userid = required_param('markerid', PARAM_INT);
     $commentid = required_param('cid', PARAM_INT);
     $commentrawtext = required_param('comment', PARAM_RAW_TRIMMED);
     $bonus = optional_param('bonus', -1, PARAM_FLOAT);
@@ -1240,7 +1249,7 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     $comment->bonus = $bonus;
     $comment->textformat = $format;
     $comment->levelid = $levelid;
-    $comment->markerid = $USER->id;
+    $comment->markerid = $userid;
     
     $DB->update_record('emarking_comment', $comment);
     
