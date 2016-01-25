@@ -289,7 +289,7 @@ clear {
 	background-color: #FF7878;
 }
 
-.cost-button-style {
+.emarking-area-cost-button-style {
 	background-color:lightgreen;
 	 font: 100%/90% Georgia, "Times New Roman", Times, serif;
 }
@@ -301,12 +301,12 @@ clear {
 	color:white;
 }
 
-.emarking-pie-cost-button-style {
+.emarking-column-cost-button-style {
 	background-color:lightgreen;
 	 font: 80%/90% Georgia, "Times New Roman", Times, serif;
 }
 
-.emarking-pie-totalcost-button-style {
+.emarking-column-totalcost-button-style {
 	background: #6495ED;
 	border-style: solid;
 	font: 80%/90% Georgia, "Times New Roman", Times, serif;
@@ -314,17 +314,13 @@ clear {
 }
 
 .emarking-left-table-ranking{
-	width: 50%;
+	width: 49%;
 	  float: left;
 }
 
-.emarking-center-table-ranking{
-	width: 50%;
-	  float: left;
-}
 .emarking-right-table-ranking{
-	width: 50%;
-	  float: left;
+	width: 49%;
+	  float: right;
 }
 
 hr.style-one {

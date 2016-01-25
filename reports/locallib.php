@@ -122,60 +122,76 @@ function emarking_reports_tabs($category)
     return $tabs;
 }
 
+function emarking_costconfig_tabs($category){
+	$tabs = array();
+
+	// Print orders
+	$tabs[] = new tabobject(get_string("costconfigtab", 'mod_emarking'), new moodle_url("/mod/emarking/reports/costconfig.php", array(
+			"category" => $category->id,
+	)), get_string("costconfigtab", 'mod_emarking'));
+
+	// Print orders history
+	$tabs[] = new tabobject(get_string("costcategorytable", 'mod_emarking'), new moodle_url("/mod/emarking/reports/categorycosttable.php", array(
+			"category" => $category->id,
+	)), get_string("costcategorytable", 'mod_emarking'));
+	
+	return $tabs;
+}
+
 function emarking_buttonstable($categoryid){
 	$buttonsarray = array();
 	
 	// Creation of the activities button
 	$activities = emarking_getActivities($categoryid);
-	$activitiesbutton = html_writer::tag('button',$activities." ".get_string('totalactivies', 'emarking'), array('id' => 'activitiesbutton', 'class' => 'emarking-cost-button-style'));
+	$activitiesbutton = html_writer::tag('button',$activities." ".get_string('totalactivies', 'emarking'), array('id' => 'activitiesbutton', 'class' => 'emarking-area-cost-button-style'));
 	$buttonsarray[] = $activitiesbutton;
 	
 	// Creation of the emarkingcourses button
 	$emarkingcourses = emarking_getemarkingcourses($categoryid);
-	$emarkingcoursesbutton = html_writer::tag('button',$emarkingcourses." ".get_string('emarkingcourses', 'emarking'), array('id' => 'emarkingcourses', 'class' => 'emarking-cost-button-style'));
+	$emarkingcoursesbutton = html_writer::tag('button',$emarkingcourses." ".get_string('emarkingcourses', 'emarking'), array('id' => 'emarkingcourses', 'class' => 'emarking-area-cost-button-style'));
 	$buttonsarray[] = $emarkingcoursesbutton;
 	
 	// Creation of the meanlengh button
 	$originalpages = emarking_getoriginalpages($categoryid);
-	$meantestlenghbutton = html_writer::tag('button',$originalpages." ".get_string('meantestlenght', 'emarking')  , array('id' => 'meantestleangh',  'class' => 'emarking-cost-button-style'));
+	$meantestlenghbutton = html_writer::tag('button',$originalpages." ".get_string('meantestlenght', 'emarking')  , array('id' => 'meantestleangh',  'class' => 'emarking-area-cost-button-style'));
 	$buttonsarray[] = $meantestlenghbutton;
 	
 	// Creation of the totalprintedpages button
 	$totalprintedpages = emarking_gettotalpages($categoryid);
-	$totalprintedpagesbutton = html_writer::tag('button',$totalprintedpages." ".get_string('totalprintedpages', 'emarking') , array('id' => 'totalprintedpages', 'class' => 'emarking-cost-button-style'));
+	$totalprintedpagesbutton = html_writer::tag('button',$totalprintedpages." ".get_string('totalprintedpages', 'emarking') , array('id' => 'totalprintedpages', 'class' => 'emarking-area-cost-button-style'));
 	$buttonsarray[] = $totalprintedpagesbutton;
 	
 	// Creation of the total cost.
 	$printingcost =  emarking_getprintingcost($categoryid);
 	$formatcost = number_format($printingcost);
-	$totalprintingcostbutton = html_writer::tag('button','$'." ".$formatcost." ".get_string('totalprintingcost', 'emarking') , array('id' => 'totalprintingcost', 'class' =>'emarking-totalcost-button-style emarking-cost-button-style'));
+	$totalprintingcostbutton = html_writer::tag('button','$'." ".$formatcost." ".get_string('totalprintingcost', 'emarking') , array('id' => 'totalprintingcost', 'class' =>'emarking-totalcost-button-style emarking-area-cost-button-style'));
 	$buttonsarray[] = $totalprintingcostbutton;
 	
 	return $buttonsarray;
 }
 
-function emarking_piebuttonstable($categoryid){
+function emarking_columnbuttonstable($categoryid){
 	$buttonsarray = array();
 
 	// Creation of the activities button
 	$activitiesforchart = json_encode(emarking_getActivitiesbydate($categoryid));
-	$activitiesbutton = html_writer::tag('button',get_string('pieactivities', 'emarking'), array('id' => 'pieactivitiesbutton', 'class' => 'emarking-pie-cost-button-style', ));
+	$activitiesbutton = html_writer::tag('button',get_string('pieactivities', 'emarking'), array('id' => 'pieactivitiesbutton', 'class' => 'emarking-column-cost-button-style', ));
 	$buttonsarray[] = $activitiesbutton;
 
 	// Creation of the emarkingcourses button
-	$emarkingcoursesbutton = html_writer::tag('button',get_string('pieemarkingcourses', 'emarking'), array('id' => 'pieemarkingcourses', 'class' => 'emarking-pie-cost-button-style'));
+	$emarkingcoursesbutton = html_writer::tag('button',get_string('pieemarkingcourses', 'emarking'), array('id' => 'pieemarkingcourses', 'class' => 'emarking-column-cost-button-style'));
 	$buttonsarray[] = $emarkingcoursesbutton;
 
 	// Creation of the meanlengh button
-	$meantestlenghbutton = html_writer::tag('button',get_string('piemeanexamleanght', 'emarking')  , array('id' => 'piemeantestleangh',  'class' => 'emarking-pie-cost-button-style'));
+	$meantestlenghbutton = html_writer::tag('button',get_string('piemeanexamleanght', 'emarking')  , array('id' => 'piemeantestleangh',  'class' => 'emarking-column-cost-button-style'));
 	$buttonsarray[] = $meantestlenghbutton;
 
 	// Creation of the totalprintedpages button
-	$totalprintedpagesbutton = html_writer::tag('button',get_string('pietotalprintedpages', 'emarking') , array('id' => 'pietotalprintedpages', 'class' => 'emarking-pie-cost-button-style'));
+	$totalprintedpagesbutton = html_writer::tag('button',get_string('pietotalprintedpages', 'emarking') , array('id' => 'pietotalprintedpages', 'class' => 'emarking-column-cost-button-style'));
 	$buttonsarray[] = $totalprintedpagesbutton;
 
 	// Creation of the total cost.
-	$totalprintingcostbutton = html_writer::tag('button',get_string('pietotalcost', 'emarking') , array('id' => 'pietotalprintingcost', 'class' =>'emarking-pie-totalcost-button-style emarking-pie-cost-button-style'));
+	$totalprintingcostbutton = html_writer::tag('button',get_string('pietotalcost', 'emarking') , array('id' => 'pietotalprintingcost', 'class' =>'emarking-column-totalcost-button-style emarking-column-cost-button-style'));
 	$buttonsarray[] = $totalprintingcostbutton;
 
 	return $buttonsarray;
@@ -925,4 +941,16 @@ function emarking_gettotalcostbydate($category) {
 	}
 
 	return $arraytotalcostbydate;
+}
+
+function emarking_download_excel_teacher_ranking($category) {
+	global $DB;
+	
+	$teacherrankingdata = emarking_getteacherranking($category);
+	
+	$headers = ['Teacher Name','Activities'];
+
+	$excelfilename = clean_filename ( $category."-agreement.xls" );
+
+	emarking_save_data_to_excel($headers, $teacherrankingdata, $excelfilename, 1);
 }
