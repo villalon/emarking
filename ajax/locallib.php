@@ -626,6 +626,62 @@ function emarking_add_comment($submission, $draft) {
 }
 
 /**
+ * Adds a action button collaborative
+ * @return id insert or update
+ */
+function emarking_add_action_collaborativebutton() {
+
+	$markerid = required_param("markerid", PARAM_INT);
+	$commentid = required_param("commentid", PARAM_INT);
+	$type = required_param("type", PARAM_INT);
+	$status = required_param("status", PARAM_INT);
+	
+	$text = optional_param("text", null, PARAM_TEXT);
+	
+	// Discussion mark
+	if($type == 4){
+		$collaborativebutton =  new stdClass();
+		$collaborativebutton->commentid = $commentid;
+		$collaborativebutton->type = $type;
+		$collaborativebutton->status = $status;
+		$collaborativebutton->text = $text;
+		$collaborativebutton->markerid = $markerid;
+		$collaborativebutton->createdtime = time();
+	
+		// Insert it into the database
+		$id = $DB->insert_record('emarking_collaborative_work', $collaborativebutton );
+	
+	}else{
+		if($collaborativebutton = $DB->get_record("emarking_collaborative_work",array(
+				"commentid" => $commentid,
+				"markerid" => $markerid,
+				"type" => $type
+		))){
+			$collaborativebutton->status = $status;
+			$collaborativebutton->text = $text;
+	
+			// Update it into the database
+			$id = $DB->update_record("emarking_collaborative_work", $collaborativebutton);
+		}else{
+			$collaborativebutton =  new stdClass();
+			$collaborativebutton->commentid = $commentid;
+			$collaborativebutton->type = $type;
+			$collaborativebutton->status = $status;
+			$collaborativebutton->text = $text;
+			$collaborativebutton->markerid = $markerid;
+			$collaborativebutton->createdtime = time();
+	
+			// Insert it into the database
+			$id = $DB->insert_record('emarking_collaborative_work', $collaborativebutton );
+		}
+	}
+	// Send output info
+	$output = array('error'=>'',
+			'id' => $id);
+}
+
+
+/**
  * Adds a chat message
  * @return multitype:string number Ambigous <boolean, number>
  */
@@ -790,19 +846,26 @@ function emarking_get_values_collaborative() {
     global $DB;
     
     $commentid = required_param('commentid', PARAM_INT);
+    $type = optional_param('type',null,PARAM_INT);
     
-    $sqlvaluesbuttons = "SELECT cw.markerid, cw.type, CONCAT(u.username, ' ', u.lastname) AS markername
-		FROM {emarking_collaborative_work} AS cw JOIN {user} AS u ON (cw.markerid = u.id)
-		WHERE commentid=:commentid";
+    $filter = "";
+    if($type != null){
+    	$filter = "AND cw.type = $type";
+    }
     
-    $collaborativevalues = $DB->get_records_sql($sqlvaluesbuttons,array("commentid"=>$commentid));
+    $sqlvaluesbuttons = "SELECT cw. id, cw.markerid, cw.type, CONCAT(u.username, ' ', u.lastname) AS markername, FROM_UNIXTIME(cw.createdtime) AS date, cw.text
+    FROM {emarking_collaborative_work} AS cw JOIN {user} AS u ON (cw.markerid = u.id)
+    WHERE cw.commentid = ? AND cw.status = ? $filter
+    ORDER BY cw.createdtime ASC";
+    
+    $collaborativevalues = $DB->get_records_sql($sqlvaluesbuttons,array($commentid,'1'));
     
     if(!$collaborativevalues) {
-        $collaborativevalues = array();
+    	$collaborativevalues = array();
     }else{
-        foreach ($collaborativevalues as $obj){
-            $output[]=$obj;
-        }
+    	foreach ($collaborativevalues as $obj){
+    		$output[]=$obj;
+    	}
     }
     
     return $output;

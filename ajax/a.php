@@ -262,6 +262,12 @@ switch ($action) {
         emarking_json_array($output);
         break;
     
+    case 'clickcollaborativebuttons':
+   	
+        $output = emarking_add_action_collaborativebutton();
+        emarking_json_array($output);
+        break;
+        
     case 'deletecomment':
         
         $output = emarking_delete_comment();
