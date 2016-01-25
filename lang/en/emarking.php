@@ -93,6 +93,7 @@ $string['criteria'] = 'Criteria';
 $string['deleterow'] = 'Delete row';
 $string['nodejspath'] = 'NodeJS path';
 $string['nodejspath_help'] = 'The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091';
+$string['emarkinggraded'] = 'eMarking graded';
 
 // SMS SECURITY
 $string ['download'] = 'Download';
