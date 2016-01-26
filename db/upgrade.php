@@ -1123,23 +1123,11 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015021900, 'emarking');
     }
     
-    if ($oldversion < 2015021901) {
-    
-    	// Rename field submission on table emarking_regrade to NEWNAMEGOESHERE.
-    	$table = new xmldb_table('emarking_regrade');
-    	$field = new xmldb_field('submission', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
-    
-    	// Launch rename field submission.
-    	$dbman->rename_field($table, $field, 'draft');
-    
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2015021901, 'emarking');
-    }
     if ($oldversion < 2015021902) {
     
     	// Define field id to be added to emarking_comment.
     	$table = new xmldb_table('emarking_comment');
-    	$field = new xmldb_field('draft', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'page');
+    	$field = new xmldb_field('draft', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, null);
     
     	// Conditionally launch add field id.
     	if (!$dbman->field_exists($table, $field)) {
@@ -1154,7 +1142,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Define field id to be added to emarking_comment.
     	$table = new xmldb_table('emarking_draft');
-    	$field = new xmldb_field('qualitycontrol', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'sort');
+    	$field = new xmldb_field('qualitycontrol', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, null);
     
     	// Conditionally launch add field id.
     	if (!$dbman->field_exists($table, $field)) {
@@ -1169,7 +1157,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Define field id to be added to emarking_comment.
     	$table = new xmldb_table('emarking');
-    	$field = new xmldb_field('qualitycontrol', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'type');
+    	$field = new xmldb_field('qualitycontrol', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, null);
     
     	// Conditionally launch add field id.
     	if (!$dbman->field_exists($table, $field)) {
@@ -1336,7 +1324,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
         // Define field stage to be added to emarking_perception.
         $table = new xmldb_table('emarking_perception');
-        $field = new xmldb_field('stage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'expectation_reality');
+        $field = new xmldb_field('stage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', null);
     
         // Conditionally launch add field stage.
         if (!$dbman->field_exists($table, $field)) {
@@ -1345,7 +1333,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
         // Define field block to be added to emarking_marker_criterion.
         $table = new xmldb_table('emarking_marker_criterion');
-        $field = new xmldb_field('block', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'criterion');
+        $field = new xmldb_field('block', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', null);
     
         // Conditionally launch add field block.
         if (!$dbman->field_exists($table, $field)) {
@@ -1354,7 +1342,7 @@ function xmldb_emarking_upgrade($oldversion) {
         
         // Define field block to be added to emarking_page_criterion.
         $table = new xmldb_table('emarking_page_criterion');
-        $field = new xmldb_field('block', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'criterion');
+        $field = new xmldb_field('block', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', null);
     
         // Conditionally launch add field block.
         if (!$dbman->field_exists($table, $field)) {
@@ -1395,14 +1383,14 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Define field agreementflexibility to be added to emarking.
     	$table = new xmldb_table('emarking');
-    	$field = new xmldb_field('agreementflexibility', XMLDB_TYPE_INTEGER, '3', null, null, null, '0', 'experimentalgroups');
+    	$field = new xmldb_field('agreementflexibility', XMLDB_TYPE_INTEGER, '3', null, null, null, '0', null);
     
     	// Conditionally launch add field agreementflexibility.
     	if (!$dbman->field_exists($table, $field)) {
     		$dbman->add_field($table, $field);
     	}
     
-    	$field = new xmldb_field('firststagedate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'agreementflexibility');
+    	$field = new xmldb_field('firststagedate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
     
     	// Conditionally launch add field firststagedate.
     	if (!$dbman->field_exists($table, $field)) {
@@ -1418,21 +1406,21 @@ function xmldb_emarking_upgrade($oldversion) {
         // Define field secondstagedate to be added to emarking.
         $table = new xmldb_table('emarking');
     
-        $field = new xmldb_field('secondstagedate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'firststagedate');
+        $field = new xmldb_field('secondstagedate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
     
         // Conditionally launch add field secondstagedate.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
     
-        $field = new xmldb_field('enablescan', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'secondstagedate');
+        $field = new xmldb_field('enablescan', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
     
         // Conditionally launch add field secondstagedate.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
     
-        $field = new xmldb_field('enableosm', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'enablescan');
+        $field = new xmldb_field('enableosm', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
     
         // Conditionally launch add field secondstagedate.
         if (!$dbman->field_exists($table, $field)) {
@@ -1510,7 +1498,7 @@ function xmldb_emarking_upgrade($oldversion) {
         // Define field secondstagedate to be added to emarking.
         $table = new xmldb_table('emarking_submission');
     
-        $field = new xmldb_field('seenbystudent', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'generalfeedback');
+        $field = new xmldb_field('seenbystudent', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
     
         // Conditionally launch add field secondstagedate.
         if (!$dbman->field_exists($table, $field)) {
@@ -1565,7 +1553,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Define field status to be added to emarking_comment.
     	$table = new xmldb_table('emarking_comment');
-    	$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'timemodified');
+    	$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', null);
     
     	// Conditionally launch add field status.
     	if (!$dbman->field_exists($table, $field)) {
@@ -1680,7 +1668,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Define field printingcost to be added to emarking_exams.
     	$table = new xmldb_table('emarking_exams');
-    	$field = new xmldb_field('printingcost', XMLDB_TYPE_INTEGER, '19', null, null, null, null, 'enrolments');
+    	$field = new xmldb_field('printingcost', XMLDB_TYPE_INTEGER, '19', null, null, null, null, null);
     
     	// Conditionally launch add field printingcost.
     	if (!$dbman->field_exists($table, $field)) {
@@ -1695,7 +1683,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Define field status to be added to emarking_collaborative_work.
     	$table = new xmldb_table('emarking_collaborative_work');
-    	$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'type');
+    	$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', null);
     
     	// Conditionally launch add field status.
     	if (!$dbman->field_exists($table, $field)) {
