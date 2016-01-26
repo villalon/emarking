@@ -1829,7 +1829,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         // Notify everyone that the exam was printed
         emarking_send_examprinted_notification($downloadexam, $course);
         
-        $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
+        $downloadexam->status = EMARKING_EXAM_PRINTED;
         $downloadexam->printdate = time();
         $DB->update_record('emarking_exams', $downloadexam);
         
