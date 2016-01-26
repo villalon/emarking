@@ -248,6 +248,10 @@ $string ['type_print_scan'] = 'Print and scan';
 $string['digitizedanswersreminder'] = 'Digitized answers reminder';
 $string['daysbeforedigitizingreminder'] = 'Days before reminder';
 $string['daysbeforedigitizingreminder_help'] = 'Number of days to wait before sending the reminder message to teachers regarding the digitizing of the answers to her exam.';
+$string['digitizedanswersmessage'] = 'Digitized answers reminder message';
+$string['digitizedanswersmessage_desc'] = 'This message will be sent to teachers once the period after digitizing the answers expires.';
+$string ['viewadminprints'] = '<a href="{$a}">Manage printers</a>';
+$string ['viewpermitsprinters'] = '<br/><a href="{$a}">Manage printers permissions</a>';
 
 // REPORTS
 $string ['reports'] = 'Reports';

@@ -248,6 +248,10 @@ $string ['type_print_scan'] = 'Imprimir y digitalizar';
 $string['digitizedanswersreminder'] = 'Recordatorio pruebas digitalizadas';
 $string['daysbeforedigitizingreminder'] = 'Días previos al recordatorio';
 $string['daysbeforedigitizingreminder_help'] = 'Número de días tras el cual se enviará el mensaje recordatorio a profesores respecto de la digitalización de sus pruebas.';
+$string['digitizedanswersmessage'] = 'Mensaje del recordatorio de pruebas digitalizadas';
+$string['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesores luego de cumplido un período de días tras la digitalización de sus pruebas.';
+$string ['viewadminprints'] = '<a href="{$a}">Administrar impresoras</a>';
+$string ['viewpermitsprinters'] = '<br/><a href="{$a}">Administrar permisos de impresoras</a>';
 
 // REPORTS
 $string ['reports'] = 'Reportes';
