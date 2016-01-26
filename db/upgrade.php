@@ -278,30 +278,42 @@ function xmldb_emarking_upgrade($oldversion) {
 		// Emarking savepoint reached.
 		upgrade_mod_savepoint ( true, 2014042501, 'emarking' );
 	}
-	if ($oldversion < 2014042702) {
-		
-		// Define field predefined to be added to emarking_comment.
-		$table = new xmldb_table ( 'emarking_comment' );
-		$field = new xmldb_field ( 'predefined', XMLDB_TYPE_BINARY, null, null, null, null, null, 'timemodified' );
-		
-		// Conditionally launch add field predefined.
-		if (! $dbman->field_exists ( $table, $field )) {
-			$dbman->add_field ( $table, $field );
-		}
-		
-		// Emarking savepoint reached.
-		upgrade_mod_savepoint ( true, 2014042702, 'emarking' );
-	}
-	
 	if ($oldversion < 2014042703) {
-		
-		// Changing type of field predefined on table emarking_comment to int.
-		$table = new xmldb_table ( 'emarking_comment' );
-		$field = new xmldb_field ( 'predefined', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timemodified' );
-		
-		// Launch change of type for field predefined.
-		$dbman->change_field_type ( $table, $field );
-		
+	
+	    // Define table emarking_comment to be created.
+	    $table = new xmldb_table('emarking_comment');
+	
+	    // Adding fields to table emarking_comment.
+	    $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+	    $table->add_field('page', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('draft', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('posx', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, '0.00000');
+	    $table->add_field('posy', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0.00000');
+	    $table->add_field('width', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '120');
+	    $table->add_field('height', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '120');
+	    $table->add_field('rawtext', XMLDB_TYPE_TEXT, null, null, null, null, null);
+	    $table->add_field('pageno', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('colour', XMLDB_TYPE_CHAR, '10', null, null, null, 'yellow');
+	    $table->add_field('levelid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+	    $table->add_field('criterionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+	    $table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+	    $table->add_field('bonus', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0.00');
+	    $table->add_field('textformat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '2');
+	    $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+	
+	    // Adding keys to table emarking_comment.
+	    $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+	
+	    // Adding indexes to table emarking_comment.
+	    $table->add_index('idx_id_page', XMLDB_INDEX_NOTUNIQUE, array('page'));
+	
+	    // Conditionally launch create table for emarking_comment.
+	    if (!$dbman->table_exists($table)) {
+	        $dbman->create_table($table);
+	    }
+			
 		// Emarking savepoint reached.
 		upgrade_mod_savepoint ( true, 2014042703, 'emarking' );
 	}
