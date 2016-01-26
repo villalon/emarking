@@ -294,7 +294,8 @@ function emarking_getoriginalpagesbycourse($category) {
 	$originalpagesbycourseparams = array(
 			"%/$category/%",
 			$category,
-			'EMARKING_EXAM_PRINTED',
+			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqloriginalpagesbycourse = "SELECT c.id as id, c.fullname as coursename, SUM(eexam.totalpages+eexam.extrasheets) AS pages
@@ -302,7 +303,7 @@ function emarking_getoriginalpagesbycourse($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
                                GROUP BY c.id
                                ORDER BY pages DESC
                                limit 5";
@@ -317,7 +318,8 @@ function emarking_getoriginalpages($category) {
 	$originalpagesparams = array(
 			"%/$category/%",
 			$category,
-			EMARKING_EXAM_PRINTED
+			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqloriginalpages = "SELECT AVG((eexam.totalpages+eexam.extrasheets)) AS pages
@@ -325,7 +327,7 @@ function emarking_getoriginalpages($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)";
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)";
 	// Gets the information of the above query
 	if($originalpages = $DB->get_records_sql($sqloriginalpages, $originalpagesparams)){
 		foreach($originalpages as $pages){
@@ -345,6 +347,7 @@ function emarking_gettotalpagesbycourse($category) {
 	global  $DB;
 	$totalpagesbycourseparams = array(
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT,
 			"%/$category/%",
 			$category
 	);
@@ -354,7 +357,7 @@ function emarking_gettotalpagesbycourse($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE eexam.status IN (?) AND (cc.path like ? OR cc.id = ?)
+							   WHERE eexam.status IN (?,?) AND (cc.path like ? OR cc.id = ?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal
                                GROUP BY courseid
@@ -378,7 +381,8 @@ function emarking_gettotalpages($category) {
 	$pageparams = array(
 			"%/$category/%",
 			$category,
-			EMARKING_EXAM_PRINTED
+			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqlpage = "SELECT SUM(pages) AS totalpages FROM (SELECT c.id AS courseid, eexam.id AS examid, (eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams) AS pages
@@ -386,7 +390,7 @@ function emarking_gettotalpages($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status = ?
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal";
 	// Gets the information of the above query
@@ -409,7 +413,6 @@ function emarking_getemarkingcourses($category) {
 	$emarkingcoursesparams = array(
 			"%/$category/%",
 			$category,
-			EMARKING_EXAM_PRINTED,
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqlemarkingcourses = "SELECT COUNT(course) AS courses FROM(SELECT e.course AS course
@@ -462,8 +465,7 @@ function emarking_gettotalpagestoprint($category) {
 	$totalpagestoprintparams = array(
 			"%/$category/%",
 			$category,
-			EMARKING_EXAM_SENT_TO_PRINT
-
+			EMARKING_EXAM_UPLOADED
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqltotalpagestoprint = "SELECT SUM(pages) AS totalpages FROM (
@@ -536,6 +538,7 @@ function emarking_getemarkingcoursesbydate($category) {
 			"%/$category/%",
 			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqlemarkingcoursesbydate = "SELECT COUNT(course) AS coursecount, printdate FROM (SELECT e.course AS course, MONTH(FROM_UNIXTIME(MIN(eexam.printdate))) as printdate
@@ -543,7 +546,7 @@ function emarking_getemarkingcoursesbydate($category) {
 							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = e.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
                                GROUP BY course
                                ORDER BY printdate desc) as m
                                GROUP BY printdate";
@@ -575,6 +578,7 @@ function emarking_getoriginalpagesbydate($category) {
 			"%/$category/%",
 			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqloriginalpagesbydate = "SELECT printdate, AVG(pages) AS avgpages FROM (SELECT eexam.id as id, MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate,(eexam.totalpages+eexam.extrasheets) AS pages
@@ -582,7 +586,7 @@ function emarking_getoriginalpagesbydate($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
 							   GROUP BY id ) as pages
                                GROUP BY printdate";
 	// Gets the information of the above query
@@ -613,6 +617,7 @@ function emarking_gettotalpagesbydate($category) {
 			"%/$category/%",
 			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqltotalpagesbydate = "SELECT printdate, SUM(pages) AS totalpages FROM (SELECT c.id AS courseid, eexam.id AS examid,MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate, (eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams) AS pages
@@ -620,7 +625,7 @@ function emarking_gettotalpagesbydate($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal
                                GROUP BY printdate";
@@ -649,6 +654,7 @@ function emarking_gettotalpagesfortable($category) {
 			"%/$category/%",
 			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqltotalpagesbydate = "SELECT printdate, SUM(pages) AS totalcost FROM (SELECT c.id AS courseid, eexam.id AS examid,MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate, eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
@@ -656,7 +662,7 @@ function emarking_gettotalpagesfortable($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal
                                GROUP BY printdate";
@@ -691,19 +697,22 @@ function emarking_getsubcategories($category) {
 							WHERE cc.path like ?
                                ";
 	// Gets the information of the above query
+	$subcategoriesarray = array();
 	if($subcategories = $DB->get_records_sql($sqlsubcategories, $subcategoriesparams)){
-
+		foreach($subcategories as $sub){
+		$subcategoriesarray[$sub->id] = $sub->name;
+		}
 	}
 
-	return $subcategories;
+	return $subcategoriesarray;
 }
 
 function emarking_gettotalcostpiechart($category) {
 	global  $DB;
 	$totalcostpiechartparams = array(
 			"%/$category/%",
-			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqltotalcostpiechart = "SELECT categoryid, categoryname, SUM(pages) AS totalpages FROM (SELECT c.id AS courseid, eexam.id AS examid, cc.id as categoryid, cc.name as categoryname, eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
@@ -711,7 +720,7 @@ function emarking_gettotalcostpiechart($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE cc.path like ? AND eexam.status IN (?,?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal
                                GROUP BY categoryid";
@@ -739,8 +748,8 @@ function emarking_gettotalpagespiechart($category) {
 	global  $DB;
 	$totalpagespiechartparams = array(
 			"%/$category/%",
-			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqltotalpagespiechart = "SELECT categoryid, categoryname, SUM(pages) AS totalpages FROM (SELECT c.id AS courseid, eexam.id AS examid, cc.id as categoryid, cc.name as categoryname, ((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
@@ -748,7 +757,7 @@ function emarking_gettotalpagespiechart($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE cc.path like ?  AND eexam.status IN (?,?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal
                                GROUP BY categoryid";
@@ -776,8 +785,6 @@ function emarking_getactivitiespiechart($category) {
 	global  $DB;
 	$activitiespiechartparams = array(
 			"%/$category/%",
-			$category,
-			EMARKING_EXAM_PRINTED,
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqlactivitiespiechart = "SELECT cc.id as id, cc.name as name, count(e.id) AS activities
@@ -785,7 +792,7 @@ function emarking_getactivitiespiechart($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) 
+							   WHERE cc.path like ?  
                                GROUP BY id";
 	// Gets the information of the above query
 	$arrayactivities = array();
@@ -811,7 +818,6 @@ function emarking_getemarkingcoursespiechart($category) {
 	global  $DB;
 	$emarkingcoursespiechartparams = array(
 			"%/$category/%",
-			$category,
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqlemarkingcoursespiechart = "SELECT id, name, COUNT(course) as countcourses FROM (SELECT e.course AS course, cc.name as name, cc.id as id 
@@ -819,7 +825,7 @@ function emarking_getemarkingcoursespiechart($category) {
 							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = e.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?)
+							   WHERE cc.path like ? 
                                GROUP BY course
                                ORDER BY name desc) as m
                                GROUP BY id";
@@ -847,8 +853,8 @@ function emarking_getmeanexamlenghtpiechart($category) {
 	global  $DB;
 	$meanexamlenghtpiechartparams = array(
 			"%/$category/%",
-			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqlmeanexamlenghtpiechart = "SELECT cc.id as id, cc.name as name, AVG((eexam.totalpages+eexam.extrasheets)) AS pages
@@ -856,7 +862,7 @@ function emarking_getmeanexamlenghtpiechart($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE cc.path like ?  AND eexam.status IN (?,?)
 							   GROUP BY id";
 	// Gets the information of the above query
 	$arraymeanlenght = array();
@@ -885,6 +891,7 @@ function emarking_getprintingcost($category) {
 			"%/$category/%",
 			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqlprintingcost = "SELECT SUM(pages) as totalcost FROM (SELECT c.id AS courseid, eexam.id AS examid, eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
@@ -892,7 +899,7 @@ function emarking_getprintingcost($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal";
 
@@ -913,6 +920,7 @@ function emarking_gettotalcostbydate($category) {
 			"%/$category/%",
 			$category,
 			EMARKING_EXAM_PRINTED,
+			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
 	$sqltotalcostbydate = "SELECT printdate, SUM(pages) AS totalcost FROM (SELECT c.id AS courseid, eexam.id AS examid,MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate, eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
@@ -920,7 +928,7 @@ function emarking_gettotalcostbydate($category) {
    							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = eexam.course)
                                INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?)
+							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
                                GROUP BY eexam.id
                                ORDER BY pages DESC) AS pagestotal
                                GROUP BY printdate

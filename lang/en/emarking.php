@@ -296,6 +296,12 @@ $string['pieemarkingcourses'] = 'eMarking courses';
 $string['piemeanexamleanght'] = 'Avg. exam lenght';
 $string['pietotalprintedpages'] = 'Printed pages';
 $string['pietotalcost'] = 'Total cost';
+$string['numericcost_help'] = 'Must enter a numeric cost for each page';
+$string['numericcost'] = 'Enter a numeric value';
+$string['validcostcenter_help'] = 'Must enter valid cost center number';
+$string['validcostcenter'] = 'Enter a numeric value';
+$string['categoryselection_help'] = 'Please select the category where you want to add/modify the cost';
+$string['categoryselection'] = 'Chose a category';
 
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
