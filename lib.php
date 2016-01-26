@@ -233,13 +233,9 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
         		INNER JOIN mdl_course AS c ON (cc.category = c.category)
         		WHERE c.id=?";
        if( $course = $DB->get_records_sql($sqlcoursecategory, $coursecategoryparams)){
-        $categorycost = array();
         foreach($course as $category){
-        	$categorycost[$category->courseid] = $category->cost;
+        	$exam->printingcost = $category->cost;
         }
-        $exam->printingcost = $categorycost[$COURSE->id];
-       } else {
-       	
        }
         $exam->id = $DB->insert_record('emarking_exams', $exam);
         

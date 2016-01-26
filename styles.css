@@ -291,7 +291,7 @@ clear {
 
 .emarking-area-cost-button-style {
 	background-color:lightgreen;
-	 font: 100%/90% Georgia, "Times New Roman", Times, serif;
+	 font: 100%/100% Georgia, "Times New Roman", Times, serif;
 	 height:4em;
 	 width:10em;
 }
@@ -299,13 +299,13 @@ clear {
 .emarking-totalcost-button-style {
 	background: #6495ED;
 	border-style: solid;
-	font: 100%/90% Georgia, "Times New Roman", Times, serif;
+	font: 100%/100% Georgia, "Times New Roman", Times, serif;
 	color:white;
 }
 
 .emarking-column-cost-button-style {
 	background-color:lightgreen;
-	 font: 80%/90% Georgia, "Times New Roman", Times, serif;
+	 font: 80%/100% Georgia, "Times New Roman", Times, serif;
 	 height:3em;
 	 width:10em;
 }
@@ -313,7 +313,7 @@ clear {
 .emarking-column-totalcost-button-style {
 	background: #6495ED;
 	border-style: solid;
-	font: 80%/90% Georgia, "Times New Roman", Times, serif;
+	font: 80%/100% Georgia, "Times New Roman", Times, serif;
 	color:white;
 }
 

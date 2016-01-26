@@ -260,7 +260,7 @@ function emarking_getActivities($category) {
 	return $totalactivity;
 }
 
-function emarking_getteacherranking($category) {
+function emarking_getteacherranking($category,$limit = null) {
 	global  $DB;
 	$teacherrankingparams = array(
 			"%/$category/%",
@@ -276,7 +276,11 @@ function emarking_getteacherranking($category) {
 								   WHERE (cc.path like ? OR cc.id = ?)
     							   GROUP BY id
    								   ORDER BY activities DESC
-    							   limit 5";
+								   ";
+	
+	if(!$limit == null){
+		$sqlteacherranking = $sqlteacherranking."LIMIT $limit";
+	}
 	// Gets the information of the above query
 	$arrayteacherranking=array();
 	if($teacherranking = $DB->get_records_sql($sqlteacherranking, $teacherrankingparams)){
@@ -287,30 +291,6 @@ function emarking_getteacherranking($category) {
 	}
 
 	return $arrayteacherranking;
-}
-
-function emarking_getoriginalpagesbycourse($category) {
-	global  $DB;
-	$originalpagesbycourseparams = array(
-			"%/$category/%",
-			$category,
-			EMARKING_EXAM_PRINTED,
-			EMARKING_EXAM_SENT_TO_PRINT
-	);
-	// Sql that counts all the resourses since the last time the app was used
-	$sqloriginalpagesbycourse = "SELECT c.id as id, c.fullname as coursename, SUM(eexam.totalpages+eexam.extrasheets) AS pages
-							   FROM mdl_emarking AS e
-   							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
-                               INNER JOIN mdl_course AS c ON (c.id = eexam.course)
-                               INNER JOIN mdl_course_categories as cc ON (cc.id = c.category)
-							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
-                               GROUP BY c.id
-                               ORDER BY pages DESC
-                               limit 5";
-	// Gets the information of the above query
-	$originalpagesbycourse = $DB->get_records_sql($sqloriginalpagesbycourse, $originalpagesbycourseparams);
-
-	return $originalpagesbycourse;
 }
 
 function emarking_getoriginalpages($category) {
@@ -343,7 +323,7 @@ function emarking_getoriginalpages($category) {
 	return $totaloriginalpages;
 }
 
-function emarking_gettotalpagesbycourse($category) {
+function emarking_gettotalpagesbycourse($category, $limit = null) {
 	global  $DB;
 	$totalpagesbycourseparams = array(
 			EMARKING_EXAM_PRINTED,
@@ -362,7 +342,10 @@ function emarking_gettotalpagesbycourse($category) {
                                ORDER BY pages DESC) AS pagestotal
                                GROUP BY courseid
                                ORDER BY totalpages DESC
-							   LIMIT 5";
+							   ";
+	if(!$limit == null){
+		$sqltotalpagesbycourse = $sqltotalpagesbycourse."LIMIT $limit";
+	}
 	// Gets the information of the above query
 	$arraytotalpages=array();
 	if($totalpagesbycourse = $DB->get_records_sql($sqltotalpagesbycourse, $totalpagesbycourseparams)){
@@ -541,7 +524,7 @@ function emarking_getemarkingcoursesbydate($category) {
 			EMARKING_EXAM_SENT_TO_PRINT
 	);
 	// Sql that counts all the resourses since the last time the app was used
-	$sqlemarkingcoursesbydate = "SELECT COUNT(course) AS coursecount, printdate FROM (SELECT e.course AS course, MONTH(FROM_UNIXTIME(MIN(eexam.printdate))) as printdate
+	$sqlemarkingcoursesbydate = "SELECT printdate, COUNT(course) AS coursecount FROM (SELECT e.course AS course, MONTH(FROM_UNIXTIME(MIN(eexam.printdate))) as printdate
 							   FROM mdl_emarking AS e
 							   INNER JOIN mdl_emarking_exams AS eexam ON (e.id = eexam.emarking)
                                INNER JOIN mdl_course AS c ON (c.id = e.course)
@@ -958,7 +941,31 @@ function emarking_download_excel_teacher_ranking($category) {
 	
 	$headers = ['Teacher Name','Activities'];
 
-	$excelfilename = clean_filename ( $category."-agreement.xls" );
+	$excelfilename = clean_filename ( "CourseRankCategory".$category);
 
-	emarking_save_data_to_excel($headers, $teacherrankingdata, $excelfilename, 1);
+	emarking_save_data_to_excel($headers, $teacherrankingdata, $excelfilename, 2);
+}
+
+function emarking_download_excel_course_ranking($category) {
+	global $DB;
+
+	$courserankingdata = emarking_gettotalpagesbycourse($category);
+
+	$headers = ['Course name', 'Pages'];
+
+	$excelfilename = clean_filename ( "CourseRankCategory".$category);
+
+	emarking_save_data_to_excel($headers, $courserankingdata, $excelfilename, 2);
+}
+
+function emarking_download_excel_monthly_cost($category) {
+	global $DB;
+
+	$totalcostdata = emarking_gettotalcostbydate($category);
+
+	$headers = ['Costo mensual'];
+
+	$excelfilename = clean_filename ( "MonthlyCost".$category);
+
+	emarking_save_data_to_excel($headers, $totalcostdata, $excelfilename, 2);
 }

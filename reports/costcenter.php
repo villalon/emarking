@@ -29,6 +29,7 @@ require_once ($CFG->dirroot . '/lib/excellib.class.php');
 	global $DB, $CFG;
 
 $categoryid = required_param('category', PARAM_INT);
+$status = optional_param("status", 0, PARAM_INT);
 
 // User must be logged in
 require_login();
@@ -71,6 +72,17 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
+//Excel downloads
+if($status == 1){
+	emarking_download_excel_course_ranking($categoryid);
+}
+if($status == 2){
+	emarking_download_excel_teacher_ranking($categoryid);
+}
+if($status == 3){
+	emarking_download_excel_monthly_cost($categoryid);
+}
+
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 
@@ -108,29 +120,45 @@ echo '<hr class="style-one">';
 echo html_writer::start_tag('div',array( 'class' => 'emarking-left-table-ranking'));
 
 // Generation of the ranking table
-$courseranking = emarking_gettotalpagesbycourse($categoryid);
+$courseranking = emarking_gettotalpagesbycourse($categoryid, 5);
 $coursetable = new html_table();
 $coursetable->head = array(get_string('courseranking', 'emarking'),'Number of pages');
 $coursetable->data = $courseranking;
 echo html_writer::table($coursetable);
 
+// Excel export button
+$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+		'category' => $categoryid,
+		'status' => 1
+));
+echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
+
 echo '<hr class="style-one">';
 
 // Generation of the teachers Ranking
-$teacherranking = emarking_getteacherranking($categoryid);
+$teacherranking = emarking_getteacherranking($categoryid, 5);
 $teachertable = new html_table();
 $teachertable->head = array(get_string('teacherranking', 'emarking'), 'Number of activities');
 $teachertable->data = $teacherranking;
 echo html_writer::table($teachertable);
 
+// Excel export button
+$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+		'category' => $categoryid,
+		'status' => 2
+));
+echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
+
 // End of ranking div
 echo html_writer::end_tag('div');
+
 // Start of the detailed view table div
 echo html_writer::start_tag('div',array( 'class' => 'emarking-right-table-ranking'));
 
 // Get the students in the category
 $students = emarking_getstudents($categoryid);
 $student = html_writer::tag('span', $category->name."<br>"."Number of students:"." ".$students[0], array('id' => 'studentspan'));
+
 // Generates the detailed information table
 $detailtable = new html_table();
 $detailtable->head = ['Facturacion emarking'];
@@ -145,6 +173,13 @@ $monthtable = new html_table();
 $monthtable->head = ['Detail information'];
 $monthtable->data = $totalcostfortable;
 echo html_writer::table($monthtable);
+
+// Excel export button
+$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+		'category' => $categoryid,
+		'status' => 3
+));
+echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
 
 echo html_writer::end_tag('div');
 
