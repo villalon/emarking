@@ -483,6 +483,43 @@ function xmldb_emarking_upgrade($oldversion) {
 		upgrade_mod_savepoint ( true, 2014051703, 'emarking' );
 	}
 	
+	if ($oldversion < 2014052300) {
+	
+	    // Define table emarking_page to be created.
+	    $table = new xmldb_table('emarking_page');
+	
+	    // Adding fields to table emarking_page.
+	    $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+	    $table->add_field('submission', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+	    $table->add_field('student', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+	    $table->add_field('file', XMLDB_TYPE_TEXT, null, null, null, null, null);
+	    $table->add_field('fileanonymous', XMLDB_TYPE_TEXT, null, null, null, null, null);
+	    $table->add_field('page', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+	    $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('grade', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('submissioncomment', XMLDB_TYPE_CHAR, '200', null, XMLDB_NOTNULL, null, null);
+	    $table->add_field('format', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('teacher', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('timemarked', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('mailed', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('draft', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+	
+	    // Adding keys to table emarking_page.
+	    $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+	
+	    // Adding indexes to table emarking_page.
+	    $table->add_index('idx_id_submission', XMLDB_INDEX_NOTUNIQUE, array('submission'));
+	
+	    // Conditionally launch create table for emarking_page.
+	    if (!$dbman->table_exists($table)) {
+	        $dbman->create_table($table);
+	    }
+	
+	    // Emarking savepoint reached.
+	    upgrade_mod_savepoint(true, 2014052300, 'emarking');
+	}
+	
 	if ($oldversion < 2014052301) {
 		
 		// Define index idx_id_emarking (not unique) to be added to emarking_submission.
@@ -492,17 +529,6 @@ function xmldb_emarking_upgrade($oldversion) {
 		) );
 		
 		// Conditionally launch add index idx_id_emarking.
-		if (! $dbman->index_exists ( $table, $index )) {
-			$dbman->add_index ( $table, $index );
-		}
-		
-		// Define index idx_id_submission (not unique) to be added to emarking_page.
-		$table = new xmldb_table ( 'emarking_page' );
-		$index = new xmldb_index ( 'idx_id_submission', XMLDB_INDEX_NOTUNIQUE, array (
-				'submission' 
-		) );
-		
-		// Conditionally launch add index idx_id_submission.
 		if (! $dbman->index_exists ( $table, $index )) {
 			$dbman->add_index ( $table, $index );
 		}
