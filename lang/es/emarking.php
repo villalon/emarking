@@ -276,18 +276,33 @@ $string ['printdetails'] = 'Detalles impresión';
 $string ['apply'] = 'Aplicar';
 
 // EMARKING COST REPORT
-$string['costreport'] = 'Reportes de costos';
-$string['totalactivies'] = 'Número de actividades';
-$string['emarkingcourses'] = 'Cursos usando eMarking';
-$string['meantestlenght'] = 'Mean test pages';
-$string['totalprintedpages'] = 'Páginas totales impresas';
-$string['reportbuttonsheader'] = 'costos de eMarking ';
-$string['courseranking'] = 'Course ranking';
-$string['teacherranking'] = 'Teacher ranking';
-$string['printingcost'] = 'Costo por página impresa';
-$string['printingcost_help'] = 'El costo debe incluir el precio final por hoja, el que puede ser diferente por cada categoría';
+$string['costreport'] = 'Reportes';
+$string['totalactivies'] = 'Numero der actividades';
+$string['emarkingcourses'] = 'Cursos con eMarking';
+$string['meantestlenght'] = 'Largo promedio de prueba';
+$string['totalprintedpages'] = 'Hojas totales impresas';
+$string['reportbuttonsheader'] = 'Costos de eMarking';
+$string['courseranking'] = 'Ranking de cursos';
+$string['teacherranking'] = 'Ranking de profesores';
+$string['printingcost'] = 'Costo por hoja impresa';
+$string['printingcost_help'] = 'El costo monetario de cada hoja impresa';
 $string['totalprintingcost'] = 'Costo total de impresiones';
-$string['costsettings'] = 'Configuración de costos';
+$string['costsettings'] = 'Configuracion';
+$string['costconfigtab'] = 'Definir costo categorico';
+$string['costcategorytable'] = 'Ver costo categorico';
+$string['editcost'] = 'Editar';
+$string['pieactivities'] = 'Actividades';
+$string['pieemarkingcourses'] = 'Cursos con eMarking';
+$string['piemeanexamleanght'] = 'Largo promedio prueba';
+$string['pietotalprintedpages'] = 'Paginas impresas';
+$string['pietotalcost'] = 'Costo total';
+$string['numericcost_help'] = 'Ingresar un valor numerico para el costo por hoja';
+$string['numericcost'] = 'Ingresa un valor numerico';
+$string['validcostcenter_help'] = 'Ingresar un numero valido para el centro de costos';
+$string['validcostcenter'] = 'Ingresa un valor numerico';
+$string['categoryselection_help'] = 'Selecciona la categoria que deseas agregar/editar';
+$string['categoryselection'] = 'Elegir una categoria';
+$string['downloadexcel'] = 'Descargar excel';
 
 /////////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';

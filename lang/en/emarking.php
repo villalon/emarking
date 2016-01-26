@@ -302,6 +302,7 @@ $string['validcostcenter_help'] = 'Must enter valid cost center number';
 $string['validcostcenter'] = 'Enter a numeric value';
 $string['categoryselection_help'] = 'Please select the category where you want to add/modify the cost';
 $string['categoryselection'] = 'Chose a category';
+$string['downloadexcel'] = 'Download excel';
 
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
