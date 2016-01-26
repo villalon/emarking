@@ -377,32 +377,38 @@ function xmldb_emarking_upgrade($oldversion) {
 		upgrade_mod_savepoint ( true, 2014051101, 'emarking' );
 	}
 	
-	if ($oldversion < 2014051103) {
+    if ($oldversion < 2014051501) {
+
+        // Define table emarking_regrade to be created.
+        $table = new xmldb_table('emarking_regrade');
+
+        // Adding fields to table emarking_regrade.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('draft', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('criterion', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('motive', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('comment', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('accepted', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('markercomment', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('levelid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('bonus', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0.00');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table emarking_regrade.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('draft', XMLDB_KEY_FOREIGN, array('draft'), 'emarking_submission', array('id'));
+
+        // Conditionally launch create table for emarking_regrade.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2014051501, 'emarking');
+    }
 		
-		// Changing type of field comment on table emarking_regrade to text.
-		$table = new xmldb_table ( 'emarking_regrade' );
-		$field = new xmldb_field ( 'comment', XMLDB_TYPE_TEXT, null, null, null, null, null, 'motive' );
-		
-		// Launch change of type for field comment.
-		$dbman->change_field_type ( $table, $field );
-		
-		// Emarking savepoint reached.
-		upgrade_mod_savepoint ( true, 2014051103, 'emarking' );
-	}
-	
-	if ($oldversion < 2014051104) {
-		
-		// Changing type of field comment on table emarking_regrade to text.
-		$table = new xmldb_table ( 'emarking_regrade' );
-		$field = new xmldb_field ( 'markercomment', XMLDB_TYPE_TEXT, null, null, null, null, null, 'motive' );
-		
-		// Launch change of type for field comment.
-		$dbman->change_field_type ( $table, $field );
-		
-		// Emarking savepoint reached.
-		upgrade_mod_savepoint ( true, 2014051104, 'emarking' );
-	}
-	
 	if ($oldversion < 2014051502) {
 		
 		// Define field sort to be added to emarking_submission.
