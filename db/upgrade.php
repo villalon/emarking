@@ -1320,16 +1320,34 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2015072900, 'emarking');
     }
     
-    if ($oldversion < 2015080303) {
+    if ($oldversion < 2015080302) {
     
-        // Define field stage to be added to emarking_perception.
+        // Define table emarking_perception to be created.
         $table = new xmldb_table('emarking_perception');
-        $field = new xmldb_field('stage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', null);
     
-        // Conditionally launch add field stage.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        // Adding fields to table emarking_perception.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('student', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('submission', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('overall_fairness', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('expectation_reality', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('stage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('comment', XMLDB_TYPE_TEXT, null, null, null, null, null);
+    
+        // Adding keys to table emarking_perception.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+        // Conditionally launch create table for emarking_perception.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
         }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2015080302, 'emarking');
+    }
+    
+    if ($oldversion < 2015080303) {
     
         // Define field block to be added to emarking_marker_criterion.
         $table = new xmldb_table('emarking_marker_criterion');
