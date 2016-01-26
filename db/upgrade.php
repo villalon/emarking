@@ -319,25 +319,35 @@ function xmldb_emarking_upgrade($oldversion) {
 	}
 	
 	if ($oldversion < 2014051002) {
-		
-		// Define field sort to be added to emarking_submission.
-		$table = new xmldb_table ( 'emarking_submission' );
-		$field = new xmldb_field ( 'sort', XMLDB_TYPE_INTEGER, '10', null, true, null, 0, 'timemodified' );
-		
-		// Conditionally launch add field predefined.
-		if (! $dbman->field_exists ( $table, $field )) {
-			$dbman->add_field ( $table, $field );
-		}
-		
-		// Updating default sort values for submissions
-		$submissions = $DB->get_records_sql ( 'SELECT * FROM {emarking_submission} WHERE sort = 0' );
-		foreach ( $submissions as $submission ) {
-			$submission->sort = rand ( 1, 9999999 );
-			$DB->update_record ( 'emarking_submission', $submission );
-		}
-		
-		// Emarking savepoint reached.
-		upgrade_mod_savepoint ( true, 2014051002, 'emarking' );
+	
+	    // Define table emarking_submission to be created.
+	    $table = new xmldb_table('emarking_submission');
+	
+	    // Adding fields to table emarking_submission.
+	    $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+	    $table->add_field('emarking', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('student', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+	    $table->add_field('status', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+	    $table->add_field('grade', XMLDB_TYPE_NUMBER, '5, 2', null, XMLDB_NOTNULL, null, '0.00');
+	    $table->add_field('generalfeedback', XMLDB_TYPE_TEXT, null, null, null, null, null);
+	    $table->add_field('teacher', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+	    $table->add_field('sort', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	    $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+	    $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+	
+	    // Adding keys to table emarking_submission.
+	    $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+	
+	    // Adding indexes to table emarking_submission.
+	    $table->add_index('idx_id_emarking', XMLDB_INDEX_NOTUNIQUE, array('emarking'));
+	
+	    // Conditionally launch create table for emarking_submission.
+	    if (!$dbman->table_exists($table)) {
+	        $dbman->create_table($table);
+	    }
+	
+	    // Emarking savepoint reached.
+	    upgrade_mod_savepoint(true, 2014051002, 'emarking');
 	}
 	
 	if ($oldversion < 2014051101) {
