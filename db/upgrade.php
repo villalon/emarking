@@ -923,7 +923,7 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Define field draft to be added to emarking_page.
     	$table = new xmldb_table('emarking_page');
-    	$field = new xmldb_field('draft', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'mailed');
+    	$field = new xmldb_field('draft', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
     
     	// Conditionally launch add field draft.
     	if (!$dbman->field_exists($table, $field)) {
