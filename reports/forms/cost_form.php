@@ -30,18 +30,20 @@ class emarking_cost_form extends moodleform {
      */
     public function definition() {
         global $DB;
+        $categoryid = required_param('category', PARAM_INT);
         $mform = $this->_form;
         $arraycategory = array();
+        
         if($categories = $DB->get_records('course_categories')){
         	foreach($categories as $category){
         		$arraycategory[$category->id] = $category->name;
         		
         	}
         }
-
-        // Adding the "general" fieldset, where all the common settings are showed.
+        
         $mform->addElement('header', 'general', get_string('general', 'form'));
-		$mform->addElement('select', 'category','Category', $arraycategory);        
+		$mform->addElement('select', 'category','Category', $arraycategory);    
+		$mform->setDefault('category', $categoryid);
         $mform->addElement('text', 'cost','Cost of printing one page');
         $mform->setType('cost', PARAM_INT);
         $mform->addElement('text', 'costcenter','Cost Center number');

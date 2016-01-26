@@ -557,6 +557,7 @@ function emarking_add_criterion_markerpage($emarking) {
 function emarking_add_comment($submission, $draft) {
     global $DB, $USER;
     
+    $userid = required_param('markerid',PARAM_INT);
     /** Comment position within the page **/
     $posx = required_param('posx', PARAM_INT);
     $posy = required_param('posy', PARAM_INT);
@@ -606,7 +607,7 @@ function emarking_add_comment($submission, $draft) {
     $emarking_comment->timecreated = time();
     $emarking_comment->timemodified = time();
     $emarking_comment->rawtext = $comment;
-    $emarking_comment->markerid = $USER->id;
+    $emarking_comment->markerid = $userid;
     $emarking_comment->colour = $colour;
     $emarking_comment->levelid = 0;
     $emarking_comment->criterionid = $criterionid;
@@ -624,6 +625,67 @@ function emarking_add_comment($submission, $draft) {
     
     return $output;
 }
+
+/**
+ * Adds a action button collaborative
+ * @return id insert or update
+ */
+function emarking_add_action_collaborativebutton() {
+	global $DB;
+
+	$markerid = required_param("markerid", PARAM_INT);
+	$commentid = required_param("commentid", PARAM_INT);
+	$type = required_param("type", PARAM_INT);
+	$status = required_param("status", PARAM_INT);
+	
+	$text = optional_param("text", null, PARAM_TEXT);
+	
+	// Discussion mark
+	if($type == 4){
+		$collaborativebutton =  new stdClass();
+		$collaborativebutton->commentid = $commentid;
+		$collaborativebutton->type = $type;
+		$collaborativebutton->status = $status;
+		$collaborativebutton->text = $text;
+		$collaborativebutton->markerid = $markerid;
+		$collaborativebutton->createdtime = time();
+	
+		// Insert it into the database
+		$id = $DB->insert_record('emarking_collaborative_work', $collaborativebutton );
+	
+	}else{
+		if($collaborativebutton = $DB->get_record("emarking_collaborative_work",array(
+				"commentid" => $commentid,
+				"markerid" => $markerid,
+				"type" => $type
+		))){
+			$collaborativebutton->status = $status;
+			$collaborativebutton->text = $text;
+	
+			// Update it into the database
+			$id = $DB->update_record("emarking_collaborative_work", $collaborativebutton);
+		}else{
+			$collaborativebutton =  new stdClass();
+			$collaborativebutton->commentid = $commentid;
+			$collaborativebutton->type = $type;
+			$collaborativebutton->status = $status;
+			$collaborativebutton->text = $text;
+			$collaborativebutton->markerid = $markerid;
+			$collaborativebutton->createdtime = time();
+	
+			// Insert it into the database
+			$id = $DB->insert_record('emarking_collaborative_work', $collaborativebutton );
+		}
+	}
+	// Send output info
+	if($id){
+		$id = array($id);
+		emarking_json_resultset($id);
+		break;
+	}
+	$output = $id;
+}
+
 
 /**
  * Adds a chat message
@@ -790,22 +852,31 @@ function emarking_get_values_collaborative() {
     global $DB;
     
     $commentid = required_param('commentid', PARAM_INT);
+    $type = optional_param('type',null,PARAM_INT);
     
-    $sqlvaluesbuttons = "SELECT cw.markerid, cw.type, CONCAT(u.username, ' ', u.lastname) AS markername
-		FROM {emarking_collaborative_work} AS cw JOIN {user} AS u ON (cw.markerid = u.id)
-		WHERE commentid=:commentid";
-    
-    $collaborativevalues = $DB->get_records_sql($sqlvaluesbuttons,array("commentid"=>$commentid));
-    
-    if(!$collaborativevalues) {
-        $collaborativevalues = array();
-    }else{
-        foreach ($collaborativevalues as $obj){
-            $output[]=$obj;
-        }
+    $filter = "";
+    if($type != null){
+    	$filter = "AND cw.type = $type";
     }
     
-    return $output;
+    $sqlvaluesbuttons = "SELECT cw. id, cw.markerid, cw.type, CONCAT(u.username, ' ', u.lastname) AS markername, FROM_UNIXTIME(cw.createdtime) AS date, cw.text
+    FROM {emarking_collaborative_work} AS cw JOIN {user} AS u ON (cw.markerid = u.id)
+    WHERE cw.commentid = ? AND cw.status = ? $filter
+    ORDER BY cw.createdtime ASC";
+    
+    $collaborativevalues = $DB->get_records_sql($sqlvaluesbuttons,array($commentid,'1'));
+    
+    if(!$collaborativevalues || $collaborativevalues == null) {
+    	$collaborativevalues = array();
+    	emarking_json_resultset($collaborativevalues);
+    	break;
+    }else{
+    	foreach ($collaborativevalues as $obj){
+    		$output[]=$obj;
+    	}
+    }
+
+    return $collaborativevalues;
 }
 
 function emarking_get_markers_configuration($context, $emarking) {
@@ -1121,6 +1192,7 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     require_once("$CFG->dirroot/grade/grading/form/rubric/lib.php");
     
     // Required and optional params for emarking
+    $userid = required_param('markerid', PARAM_INT);
     $commentid = required_param('cid', PARAM_INT);
     $commentrawtext = required_param('comment', PARAM_RAW_TRIMMED);
     $bonus = optional_param('bonus', -1, PARAM_FLOAT);
@@ -1177,7 +1249,7 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     $comment->bonus = $bonus;
     $comment->textformat = $format;
     $comment->levelid = $levelid;
-    $comment->markerid = $USER->id;
+    $comment->markerid = $userid;
     
     $DB->update_record('emarking_comment', $comment);
     

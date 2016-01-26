@@ -20,17 +20,27 @@
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_evapares
- * @copyright  2015 Your Name
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod
+ * @subpackage emarking
+ * @copyright 2016 Mihail Pozarski <mipozarski@alumnos.uai.cl>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot.'/mod/emarking/reports/forms/cost_form.php');
+require_once ($CFG->dirroot.'/mod/emarking/locallib.php');
+require_once ($CFG->dirroot.'/mod/emarking/reports/locallib.php');
 
 global $CFG, $DB, $OUTPUT; 
-$categoryid = required_param('category', PARAM_INT);
 
+$categoryid = required_param('category', PARAM_INT);
+$action = optional_param("action", "view", PARAM_TEXT);
+
+// User must be logged in
+require_login();
+if (isguestuser()) {
+	die();
+}
 // Validate category
 if (! $category = $DB->get_record('course_categories', array(
 		'id' => $categoryid
@@ -39,121 +49,100 @@ if (! $category = $DB->get_record('course_categories', array(
 }
 // We are in the category context
 $context = context_coursecat::instance($categoryid);
-// User must be logged in
-require_login();
-if (isguestuser()) {
-	die();
-}
 // And have viewcostreport capability
 if (! has_capability('mod/emarking:viewcostreport', $context)) {
 	// TODO: Log invalid access to printreport
 	print_error('Not allowed!');
 }
-
+// This page url
 $url = new moodle_url('/mod/emarking/reports/costconfig.php', array(
 		'category' => $categoryid
 ));
-$ordersurl = new moodle_url('/mod/emarking/reports/costconfig.php', array(
-		'category' => $categoryid,
-
-));
+// Url that lead you to the category page
 $categoryurl = new moodle_url('/course/index.php', array(
 		'categoryid' => $categoryid
 ));
 
 $pagetitle = get_string('costreport', 'mod_emarking');
-
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 //$PAGE->requires->js('/mod/emarking/js/printorders.js');
 $PAGE->set_pagelayout('course');
 $PAGE->navbar->add($category->name, $categoryurl);
-$PAGE->navbar->add(get_string('printorders', 'mod_emarking'), $ordersurl);
+$PAGE->navbar->add(get_string('printorders', 'mod_emarking'), $url);
 $PAGE->navbar->add($pagetitle);
 $PAGE->set_heading(get_site()->fullname);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->requires->jquery();
-$PAGE->requires->jquery_plugin('ui');
-$PAGE->requires->jquery_plugin('ui-css');
 
+// Add the emarking cost form for categories
+$addform = new emarking_cost_form();
+
+$alliterations = array();
+
+// If the form is cancelled redirects you to the report center
+if( $addform->is_cancelled() ){
+	$backtocourse = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+		'category' => $categoryid
+));
+	redirect($backtocourse);	
+}
+// If there is any data
+else if($datas = $addform->get_data()){
+		
+		// Saves the form info in to variables
+		$category = $datas->category;	
+		$cost = $datas->cost;
+		$costcenter = $datas->costcenter;
+		
+		//parameters for getting the category cost if it exist
+		$categoryparams = array(
+				$category
+		);
+		// Sql that get the specific category cost if it exist
+		$sqlupdate="SELECT cc.id as id, ecc.printingcost as printingcost
+					FROM mdl_course_categories as cc
+					LEFT JOIN mdl_emarking_category_cost as ecc ON (cc.id = ecc.category)
+				    WHERE cc.id = ?";
+		//run the sql with it parameters
+		$costes = $DB->get_records_sql($sqlupdate,$categoryparams);
+		
+		$result = array();
+		foreach($costes AS $costs){
+			
+			// If there is no printing cost insert it
+			if($costs->printingcost == NULL){
+				$record = new stdClass();
+				$record->category = $costs->id;
+				$record->printingcost = $cost;
+				$record->costcenter = $costcenter;
+				$result[] = $record;
+				$DB->insert_records("emarking_category_cost", $result);
+			}
+			
+			// If there is a printing cost update it	
+			else {
+				$parametrosupdate = array(
+						$cost,
+						$costcenter,
+						$costs->id
+				);
+				$sqlupdate="UPDATE mdl_emarking_category_cost
+		 				SET printingcost = ?, costcenter = ?
+						WHERE category = ?";
+				$DB->execute($sqlupdate,$parametrosupdate);
+			}	
+		}
+		// Redirect to the table with all the category costs
+		redirect( new moodle_url("/mod/emarking/reports/categorycosttable.php", array(
+				"category" =>$datas->category
+		)));
+		}
+		
+ // if there is no data or is it not cancelled show the header, the tabs and the form
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
-	
-	
-
-	$addform = new emarking_cost_form();
-
-	$alliterations = array();
-	
-	if( $addform->is_cancelled() ){
-		$backtocourse = new moodle_url("course/view.php",array('id'=>$course->id));
-		redirect($backtocourse);
-		
-	}
-	else if($datas = $addform->get_data()){
-			
-			$category = $datas->category;	
-			$cost = $datas->cost;
-			$costcenter = $datas->costcenter;
-	
-	
-			$categoryparams = array(
-					"%/$category/%",
-					$category
-			);
-			// Sql that counts all the resourses since the last time the app was used
-			$sqlcategory = "SELECT id 
-							FROM mdl_course_categories as cc
-							WHERE (cc.path like ? OR cc.id = ?)";
-			
-			// Gets the information of the above query
-			if($categories = $DB->get_records_sql($sqlcategory, $categoryparams)){
-				foreach($categories AS $category){
-					$arraycategories[$category->id] = $category->id; 
-			}
-			$arrayupdate = array();
-			$arrayinsert = array();
-			list ( $sqlin, $parametros1 ) = $DB->get_in_or_equal ( $arraycategories );
-				$sqlupdate="SELECT cc.id as id, ecc.printingcost as printingcost
-						  FROM mdl_course_categories as cc
-						  LEFT JOIN mdl_emarking_category_cost as ecc ON (cc.id = ecc.category)
-					  WHERE cc.id $sqlin";
-			
-			$costes = $DB->get_records_sql($sqlupdate,$parametros1);
-			
-			foreach($costes AS $costs){
-				if($costs->printingcost == NULL){
-					$record = new stdClass();
-					$record->category = $costs->id;
-					$record->printingcost = $cost;
-					$record->costcenter = $costcenter;
-					$arrayinsert[]=$record;
-				}
-				else {
-				$arrayupdate[$costs->id] = $costs->id;
-				}
-			}
-			if(!empty($arrayupdate)){
-			list ( $sqlin, $parametrosupdate ) = $DB->get_in_or_equal ( $arrayupdate );
-			$parametros2 = array(
-					$cost,
-					$costcenter
-			);
-			$updateparams=array_merge($parametros2,$parametrosupdate);
-			$sqlupdate="UPDATE mdl_emarking_category_cost
-			 			SET printingcost = ?, costcenter = ?
-						WHERE category $sqlin";	
-					$DB->execute($sqlupdate,$updateparams);
-			}
-			if(!empty($arrayinsert)){
-			$DB->insert_records("emarking_category_cost", $arrayinsert);
-			}
-			}
-	}
-
-
+echo $OUTPUT->tabtree(emarking_costconfig_tabs($category), get_string("costconfigtab", 'mod_emarking'));
+	// display the form
 	$addform->display();
 
 echo $OUTPUT->footer();
-	
-

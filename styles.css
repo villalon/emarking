@@ -289,26 +289,43 @@ clear {
 	background-color: #FF7878;
 }
 
-.cost-button-style {
+.emarking-area-cost-button-style {
 	background-color:lightgreen;
 	 font: 100%/90% Georgia, "Times New Roman", Times, serif;
 }
 
-.totalcost-button-style {
+.emarking-totalcost-button-style {
 	background: #6495ED;
 	border-style: solid;
 	font: 100%/90% Georgia, "Times New Roman", Times, serif;
 	color:white;
 }
 
-.left-table-ranking{
-	width: 50%;
-	clear: right;
+.emarking-column-cost-button-style {
+	background-color:lightgreen;
+	 font: 80%/90% Georgia, "Times New Roman", Times, serif;
+}
+
+.emarking-column-totalcost-button-style {
+	background: #6495ED;
+	border-style: solid;
+	font: 80%/90% Georgia, "Times New Roman", Times, serif;
+	color:white;
+}
+
+.emarking-left-table-ranking{
+	width: 49%;
 	  float: left;
 }
 
-.right-table-ranking{
-	width: 50%;
-clear: left;
-	  float: left;
+.emarking-right-table-ranking{
+	width: 49%;
+	  float: right;
+}
+
+hr.style-one {
+    border: 0;
+    height: 1px;
+    background: #333;
+    background-image: linear-gradient(to right, #ccc, #333, #ccc);
 }
