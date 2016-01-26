@@ -1,5 +1,4 @@
 <?php
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -69,4 +68,4 @@ $PAGE->navbar->add($pagetitle);
 $PAGE->set_heading(get_site()->fullname);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 
-emarking_download_excel_teacher_ranking($category)
+emarking_download_excel_teacher_ranking($category);
