@@ -47,7 +47,7 @@ function xmldb_emarking_upgrade($oldversion) {
 		
 		// Define field regraderestrictdates to be added to emarking.
 		$table = new xmldb_table ( 'emarking' );
-		$field = new xmldb_field ( 'regraderestrictdates', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'anonymous' );
+		$field = new xmldb_field ( 'regraderestrictdates', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', null);
 		
 		// Conditionally launch add field regraderestrictdates.
 		if (! $dbman->field_exists ( $table, $field )) {
