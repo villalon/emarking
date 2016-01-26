@@ -292,6 +292,8 @@ clear {
 .emarking-area-cost-button-style {
 	background-color:lightgreen;
 	 font: 100%/90% Georgia, "Times New Roman", Times, serif;
+	 height:4em;
+	 width:10em;
 }
 
 .emarking-totalcost-button-style {
@@ -304,6 +306,8 @@ clear {
 .emarking-column-cost-button-style {
 	background-color:lightgreen;
 	 font: 80%/90% Georgia, "Times New Roman", Times, serif;
+	 height:3em;
+	 width:10em;
 }
 
 .emarking-column-totalcost-button-style {
