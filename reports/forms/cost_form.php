@@ -51,12 +51,12 @@ class emarking_cost_form extends moodleform {
 		$mform->addElement('select', 'category','Category', $arraycategory);    
 		$mform->setDefault('category', $categoryid);
 		$mform->addHelpButton('category', 'categoryselection', 'mod_emarking');
-        $mform->addElement('text', 'cost','Cost of printing one page');
-        $mform->addRule('cost', 'Must enter a number', 'required', null, 'client');
+        $mform->addElement('text', 'cost',get_string('costofonepage', 'mod_emarking'));
+        $mform->addRule('cost', get_string('numericvalue', 'mod_emarking'), 'required', null, 'client');
         $mform->setType('cost', PARAM_INT);
-        $mform->addHelpButton('cost', 'numericcost', 'mod_emarking');
-        $mform->addElement('text', 'costcenter','Cost Center number');
-        $mform->addRule('costcenter', 'Must enter a number', 'required', null, 'client');
+        $mform->addHelpButton('cost', 'numericvalue', 'mod_emarking');
+        $mform->addElement('text', 'costcenter',get_string('costcenternumber', 'mod_emarking'));
+        $mform->addRule('costcenter', get_string('numericvalue', 'mod_emarking'), 'required', null, 'client');
         $mform->setType('costcenter', PARAM_INT);
         $mform->addHelpButton('costcenter', 'validcostcenter', 'mod_emarking');        
         $this->add_action_buttons(true);

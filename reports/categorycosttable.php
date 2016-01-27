@@ -16,14 +16,15 @@
 
 /**
  * Prints a particular instance of evapares
-*
-* You can have a rather longer description of the file as well,
-* if you like, and it can span multiple lines.
-*
-* @package    mod_evapares
-* @copyright  2015 Your Name
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ *
+ * You can have a rather longer description of the file as well,
+ * if you like, and it can span multiple lines.
+ *
+ * @package mod
+ * @subpackage emarking
+ * @copyright 2016 Mihail Pozarski <mipozarski@alumnos.uai.cl>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot.'/mod/emarking/reports/forms/cost_form.php');
@@ -78,7 +79,7 @@ echo $OUTPUT->tabtree(emarking_costconfig_tabs($category), get_string("costcateg
 
 $categorycost = emarking_getcategorycosttabledata($categoryid);
 $categorycosttable = new html_table();
-$categorycosttable->head = array(get_string('teacherranking', 'emarking'), 'Number of activities');
+$categorycosttable->head = array(get_string('category', 'emarking'), get_string('categorycost', 'emarking'), get_string('costcenter', 'emarking'), get_string('edit', 'emarking'));
 $categorycosttable->data = $categorycost;
 echo html_writer::table($categorycosttable);
 

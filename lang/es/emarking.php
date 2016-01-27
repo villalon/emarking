@@ -277,7 +277,7 @@ $string ['apply'] = 'Aplicar';
 
 // EMARKING COST REPORT
 $string['costreport'] = 'Reportes';
-$string['totalactivies'] = 'Numero der actividades';
+$string['totalactivies'] = 'Numero de actividades';
 $string['emarkingcourses'] = 'Cursos con eMarking';
 $string['meantestlenght'] = 'Largo promedio de prueba';
 $string['totalprintedpages'] = 'Hojas totales impresas';
@@ -291,18 +291,30 @@ $string['costsettings'] = 'Configuracion';
 $string['costconfigtab'] = 'Definir costo categorico';
 $string['costcategorytable'] = 'Ver costo categorico';
 $string['editcost'] = 'Editar';
-$string['pieactivities'] = 'Actividades';
-$string['pieemarkingcourses'] = 'Cursos con eMarking';
-$string['piemeanexamleanght'] = 'Largo promedio prueba';
-$string['pietotalprintedpages'] = 'Paginas impresas';
-$string['pietotalcost'] = 'Costo total';
+$string['activities'] = 'Actividades';
+$string['emarkingcourses'] = 'Cursos con eMarking';
+$string['meanexamleanght'] = 'Largo promedio prueba';
+$string['totalprintedpages'] = 'Paginas impresas';
+$string['totalcost'] = 'Costo total';
 $string['numericcost_help'] = 'Ingresar un valor numerico para el costo por hoja';
-$string['numericcost'] = 'Ingresa un valor numerico';
+$string['numericvalue'] = 'Ingresa un valor numerico';
 $string['validcostcenter_help'] = 'Ingresar un numero valido para el centro de costos';
-$string['validcostcenter'] = 'Ingresa un valor numerico';
 $string['categoryselection_help'] = 'Selecciona la categoria que deseas agregar/editar';
 $string['categoryselection'] = 'Elegir una categoria';
 $string['downloadexcel'] = 'Descargar excel';
+$string['category'] = 'Categoría';
+$string['categorycost'] = 'Costo de categoría';
+$string['costcenter'] = 'Central de costos';
+$string['costofonepage'] = 'Costo de impresion de una hoja';
+$string['costcenternumber'] = 'Numero de central de costo';
+$string['month'] = 'Mes';
+$string['coursename'] = 'Nombre del curso';
+$string['teachername'] = 'Nombre del profesor';
+$string['monthlycost'] = 'Costo mensual';
+$string['studentnumber'] = 'Numero de estudiantes';
+$string['categorychart'] = 'Grafico de la categoría';
+$string['subcategorychart'] = 'Gafico de la sub-categoría';
+
 
 /////////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';

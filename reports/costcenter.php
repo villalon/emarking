@@ -157,11 +157,10 @@ echo html_writer::start_tag('div',array( 'class' => 'emarking-right-table-rankin
 
 // Get the students in the category
 $students = emarking_getstudents($categoryid);
-$student = html_writer::tag('span', $category->name."<br>"."Number of students:"." ".$students[0], array('id' => 'studentspan'));
+$student = html_writer::tag('span', $category->name."<br>".get_string("studentnumber", "mod_emarking")." ".$students[0], array('id' => 'studentspan'));
 
 // Generates the detailed information table
 $detailtable = new html_table();
-$detailtable->head = ['Facturacion emarking'];
 $detailtable->data = [[$student]];
 echo html_writer::table($detailtable);
 
@@ -170,7 +169,7 @@ echo '<hr class="style-one">';
 // Get the monthly cost and gets it in a table
 $totalcostfortable = emarking_gettotalpagesfortable($categoryid);
 $monthtable = new html_table();
-$monthtable->head = ['Detail information'];
+$monthtable->head = [get_string("monthlycost", "mod_emarking")];
 $monthtable->data = $totalcostfortable;
 echo html_writer::table($monthtable);
 
@@ -216,7 +215,7 @@ echo $OUTPUT->footer();
         
         // Options for the area chart
         var areaoptions = {
-          title: 'Category chart',
+          title: '<?php echo get_string("categorychart", "mod_emarking");?>',
           hAxis: {title: 'MONTH',  titleTextStyle: {color: '#3333'}},
           vAxis: {minValue: 0},
           legend: {position:'top'}
@@ -229,7 +228,7 @@ echo $OUTPUT->footer();
         // Funtion to reload the data of the area chart
         function areaChartHandler(data) {
     		var areaoptions = {
-    		          title: 'Category chart',
+    		          title: '<?php echo get_string("categorychart", "mod_emarking");?>',
     		          hAxis: {title: 'MONTH',  titleTextStyle: {color: '#3333'}},
     		          vAxis: {minValue: 0},
     		          legend: {position:'top'}
@@ -275,7 +274,7 @@ echo $OUTPUT->footer();
     	  
     	// Options for the column chart
     	   var columnoptions = {
-                  title: 'Sub-categories chart',
+                  title: '<?php echo get_string("subcategorychart", "mod_emarking");?>',
                   legend: {position:'top'}	   
                 };
            
@@ -286,30 +285,30 @@ echo $OUTPUT->footer();
         // Funtion to reload the data of the column chart
         	function columnChartHandler(data, columnoptions) {
          	var columnoptions = {
-            	title: 'Sub-categories chart',
+            	title: '<?php echo get_string("subcategorychart", "mod_emarking");?>',
             	legend: {position:'top'}    
            		}; 
          	columnchart.draw(data, columnoptions);
            }   
             
         	$(".emarking-column-cost-button-style").click(function(){
-                if( $(this).attr("id") == "pieactivitiesbutton" )
+                if( $(this).attr("id") == "columnactivitiesbutton" )
                 {
                 		var data = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
                 }
-                if( $(this).attr("id") == "pieemarkingcourses" )
+                if( $(this).attr("id") == "columnemarkingcourses" )
                 {
                 		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursespiechart; ?>);
                 }
-                if( $(this).attr("id") == "piemeantestleangh" )
+                if( $(this).attr("id") == "columnmeantestleangh" )
                 {
              	    var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtpiechart; ?>);
                 }
-                if( $(this).attr("id") == "pietotalprintedpages" )
+                if( $(this).attr("id") == "columntotalprintedpages" )
                 {
              	    var data = google.visualization.arrayToDataTable(<?php echo $totalpagespiechart; ?>);
                 }
-                if( $(this).attr("id") == "pietotalprintingcost" )
+                if( $(this).attr("id") == "columntotalprintingcost" )
                 {
              	    var data = google.visualization.arrayToDataTable(<?php echo $totalcostpiechart; ?>);
                 }
