@@ -557,7 +557,7 @@ function emarking_add_criterion_markerpage($emarking) {
 function emarking_add_comment($submission, $draft) {
     global $DB, $USER;
     
-    $userid = required_param('markerid',PARAM_INT);
+    // $userid = required_param('markerid',PARAM_INT);
     /** Comment position within the page **/
     $posx = required_param('posx', PARAM_INT);
     $posy = required_param('posy', PARAM_INT);
@@ -607,7 +607,7 @@ function emarking_add_comment($submission, $draft) {
     $emarking_comment->timecreated = time();
     $emarking_comment->timemodified = time();
     $emarking_comment->rawtext = $comment;
-    $emarking_comment->markerid = $userid;
+    $emarking_comment->markerid = $USER->id;
     $emarking_comment->colour = $colour;
     $emarking_comment->levelid = 0;
     $emarking_comment->criterionid = $criterionid;
