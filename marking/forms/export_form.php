@@ -53,7 +53,7 @@ class emarking_export_form extends moodleform
         $mform->setType('id', PARAM_INT);
         
         $emarkings = array();
-        if ($parallelemarkings = emarking_get_parallel_emarkings($course)) {
+        if ($parallelemarkings = emarking_get_parallel_emarkings($course, true)) {
             
             foreach ($parallelemarkings as $emarkingdest) {
                 $emarkings[$emarkingdest->id] = $emarkingdest->fullname . " - " . $emarkingdest->name;
