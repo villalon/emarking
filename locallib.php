@@ -444,12 +444,13 @@ function emarking_copy_course_outcomes($emarkingsrc, $emarkingdst) {
  * to a course parameter
  *  
  * @param unknown $course
+ * @param unknown $includeown
  * @return multitype:
  */
-function emarking_get_parallel_emarkings($course) {
+function emarking_get_parallel_emarkings($course, $includeown) {
     global $DB;
     
-    $parallelcourses = emarking_get_parallel_courses($course);
+    $parallelcourses = emarking_get_parallel_courses($course, $includeown);
     
     if(!$parallelcourses)
         return false;
@@ -1089,19 +1090,23 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
  *
  * @param stdClass $course
  *            course object
+ * @param bool $includeown
+ *            if the own course should be included
  * @return multitype:|boolean array with code parts or false if could not parse
  */
-function emarking_get_parallel_courses($course)
+function emarking_get_parallel_courses($course, $includeown = false)
 {
     global $CFG, $DB;
     
     // Parses the shortname
     list ($academicperiod, $campus, $coursecode, $section, $term, $year) = emarking_parse_shortname($course->shortname);
     
+    $sqlown = $includeown ? "" : "AND id != $course->id";
+    
     // If identified the parts run the query
     if ($coursecode) {
         $sql = " shortname LIKE '%-$coursecode-%-$term-$year'
-				AND id != $course->id";
+				$sqlown";
         $parallels = $DB->get_records_select('course', $sql, null, 'shortname ASC', '*');
         return $parallels;
     } else {
