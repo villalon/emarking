@@ -175,23 +175,23 @@ function emarking_columnbuttonstable($categoryid){
 
 	// Creation of the activities button
 	$activitiesforchart = json_encode(emarking_getActivitiesbydate($categoryid));
-	$activitiesbutton = html_writer::tag('button',get_string('pieactivities', 'emarking'), array('id' => 'pieactivitiesbutton', 'class' => 'emarking-column-cost-button-style', ));
+	$activitiesbutton = html_writer::tag('button',get_string('activities', 'emarking'), array('id' => 'columnactivitiesbutton', 'class' => 'emarking-column-cost-button-style', ));
 	$buttonsarray[] = $activitiesbutton;
 
 	// Creation of the emarkingcourses button
-	$emarkingcoursesbutton = html_writer::tag('button',get_string('pieemarkingcourses', 'emarking'), array('id' => 'pieemarkingcourses', 'class' => 'emarking-column-cost-button-style'));
+	$emarkingcoursesbutton = html_writer::tag('button',get_string('emarkingcourses', 'emarking'), array('id' => 'columnemarkingcourses', 'class' => 'emarking-column-cost-button-style'));
 	$buttonsarray[] = $emarkingcoursesbutton;
 
 	// Creation of the meanlengh button
-	$meantestlenghbutton = html_writer::tag('button',get_string('piemeanexamleanght', 'emarking')  , array('id' => 'piemeantestleangh',  'class' => 'emarking-column-cost-button-style'));
+	$meantestlenghbutton = html_writer::tag('button',get_string('meanexamleanght', 'emarking')  , array('id' => 'columnmeantestleangh',  'class' => 'emarking-column-cost-button-style'));
 	$buttonsarray[] = $meantestlenghbutton;
 
 	// Creation of the totalprintedpages button
-	$totalprintedpagesbutton = html_writer::tag('button',get_string('pietotalprintedpages', 'emarking') , array('id' => 'pietotalprintedpages', 'class' => 'emarking-column-cost-button-style'));
+	$totalprintedpagesbutton = html_writer::tag('button',get_string('totalprintedpages', 'emarking') , array('id' => 'columntotalprintedpages', 'class' => 'emarking-column-cost-button-style'));
 	$buttonsarray[] = $totalprintedpagesbutton;
 
 	// Creation of the total cost.
-	$totalprintingcostbutton = html_writer::tag('button',get_string('pietotalcost', 'emarking') , array('id' => 'pietotalprintingcost', 'class' =>'emarking-column-totalcost-button-style emarking-column-cost-button-style'));
+	$totalprintingcostbutton = html_writer::tag('button',get_string('totalcost', 'emarking') , array('id' => 'columntotalprintingcost', 'class' =>'emarking-column-totalcost-button-style emarking-column-cost-button-style'));
 	$buttonsarray[] = $totalprintingcostbutton;
 
 	return $buttonsarray;
@@ -496,7 +496,7 @@ function emarking_getActivitiesbydate($category) {
 	$arrayactivitiesbydate=array();
 	if($activitiesbydate= $DB->get_records_sql($sqlactivitiesbydate, $activitiesbydateparams)){
 
-		$arrayactivitiesbydate[0]=['Month','Activities'];
+		$arrayactivitiesbydate[0]=[get_string('month', 'mod_emarking'),get_string('activities', 'mod_emarking')];
 		for($contadormes = 1; $contadormes <= 12; $contadormes++){
 			if(!isset($arrayactivitiesbydate[$contadormes])){
 				$arrayactivitiesbydate[$contadormes] = [date("F", mktime(0, 0, 0, $contadormes, 10)),0];
@@ -536,7 +536,7 @@ function emarking_getemarkingcoursesbydate($category) {
 	// Gets the information of the above query
 	if($emarkingcoursesbydate = $DB->get_records_sql($sqlemarkingcoursesbydate, $emarkingcoursesbydateparams)){
 		$arrayemarkingcoursesbydate=array();
-		$arrayemarkingcoursesbydate[0]=['Month','Courses with emarking'];
+		$arrayemarkingcoursesbydate[0]=[get_string('month', 'mod_emarking'),get_string('emarkingcourses', 'mod_emarking')];
 		for($contadormes = 1; $contadormes <= 12; $contadormes++){
 			if(!isset($arrayemarkingcoursesbydate[$contadormes])){
 				$arrayemarkingcoursesbydate[$contadormes] = [date("F", mktime(0, 0, 0, $contadormes, 10)),0];
@@ -576,7 +576,7 @@ function emarking_getoriginalpagesbydate($category) {
 
 	if($originalpagesbydate = $DB->get_records_sql($sqloriginalpagesbydate, $totaloriginalpagesbydateparams)){
 		$arrayoriginalpagesbydate=array();
-		$arrayoriginalpagesbydate[0]=['Month','Mean lenght of tests'];
+		$arrayoriginalpagesbydate[0]=[get_string('month', 'mod_emarking'),get_string('meanexamleanght', 'mod_emarking')];
 		for($contadormes = 1; $contadormes <= 12; $contadormes++){
 			if(!isset($arrayoriginalpagesbydate[$contadormes])){
 				$arrayoriginalpagesbydate[$contadormes] = [date("F", mktime(0, 0, 0, $contadormes, 10)),0];
@@ -615,7 +615,7 @@ function emarking_gettotalpagesbydate($category) {
 	// Gets the information of the above query
 	if($totalpagesbydate = $DB->get_records_sql($sqltotalpagesbydate, $totalpagesbydateparams)){
 		$arraytotalpagesbydate=array();
-		$arraytotalpagesbydate[0]=['Month','Total pages'];
+		$arraytotalpagesbydate[0]=[get_string('month', 'mod_emarking'),get_string('totalprintedpages', 'mod_emarking')];
 		for($contadormes = 1; $contadormes <= 12; $contadormes++){
 			if(!isset($arraytotalpagesbydate[$contadormes])){
 				$arraytotalpagesbydate[$contadormes] = [date("F", mktime(0, 0, 0, $contadormes, 10)),0];
@@ -711,7 +711,7 @@ function emarking_gettotalcostpiechart($category) {
 	$arraytotalcost = array();
 	$i=1;
 	if($totalcostpiechart = $DB->get_records_sql($sqltotalcostpiechart, $totalcostpiechartparams)){
-		$arraytotalcost[0] = ['Category name','Total cost'];
+		$arraytotalcost[0] = [get_string('category', 'mod_emarking'),get_string('totalcost', 'mod_emarking')];
 		foreach($totalcostpiechart as $cost){
 			if(!$cost->totalpages == NULL){
 				$arraytotalcost[$i][0] = $cost->categoryname;
@@ -748,7 +748,7 @@ function emarking_gettotalpagespiechart($category) {
 	$arraytotalpages = array();
 	$i=1;
 	if($totalpagespiechart = $DB->get_records_sql($sqltotalpagespiechart, $totalpagespiechartparams)){
-		$arraytotalpages[0] = ['Category name','Total pages'];
+		$arraytotalpages[0] = [get_string('category', 'mod_emarking'),get_string('totalprintedpages', 'mod_emarking')];
 		foreach($totalpagespiechart as $pages){
 			if(!$pages->totalpages == NULL){
 				$arraytotalpages[$i][0] = $pages->categoryname;
@@ -781,7 +781,7 @@ function emarking_getactivitiespiechart($category) {
 	$arrayactivities = array();
 	$i=1;
 	if($activitiespiechart = $DB->get_records_sql($sqlactivitiespiechart, $activitiespiechartparams)){
-		$arrayactivities[0] = ['Category name','Activities'];
+		$arrayactivities[0] = [get_string('category', 'mod_emarking'),get_string('activities', 'mod_emarking')];
 		foreach($activitiespiechart as $activities){
 			if(!$activities->activities == NULL){
 				$arrayactivities[$i][0] = $activities->name;
@@ -816,7 +816,7 @@ function emarking_getemarkingcoursespiechart($category) {
 	$arrayemarkingcourses = array();
 	$i=1;
 	if($emarkingcoursespiechart = $DB->get_records_sql($sqlemarkingcoursespiechart, $emarkingcoursespiechartparams)){
-		$arrayemarkingcourses[0] = ['Category name','eMarking courses'];
+		$arrayemarkingcourses[0] = [get_string('category', 'mod_emarking'),get_string('emarkingcourses', 'mod_emarking')];
 		foreach($emarkingcoursespiechart as $courses){
 			if(!$courses->countcourses == NULL){
 				$arrayemarkingcourses[$i][0] = $courses->name;
@@ -852,7 +852,7 @@ function emarking_getmeanexamlenghtpiechart($category) {
 	$i=1;
 	$activities = emarking_getactivitiespiechart($category);
 	if($meanexamlenghtpiechart = $DB->get_records_sql($sqlmeanexamlenghtpiechart, $meanexamlenghtpiechartparams)){
-		$arraymeanlenght[0] = ['Category name','exam mean lenght'];
+		$arraymeanlenght[0] = [get_string('category', 'mod_emarking'),get_string('meanexamleanght', 'mod_emarking')];
 		foreach($meanexamlenghtpiechart as $lenght){
 			if(!$lenght->pages == NULL){
 				$arraymeanlenght[$i][0] = $lenght->name;
@@ -919,7 +919,7 @@ function emarking_gettotalcostbydate($category) {
 	// Gets the information of the above query
 	if($totalcostbydate = $DB->get_records_sql($sqltotalcostbydate, $totalcostbydateparams)){
 		$arraytotalcostbydate=array();
-		$arraytotalcostbydate[0]=['Month','Total cost'];
+		$arraytotalcostbydate[0]=[get_string('month', 'mod_emarking'),get_string('totalcost', 'mod_emarking')];
 		for($contadormes = 1; $contadormes <= 12; $contadormes++){
 			if(!isset($arraytotalcostbydate[$contadormes])){
 				$arraytotalcostbydate[$contadormes] = [date("F", mktime(0, 0, 0, $contadormes, 10)),0];
@@ -939,7 +939,7 @@ function emarking_download_excel_teacher_ranking($category) {
 	
 	$teacherrankingdata = emarking_getteacherranking($category);
 	
-	$headers = ['Teacher Name','Activities'];
+	$headers = [get_string('teachername', 'mod_emarking'),get_string('activities', 'mod_emarking')];
 
 	$excelfilename = clean_filename ( "CourseRankCategory".$category);
 
@@ -951,7 +951,7 @@ function emarking_download_excel_course_ranking($category) {
 
 	$courserankingdata = emarking_gettotalpagesbycourse($category);
 
-	$headers = ['Course name', 'Pages'];
+	$headers = [get_string('coursename', 'mod_emarking'), get_string('totalprintedpages', 'mod_emarking')];
 
 	$excelfilename = clean_filename ( "CourseRankCategory".$category);
 
@@ -963,7 +963,7 @@ function emarking_download_excel_monthly_cost($category) {
 
 	$totalcostdata = emarking_gettotalcostbydate($category);
 
-	$headers = ['Costo mensual'];
+	$headers = [get_string('monthlycost', 'mod_emarking')];
 
 	$excelfilename = clean_filename ( "MonthlyCost".$category);
 
