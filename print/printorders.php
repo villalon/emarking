@@ -132,6 +132,7 @@ $examstable->head = array(
     get_string('course'),
     get_string('details', 'mod_emarking'),
     get_string('requestedby', 'mod_emarking'),
+	get_string('cost','mod_emarking'),
     $statusicon == 1 ? get_string('sent', "mod_emarking") : get_string('examdateprinted', 'mod_emarking'),
     $statusicon == 1 ? ucfirst(get_string('pages', 'mod_emarking')) : get_string('actions'),
     $statusicon == 1 ? get_string('actions') : get_string('printnotification', 'mod_emarking')
@@ -143,6 +144,7 @@ $examstable->size = array(
     '10%',
     '5%',
     '5%',
+	'5%',
     '10%',
     '5%',
     '7%'
@@ -153,10 +155,11 @@ $examstable->align = array(
     'center',
     'center',
     'center',
+	'center',
     'center',
     'center',
     'center',
-    $statusicon == 1 ? 'right' : 'center'
+    'center'
 );
 
 $examstable->colclasses[1] = 'exams_examname';
@@ -189,7 +192,8 @@ $sql = "SELECT e.*,
 			c.fullname as coursefullname,
 			u.id as userid,
 			CONCAT(u.firstname, ' ', u.lastname) as userfullname,
-			cc.name as category
+			cc.name as category,
+			e.printingcost as cost
 		FROM {emarking_exams} as e
 		INNER JOIN {course} as c ON (e.course = c.id)
 		INNER JOIN {user} as u ON (e.requestedby = u.id)
@@ -227,7 +231,7 @@ foreach ($exams as $exam) {
         "examid" => $exam->id,
         "class" => "downloademarking"
     )));
-    
+
     // Print directly
     if ($CFG->emarking_enableprinting) {
         $urlprint = new moodle_url('/mod/emarking/print/printexam.php', array(
@@ -243,6 +247,14 @@ foreach ($exams as $exam) {
         'downloadform' => 'true'
     ));
     $actions .= html_writer::div($OUTPUT->action_icon($urldownloadform, new pix_icon("i/report", get_string("downloadform", "mod_emarking"))));
+    
+    // Change cost configuration
+    $urlcost = new moodle_url('/mod/emarking/reports/exammodification.php', array(
+    		'exam' => $exam->id,
+    		'category' => $categoryid,
+    		'status' => $statusicon
+    ));
+    $actions .= html_writer::div($OUTPUT->action_icon($urlcost, new pix_icon("m/USD", get_string("changeconfiguration", "mod_emarking"))));
     
     $actions .= html_writer::end_tag("div");
     
@@ -266,6 +278,7 @@ foreach ($exams as $exam) {
         $OUTPUT->action_link($urlcourse, $exam->coursefullname),
         $exam->category . '<br/>' . $enrolments,
         $OUTPUT->action_link($urlprofile, $exam->userfullname),
+    	$exam->cost,
         $statusicon == 1 ? emarking_time_ago($exam->timecreated) : emarking_time_ago($exam->printdate),
         $statusicon == 1 ? $pagestoprint : $actions,
         $statusicon == 1 ? $actions : $notification
@@ -273,7 +286,6 @@ foreach ($exams as $exam) {
     
     $current++;
 }
-
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
