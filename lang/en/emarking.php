@@ -109,6 +109,7 @@ $string ['examdate'] = 'Exam date';
 $string ['examdate_help'] = 'Date and time in which the exam will be taken';
 $string ['examdateinvalid'] = 'Invalid exam date, it should be at least {$a->mindays} working days in advance.';
 $string ['examdateinvaliddayofweek'] = 'Invalid exam date, only from Monday to Fridays and Saturdays before 4pm.';
+$string ['examdateprinted'] = 'Print date';
 $string ['examdeleted'] = 'Exam deleted. Please wait while you are redirected';
 $string ['examid'] = 'Exam id';
 $string ['examinfo'] = 'Exam information';
@@ -309,14 +310,15 @@ $string['costcenter'] = 'Cost center';
 $string['costofonepage'] = 'Cost of printing one page';
 $string['costcenternumber'] = 'Cost Center number';
 $string['month'] = 'Month';
-$string['activities'] = 'Activities';
 $string['coursename'] = 'Course Name';
 $string['teachername'] = 'Teacher Name';
 $string['monthlycost'] = 'Monthly cost';
 $string['studentnumber'] = 'Number of Students';
 $string['categorychart'] = 'Category chart';
 $string['subcategorychart'] = 'Sub-category chart';
-
+$string['changeconfiguration'] = 'Change cost configuration';
+$string['cost'] = 'Cost per page';
+$string['exammodification'] = 'Enter new printing cost';
 
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
@@ -541,6 +543,7 @@ $string ['pluginname'] = 'eMarking';
 $string ['printdoublesided'] = 'Double sided';
 $string ['printdoublesided_help'] = 'When selected e-marking will try to print the exam using both sides of the paper sheets. If CUPS (network printing) is not configured, instructions are indicated for the person who downloads.';
 $string ['printexam'] = 'Print exam';
+$string ['printsendnotification'] = 'Send print notification';
 $string ['printrandom'] = 'Print random';
 $string ['printrandominvalid'] = 'must create a group for using this feature';
 $string ['printrandom_help'] = 'Print random, based in a group of course';
