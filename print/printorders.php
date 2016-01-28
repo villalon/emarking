@@ -140,14 +140,14 @@ $examstable->head = array(
 
 $examstable->size = array(
     '10%',
-    '10%',
+    '7%',
     '10%',
     '5%',
     '5%',
 	'5%',
     '10%',
     '5%',
-    '7%'
+    '5%'
 );
 
 $examstable->align = array(
@@ -278,7 +278,7 @@ foreach ($exams as $exam) {
         $OUTPUT->action_link($urlcourse, $exam->coursefullname),
         $exam->category . '<br/>' . $enrolments,
         $OUTPUT->action_link($urlprofile, $exam->userfullname),
-    	$exam->cost,
+    	'$'.number_format($exam->cost),
         $statusicon == 1 ? emarking_time_ago($exam->timecreated) : emarking_time_ago($exam->printdate),
         $statusicon == 1 ? $pagestoprint : $actions,
         $statusicon == 1 ? $actions : $notification
