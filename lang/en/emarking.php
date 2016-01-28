@@ -319,6 +319,7 @@ $string['subcategorychart'] = 'Sub-category chart';
 $string['changeconfiguration'] = 'Change cost configuration';
 $string['cost'] = 'Cost per page';
 $string['exammodification'] = 'Enter new printing cost';
+$string['numericplease'] = 'Please enter a numeric value!';
 
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
