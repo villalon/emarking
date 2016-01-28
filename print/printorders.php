@@ -139,15 +139,15 @@ $examstable->head = array(
 );
 
 $examstable->size = array(
+    '15%',
+    '15%',
+    '15%',
     '10%',
+    '10%',
+	'10%',
     '7%',
-    '10%',
-    '5%',
-    '5%',
-	'5%',
-    '10%',
-    '5%',
-    '5%'
+    '7%',
+    '10%'
 );
 
 $examstable->align = array(
@@ -254,8 +254,6 @@ foreach ($exams as $exam) {
     		'category' => $categoryid,
     		'status' => $statusicon
     ));
-    $actions .= html_writer::div($OUTPUT->action_icon($urlcost, new pix_icon("m/USD", get_string("changeconfiguration", "mod_emarking"))));
-    
     $actions .= html_writer::end_tag("div");
     
     // Calculating date differences to identify exams that are late, are for today and so on
@@ -278,7 +276,7 @@ foreach ($exams as $exam) {
         $OUTPUT->action_link($urlcourse, $exam->coursefullname),
         $exam->category . '<br/>' . $enrolments,
         $OUTPUT->action_link($urlprofile, $exam->userfullname),
-    	'$'.number_format($exam->cost),
+    	'$'.number_format($exam->cost).$OUTPUT->action_icon($urlcost, new pix_icon("i/edit", get_string("downloadform", "mod_emarking"))),
         $statusicon == 1 ? emarking_time_ago($exam->timecreated) : emarking_time_ago($exam->printdate),
         $statusicon == 1 ? $pagestoprint : $actions,
         $statusicon == 1 ? $actions : $notification
