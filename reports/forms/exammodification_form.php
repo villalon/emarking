@@ -27,19 +27,39 @@ class emarking_exammodification_form extends moodleform {
 		$examid = required_param('exam', PARAM_INT);
 		$category = required_param('category', PARAM_INT);
 		$statusicon = optional_param('status', 1, PARAM_INT);
+		
 		$mform = $this->_form;
+		
 		$mform->addElement('header', 'general', get_string('exammodification', 'mod_emarking'));
+		
 		$mform->addElement('text', 'cost',get_string('costofonepage', 'mod_emarking'));
 		$mform->addRule('cost', get_string('numericvalue', 'mod_emarking'), 'required', null, 'client');
-		$mform->setType('cost', PARAM_INT);
+		$mform->setType('cost', PARAM_TEXT);
 		$mform->addHelpButton('cost', 'numericvalue', 'mod_emarking');
+		
 		$mform->addElement('hidden', 'exam', $examid);
 		$mform->setType('exam', PARAM_INT);
+		
 		$mform->addElement('hidden', 'category', $category);
 		$mform->setType('category', PARAM_INT);
+		
 		$mform->addElement('hidden', 'status', $statusicon);
 		$mform->setType('status', PARAM_INT);
+		
 		$this->add_action_buttons(true);
-
 	}
+	
+	function validation($data, $files) {
+		global $CFG;
+		
+		$cost = $data ['cost'];
+		$errors = array();
+		if( !is_number($cost) ){
+			$errors ['cost'] = get_string('numericplease','mod_emarking');
+			return $errors;
+			
+			
+		return $errors;
+		}
+}
 }
