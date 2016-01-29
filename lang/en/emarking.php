@@ -320,6 +320,10 @@ $string['changeconfiguration'] = 'Change cost configuration';
 $string['cost'] = 'Cost per page';
 $string['exammodification'] = 'Enter new printing cost';
 $string['numericplease'] = 'Please enter a numeric value!';
+$string['costconfiguration'] = 'Cost Settings';
+$string['costconfiguration_help'] = 'For a correct cost analisis please enter a value diferent from 0';
+$string['defaultcost'] = 'Printing cost';
+$string['defaultcost_cost'] = 'Default cost in your sistem of printing a sigle page';
 
 ////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Invalid custom marks, line(s): ';
