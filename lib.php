@@ -225,18 +225,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
         
         // Calculate total pages for exam
         $exam->totalpages = $numpages;
-        $coursecategoryparams= array(
-        		$COURSE->id
-        );
-        $sqlcoursecategory="SELECT c.id AS courseid, cc.printingcost AS cost
-        		FROM mdl_emarking_category_cost AS cc
-        		INNER JOIN mdl_course AS c ON (cc.category = c.category)
-        		WHERE c.id=?";
-       if( $course = $DB->get_records_sql($sqlcoursecategory, $coursecategoryparams)){
-        foreach($course as $category){
-        	$exam->printingcost = $category->cost;
-        }
-       }
+        $exam->printingcost = emarking_get_category_cost($COURSE->id);
         $exam->id = $DB->insert_record('emarking_exams', $exam);
         
         foreach ($exampdfs as $exampdf) {
