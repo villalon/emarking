@@ -319,6 +319,12 @@ $string['subcategorychart'] = 'Gafico de la sub-categoría';
 $string['changeconfiguration'] = 'Modificar configuracion de costos';
 $string['cost'] = 'Costo por hoja';
 $string['exammodification'] = 'Ingresar nuevo valor para costo de impresion y central de costos';
+$string['numericplease'] = 'Ingresa un valor numerico';
+$string['costconfiguration'] = 'Configuración de costo';
+$string['costconfiguration_help'] = 'Para un analisis de costos correcto, ingrese un costo por hoja impresa distinto de 0';
+$string['defaultcost'] = 'Costo de impresion';
+$string['defaultcost_cost'] = 'Costo por defecto de imprimir una hoja';
+
 
 /////////////////////////////////////////////
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';
