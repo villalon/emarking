@@ -17,7 +17,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-onwards Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
@@ -27,29 +27,15 @@ require_once ($CFG->dirroot . '/grade/grading/lib.php');
 
 global $CFG, $OUTPUT, $PAGE, $DB;
 
-$cmid = required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 $criterionid = optional_param('criterion', null, PARAM_INT);
 $delete = optional_param('delete', false, PARAM_BOOL);
-
-if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
-    print_error('Invalid cm id');
-}
-
-if (! $course = $DB->get_record('course', array(
-    'id' => $cm->course
-))) {
-    print_error('You must specify a valid course ID');
-}
 
 require_login($course, true);
 if (isguestuser()) {
     die();
-}
-
-if (! $emarking = $DB->get_record('emarking', array(
-    'id' => $cm->instance
-))) {
-    print_error('You must specify a valid course module ID');
 }
 
 if ($emarking->type != EMARKING_TYPE_NORMAL) {
@@ -80,8 +66,6 @@ if($criterionid && ! $minlevel = $DB->get_record_sql("
 }
 
 $gradeitem = $gradeitemobj->id;
-
-$context = context_module::instance($cm->id);
 
 // Check if user has an editingteacher role
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context);

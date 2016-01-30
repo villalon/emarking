@@ -29,23 +29,8 @@ require_once ("forms/osm_form.php");
 
 global $DB, $USER;
 
-// Obtain parameter from URL
-$cmid = required_param('id', PARAM_INT);
-
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " id: $cmid" );
-}
-
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " emarking id: $cm->instance" );
-}
-
-// Validate that the parameter corresponds to a course
-if (! $course = $DB->get_record ( 'course', array ('id' => $emarking->course))) {
-	print_error ( get_string('invalidcourseid','mod_emarking' ) . " id: $courseid" );
-}
-
-$context = context_module::instance ( $cm->id );
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 $url = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cmid));
 

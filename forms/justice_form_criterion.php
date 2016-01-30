@@ -21,7 +21,7 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
 /**
  * @package mod
  * @subpackage emarking
- * @copyright 2013 onwards Jorge Villalon {@link http://www.villalon.cl}
+ * @copyright 2013 onwards Jorge Villalon <villalon@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class justice_form_criterion extends moodleform {

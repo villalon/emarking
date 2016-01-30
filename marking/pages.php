@@ -30,24 +30,13 @@ require_once ("forms/pages_form.php");
 
 global $DB, $USER;
 
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 // Obtain parameter from URL
-$cmid = required_param('id', PARAM_INT);
 $criterionid = optional_param('criterion', 0, PARAM_INT);
 $pageid = optional_param('page', 0, PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHA);
-
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " cm id: $cmid" );
-}
-
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " emarking id: $cmid" );
-}
-
-// Validate that the parameter corresponds to a course
-if (! $course = $DB->get_record ( 'course', array ('id' => $emarking->course))) {
-	print_error ( get_string('invalidcourseid','mod_emarking' ) . " course id: $courseid" );
-}
 
 if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->id))) {
 	print_error ( get_string('invalidid','mod_emarking' ) . " emarking id: $cmid" );
@@ -60,12 +49,10 @@ if($criterionid > 0) {
     }
 }
 
-$context = context_module::instance ( $cm->id );
-
 $url = new moodle_url('/mod/emarking/marking/pages.php',array('id'=>$cmid));
+
 // First check that the user is logged in
 require_login($course->id);
-
 if (isguestuser ()) {
 	die ();
 }

@@ -31,25 +31,10 @@ require_once($CFG->dirroot."/lib/externallib.php");
 
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
 
-// Course module id
-$cmid=required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 $criterionid=optional_param('criterion', 0, PARAM_INT);
-
-// Validate course module
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error ( get_string('invalidcoursemodule','mod_emarking' ) . " id: $cmid" );
-}
-
-// Validate eMarking activity
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " id: $cmid" );
-}
-
-// Validate course
-if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
-	print_error(get_string('invalidcourseid', 'mod_emarking'));
-}
 
 $criterion = null;
 if($criterionid > 0 && !$criterion = $DB->get_record('gradingform_rubric_criteria', array('id'=>$criterionid))) {
@@ -58,7 +43,6 @@ if($criterionid > 0 && !$criterion = $DB->get_record('gradingform_rubric_criteri
 
 // Get the course module for the emarking, to build the emarking url
 $urlemarking = new moodle_url('/mod/emarking/kanban.php', array('id'=>$cm->id, 'criterion'=>$criterionid));
-$context = context_module::instance($cm->id);
 
 // Check that user is logued in the course
 require_login($course->id);

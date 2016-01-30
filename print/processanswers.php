@@ -35,27 +35,12 @@ require_once($CFG->dirroot . '/mod/emarking/print/locallib.php'); //cambiar
 
 global $DB, $CFG, $USER;
 
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 $emarkingid = required_param('emarkingid', PARAM_INT);
 $fileid = required_param('file', PARAM_ALPHANUM);
 $merge = required_param('merge', PARAM_BOOL);
-
-// Validate emarking activity
-if(!$emarking = $DB->get_record('emarking', array('id' => $emarkingid))) {
-	print_error(get_string('invalidemarkingid', 'mod_emarking').':' . $emarkingid);
-}
-
-// Validate course
-if(!$course = $DB->get_record('course', array('id' => $emarking->course))) {
-	print_error(get_string('invalidcourseid', 'mod_emarking').': ' . $emarking->course);
-}
-
-// Validate course module
-if(!$cm = get_coursemodule_from_instance('emarking', $emarking->id)) {
-	print_error(get_string('invalidcoursemodule', 'mod_emarking'));
-}
-
-// Get context for module
-$context = context_module::instance($cm->id);
 
 // Validate user is logged in and is not guest
 require_login($course->id);

@@ -18,33 +18,22 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
 global $CFG,$OUTPUT, $PAGE, $DB;//To suppress eclipse warnings
 require_once($CFG->dirroot.'/mod/emarking/locallib.php');
 
-$cmid = required_param('id', PARAM_INT);
-
-if(!$cm = get_coursemodule_from_id('emarking',$cmid)) {
-	error('Invalid course module id');
-}
-
-if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-    error('You must specify a valid course ID');
-}
-
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	error('Invalid emarking id');
-}
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 require_login($course, true);
 
-$context = context_module::instance($cm->id);
-
 require_capability ( 'mod/emarking:grade', $context );
 require_capability ( 'mod/emarking:regrade', $context );
+
+$url = new moodle_url("/mod/emarking/marking/regraderequests.php", array("id"=>$cm->id));
 
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking','mod_emarking'));
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_url(new moodle_url("/mod/emarking/marking/regraderequests.php?id=$cmid"));
+$PAGE->set_url($url);
 $PAGE->navbar->add(get_string('regrades', 'mod_emarking'));	
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
@@ -134,8 +123,8 @@ foreach($records as $record) {
         '<br/>' . $regradecomment;
     
     // Student info
-    $url = new moodle_url('/user/view.php',array('id'=>$record->userid,'course'=>$course->id));
-    $studentcriterion = $OUTPUT->action_link($url, $record->firstname.' '.$record->lastname);
+    $urlstudent = new moodle_url('/user/view.php',array('id'=>$record->userid,'course'=>$course->id));
+    $studentcriterion = $OUTPUT->action_link($urlstudent, $record->firstname.' '.$record->lastname);
     $studentcriterion .= '<br/>' . $record->criterion;
     $studentcriterion .= '<br/>' .emarking_time_ago($record->timecreated, true);
     

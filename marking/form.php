@@ -22,7 +22,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2015 Universidad Adolfo Ibañez
+ * @copyright 2015-onwards Jorge Villalon <villalon@gmail.com>
  * @author Nicolás Pérez, Jorge Villalón
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

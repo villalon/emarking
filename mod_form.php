@@ -110,8 +110,10 @@ class mod_emarking_mod_form extends moodleform_mod
         if (! $this->_instance || ($emarking && $emarking->type == EMARKING_TYPE_MARKER_TRAINING)) {
             $types[EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
         }
-        // 3 => get_string('type_student_training', 'mod_emarking'),
-        // 4 => get_string('type_peer_review', 'mod_emarking')
+        
+        if (! $this->_instance || ($emarking && $emarking->type == EMARKING_TYPE_MARKER_TRAINING)) {
+            $types[EMARKING_TYPE_PEER_REVIEW] = get_string('type_peer_review', 'mod_emarking');
+        }
         
         // MARKING TYPE
         $mform->addElement('select', 'type', get_string('markingtype', 'mod_emarking'), $types, array(
@@ -764,6 +766,20 @@ class mod_emarking_mod_form extends moodleform_mod
             return $errors;
         }
         
+        // Verify that we have enough students
+        if ($data['type'] == EMARKING_TYPE_PEER_REVIEW) {
+            
+            // Get all users with permission to grade in emarking
+            $totalstudents = emarking_get_students_count_for_printing($COURSE->id);
+            
+            if ($totalstudents < 2) {
+                $errors['type'] = get_string('notenoughstudenstforpeerreview', 'mod_emarking');
+                return $errors;
+            }
+            
+            return $errors;
+        }
+        
         // Get the exam if we are updating an emarking activity
         $exam = null;
         if (isset($data['exam']) && $data['exam'] > 0) {
@@ -989,6 +1005,7 @@ class mod_emarking_mod_form extends moodleform_mod
                   return;
                }
                var strUser = e.options[e.selectedIndex].value;
+               console.log(strUser);
             // Print only
 	           if (strUser == '0') {
                     document.getElementById('id_print').style.display = 'block';
@@ -1024,7 +1041,24 @@ class mod_emarking_mod_form extends moodleform_mod
                     document.getElementById('id_markerstraining').style.display = 'block';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
-                } else if(strUser == '5') {
+                } else if(strUser == '4') {
+            // Peer review
+                    document.getElementById('id_print').style.display = 'none';
+	                document.getElementById('id_scan').style.display = 'none';
+                    document.getElementById('id_osm').style.display = 'block';
+                    document.getElementById('fitem_id_peervisibility').style.display = 'none';
+                    document.getElementById('fitem_id_justiceperception').style.display = 'none';
+                    document.getElementById('fitem_id_qualitycontrol').style.display = 'none';
+                    document.getElementById('fgroup_id_markers').style.display = 'none';
+                    document.getElementById('fitem_id_enableduedate').style.display = 'block';
+                    document.getElementById('fitem_id_markingduedate').style.display = 'none';
+                    document.getElementById('fitem_id_regraderestrictdates').style.display = 'none';
+                    document.getElementById('fitem_id_regradesopendate').style.display = 'none';
+                    document.getElementById('fitem_id_regradesclosedate').style.display = 'none';
+                    document.getElementById('id_markerstraining').style.display = 'none';
+                    document.getElementById('id_modstandardgrade').style.display = 'none';
+                    document.getElementById('id_modstandardelshdr').style.display = 'block';
+            } else if(strUser == '5') {
             // Print and scan
                     document.getElementById('id_print').style.display = 'block';
 	                document.getElementById('id_scan').style.display = 'block';
@@ -1035,11 +1069,10 @@ class mod_emarking_mod_form extends moodleform_mod
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else {
+                    console.log('Invalid type value ' + strUser);
                     document.getElementById('id_print').style.display = 'none';
                     document.getElementById('id_scan').style.display = 'none';
-                    document.getElementById('id_experimental').style.display = 'none';
-                    document.getElementById('id_marking').style.display = 'none';
-                    document.getElementById('id_regrade').style.display = 'none';
+                    document.getElementById('id_osm').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'none';
                 }

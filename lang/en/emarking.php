@@ -205,6 +205,9 @@ $string['notenoughmarkersforqualitycontrol'] = 'No markers were selected for qua
 $string['markerstrainingnotforstudents'] = 'This is a markers training activity. You have no access to its details.';
 $string['updatemark'] = 'Update mark';
 
+// PEER REVIEW
+$string ['notenoughstudenstforpeerreview'] = 'Not enough students enrolled for a peer review session';
+
 // ANONYMOUS
 $string['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
 $string['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';
@@ -252,6 +255,13 @@ $string['digitizedanswersmessage'] = 'Digitized answers reminder message';
 $string['digitizedanswersmessage_desc'] = 'This message will be sent to teachers once the period after digitizing the answers expires.';
 $string ['viewadminprints'] = '<a href="{$a}">Manage printers</a>';
 $string ['viewpermitsprinters'] = '<br/><a href="{$a}">Manage printers permissions</a>';
+
+// EMARKING UPLOAD ANSWERS
+$string ['confirmprocess'] = 'Confirm process';
+$string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';
+$string ['uploadanswers_help'] = 'In this page you can upload the digitized answers from your students. The format is a zip file containing two png files for each page a student has (one is the anonymous version). This file can be obtained using the eMarking desktop application that can be downloaded <a href="">here</a>';
+$string ['uploadanswers'] = 'Upload answers';
+$string ['uploadanswersuccessful'] = 'Upload answers successful';
 
 // REPORTS
 $string ['reports'] = 'Reports';
@@ -383,7 +393,6 @@ $string ['emptypermissions'] = 'There are no permissions';
 $string ['addpermission'] = 'Add permission';
 $string ['annotatesubmission_help'] = 'eMarking allows to mark digitized exams using rubrics. In this page you can see the course list and their submissions (digitized answers). It also shows the exam status, that can be missing for a student with no answers, submitted if it has not been graded, responded when the marking is finished and regrading when a regrade request was made by a student.';
 $string ['regrades_help'] = 'This page shows the regrade requests made by students.';
-$string ['uploadanswers_help'] = 'In this page you can upload the digitized answers from your students. The format is a zip file containing two png files for each page a student has (one is the anonymous version). This file can be obtained using the eMarking desktop application that can be downloaded <a href="">here</a>';
 $string ['ranking'] = 'Ranking';
 $string ['areyousure'] = 'Are you sure?';
 $string ['actions'] = 'Actions';
@@ -394,7 +403,6 @@ $string ['backcourse'] = 'Back to course';
 $string ['close'] = 'Close';
 $string ['comment'] = 'Comment';
 $string ['completerubric'] = 'Complete rubric';
-$string ['confirmprocess'] = 'Confirm process';
 $string ['copycenterinstructions'] = 'Copy center instructions';
 $string ['corrected'] = 'Corrected';
 $string ['createrubric'] = 'Create rubric';
@@ -574,10 +582,8 @@ $string ['statussubmitted'] = 'Uploaded';
 $string ['statuserror'] = 'Error';
 $string ['totalexams'] = 'Total exams';
 $string ['totalpagesprint'] = 'Total Pages to Print';
-$string ['uploadanswers'] = 'Upload answers';
 $string ['uploadexamfile'] = 'ZIP file';
 $string ['uploadinganswersheets'] = 'Uploading student answer sheets';
-$string ['uploadanswersuccessful'] = 'Upload answers successful';
 $string ['usesms'] = 'Use Twilio.com to send SMS';
 $string ['usesms_help'] = 'Use SMS messaging  instead of sending email for eMarking security codes';
 $string ['viewsubmission'] = 'View exam';

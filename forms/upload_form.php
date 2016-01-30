@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,15 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once($CFG->libdir.'/formslib.php'); //putting this is as a safety as i got a class not found error.
-require_once($CFG->dirroot.'/course/lib.php');
 /**
  * This form is used to upload a zip file containing digitized answers
  * @package mod
  * @subpackage emarking
- * @copyright 2011 onwards Jorge Villalon {@link http://www.villalon.cl}
+ * @copyright 2011 onwards Jorge Villalon <villalon@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
+
+require_once($CFG->libdir.'/formslib.php'); //putting this is as a safety as i got a class not found error.
+require_once($CFG->dirroot.'/course/lib.php');
+
 class mod_emarking_upload_form extends moodleform {
 	function definition() {
 

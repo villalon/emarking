@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\EventDispatcher\Tests\AbstractEventDispatcherTest;
+use editor_atto\plugininfo\atto;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -604,6 +606,47 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
     $pdf->Output("PrintForm" . $exam->id . ".pdf", "I"); // se genera el nuevo pdf
 }
 
+
+function emarking_assign_peers($emarking, $diff) {
+    global $DB;
+    
+    $students = $DB->get_records_sql("
+        SELECT s.student as id, MAX(s.sort) as sort
+        FROM {emarking} AS e
+        INNER JOIN {emarking_submission} AS s ON (e.id = :emarking AND s.emarking = e.id)
+        INNER JOIN {emarking_draft} AS d ON (d.submissionid = s.id)
+        GROUP BY s.student
+        ORDER BY s.sort",
+        array("emarking" => $emarking->id));
+    
+    $assign = array();
+    foreach($students as $student) {
+        $assign[] = $student->id;
+    }
+    
+    $final = array();
+    $numstudents = count($assign);
+    for($i = 0; $i < $numstudents; $i++) {
+        $j = ($i + $diff) % $numstudents;
+        $final[$assign[$i]] = $assign[$j];
+    }
+    
+    $drafts = $DB->get_records_sql("
+        SELECT d.*, s.student
+        FROM {emarking} AS e
+        INNER JOIN {emarking_submission} AS s ON (e.id = :emarking AND s.emarking = e.id)
+        INNER JOIN {emarking_draft} AS d ON (d.submissionid = s.id)",
+        array("emarking" => $emarking->id));
+    
+    foreach($drafts as $draft) {
+        $draft->teacher = $final[$draft->student];
+        unset($draft->student);
+        $DB->update_record("emarking_draft", $draft);
+    }
+    
+    return true;
+}
+
 /**
  *
  * @param unknown $emarking            
@@ -622,6 +665,8 @@ function emarking_get_or_create_submission($emarking, $student, $context)
         return $submission;
     }
     
+    $tran = $DB->start_delegated_transaction();
+    
     $submission = new stdClass();
     $submission->emarking = $emarking->id;
     $submission->student = $student->id;
@@ -636,7 +681,9 @@ function emarking_get_or_create_submission($emarking, $student, $context)
     $submission->id = $DB->insert_record('emarking_submission', $submission);
     
     // Normal marking - One draft default
-    if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+    if ($emarking->type == EMARKING_TYPE_NORMAL 
+         || $emarking->type == EMARKING_TYPE_PRINT_SCAN
+         || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $draft = new stdClass();
         $draft->emarkingid = $emarking->id;
         $draft->submissionid = $submission->id;
@@ -650,8 +697,13 @@ function emarking_get_or_create_submission($emarking, $student, $context)
         $draft->generalfeedback = NULL;
         $draft->status = EMARKING_STATUS_SUBMITTED;
         
-        $DB->insert_record('emarking_draft', $draft);
+        if($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+            $draft->teacher = -1;
+            $draft->qualitycontrol = 1;
+        }
         
+        $draft->id = $DB->insert_record('emarking_draft', $draft);
+
         if ($emarking->qualitycontrol) {
             $qcdrafts = $DB->count_records('emarking_draft', array(
                 'emarkingid' => $emarking->id,
@@ -664,8 +716,7 @@ function emarking_get_or_create_submission($emarking, $student, $context)
             }
         }
     }  // Markers training - One draft per marker
-else 
-        if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+    else if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
             // Get all users with permission to grade in emarking
             $markers = get_enrolled_users($context, 'mod/emarking:grade');
             foreach ($markers as $marker) {
@@ -687,8 +738,7 @@ else
                 $DB->insert_record('emarking_draft', $draft);
             }
         }  // Students training
-else 
-            if ($emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {
+        else if ($emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {
                 // Get all users with permission to grade in emarking
                 $students = get_enrolled_users($context, 'mod/emarking:submit');
                 foreach ($students as $student) {
@@ -706,11 +756,14 @@ else
                     
                     $DB->insert_record('emarking_draft', $draft);
                 }
-            }  // Peer review
-else 
-                if ($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-                    // TODO: Implement peer review (this is a hard one)
-                }
+            }
+        else {
+            $e = new moodle_exception("Invalid emarking type");
+            $tran->rollback($e);
+            throw $e;
+        }
+    
+        $DB->commit_delegated_transaction($tran);
     
     return $submission;
 }
@@ -890,7 +943,8 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         $pagenumber = $parts[2];
         
         // Now we process the files according to the emarking type
-        if ($emarking->type == EMARKING_TYPE_NORMAL) {
+        if ($emarking->type == EMARKING_TYPE_NORMAL
+            || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             
             if (! $student = $DB->get_record('user', array(
                 'id' => $studentid
@@ -903,6 +957,9 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
                 $totalDocumentsIgnored ++;
                 continue;
             }
+        } else if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+            $student = new stdClass();
+            $student->id = 0;
         } else {
             $student = new stdClass();
             $student->id = $studentid;
@@ -949,6 +1006,12 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
                 $totalDocumentsIgnored
             );
         }
+    }
+    
+    if($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+        if(emarking_assign_peers($emarking, 10)) {
+            
+        }        
     }
     
     emarking_send_processanswers_notification($emarking, $course);
@@ -1833,6 +1896,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $downloadexam->printdate = time();
         $DB->update_record('emarking_exams', $downloadexam);
         
+        // Add to Moodle log so some auditing can be done
+        \mod_emarking\event\exam_downloaded::create_from_exam($downloadexam, $context)->trigger();
+        
         return true;
     }
     
@@ -1883,6 +1949,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         $downloadexam->printdate = time();
         $DB->update_record('emarking_exams', $downloadexam);
         
+        // Add to Moodle log so some auditing can be done
+        \mod_emarking\event\exam_downloaded::create_from_exam($downloadexam, $context)->trigger();
+        
         // Read zip file from disk and send to the browser
         $file_name = basename($zipfilename);
         
@@ -1922,6 +1991,9 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
     $downloadexam->printdate = time();
     $DB->update_record('emarking_exams', $downloadexam);
+    
+    // Add to Moodle log so some auditing can be done
+    \mod_emarking\event\exam_downloaded::create_from_exam($downloadexam, $context)->trigger();
     
     $pdf->Output($examfilename . '.pdf', 'D');
 }

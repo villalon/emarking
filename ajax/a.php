@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012-onwards Jorge Villalon {@link http://www.uai.cl}
+ * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('AJAX_SCRIPT', true);
@@ -124,8 +124,13 @@ if (! $cm = get_coursemodule_from_instance("emarking", $emarking->id, $course->i
 // Create the context within the course module
 $context = context_module::instance($cm->id);
 
+// We validate again as we require a valid user within the context of a cm
+require_login($course->id, false, $cm);
+if(isguestuser())
+    die();
+
+// After validating login in the cm we can check more specific permissions
 $usercangrade = has_capability('mod/emarking:grade', $context);
-$usercanmanagedelphi = has_capability("mod/emarking:managedelphiprocess", $context);
 $usercanregrade = has_capability('mod/emarking:regrade', $context);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER);
 $isgroupmode = $cm->groupmode == SEPARATEGROUPS;
@@ -137,16 +142,6 @@ if ($ownsubmission || $issupervisor) {
 $markeranonymous = $emarking->anonymous === "1" || $emarking->anonymous === "3";
 if ($issupervisor) {
     $markeranonymous = false;
-}
-
-// Get actual user role
-$userRole = null;
-if ($usercangrade == 1 && $issupervisor == 0) {
-    $userRole = "marker";
-} else {
-    if ($usercangrade == 1 && $issupervisor == 1) {
-        $userRole = "teacher";
-    }
 }
 
 $linkrubric = $emarking->linkrubric;
@@ -191,7 +186,6 @@ if ($action === 'ping') {
         'student' => $userid,
         'username' => $USER->firstname . " " . $USER->lastname,
         'realUsername' => $USER->username, // real username, not name and lastname.
-        'role' => $userRole,
         'groupID' => $emarking->id, // emarkig->id assigned to groupID for chat and wall rooms.
         'sesskey' => $USER->sesskey,
         'adminemail' => $CFG->supportemail,
@@ -200,7 +194,6 @@ if ($action === 'ping') {
         'markeranonymous' => $markeranonymous ? "true" : "false",
         'readonly' => $readonly,
         'supervisor' => $issupervisor,
-        'managedelphi' => $usercanmanagedelphi,
         'markingtype' => $emarking->type,
         'totalTests' => $totaltest, // Progress bar indicator
         'inProgressTests' => $inprogesstest, // Progress bar indicator
@@ -215,9 +208,6 @@ if ($action === 'ping') {
         'version' => $plugin->version
     ));
 }
-
-// Now require login so full security is checked
-require_login($course->id, false, $cm);
 
 $url = new moodle_url('/mod/emarking/ajax/a.php', array(
     'ids' => $ids,
@@ -318,12 +308,6 @@ switch ($action) {
     case 'getrubric':
         
         $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
-        emarking_json_resultset($results);
-        break;
-    
-    case 'getstudents':
-        
-        $results = emarking_get_students_marking($submission, $cm, $anonymous);
         emarking_json_resultset($results);
         break;
     

@@ -33,31 +33,11 @@ require_once ($CFG->dirroot . '/mod/emarking/marking/forms/export_form.php');
 
 global $DB, $CFG, $USER;
 
-$cmid = required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 $emarkingdst = optional_param_array('emarkingdst', array(), PARAM_INT);
 $rubricoverride = optional_param('override', false, PARAM_BOOL);
-
-// Validate course module
-if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
-    print_error(get_string('invalidcoursemodule', 'mod_emarking'));
-}
-
-// Validate emarking activity
-if (! $emarking = $DB->get_record('emarking', array(
-    'id' => $cm->instance
-))) {
-    print_error(get_string('invalidemarkingid', 'mod_emarking') . ':' . $emarkingid);
-}
-
-// Validate course
-if (! $course = $DB->get_record('course', array(
-    'id' => $emarking->course
-))) {
-    print_error(get_string('invalidcourseid', 'mod_emarking') . ': ' . $emarking->course);
-}
-
-// Get context for module
-$context = context_module::instance($cm->id);
 
 // Validate user is logged in and is not guest
 require_login($course->id);

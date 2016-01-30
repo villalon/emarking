@@ -29,6 +29,42 @@ global $CFG;
 require_once $CFG->dirroot . '/lib/coursecatlib.php';
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
 
+/**
+ * Obtains course module ($cm), course, emarking and context
+ * objects from cm id in the URL
+ * 
+ * @return multitype:stdClass context_module unknown mixed
+ */
+function emarking_get_cm_course_instance() {
+    global $DB;
+    
+    // Course module id
+    $cmid = required_param('id', PARAM_INT);
+    
+    // Validate course module
+    if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
+        print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
+    }
+    
+    // Validate eMarking activity //TODO: validar draft si está selccionado
+    if (! $emarking = $DB->get_record('emarking', array(
+        'id' => $cm->instance
+    ))) {
+        print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
+    }
+    
+    // Validate course
+    if (! $course = $DB->get_record('course', array(
+        'id' => $emarking->course
+    ))) {
+        print_error(get_string('invalidcourseid', 'mod_emarking'));
+    }
+    
+    $context = context_module::instance($cm->id);
+    
+    return array($cm, $emarking, $course, $context);
+}
+
 function emarking_get_regrade_motives_array()
 {
     $output = array(

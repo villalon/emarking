@@ -30,31 +30,14 @@ require_once ($CFG->dirroot . '/lib/excellib.class.php');
 
 global $DB, $USER;
 
-// Get course module id
-$cmid = required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 $exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
-
-// Validate course module
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-        print_error('Módulo inválido');
-}
-
-// Validate module
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-        print_error('Prueba inválida');
-}
-
-// Validate course
-if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
-        print_error('Curso inválido');
-}
 
 if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->id))) {
     print_error('e-marking sin examen');
 }
-
-// Course context is used in reports
-$context = context_module::instance($cm->id);
 
 // Check if user has an editingteacher role
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context);

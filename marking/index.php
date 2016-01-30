@@ -112,7 +112,7 @@ header('Content-Type: text/html; charset=utf-8');
 <!--                                           -->
 <!-- Any title is fine                         -->
 <!--                                           -->
-<title>eMarking 2.0</title>
+<title>eMarking</title>
 
 <!--                                           -->
 <!-- This script loads your compiled module.   -->

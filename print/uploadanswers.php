@@ -33,29 +33,12 @@ require_once($CFG->dirroot."/repository/lib.php");
 require_once($CFG->dirroot."/mod/emarking/locallib.php");
 require_once($CFG->dirroot."/mod/emarking/print/locallib.php");
 
-// Course module id is used to upload the file
-$cmid = required_param('id', PARAM_INT);
-
-// Validate course module
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error(get_string('invalidcourseid', 'mod_emarking'));
-}
-
-// Validate course
-if(!$course = $DB->get_record('course', array('id'=>$cm->course))) {
-	print_error(get_string('invalidcourseid', 'mod_emarking'));
-}
-
-// Validate emarking activity
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error(get_string('invalididnumber', 'mod_emarking'));
-}
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 // Get the course module for the emarking, to build the emarking url
 $url = new moodle_url('/mod/emarking/print/uploadanswers.php', array('id'=>$cm->id));
 $urlemarking = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id));
-
-$context = context_module::instance($cm->id);
 
 // Check that user is logged in and is not guest
 require_login($course->id);
@@ -126,7 +109,7 @@ if ($mform->is_cancelled()) {
 	echo $OUTPUT->box_start('generalbox');
 	// If the user confirms it goes to process.php
 	$confirmurl = new moodle_url('/mod/emarking/print/processanswers.php',
-			array('merge'=>$merge, 'file'=>$file->get_pathnamehash(),
+			array('id'=>$cm->id, 'merge'=>$merge, 'file'=>$file->get_pathnamehash(),
 					'emarkingid'=>$emarking->id));
 	// Message changes if it will be merged
 	$confirmessage = $merge ? 'confirmprocessfilemerge' : 'confirmprocessfile';

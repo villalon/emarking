@@ -32,8 +32,8 @@ require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 
 global $DB, $USER, $CFG;
 
-// Course module id if the user comes from an eMarking module
-$cmid = required_param("id", PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 // First check that the user is logged in
 require_login();
@@ -41,28 +41,7 @@ if (isguestuser()) {
     die();
 }
 
-// Get the course module
-if (! $cm = get_coursemodule_from_id("emarking", $cmid)) {
-    print_error(get_string("invalidid", "mod_emarking"));
-}
-
-// Get the emarking object
-if (! $emarking = $DB->get_record("emarking", array(
-    "id" => $cm->instance
-))) {
-    print_error(get_string("invalidid", "mod_emarking"));
-}
-
 $courseid = $cm->course;
-
-// Validate that the parameter corresponds to a course
-if (! $course = $DB->get_record("course", array(
-    "id" => $courseid
-))) {
-    print_error(get_string("invalidcourseid", "mod_emarking"));
-}
-
-$context = context_module::instance($cmid);
 
 $usercangrade = has_capability("mod/emarking:grade", $context);
 

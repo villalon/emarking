@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-onwards Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 // EMARKING TYPES WORKFLOW
@@ -205,6 +205,9 @@ $string['notenoughmarkersforqualitycontrol'] = 'No ha seleccionado correctores p
 $string['markerstrainingnotforstudents'] = 'Esta es una actividad de entrenamiento para correctores. Usted no tiene acceso a ella.';
 $string['updatemark'] = 'Cambiar corrección';
 
+// PEER REVIEW
+$string ['notenoughstudenstforpeerreview'] = 'No hay suficientes estudiantes para revisión entre pares';
+
 // ANONYMOUS
 $string['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
 $string['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
@@ -252,6 +255,13 @@ $string['digitizedanswersmessage'] = 'Mensaje del recordatorio de pruebas digita
 $string['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesores luego de cumplido un período de días tras la digitalización de sus pruebas.';
 $string ['viewadminprints'] = '<a href="{$a}">Administrar impresoras</a>';
 $string ['viewpermitsprinters'] = '<br/><a href="{$a}">Administrar permisos de impresoras</a>';
+
+// EMARKING UPLOAD ANSWERS
+$string ['confirmprocess'] = 'Confirmar proceso';
+$string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';
+$string ['uploadanswers'] = 'Subir respuestas digitalizadas';
+$string ['uploadanswers_help'] = 'En esta página usted puede subir las respuestas digitalizadas de sus estudiantes. El format es un archivo ZIP que contiene dos archivos de imagen PNG por cada página de la prueba (una de ellas es la versión anónima). Este archivo se obtiene usando la aplicación eMarking desktop que se puede descargar <a href="">aquí</a>';
+$string ['uploadanswersuccessful'] = 'Respuestas digitalizadas subidas exitosamente';
 
 // REPORTS
 $string ['reports'] = 'Reportes';
@@ -375,7 +385,6 @@ $string ['emptypermissions'] = 'No existen permisos';
 $string ['addpermission'] = 'Agregar permiso';
 $string ['annotatesubmission_help'] = 'eMarking allows to mark digitized exams using rubrics. In this page you can see the course list and their submissions (digitized answers). It also shows the exam status, that can be missing for a student with no answers, submitted if it has not been graded, responded when the marking is finished and regrading when a regrade request was made by a student.';
 $string ['regrades_help'] = 'This page shows the regrade requests made by students.';
-$string ['uploadanswers_help'] = 'In this page you can upload the digitized answers from your students. The format is a zip file containing two png files for each page a student has (one is the anonymous version). This file can be obtained using the eMarking desktop application that can be downloaded <a href="">here</a>';
 $string ['ranking'] = 'Ranking';
 $string ['areyousure'] = '¿Está seguro?';
 $string ['actions'] = 'Acciones';
@@ -386,7 +395,6 @@ $string ['backcourse'] = 'Regresar al curso';
 $string ['close'] = 'Cerrar';
 $string ['comment'] = 'Comentario';
 $string ['completerubric'] = 'Completar rúbrica';
-$string ['confirmprocess'] = 'Confirmar proceso';
 $string ['copycenterinstructions'] = 'Instrucciones para centro de copiado';
 $string ['corrected'] = 'Corregido';
 $string ['createrubric'] = 'Crear rúbrica';
@@ -571,7 +579,6 @@ $string ['statussubmitted'] = 'Subida';
 $string ['statuserror'] = 'Error';
 $string ['totalexams'] = 'Exámenes totales';
 $string ['totalpagesprint'] = 'Páginas totales a imprimir';
-$string ['uploadanswers'] = 'Subir respuestas digitalizadas';
 $string ['uploadexamfile'] = 'Archivo Zip';
 $string ['uploadinganswersheets'] = 'Subiendo respuestas de los estudiantes';
 $string ['usesms'] = 'Usar Twilio.com para enviar SMS';

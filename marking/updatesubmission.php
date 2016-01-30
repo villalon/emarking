@@ -19,7 +19,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2014 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2014-onwards Jorge Villalon <jorge.villalon@uai.cl>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
@@ -27,14 +27,12 @@ require_once($CFG->dirroot."/mod/emarking/locallib.php");
 
 global $DB, $USER;
 
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 $draftid = required_param('ids', PARAM_INT);
-$cmid = required_param('cm', PARAM_INT);
 $newstatus = required_param('status', PARAM_INT);
 $confirm = required_param('status', PARAM_INT);
-
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error(get_string('invalidid', 'mod_emarking') . $cmid);
-}
 
 if(!$draft = $DB->get_record('emarking_draft', array('id'=>$draftid))) {
 	print_error(get_string('invalidraft', 'mod_emarking') . $draftid);
@@ -44,21 +42,11 @@ if(!$submission = $DB->get_record('emarking_submission', array('id'=>$draft->sub
 	print_error(get_string('invalidsubmission', 'mod_emarking') . $draft->submissionid);
 }
 
-if(!$emarking = $DB->get_record('emarking', array('id'=>$submission->emarking))) {
-	print_error(get_string('invalidsubmission', 'mod_emarking') . $submission->emarking);
-}
-
-if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
-	print_error(get_string('invalidcourse', 'mod_emarking'));
-}
-
 $statuses = emarking_get_statuses_as_array();
 
 if(!in_array($newstatus, $statuses)) {
 	print_error("Invalid status");
 }
-
-$context = context_module::instance($cm->id);
 
 require_login($course->id);
 if (isguestuser()) {
@@ -69,8 +57,8 @@ if(!is_siteadmin($USER) && (!has_capability('mod/emarking:supervisegrading', $co
 	print_error('Invalid access, this will be notified!');
 }
 
-$url = new moodle_url('/mod/emarking/marking/updatesubmission.php', array('ids'=>$submission->id, 'cm'=>$cm->id, 'status'=>$newstatus));
-$continueurl = new moodle_url('/mod/emarking/marking/updatesubmission.php', array('ids'=>$submission->id,'confirm'=>1,'cm'=>$cm->id, 'status'=>$newstatus));
+$url = new moodle_url('/mod/emarking/marking/updatesubmission.php', array('ids'=>$submission->id, 'id'=>$cm->id, 'status'=>$newstatus));
+$continueurl = new moodle_url('/mod/emarking/marking/updatesubmission.php', array('ids'=>$submission->id,'confirm'=>1,'id'=>$cm->id, 'status'=>$newstatus));
 $cancelurl = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id));
 
 $PAGE->set_context($context);

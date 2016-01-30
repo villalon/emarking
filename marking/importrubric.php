@@ -28,40 +28,20 @@
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once ($CFG->dirroot . "/mod/emarking/lib.php");
-require_once ($CFG->dirroot . "/mod/emarking/marking/form.php");
 require_once ($CFG->dirroot . "/mod/emarking/forms/import_excel_form.php");
 require_once ($CFG->libdir . '/csvlib.class.php');
 
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
 
-$cmid = required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 $commentid = optional_param('commentid', 0, PARAM_INT);
-
-// Validate course module
-if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
-    print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
-}
-
-// Validate eMarking activity
-if (! $emarking = $DB->get_record('emarking', array(
-    'id' => $cm->instance
-))) {
-    print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
-}
-
-// Validate course
-if (! $course = $DB->get_record('course', array(
-    'id' => $emarking->course
-))) {
-    print_error(get_string('invalidcourseid', 'mod_emarking'));
-}
 
 // Emarking URL
 $urlemarking = new moodle_url('/mod/emarking/marking/predefinedcomments.php', array(
     'id' => $cm->id
 ));
-$context = context_module::instance($cm->id);
 
 require_login($course->id);
 if (isguestuser()) {

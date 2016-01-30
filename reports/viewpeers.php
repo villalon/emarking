@@ -19,19 +19,8 @@ global $CFG,$OUTPUT, $PAGE, $DB;//To suppress eclipse warnings
 
 require_once($CFG->dirroot.'/mod/emarking/locallib.php');
 
-$cmid = required_param('id', PARAM_INT);
-
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	error('Invalid cm id');
-}
-
-if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-	error('You must specify a valid course ID');
-}
-
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error('Invalid activity');
-}
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 if(!$submission = $DB->get_record('emarking_submission', array('emarking'=>$emarking->id, 'student'=>$USER->id))) {
 	print_error('Invalid submission');
@@ -40,7 +29,6 @@ if(!$submission = $DB->get_record('emarking_submission', array('emarking'=>$emar
 require_login($course, true);
 
 $url = new moodle_url("/mod/emarking/reports/viewpeers.php", array('id'=>$cmid));
-$context = context_module::instance($cm->id);
 
 $PAGE->set_context($context);
 $PAGE->set_course($course);

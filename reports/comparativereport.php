@@ -30,36 +30,15 @@ require_once ('forms/comparativereport_form.php');
 
 global $DB, $USER;
 
-// Get course module id
-$cmid = required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 $emarkingid = optional_param('eid', 0, PARAM_INT);
-
-// Validate course module
-if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
-    print_error('Módulo inválido');
-}
-
-// Validate module
-if (! $emarking = $DB->get_record('emarking', array(
-    'id' => $cm->instance
-))) {
-    print_error('Prueba inválida');
-}
-
-// Validate course
-if (! $course = $DB->get_record('course', array(
-    'id' => $emarking->course
-))) {
-    print_error('Curso inválido');
-}
 
 // URLs for current page
 $url = new moodle_url('/mod/emarking/reports/comparativereport.php', array(
     'id' => $cm->id
 ));
-
-// Course context is used in reports
-$context = context_module::instance($cm->id);
 
 // Validate the user has grading capabilities
 require_capability('mod/emarking:grade', $context);

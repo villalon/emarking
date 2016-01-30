@@ -19,20 +19,10 @@ global $CFG,$OUTPUT, $PAGE, $DB;//To suppress eclipse warnings
 
 require_once($CFG->dirroot.'/mod/emarking/locallib.php');
 
-$cmid = required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 $page = optional_param('page', 0, PARAM_INT);
-
-if(!$cm = get_coursemodule_from_id('emarking', $cmid)) {
-	error('Invalid cm id');
-}
-
-if(!$emarking = $DB->get_record('emarking', array('id'=>$cm->instance))) {
-	print_error('Invalid id');
-}
-
-if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-	error('You must specify a valid course ID');
-}
 
 require_login($course, true);
 

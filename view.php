@@ -33,8 +33,9 @@ require_once($CFG->libdir . '/eventslib.php');
 
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
 
-// Course module id
-$cmid = required_param('id', PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 // Page to show (when paginating)
 $page = optional_param('page', 0, PARAM_INT);
 // Table sort
@@ -49,34 +50,14 @@ $exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
 // Rows per page
 $perpage = 100;
 
-// Validate course module
-if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
-    print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
-}
-
-// Validate eMarking activity //TODO: validar draft si está selccionado
-if (! $emarking = $DB->get_record('emarking', array(
-    'id' => $cm->instance
-))) {
-    print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
-}
-
 if($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
     $scan = true;
 }
 
-// Validate course
-if (! $course = $DB->get_record('course', array(
-    'id' => $emarking->course
-))) {
-    print_error(get_string('invalidcourseid', 'mod_emarking'));
-}
-
-$context = context_module::instance($cm->id);
-
 // Get the associated exam
 if((!$exam = $DB->get_record("emarking_exams", array("emarking"=>$emarking->id)))
-    && $emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
+    && $emarking->type != EMARKING_TYPE_MARKER_TRAINING
+    && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
     $availableexams = $DB->get_records("emarking_exams", array(
         "course" => $course->id,
         "emarking" => 0
@@ -142,9 +123,10 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
-if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+if($emarking->type == EMARKING_TYPE_MARKER_TRAINING
+    || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
 	
-    if(!$usercangrade) {
+    if(!$usercangrade && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading($emarking->name);
         echo $OUTPUT->notification(get_string("markerstrainingnotforstudents", "mod_emarking"));
@@ -154,7 +136,7 @@ if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     }
     
 	$sqlisadmin = "";
-	if(!is_siteadmin($USER) && !$issupervisor){
+	if(!is_siteadmin($USER) && !$issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING){
 		$sqlisadmin = " AND d.teacher =:currentuser";
 	}
 	
@@ -199,17 +181,24 @@ list ($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller) = ema
 $userfilter = 'WHERE 1=1 ';
 if (! $usercangrade) {
     $userfilter .= 'AND u.id = ' . $USER->id;
-} else 
-    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING && ! is_siteadmin($USER->id) && ! $issupervisor) {
+} else if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING || 
+        $emarking->type == EMARKING_TYPE_PEER_REVIEW) && 
+        ! is_siteadmin($USER->id) && ! $issupervisor) {
         $userfilter .= 'AND um.id = ' . $USER->id;
     }
 
 $qcfilter = ' AND d.qualitycontrol = 0';
-if ($emarking->qualitycontrol && ($DB->count_records('emarking_markers', array(
+if ($emarking->qualitycontrol 
+    && ($DB->count_records('emarking_markers', array(
     'emarking' => $emarking->id,
     'marker' => $USER->id,
     'qualitycontrol' => 1
-)) > 0 || is_siteadmin($USER))) {
+)) > 0 
+        || is_siteadmin($USER))) {
+    $qcfilter = '';
+}
+
+if($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
     $qcfilter = '';
 }
 
@@ -261,7 +250,9 @@ $numcriteriauser = $DB->count_records_sql("
 ));
 
 // Check if activity is configured with separate groups to filter users
-if ($cm->groupmode == SEPARATEGROUPS && ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) && $usercangrade && ! is_siteadmin($USER) && ! $issupervisor) {
+if ($cm->groupmode == SEPARATEGROUPS 
+    && ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) 
+    && $usercangrade && ! is_siteadmin($USER) && ! $issupervisor) {
     $userfilter .= "
 		AND u.id in (
 			SELECT userid
@@ -453,7 +444,9 @@ $userfilter
 GROUP BY es.student
 ";
 
-if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+if ($emarking->type == EMARKING_TYPE_NORMAL 
+    || $emarking->type == EMARKING_TYPE_PRINT_SCAN
+    || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
     $params = array(
         $course->id,
         $emarking->id,
@@ -609,7 +602,8 @@ if(has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubri
 
 $headers = array();
 $headers[] = get_string('names', 'mod_emarking');
-if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING)
+if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING
+    || $emarking->type == EMARKING_TYPE_PEER_REVIEW)
     $headers[] = get_string('marker', 'mod_emarking');
 if ($emarking->type == EMARKING_TYPE_NORMAL)
     $headers[] = get_string('grade', 'mod_emarking');
@@ -618,7 +612,8 @@ $headers[] = $actionsheader;
 
 $columns = array();
 $columns[] = 'lastname';
-if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING)
+if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING
+        || $emarking->type == EMARKING_TYPE_PEER_REVIEW)
     $columns[] = 'marker';
 if ($emarking->type == EMARKING_TYPE_NORMAL)
     $columns[] = 'grade';
@@ -626,7 +621,7 @@ $columns[] = 'status';
 $columns[] = 'actions';
 
 // Define flexible table (can be sorted in different ways)
-$showpages = new flexible_table('emarking-view-' . $cmid);
+$showpages = new flexible_table('emarking-view-' . $cm->id);
 $showpages->define_headers($headers);
 $showpages->define_columns($columns);
 $showpages->define_baseurl($urlemarking);
@@ -654,7 +649,7 @@ if ($showpages->get_sql_sort()) {
 $sqlstudents .= $orderby;
 $sqldrafts .= $orderby;
 
-if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
     $params = array(
         $course->id,
         $emarking->id,
@@ -681,7 +676,7 @@ foreach ($drafts as $draft) {
         'course' => $course->id
     ));
     
-    if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+    if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $userinfo = $emarking->anonymous < 2 && $USER->id != $draft->id ? 
             get_string('anonymousstudent', 'mod_emarking') : 
             $OUTPUT->user_picture($draft) . '&nbsp;<a href="' . $profileurl . '">' . $draft->firstname . ' ' . $draft->lastname . '</a>';
@@ -791,7 +786,7 @@ foreach ($drafts as $draft) {
             
             $deletesubmissionurl = new moodle_url('/mod/emarking/marking/updatesubmission.php', array(
                 'ids' => $thisid,
-                'cm' => $cm->id,
+                'id' => $cm->id,
                 'status' => $newstatus
             ));
             
@@ -854,7 +849,8 @@ foreach ($drafts as $draft) {
     }
     
     // Markers pictures
-    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING
+            || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $markersids = explode('#', $draft->markerid);
         $markersstring = '';
         foreach ($markersids as $mids) {
@@ -868,7 +864,8 @@ foreach ($drafts as $draft) {
     
     $data = array();
     $data[] = $userinfo;
-    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING
+            || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $data[] = $markersstring;
     }
     if ($emarking->type == EMARKING_TYPE_NORMAL) {

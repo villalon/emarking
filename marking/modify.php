@@ -24,25 +24,21 @@
 
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+
 // Check that user is logued in the course
 require_login();
 if (isguestuser()) {
 	die();
 }
 
-// Course module id
-$cmid = required_param('id', PARAM_INT);
 // Criteria
 $criterionid = required_param('crid', PARAM_INT);
 // Comment id
 $commentid = required_param('cid', PARAM_INT);
 // Agreement level id
 $agreementlevelid = required_param('lid', PARAM_INT);
-
-// Validate course module
-if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
-	print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
-}
 
 if (! $criterion = $DB->get_record('gradingform_rubric_criteria', array("id"=>$criterionid))) {
 	print_error(get_string('invalidcriterionid', 'mod_emarking') . " id: $criterionid");
@@ -61,13 +57,11 @@ if(!$levels = $DB->get_records('gradingform_rubric_levels',array('criterionid'=>
     print_error("Invalid comment id");
 }
 
-$context = context_module::instance($cm->id);
-
 //$PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery();
 $PAGE->set_url('/mod/emarking/marking/modify.php');
 $PAGE->set_pagelayout('popup');
-$PAGE->set_context(context_system::instance());
+$PAGE->set_context($context);
 
 
 echo $OUTPUT->header();

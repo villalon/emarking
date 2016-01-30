@@ -125,7 +125,9 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     $data->id = $id;
     emarking_grade_item_update($data);
     
-    if ($data->type == EMARKING_TYPE_MARKER_TRAINING || !$mform) {
+    if ($data->type == EMARKING_TYPE_MARKER_TRAINING
+        || $data->type == EMARKING_TYPE_PEER_REVIEW
+        || !$mform) {
         return $id;
     }
     

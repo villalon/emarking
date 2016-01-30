@@ -194,34 +194,6 @@ $capabilities = array(
 				)
 		),
 
-        'mod/emarking:activatedelphiprocess' => array( //Can activate delphi process (admin only)
-				// Capability type (write, read, etc.)
-				'captype' => 'write',
-				// Context in which the capability can be set (course, category, etc.)
-				'contextlevel' => CONTEXT_MODULE,
-				// Default values for different roles (only teachers and managers can modify)
-				'archetypes' => array(
-						'student' => CAP_PROHIBIT,
-						'teacher' => CAP_PROHIBIT,
-						'editingteacher' => CAP_PROHIBIT,
-						'manager' => CAP_ALLOW
-				)
-		),
-
-        'mod/emarking:configuredelphiprocess' => array( //Can configure an activated delphi process
-				// Capability type (write, read, etc.)
-				'captype' => 'write',
-				// Context in which the capability can be set (course, category, etc.)
-				'contextlevel' => CONTEXT_MODULE,
-				// Default values for different roles (only teachers and managers can modify)
-				'archetypes' => array(
-						'student' => CAP_PROHIBIT,
-						'teacher' => CAP_PROHIBIT,
-						'editingteacher' => CAP_ALLOW,
-						'manager' => CAP_ALLOW
-				)
-		),
-
 		'mod/emarking:viewpeerstatistics' => array(
 				// Capability type (write, read, etc.)
 				'captype' => 'read',

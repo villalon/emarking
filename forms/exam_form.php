@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012 Marcelo Epuyao, Jorge Villalón {@link http://www.uai.cl}
+ * @copyright 2012 Marcelo Epuyao, Jorge Villalón <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once ($CFG->libdir . '/formslib.php'); // putting this is as a safety as i got a class not found error.

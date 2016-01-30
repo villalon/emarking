@@ -17,7 +17,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
 		visible: false,
 		centered: true
 	});
-	loadingpanel.get('boundingBox').setHTML('<img src="'+wwwroot+'/mod/emarking/img/loading.gif" />');
+	loadingpanel.get('boundingBox').setHTML('<img src="'+wwwroot+'/pix/i/loading.gif" />');
 
     // Create the datatable with some gadget information.
     var smsField    = Y.one('#sms'),

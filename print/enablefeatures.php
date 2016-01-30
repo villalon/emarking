@@ -20,7 +20,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-onwards Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
@@ -29,8 +29,8 @@ require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 
 global $DB, $USER, $CFG;
 
-// Course module id if the user comes from an eMarking module
-$cmid = required_param("id", PARAM_INT);
+// Obtains basic data from cm id
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 // The user confirmed enabling
 $newtype = required_param("type", PARAM_INT);
@@ -38,35 +38,13 @@ $newtype = required_param("type", PARAM_INT);
 // The user confirmed enabling
 $confirm = optional_param("confirm", false, PARAM_BOOL);
 
-
 // First check that the user is logged in
 require_login();
 if (isguestuser()) {
     die();
 }
 
-// Get the course module
-if (! $cm = get_coursemodule_from_id("emarking", $cmid)) {
-    print_error(get_string("invalidid", "mod_emarking"));
-}
-
-// Get the emarking object
-if (! $emarking = $DB->get_record("emarking", array(
-    "id" => $cm->instance
-))) {
-    print_error(get_string("invalidid", "mod_emarking"));
-}
-
 $courseid = $cm->course;
-
-// Validate that the parameter corresponds to a course
-if (! $course = $DB->get_record("course", array(
-    "id" => $courseid
-))) {
-    print_error(get_string("invalidcourseid", "mod_emarking"));
-}
-
-$context = context_module::instance($cmid);
 
 // Ony users that can grade can see exams
 require_capability("mod/emarking:grade", $context);

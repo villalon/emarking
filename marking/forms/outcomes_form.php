@@ -14,10 +14,6 @@ use Guzzle\Plugin\Backoff\AbstractBackoffStrategy;
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-defined('MOODLE_INTERNAL') || die();
-
-require_once ($CFG->libdir . '/formslib.php');
-
 /**
  *
  * @package mod
@@ -26,6 +22,11 @@ require_once ($CFG->libdir . '/formslib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *         
  */
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once ($CFG->libdir . '/formslib.php');
+
 class emarking_outcomes_form extends moodleform
 {
 

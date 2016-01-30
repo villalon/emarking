@@ -24,7 +24,7 @@
  *
  * @package    mod
  * @subpackage emarking
- * @copyright  2013 Jorge Villalón <jorge.villalon@uai.cl>
+ * @copyright  2013 Jorge Villalon <villalon@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
