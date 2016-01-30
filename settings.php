@@ -26,6 +26,17 @@
 defined('MOODLE_INTERNAL') || die;
 global $PAGE, $CFG;
 
+// Cost settings
+$settings->add(new admin_setting_heading('emarking_costsettings',
+		get_string('costconfiguration','mod_emarking'),
+		get_string('costconfiguration_help','mod_emarking')));
+
+// Default cost
+$settings->add(new admin_setting_configtext('emarking_defaultcost',
+		get_string('defaultcost', 'mod_emarking'),
+		get_string('defaultcost_cost', 'mod_emarking'),
+		0, PARAM_INT));
+
 // Basic settings
 $settings->add(new admin_setting_heading('emarking_basicsettings',
 		get_string('printsettings','mod_emarking'),

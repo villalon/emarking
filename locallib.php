@@ -1855,3 +1855,42 @@ function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $c
     
     return $statushtml;
 }
+function emarking_get_category_cost($courseid){
+	global $DB, $CFG;
+
+	$course = $DB->get_record('course', array('id' => $courseid), 'id, category');
+	$coursecategory = $course->category;
+	
+	$categorycost = null;
+	$noinfloop = 0;
+	while ($categorycost == null || $categorycost == 0){
+		
+	$categorycostparams = array(
+			$coursecategory
+	);
+	
+	$sqlcategorycost="SELECT cc.id, cc.name as name, ccc.printingcost AS cost, cc.parent as parent
+        			  FROM mdl_course_categories as cc
+			          LEFT JOIN mdl_emarking_category_cost AS ccc ON (cc.id = ccc.category)
+        			  WHERE cc.id = ?";
+	
+	if( $categorycosts = $DB->get_records_sql($sqlcategorycost, $categorycostparams)){
+		foreach($categorycosts AS $cost){
+			if($cost->cost == null || $cost->cost == 0){
+				
+				$coursecategory = $cost->parent;
+				$noinfloop++;
+			}
+			if($cost->parent == 0) {
+				$categorycost = 0;
+				return $categorycost;
+			}
+			else {
+				$categorycost = $CFG->emarking_defaultcost;
+				return $categorycost;
+			}
+		}
+	}
+
+	}
+}

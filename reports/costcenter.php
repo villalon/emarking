@@ -29,6 +29,7 @@ require_once ($CFG->dirroot . '/lib/excellib.class.php');
 	global $DB, $CFG;
 
 $categoryid = required_param('category', PARAM_INT);
+$status = optional_param("status", 0, PARAM_INT);
 
 // User must be logged in
 require_login();
@@ -71,6 +72,17 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
+//Excel downloads
+if($status == 1){
+	emarking_download_excel_course_ranking($categoryid);
+}
+if($status == 2){
+	emarking_download_excel_teacher_ranking($categoryid);
+}
+if($status == 3){
+	emarking_download_excel_monthly_cost($categoryid);
+}
+
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 
@@ -82,6 +94,7 @@ $buttonsarray = emarking_buttonstable($categoryid);
 $buttonstable = new html_table();
 $buttonstable->head = array(get_string('reportbuttonsheader', 'emarking'));
 $buttonstable->data[] = $buttonsarray;
+$buttonstable->size = ['25%','25%','25%','25%','25%'];
 echo html_writer::table($buttonstable);
 echo html_writer::end_tag('div');
 
@@ -90,54 +103,82 @@ echo html_writer::tag('div', '', array('id' => 'areachartdiv', 'style' => 'width
 
 echo '<hr class="style-one">';
 
+$subcategories = emarking_getsubcategories($categoryid);
+if(!empty($subcategories)){
 // Generation of the buttons table
 $piebuttons = emarking_columnbuttonstable($categoryid);
 $piebuttonstable = new html_table();
 $piebuttonstable->data[] = $piebuttons;
+$piebuttonstable->size = ['25%','25%','25%','25%','25%'];
 echo html_writer::table($piebuttonstable);
 
 // Sub-category column chart
 echo html_writer::tag('div', '', array('id' => 'columnchartdiv'));
 echo '<hr class="style-one">';
-
+}
 // Rankings div
 echo html_writer::start_tag('div',array( 'class' => 'emarking-left-table-ranking'));
 
 // Generation of the ranking table
-$courseranking = emarking_gettotalpagesbycourse($categoryid);
+$courseranking = emarking_gettotalpagesbycourse($categoryid, 5);
 $coursetable = new html_table();
 $coursetable->head = array(get_string('courseranking', 'emarking'),'Number of pages');
 $coursetable->data = $courseranking;
 echo html_writer::table($coursetable);
 
+// Excel export button
+$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+		'category' => $categoryid,
+		'status' => 1
+));
+echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
+
+echo '<hr class="style-one">';
+
 // Generation of the teachers Ranking
-$teacherranking = emarking_getteacherranking($categoryid);
+$teacherranking = emarking_getteacherranking($categoryid, 5);
 $teachertable = new html_table();
 $teachertable->head = array(get_string('teacherranking', 'emarking'), 'Number of activities');
 $teachertable->data = $teacherranking;
 echo html_writer::table($teachertable);
 
+// Excel export button
+$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+		'category' => $categoryid,
+		'status' => 2
+));
+echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
+
 // End of ranking div
 echo html_writer::end_tag('div');
+
 // Start of the detailed view table div
 echo html_writer::start_tag('div',array( 'class' => 'emarking-right-table-ranking'));
 
 // Get the students in the category
 $students = emarking_getstudents($categoryid);
-$student = html_writer::tag('span', $category->name."<br>"."Number of students:"." ".$students[0], array('id' => 'studentspan'));
+$student = html_writer::tag('span', $category->name."<br>".get_string("studentnumber", "mod_emarking")." ".$students[0], array('id' => 'studentspan'));
 
 // Generates the detailed information table
 $detailtable = new html_table();
-$detailtable->head = ['Facturacion emarking'];
 $detailtable->data = [[$student]];
 echo html_writer::table($detailtable);
+
+echo '<hr class="style-one">';
 
 // Get the monthly cost and gets it in a table
 $totalcostfortable = emarking_gettotalpagesfortable($categoryid);
 $monthtable = new html_table();
-$monthtable->head = ['Detail information'];
+$monthtable->head = [get_string("monthlycost", "mod_emarking")];
 $monthtable->data = $totalcostfortable;
 echo html_writer::table($monthtable);
+
+// Excel export button
+$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+		'category' => $categoryid,
+		'status' => 3
+));
+echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
 
 echo html_writer::end_tag('div');
 
@@ -169,52 +210,31 @@ echo $OUTPUT->footer();
       
       function drawChart() {
           
-        // Initial data for the area and column chart
+        // Initial data for the area  chart
         var areadata = google.visualization.arrayToDataTable(<?php echo $activitiesforchart; ?>);
-        var columndata = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
         
         // Options for the area chart
         var areaoptions = {
-          title: 'Chart',
+          title: '<?php echo get_string("categorychart", "mod_emarking");?>',
           hAxis: {title: 'MONTH',  titleTextStyle: {color: '#3333'}},
           vAxis: {minValue: 0},
           legend: {position:'top'}
-        };
-          
-        // Options for the column chart
- 	   var columnoptions = {
-               title: 'Sub-categories chart',
-               legend: {position:'top'}	   
-             };     
+        };     
 
         // Initialize the column chart
         var areachart = new google.visualization.AreaChart(document.getElementById('areachartdiv'));
         areachart.draw(areadata, areaoptions);
 
-     	// Initialize the column chart
-        var columnchart = new google.visualization.ColumnChart(document.getElementById('columnchartdiv'));
-        columnchart.draw(columndata, columnoptions);
-
         // Funtion to reload the data of the area chart
         function areaChartHandler(data) {
     		var areaoptions = {
-    		          title: 'Chart',
+    		          title: '<?php echo get_string("categorychart", "mod_emarking");?>',
     		          hAxis: {title: 'MONTH',  titleTextStyle: {color: '#3333'}},
     		          vAxis: {minValue: 0},
     		          legend: {position:'top'}
     		        };
     		areachart.draw(data, areaoptions);;
         }
-
-        // Funtion to reload the data of the column chart
-        function columnChartHandler(data, columnoptions) {
-      		var columnoptions = {
-                   title: 'Sub-categories chart',
-                   legend: {position:'top'}    
-                 }; 
-      		columnchart.draw(data, columnoptions);
-        }
-       
        $(".emarking-area-cost-button-style").click(function(){
            
            if( $(this).attr("id") == "activitiesbutton" )
@@ -243,32 +263,60 @@ echo $OUTPUT->footer();
            }
            areaChartHandler(data);
        	})
-
-       $(".emarking-column-cost-button-style").click(function(){
-           if( $(this).attr("id") == "pieactivitiesbutton" )
-           {
-           		var data = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
-           }
-           if( $(this).attr("id") == "pieemarkingcourses" )
-           {
-           		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursespiechart; ?>);
-           }
-           if( $(this).attr("id") == "piemeantestleangh" )
-           {
-        	    var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtpiechart; ?>);
-           }
-           if( $(this).attr("id") == "pietotalprintedpages" )
-           {
-        	    var data = google.visualization.arrayToDataTable(<?php echo $totalpagespiechart; ?>);
-           }
-           if( $(this).attr("id") == "pietotalprintingcost" )
-           {
-        	    var data = google.visualization.arrayToDataTable(<?php echo $totalcostpiechart; ?>);
-           }
-         columnChartHandler(data);
-       	});
       } 
-    </script>    
+    </script>  
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+    	// Initial data for the column chart
+    	  var columndata = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
+    	  
+    	// Options for the column chart
+    	   var columnoptions = {
+                  title: '<?php echo get_string("subcategorychart", "mod_emarking");?>',
+                  legend: {position:'top'}	   
+                };
+           
+    	// Initialize the column chart
+           var columnchart = new google.visualization.ColumnChart(document.getElementById('columnchartdiv'));
+           columnchart.draw(columndata, columnoptions);
+           
+        // Funtion to reload the data of the column chart
+        	function columnChartHandler(data, columnoptions) {
+         	var columnoptions = {
+            	title: '<?php echo get_string("subcategorychart", "mod_emarking");?>',
+            	legend: {position:'top'}    
+           		}; 
+         	columnchart.draw(data, columnoptions);
+           }   
+            
+        	$(".emarking-column-cost-button-style").click(function(){
+                if( $(this).attr("id") == "columnactivitiesbutton" )
+                {
+                		var data = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
+                }
+                if( $(this).attr("id") == "columnemarkingcourses" )
+                {
+                		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursespiechart; ?>);
+                }
+                if( $(this).attr("id") == "columnmeantestleangh" )
+                {
+             	    var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtpiechart; ?>);
+                }
+                if( $(this).attr("id") == "columntotalprintedpages" )
+                {
+             	    var data = google.visualization.arrayToDataTable(<?php echo $totalpagespiechart; ?>);
+                }
+                if( $(this).attr("id") == "columntotalprintingcost" )
+                {
+             	    var data = google.visualization.arrayToDataTable(<?php echo $totalcostpiechart; ?>);
+                }
+              columnChartHandler(data);
+            	}); 
+      }     
+
+    </script>  
   </head>
 </html>
 

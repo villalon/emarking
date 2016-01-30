@@ -81,7 +81,7 @@ $alliterations = array();
 
 // If the form is cancelled redirects you to the report center
 if( $addform->is_cancelled() ){
-	$backtocourse = new moodle_url('/mod/emarking/reports/costcenter.php', array(
+	$backtocourse = new moodle_url('/mod/emarking/reports/categorycosttable.php', array(
 		'category' => $categoryid
 ));
 	redirect($backtocourse);	
