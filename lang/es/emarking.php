@@ -178,6 +178,7 @@ $string['mobilephoneregex_help'] = 'Una expresión regular que valide un número
 $string['invalidphonenumber'] = 'Número de celular inválido, se requiere un teléfono completo en formato internacional (ej: +56912345678)';
 $string['errorsendingemail'] = 'Se produjo un error con el servidor de correo';
 $string['second'] = 'Segundo';
+$string['seconds'] = 'Segundos';
 $string['processomr'] = 'Procesar OMR';
 $string['signature'] = 'Firma';
 $string['advanced'] = 'Avanzado';
@@ -208,6 +209,7 @@ $string['updatemark'] = 'Cambiar corrección';
 
 // PEER REVIEW
 $string ['notenoughstudenstforpeerreview'] = 'No hay suficientes estudiantes para revisión entre pares';
+$string ['reassignpeers'] = 'Reasignar pares';
 
 // ANONYMOUS
 $string['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
@@ -228,6 +230,7 @@ $string['pastefromexcel'] = 'Pegar desde Excel';
 $string['pastefromexcel_help'] = 'Seleccione las celdas deseadas en Excel, cópielas y luego péguelas en el cuadro de texto';
 $string ['rubricneeded'] = 'eMarking requiere el uso de rúbricas para la corrección. Por favor cree una manualmente o impórtela desde Excel.';
 $string ['rubricdraft'] = 'eMarking requiere una rúbrica lista, la rúbrica se encuentra en estado de borrador. Por favor completar rúbrica';
+$string ['confirmimport'] = 'A continuación se muestra la rúbrica que será creada, por favor verifique que todos los detalles están correctos. NOTA: La rúbrica puede modificarse posteriormente en el editor.';
 
 // E-MARKING TYPES
 $string ['markingtype'] = 'Tipo de corrección';

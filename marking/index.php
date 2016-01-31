@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 
@@ -82,11 +83,8 @@ $item = array(
 // Read the module version
 $module = new stdClass();
 
-$lang = $USER->lang;
-$parts = explode("_",$lang);
-if(count($parts)>1) {
-    $lang = $parts[0] .'_'.strtoupper($parts[1]);
-}
+list($lang, $langshort, $langspecific) = emarking_get_user_lang();
+
 $langhtml = '<meta name="gwt:property" content="locale='.$lang.'">';
 
 $emarkingdir = $CFG->wwwroot. '/mod/emarking/marking/emarkingweb';

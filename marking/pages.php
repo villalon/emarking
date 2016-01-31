@@ -39,7 +39,7 @@ $pageid = optional_param('page', 0, PARAM_INT);
 $action = optional_param('action', 'view', PARAM_ALPHA);
 
 if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->id))) {
-	print_error ( get_string('invalidid','mod_emarking' ) . " emarking id: $cmid" );
+	print_error ( get_string('invalidid','mod_emarking' ) . " emarking id: $cm->id" );
 }
 
 if($criterionid > 0) {
@@ -49,7 +49,7 @@ if($criterionid > 0) {
     }
 }
 
-$url = new moodle_url('/mod/emarking/marking/pages.php',array('id'=>$cmid));
+$url = new moodle_url('/mod/emarking/marking/pages.php',array('id'=>$cm->id));
 
 // First check that the user is logged in
 require_login($course->id);
@@ -97,7 +97,7 @@ if($maxpages)
     $totalpages = max($exam->totalpages, $maxpages->maxpages);
 
 $mform_pages = new emarking_pages_form(null,
-    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cmid, 'emarking'=>$emarking, "totalpages"=> $totalpages, "action"=>"addpages"));
+    array('context'=>$context, 'criteria'=>$definition->rubric_criteria, 'id'=>$cm->id, 'emarking'=>$emarking, "totalpages"=> $totalpages, "action"=>"addpages"));
 
 if($mform_pages->get_data()) {
     $newpages = process_mform($mform_pages, "addpages", $emarking);

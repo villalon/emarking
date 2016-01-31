@@ -54,7 +54,7 @@ if ($criterionid > 0) {
 }
 
 $url = new moodle_url('/mod/emarking/marking/markers.php', array(
-    'id' => $cmid
+    'id' => $cm->id
 ));
 
 // First check that the user is logged in
@@ -94,7 +94,7 @@ list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($
 $mform_markers = new emarking_markers_form(null, array(
     'context' => $context,
     'criteria' => $definition->rubric_criteria,
-    'id' => $cmid,
+    'id' => $cm->id,
     'totalpages' => $exam->totalpages,
     'emarking' => $emarking,
     "action" => "addmarkers"

@@ -33,6 +33,10 @@
 	font-weight: none;
 }
 
+.flexible .lastname {
+	max-width: 200px;
+}
+
 .deletewidget {
 	position: absolute;
 	margin-top: -30px;
@@ -148,10 +152,6 @@ input[type="text"] {
 
 #page-mod-emarking-view .flexible tbody tr:hover {
 	background-color: #eee;
-}
-
-#page-mod-emarking-view .flexible .c3 {
-	text-align: right;
 }
 
 .progress-bar {

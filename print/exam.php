@@ -47,14 +47,14 @@ $usercangrade = has_capability("mod/emarking:grade", $context);
 
 // URL for current page
 $url = new moodle_url("/mod/emarking/print/exam.php", array(
-    "id" => $cmid
+    "id" => $cm->id
 ));
 $urlcourse = new moodle_url("/course/view.php", array(
     "id" => $courseid
 ));
 
 // URL for adding a new print order
-$params = $cmid > 0 ? array(
+$params = $cm->id > 0 ? array(
     "cm" => $cm->id
 ) : array(
     "course" => $course->id
@@ -86,7 +86,7 @@ $params = array(
 // If there are no exams to show
 if (! $exam = $DB->get_record("emarking_exams", $params)) {
     redirect(new moodle_url("/course/modedit.php", array(
-        "update" => $cmid,
+        "update" => $cm->id,
         "return" => "1"
     )));
     die("");

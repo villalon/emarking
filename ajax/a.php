@@ -102,8 +102,7 @@ $ownsubmission = $USER->id == $userid;
 if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     $ownsubmission = false;
     $user = null;
-} else 
-    if (! $user = $DB->get_record('user', array(
+} else if (! $user = $DB->get_record('user', array(
         'id' => $userid
     ))) {
         emarking_json_error('Invalid user from submission');
@@ -130,7 +129,8 @@ if(isguestuser())
     die();
 
 // After validating login in the cm we can check more specific permissions
-$usercangrade = has_capability('mod/emarking:grade', $context);
+$usercangrade = has_capability('mod/emarking:grade', $context)
+	|| ($emarking->type == EMARKING_TYPE_PEER_REVIEW && $draft->teacher == $USER->id && has_capability("mod/emarking:submit", $context));
 $usercanregrade = has_capability('mod/emarking:regrade', $context);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER);
 $isgroupmode = $cm->groupmode == SEPARATEGROUPS;
@@ -154,8 +154,18 @@ if (($usercangrade && $submission->status >= EMARKING_STATUS_SUBMITTED  && $subm
     $readonly = false;
 }
 
-if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING && $draft->teacher != $USER->id) {
-    $readonly = true;
+if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) && $draft->teacher != $USER->id) {
+	if($issupervisor)
+    	$readonly = true;
+	else {
+		$item = array(
+				'context' => $context,
+				'objectid' => $draft->id
+		);
+		// Add to Moodle log so some auditing can be done
+		\mod_emarking\event\unauthorizedajax_attempted::create($item)->trigger();
+		emarking_json_error('Unauthorized access!');
+	}
 }
 
 // Validate grading capability and stop and log unauthorized access

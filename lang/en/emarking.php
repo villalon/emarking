@@ -178,6 +178,7 @@ $string['mobilephoneregex_help'] = 'A regular expression to validate a correct m
 $string['invalidphonenumber'] = 'Invalid phone number, we expect a full international number (ex: +56912345678)';
 $string['errorsendingemail'] = 'An error ocurred while sending the email';
 $string['second'] = 'Second';
+$string['seconds'] = 'Seconds';
 $string['processomr'] = 'Process OMR';
 $string['signature'] = 'Signature';
 $string['advanced'] = 'Advanced';
@@ -208,6 +209,7 @@ $string['updatemark'] = 'Update mark';
 
 // PEER REVIEW
 $string ['notenoughstudenstforpeerreview'] = 'Not enough students enrolled for a peer review session';
+$string ['reassignpeers'] = 'Reassign peers';
 
 // ANONYMOUS
 $string['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
@@ -228,6 +230,7 @@ $string['pastefromexcel'] = 'Paste from Excel';
 $string['pastefromexcel_help'] = 'Select the desired cells in Excel, copy them  and then paste them in the text box';
 $string ['rubricneeded'] = 'eMarking requires a rubric for marking, please create one by hand or import it from Excel';
 $string ['rubricdraft'] = 'eMarking requires a ready rubric, the rubric is in status draft. Please complete rubric';
+$string ['confirmimport'] = 'Below is the rubric that will be created, please check that all details are correct. NOTE: The rubric can be modified later in the editor.';
 
 // E-MARKING TYPES
 $string ['markingtype'] = 'Marking type';

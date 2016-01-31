@@ -29,12 +29,10 @@ require_once(dirname(dirname(dirname(dirname(__FILE__))))."/config.php");
 require_once($CFG->dirroot."/mod/emarking/locallib.php");
 require_once($CFG->dirroot."/mod/emarking/print/locallib.php");
 
-global $DB, $USER, $CFG;
+global $DB, $USER, $CFG, $OUTPUT;
 
 // Course id, if the user comes from a course
 $courseid = required_param("course", PARAM_INT);
-// Exam id in case an exam was just created
-$examid = optional_param("examid", 0, PARAM_INT);
 // If the user is downloading a print form
 $downloadform = optional_param("downloadform", false, PARAM_BOOL);
 
@@ -48,33 +46,6 @@ if (isguestuser()) {
 if(!$course = $DB->get_record("course", array("id"=>$courseid))) {
 	print_error(get_string("invalidcourseid", "mod_emarking"));
 }
-
-$coursecat = $DB->get_record("course_categories", array("id"=>$course->category));
-
-// Both contexts, from course and category, for permissions later
-$context = context_coursecat::instance($coursecat->id);
-
-// An exam id means either a new exam was sent, or a a download form
-// was requested
-if($examid) {
-	$newexam = $DB->get_record("emarking_exams", array("id"=>$examid));
-}
-
-// If a download form was requested
-if($examid && $downloadform) {
-	$requestedbyuser = $DB->get_record("user", array("id"=>$newexam->requestedby));
-	
-	emarking_create_printform($context,
-				$newexam,
-				$USER,
-				$requestedbyuser,
-				$coursecat,
-				$course
-	);
-	
-	die();
-}
-
 
 // Both contexts, from course and category, for permissions later
 $context = context_course::instance($course->id);
@@ -104,7 +75,11 @@ echo $OUTPUT->heading($course->fullname);
 $params = array("course"=>$course->id);
 
 // Retrieve all exams for this course
-$exams = $DB->get_records("emarking_exams", $params, "examdate DESC");
+$exams = $DB->get_records_sql("
+    SELECT ex.* 
+    FROM {emarking_exams} AS ex
+    INNER JOIN {emarking} AS e ON (e.course = :course AND ex.emarking = e.id)
+    ORDER BY examdate DESC", $params);
 
 // If there are no exams to show
 if(count($exams) == 0) {
@@ -120,18 +95,14 @@ $examstable = new html_table();
 $examstable->head = array(
 		get_string("exam", "mod_emarking"),
 		get_string("date"),
-		get_string("details", "mod_emarking"),
 		get_string("sent", "mod_emarking"),
-		get_string("status", "mod_emarking"),
-		get_string("multicourse", "mod_emarking"),
-		get_string("actions", "mod_emarking")
+		get_string("details", "mod_emarking"),
+		get_string("multicourse", "mod_emarking")
 );
 
 // CSS classes for each column in the table
 $examstable->colclasses = array(
     "exams_examname",
-    null,    
-    null,    
     null,    
     null,    
     null,    
@@ -143,12 +114,6 @@ foreach($exams as $exam) {
 	// Show download button if the user has capability for downloading within 
 	// the category or if she is a teacher and has download capability for the 
 	// course and teacher downloads are allowed in the system
-	$actions = html_writer::start_tag("div", array("class"=>"printactions"));
-    if (has_capability ( "mod/emarking:downloadexam", $context)) {
-		$actions .= html_writer::div($OUTPUT->pix_icon("i/down", get_string("download"), null,
-		    array("examid"=>$exam->id,"class"=>"downloademarking")));
-    }
-    $actions .= html_writer::end_tag("div");
     
 	list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 
@@ -172,8 +137,6 @@ foreach($exams as $exam) {
 
 	$details.= emarking_enrolments_div($exam);
 	
-	$details .= html_writer::end_tag("div");
-		
 	$examstatus = "";
 	switch($exam->status) {
 		case 1:
@@ -187,14 +150,24 @@ foreach($exams as $exam) {
 			break;
 	}
 
+	$details .= $examstatus;
+	
+	$details .= html_writer::end_tag("div");
+
+    // The marking process course module
+    if (! $cm = get_coursemodule_from_instance("emarking", $exam->emarking, $course->id)) {
+        print_error('Invalid emarking course module');
+    }
+
+	
+	$link = new moodle_url("/mod/emarking/view.php", array("id"=>$cm->id));
+	
 	$examstable->data[] = array(
-			$exam->name,
-			date("l jS F g:ia", $exam->examdate),
-			$details,
+			html_writer::link($link, $exam->name),
+			date("d/m/y g:ia", $exam->examdate),
 			emarking_time_ago($exam->timecreated),
-			$examstatus,
-			$multicourse,
-			$actions
+			$details,
+			$multicourse
 	);
 }
 

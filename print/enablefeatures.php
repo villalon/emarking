@@ -57,24 +57,24 @@ if(!($newtype == EMARKING_TYPE_PRINT_SCAN || $newtype == EMARKING_TYPE_NORMAL)
 
 // URLs for current page and redirects
 $url = new moodle_url("/mod/emarking/print/enablefeatures.php", array(
-    "id" => $cmid,
+    "id" => $cm->id,
     "type" => $newtype
 ));
-$continue = new moodle_url("/mod/emarking/print/enablefeatures.php", array("id"=>$cmid, "type"=>$newtype, "confirm"=>"true"));
-$cancel = new moodle_url("/mod/emarking/view.php", array("id"=>$cmid));
+$continue = new moodle_url("/mod/emarking/print/enablefeatures.php", array("id"=>$cm->id, "type"=>$newtype, "confirm"=>"true"));
+$cancel = new moodle_url("/mod/emarking/view.php", array("id"=>$cm->id));
 
 if($confirm) {
     $emarking->type = $newtype;
     if(!$DB->update_record("emarking", $emarking)) {
         print_error("Error updating emarking activity");
     }
-    $success = new moodle_url("/mod/emarking/view.php", array("id"=>$cmid, "enabled"=>$newtype));
+    $success = new moodle_url("/mod/emarking/view.php", array("id"=>$cm->id, "enabled"=>$newtype));
     redirect($success);
     die();
 }
 
 // URL for adding a new print order
-$params = $cmid > 0 ? array(
+$params = $cm->id > 0 ? array(
     "cm" => $cm->id
 ) : array(
     "course" => $course->id

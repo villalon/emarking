@@ -61,7 +61,7 @@ $options = array('subdirs'=>0,
 		'maxfiles'=>1, 'accepted_types'=>'.zip', 'return_types'=>FILE_INTERNAL);
 
 $mform = new mod_emarking_upload_form(null, 
-		array('coursemoduleid'=>$cmid, 'emarkingid'=>$emarking->id, 'options'=>$options));
+		array('coursemoduleid'=>$cm->id, 'emarkingid'=>$emarking->id, 'options'=>$options));
 
 // If the user cancelled the form, redirect to activity
 if ($mform->is_cancelled()) {

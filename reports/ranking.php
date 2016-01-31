@@ -26,7 +26,7 @@ $page = optional_param('page', 0, PARAM_INT);
 
 require_login($course, true);
 
-$url = new moodle_url("/mod/emarking/reports/ranking.php", array('id'=>$cmid));
+$url = new moodle_url("/mod/emarking/reports/ranking.php", array('id'=>$cm->id));
 
 $context = context_module::instance($cm->id);
 
@@ -41,11 +41,11 @@ $PAGE->set_url($url);
 
 
 if(!has_capability('mod/emarking:viewpeerstatistics', $context)) {
-	redirect(new moodle_url("/mod/emarking/view.php?id=$cmid"));
+	redirect(new moodle_url("/mod/emarking/view.php?id=$cm->id"));
 }
 
 if(!has_capability('mod/assign:grade', $context) && !$emarking->peervisibility) {
-	redirect(new moodle_url("/mod/emarking/view.php?id=$cmid"));
+	redirect(new moodle_url("/mod/emarking/view.php?id=$cm->id"));
 }
 
 echo $OUTPUT->header();

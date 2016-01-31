@@ -58,9 +58,15 @@ class emarking_import_excel_form extends moodleform
         $mform->addElement("hidden", "confirm");
         $mform->setDefault("confirm", false);
         $mform->setType("confirm", PARAM_BOOL);
-        
     }
 
+    public function hideElements() {
+    	$comments = $this->_form->getElement("comments");
+    	$comments->setAttributes(array("style"=>"display:none"));
+    	$headers = $this->_form->getElement("headers");
+    	$headers->setAttributes(array("style"=>"display:none"));
+    }
+    
     function validation($data, $files)
     {
         global $CFG;

@@ -29,6 +29,19 @@ global $CFG;
 require_once $CFG->dirroot . '/lib/coursecatlib.php';
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
 
+function emarking_get_user_lang() {
+	global $USER;
+	
+	$lang = $USER->lang;
+	$parts = explode("_",$lang);
+	$specific = null;
+	if(count($parts)>1) {
+		$specific = strtoupper($parts[1]);
+		$lang = $parts[0] .'_'. $specific;
+	}
+	
+	return array($lang, $parts[0], $specific);
+}
 /**
  * Obtains course module ($cm), course, emarking and context
  * objects from cm id in the URL
@@ -50,7 +63,7 @@ function emarking_get_cm_course_instance() {
     if (! $emarking = $DB->get_record('emarking', array(
         'id' => $cm->instance
     ))) {
-        print_error(get_string('invalidid', 'mod_emarking') . " id: $cmid");
+        print_error(get_string('invalidid', 'mod_emarking') . " id: $cm->id");
     }
     
     // Validate course
@@ -143,11 +156,21 @@ function emarking_time_difference($time1, $time2, $small = false)
         1 => get_string('second', 'mod_emarking')
     );
     
+    $tokensplural = array(
+        31536000 => get_string('years'),
+        2592000 => get_string('months'),
+        604800 => get_string('weeks'),
+        86400 => get_string('days'),
+        3600 => get_string('hours'),
+        60 => get_string('minutes'),
+        1 => get_string('seconds', 'mod_emarking')
+    );
+    
     foreach ($tokens as $unit => $text) {
         if ($time < $unit)
             continue;
         $numberOfUnits = floor($time / $unit);
-        $message = $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '');
+        $message = $numberOfUnits . ' ' . (($numberOfUnits > 1) ? $tokensplural[$unit] : $text);
         if ($ispast) {
             $message = core_text::strtotitle(get_string('ago', 'core_message', $message));
         } else {
@@ -699,7 +722,9 @@ function emarking_tabs($context, $cm, $emarking)
             $markingtab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
             $markingtab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("reviewpeersfeedback", 'mod_emarking'));
         }
-        $markingtab->subtree[] = new tabobject("regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+        if($emarking->type == EMARKING_TYPE_NORMAL) {
+        	$markingtab->subtree[] = new tabobject("regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+        }
     } else {
         if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_NORMAL)
             $markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
@@ -1353,7 +1378,7 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
     }
     
     $sqlemarkingtype = "";
-    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $sqlemarkingtype = "AND d.teacher = $USER->id";
     }
     
@@ -1800,23 +1825,25 @@ function emarking_unenrol_student($userid, $courseid)
  * @param unknown $emarking            
  * @return string
  */
-function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $criteriascores, $comments, $pctmarked, $pctmarkeduser, $regrades, $pages, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria)
+function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria)
 {
     global $OUTPUT;
     
     // If the draft is published or the student was absent just show the icon
-    if ($status <= EMARKING_STATUS_ABSENT || $status == EMARKING_STATUS_PUBLISHED || ($status == EMARKING_STATUS_GRADING && $pctmarked == 100)) {
-        return emarking_get_draft_status_icon($status, true, 100);
+    if ($d->status <= EMARKING_STATUS_ABSENT || $d->status == EMARKING_STATUS_PUBLISHED || 
+    		($d->status == EMARKING_STATUS_GRADING && $d->pctmarked == 100)) {
+        return emarking_get_draft_status_icon($d->status, true, 100);
     }
     
-    if ($emarking->type == EMARKING_TYPE_NORMAL && ($status == EMARKING_STATUS_GRADING || $status == EMARKING_STATUS_SUBMITTED)) {
+    if (($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PEER_REVIEW) 
+    		&& ($d->status == EMARKING_STATUS_GRADING || $d->status == EMARKING_STATUS_SUBMITTED)) {
         
         // Completion matrix
         $matrix = '';
-        $markedcriteria = explode(",", $criteriaids);
-        $markedcriteriascores = explode(",", $criteriascores);
+        $markedcriteria = explode(",", $d->criteriaids);
+        $markedcriteriascores = explode(",", $d->criteriascores);
         if (count($markedcriteria) > 0 && $numcriteria > 0) {
-            $matrix = "<div id='sub-$draftid' style='display:none;'>
+            $matrix = "<div id='sub-$d->id' style='display:none;'>
             <table width='100%'>";
             $matrix .= "<tr><th>" . get_string('criterion', 'mod_emarking') . "</th><th style='text-align:center'>" . get_string('corrected', 'mod_emarking') . "</th></tr>";
             foreach ($rubriccriteria->rubric_criteria as $criterion) {
@@ -1831,66 +1858,67 @@ function emarking_get_draft_status_info($draftid, $status, $qc, $criteriaids, $c
             }
             $matrix .= "</table></div>";
         }
-        $matrixlink = "<div class=\"progress\"><a style='cursor:pointer;' onclick='$(\"#sub-$draftid\").dialog({modal:true,buttons:{Ok: function(){\$(this).dialog(\"close\");}}});'>
-    <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"$pctmarked\"
-    aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:$pctmarked%\">
-    <span class=\"sr-only\">$pctmarked%</span>
+        $matrixlink = "<div class=\"progress\"><a style='cursor:pointer;' onclick='$(\"#sub-$d->id\").dialog({modal:true,buttons:{Ok: function(){\$(this).dialog(\"close\");}}});'>
+    <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"$d->pctmarked\"
+    aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:$d->pctmarked%\">
+    <span class=\"sr-only\">$d->pctmarked%</span>
     </div></a>
     </div>" . $matrix;
         return $matrixlink;
     }
     
-    if ($status == EMARKING_STATUS_REGRADING) {
+    if ($d->status == EMARKING_STATUS_REGRADING) {
         // Percentage of criteria already marked for this draft
-        $pctmarkedtitle = ($numcriteria - $comments) . " pending criteria";
-        $matrixlink = "" . ($numcriteriauser > 0 ? $pctmarkeduser . "% / " : '') . $pctmarked . "%" . ($regrades > 0 ? '<br/>' . $regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');
+        $pctmarkedtitle = ($numcriteria - $d->comments) . " pending criteria";
+        $matrixlink = "" . ($numcriteriauser > 0 ? $d->pctmarkeduser . "% / " : '') . $d->pctmarked . "%" . ($d->regrades > 0 ? '<br/>' . $d->regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');
     }
     
-    $statushtml = $qc == 0 ? emarking_get_draft_status_icon($status, true) : $OUTPUT->pix_icon('i/completion-auto-y', get_string("qualitycontrol", "mod_emarking"));
+    $statushtml = $d->qc == 0 ? emarking_get_draft_status_icon($d->status, true) : $OUTPUT->pix_icon('i/completion-auto-y', get_string("qualitycontrol", "mod_emarking"));
     
     // Add warning icon if there are missing pages in draft
-    if ($emarking->totalpages > 0 && $emarking->totalpages > $pages && $status > EMARKING_STATUS_MISSING) {
+    if ($emarking->totalpages > 0 && $emarking->totalpages > $d->pages && $d->status > EMARKING_STATUS_MISSING) {
         $statushtml .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
     }
     
     return $statushtml;
 }
-function emarking_get_category_cost($courseid){
-	global $DB, $CFG;
 
-	$course = $DB->get_record('course', array('id' => $courseid), 'id, category');
+function emarking_get_category_cost($courseid) {
+	global $DB, $CFG;
+	
+	$course = $DB->get_record ( 'course', array (
+			'id' => $courseid 
+	), 'id, category' );
 	$coursecategory = $course->category;
 	
 	$categorycost = null;
 	$noinfloop = 0;
-	while ($categorycost == null || $categorycost == 0){
+	while ( $categorycost == null || $categorycost == 0 ) {
 		
-	$categorycostparams = array(
-			$coursecategory
-	);
-	
-	$sqlcategorycost="SELECT cc.id, cc.name as name, ccc.printingcost AS cost, cc.parent as parent
+		$categorycostparams = array (
+				$coursecategory 
+		);
+		
+		$sqlcategorycost = "SELECT cc.id, cc.name as name, ccc.printingcost AS cost, cc.parent as parent
         			  FROM mdl_course_categories as cc
 			          LEFT JOIN mdl_emarking_category_cost AS ccc ON (cc.id = ccc.category)
         			  WHERE cc.id = ?";
-	
-	if( $categorycosts = $DB->get_records_sql($sqlcategorycost, $categorycostparams)){
-		foreach($categorycosts AS $cost){
-			if($cost->cost == null || $cost->cost == 0){
-				
-				$coursecategory = $cost->parent;
-				$noinfloop++;
-			}
-			if($cost->parent == 0) {
-				$categorycost = 0;
-				return $categorycost;
-			}
-			else {
-				$categorycost = $CFG->emarking_defaultcost;
-				return $categorycost;
+		
+		if ($categorycosts = $DB->get_records_sql ( $sqlcategorycost, $categorycostparams )) {
+			foreach ( $categorycosts as $cost ) {
+				if ($cost->cost == null || $cost->cost == 0) {
+					
+					$coursecategory = $cost->parent;
+					$noinfloop ++;
+				}
+				if ($cost->parent == 0) {
+					$categorycost = 0;
+					return $categorycost;
+				} else {
+					$categorycost = $CFG->emarking_defaultcost;
+					return $categorycost;
+				}
 			}
 		}
-	}
-
 	}
 }

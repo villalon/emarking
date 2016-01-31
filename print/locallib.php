@@ -607,7 +607,7 @@ function emarking_create_printform($context, $exam, $userrequests, $useraccepts,
 }
 
 
-function emarking_assign_peers($emarking, $diff) {
+function emarking_assign_peers($emarking) {
     global $DB;
     
     $students = $DB->get_records_sql("
@@ -626,6 +626,7 @@ function emarking_assign_peers($emarking, $diff) {
     
     $final = array();
     $numstudents = count($assign);
+    $diff = rand(1, max(array(1, $numstudents-1)));
     for($i = 0; $i < $numstudents; $i++) {
         $j = ($i + $diff) % $numstudents;
         $final[$assign[$i]] = $assign[$j];
@@ -953,9 +954,19 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
                 continue;
             }
             
+            if($student->deleted) {
+            	$totalDocumentsIgnored ++;
+            	continue;
+            }
+            
             if ($courseid != $course->id) {
                 $totalDocumentsIgnored ++;
                 continue;
+            }
+            
+            if(!is_enrolled($context, $student, "mod/emarking:submit")) {
+            	$totalDocumentsIgnored ++;
+            	continue;
             }
         } else if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
             $student = new stdClass();

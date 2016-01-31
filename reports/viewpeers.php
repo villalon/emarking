@@ -28,7 +28,7 @@ if(!$submission = $DB->get_record('emarking_submission', array('emarking'=>$emar
 
 require_login($course, true);
 
-$url = new moodle_url("/mod/emarking/reports/viewpeers.php", array('id'=>$cmid));
+$url = new moodle_url("/mod/emarking/reports/viewpeers.php", array('id'=>$cm->id));
 
 $PAGE->set_context($context);
 $PAGE->set_course($course);
@@ -38,11 +38,11 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_url($url);
 
 if(!has_capability('mod/emarking:viewpeerstatistics', $context)) {
-	redirect(new moodle_url("/mod/emarking/view.php?id=$cmid"));
+	redirect(new moodle_url("/mod/emarking/view.php?id=$cm->id"));
 }
 
 if(!has_capability('mod/assign:grade', $context) && !$emarking->peervisibility) {
-	redirect(new moodle_url("/mod/emarking/view.php?id=$cmid"));
+	redirect(new moodle_url("/mod/emarking/view.php?id=$cm->id"));
 }
 
 

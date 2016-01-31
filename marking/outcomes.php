@@ -49,7 +49,7 @@ if ($criterionid > 0) {
 }
 
 $url = new moodle_url('/mod/emarking/marking/outcomes.php', array(
-    'id' => $cmid
+    'id' => $cm->id
 ));
 
 // First check that the user is logged in
@@ -116,7 +116,7 @@ list ($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($
 $mform_outcomes = new emarking_outcomes_form(null, array(
     'context' => $context,
     'criteria' => $definition->rubric_criteria,
-    'id' => $cmid,
+    'id' => $cm->id,
     'emarking' => $emarking,
     'action' => 'addoutcomes',
     'outcomes' => $emarkingoutcomes
@@ -242,7 +242,7 @@ $scales = $DB->get_records_sql($sqlscales,
 $mform_scalelevels = new emarking_scalelevels_form(null, array(
     'context' => $context,
     'criteria' => $definition->rubric_criteria,
-    'id' => $cmid,
+    'id' => $cm->id,
     'emarking' => $emarking,
     'scales' => $scales
 ));

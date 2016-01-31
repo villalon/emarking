@@ -141,7 +141,7 @@ WHERE gm.userid = $USER->id AND g.courseid = e.courseid))";
 }
 
 // Define flexible table (can be sorted in different ways)
-$showpages=new flexible_table('emarking-kanban-'.$cmid);
+$showpages=new flexible_table('emarking-kanban-'.$cm->id);
 $showpages->define_headers(array(
 		get_string('notcorrected', 'mod_emarking'),
 		get_string('marking', 'mod_emarking'),

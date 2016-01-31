@@ -83,7 +83,7 @@ foreach($submissions as $submissionid) {
 		$totaldocumentsignored++;
 		continue;
 	}
-	if(emarking_create_response_pdf($draft, $student, $context, $cmid)) {
+	if(emarking_create_response_pdf($draft, $student, $context, $cm->id)) {
 		$totaldocumentsprocessed++;
 		$pbar->update($totaldocumentsprocessed, $totalsubmissions, get_string('publishinggrade', 'mod_emarking') . " " . $draft->id);
 		if(!emarking_publish_grade($draft)) {

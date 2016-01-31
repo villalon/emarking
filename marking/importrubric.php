@@ -39,7 +39,7 @@ list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 $commentid = optional_param('commentid', 0, PARAM_INT);
 
 // Emarking URL
-$urlemarking = new moodle_url('/mod/emarking/marking/predefinedcomments.php', array(
+$urlemarking = new moodle_url('/mod/emarking/marking/importrubric.php', array(
     'id' => $cm->id
 ));
 
@@ -55,7 +55,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
-$PAGE->navbar->add(get_string('predefinedcomments', 'mod_emarking'));
+$PAGE->navbar->add(get_string('importrubric', 'mod_emarking'));
 
 echo $OUTPUT->header();
 
@@ -64,7 +64,7 @@ echo $OUTPUT->heading($emarking->name);
 // output of the tabtree
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "importrubric");
 
-list ($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, false, true);
+list ($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, false, false);
 
 // Form Display
 $predefinedform = new emarking_import_excel_form(null, array(
@@ -114,7 +114,7 @@ if ($predefinedform->get_data()) {
         
         $definition = $rubriccontroller->get_definition_for_editing(true);
         
-        $returnurl = $gradingmanager->get_management_url();
+        $returnurl = "".$gradingmanager->get_management_url();
         
         $definition->returnurl = $returnurl;
         $definition->name = 'Imported rubric';
@@ -124,8 +124,8 @@ if ($predefinedform->get_data()) {
         $definition->saverubric = NULL;
 
         $current = 0;
-        $lastcriterion = NULL;
         $newlevelid = 0;
+        $newlevelidpts = 0;
         foreach ($definitiondata as $row) {
             if ($current % 2 == 0) {
                 $criterion = array();
@@ -135,30 +135,26 @@ if ($predefinedform->get_data()) {
                 
                 for ($i = 1; $i < count($row); $i ++) {
                     $level = array();
-                    $level['score'] = 0;
+                    $level['score'] = "0";
                     $level['definition'] = $row[$i];
                     
+                    $levelid = "NEWID".$newlevelid;
                     if (! empty(trim($row[$i]))) {
+                        $criterion['levels'][$levelid] = $level;
                         $newlevelid++;
-                        $criterion['levels']["NEWID".$newlevelid] = $level;
                     }
                 }
                 
                 $criterionid = count($definition->rubric['criteria']) + 1;
                 $definition->rubric['criteria']["NEWID".$criterionid] = $criterion;
-                $lastcriterion = $criterion;
             } else {
-                $criterion = $lastcriterion;
                 for ($i = 1; $i < count($row); $i ++) {
-                    $value = $row[$i];
-                    $pattern = '/^(\d+[\.,]?\d*)\D*/';
-                    if (preg_match($pattern, $value, $matches)) {
-                        $value = $matches[1];
-                    }
-                    $criterionid = "NEWID".count($definition->rubric['criteria']);
-                    $levelid = "NEWID".($newlevelid - count($row) + $i + 2);
-                    if (isset($definition->rubric['criteria'][$criterionid]['levels'][$levelid])) {
-                        $definition->rubric['criteria'][$criterionid]['levels'][$levelid]['score'] = "".floatval($value);
+                	$points = floatval(emarking_extract_rubric_points($row[$i]));
+                    $criterionidpts = "NEWID".$criterionid;
+                    $levelidpts = "NEWID".$newlevelidpts;
+                    if (isset($definition->rubric['criteria'][$criterionidpts]['levels'][$levelidpts])) {
+                        $definition->rubric['criteria'][$criterionidpts]['levels'][$levelidpts]['score'] = $points;
+                        $newlevelidpts++;
                     }
                 }
             }
@@ -171,7 +167,7 @@ if ($predefinedform->get_data()) {
         echo $OUTPUT->notification(get_string("changessaved", "mod_emarking"), "notifysuccess");
         echo $OUTPUT->single_button($gradingmanager->get_management_url(), get_string("continue"));
     } else {
-        echo $OUTPUT->notification(get_string("onlyfirstcolumn", "mod_emarking"), "notifymessage");
+        echo $OUTPUT->notification(get_string("confirmimport", "mod_emarking"), "notifymessage");
         
         for ($i = 0; $i < count($data); $i ++) {
             for ($j = 0; $j < count($data[$i][1]->data[0]); $j ++) {
@@ -198,10 +194,26 @@ if ($predefinedform->get_data()) {
         
         echo html_writer::div(html_writer::table($table), "gradingform_rubric");
         
+        
         $predefinedform->add_action_buttons(true, get_string('confirm'));
         $predefinedform->display();
+        
+        echo "<style>.hidden #fitem_id_ {display:none;}</style>";
     }
 } else {
+	$seesample = "";
+	list($lang, $langshort, $langspecific) = emarking_get_user_lang();
+	
+	$samplerubric = "/mod/emarking/img/rubric_" . $langshort . ".xlsx";
+	
+	if(file_exists($CFG->dirroot . $samplerubric)) {
+		$rubricurl = new moodle_url($samplerubric);
+		$seesample = "See sample rubric template " . html_writer::link($rubricurl, $OUTPUT->pix_icon("f/spreadsheet", "Download sample rubric template"));
+	}
+	
+	echo $OUTPUT->box("Import rubric by copy and pasting criteria from a spreadsheet. " . $seesample, null, null, array("style"=>"margin-bottom:10px;"));
+	
+	
     // buttons
     $predefinedform->add_action_buttons(true, get_string('submit'));
     $predefinedform->display();

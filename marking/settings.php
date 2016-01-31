@@ -32,7 +32,7 @@ global $DB, $USER;
 // Obtains basic data from cm id
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
-$url = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cmid));
+$url = new moodle_url('/mod/emarking/marking/markers.php',array('id'=>$cm->id));
 
 // First check that the user is logged in
 require_login($course->id);
@@ -93,7 +93,7 @@ if($mform->get_data()) {
 
 // CAREFUL: This is a hack so the set_data method doesn't use the activity id when the cmid
 // must be used
-$emarking->id = $cmid;
+$emarking->id = $cm->id; // TODO: Remove hack if possible
 $mform->set_data($emarking);
 
 $mform->display();
