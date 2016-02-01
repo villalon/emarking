@@ -607,7 +607,7 @@ foreach ( $drafts as $draft ) {
 	foreach ( $submissiondrafts as $d ) {
 		$pctmarked .= emarking_get_draft_status_info ( $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria );
 		$finalgrade .= emarking_get_finalgrade ( $d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking );
-		$actions .= emarking_get_actions ( $d, $emarking, $context, $draft, $usercangrade, $issupervisor, $publishgradesform, $numcriteria, $scan );
+		$actions .= emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $publishgradesform, $numcriteria, $scan, $cm, $rubriccriteria);
 		$feedback .= strlen ( $d->feedback ) > 0 ? $d->feedback : '';
 		$timemodified .= html_writer::start_div ( "timemodified" );
 		$timemodified .= get_string ( 'lastmodification', 'mod_emarking' );
@@ -625,6 +625,9 @@ foreach ( $drafts as $draft ) {
 					$markersstring .= $OUTPUT->user_picture ( $marker ) . '&nbsp;';
 				}
 			}
+		}
+		if ($publishgradesform && $d->qc == 0 && $d->status >= EMARKING_STATUS_SUBMITTED && $d->status < EMARKING_STATUS_PUBLISHED && $rubriccriteria) {
+			$unpublishedsubmissions ++;
 		}
 	}
 	
@@ -838,7 +841,7 @@ function emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubr
 	
 	return $finalgrade;
 }
-function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $publishgradesform, $numcriteria, $scan) {
+function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $publishgradesform, $numcriteria, $scan, $cm, $rubriccriteria) {
 	global $OUTPUT, $USER;
 	
 	// Action buttons
@@ -887,8 +890,7 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
 	}
 	
 	// Checkbox for publishing grade
-	if ($publishgradesform && $d->qcs == 0 && $d->status >= EMARKING_STATUS_SUBMITTED && $d->status < EMARKING_STATUS_PUBLISHED && $rubriccriteria) {
-		$unpublishedsubmissions ++;
+	if ($publishgradesform && $d->qc == 0 && $d->status >= EMARKING_STATUS_SUBMITTED && $d->status < EMARKING_STATUS_PUBLISHED && $rubriccriteria) {
 		$actionsarray [] = "<input type=\"checkbox\" name=\"publish[]\" value=\"$d->id\" title=\"" . get_string ( "select" ) . "\">";
 	}
 	

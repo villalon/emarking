@@ -29,6 +29,18 @@ global $CFG;
 require_once $CFG->dirroot . '/lib/coursecatlib.php';
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
 
+function emarking_get_text_view_more($text, $maxlength, $id) {
+	global $OUTPUT;
+	
+	if(strlen($text) <= $maxlength) {
+		return $text;
+	}
+	
+	$short = substr($text, 0, $maxlength);
+	
+	return $short . "... " . emarking_view_more(core_text::strtolower(get_string("viewmore", "mod_emarking")), $text, "regrade", $id);
+}
+
 function emarking_get_user_lang() {
 	global $USER;
 	
@@ -129,7 +141,7 @@ function emarking_get_regrade_type_string($type)
  */
 function emarking_time_ago($time, $small = false)
 {
-    return emarking_time_difference(time(), $time, $small);
+    return emarking_time_difference($time, time(), $small);
 }
 
 /**
@@ -172,9 +184,9 @@ function emarking_time_difference($time1, $time2, $small = false)
         $numberOfUnits = floor($time / $unit);
         $message = $numberOfUnits . ' ' . (($numberOfUnits > 1) ? $tokensplural[$unit] : $text);
         if ($ispast) {
-            $message = core_text::strtotitle(get_string('ago', 'core_message', $message));
+            $message = core_text::strtolower(get_string('ago', 'core_message', $message));
         } else {
-            $message = core_text::strtotitle($message);
+            $message = core_text::strtolower($message);
         }
         if ($small) {
             $message = html_writer::div($message, "timeago");
@@ -583,7 +595,7 @@ function emarking_view_more($title, $content, $prefix, $id)
     $output = "<div id='$prefix" . "-$id' style='display:none;'>";
     $output .= $content;
     $output .= "</div>";
-    $output .= "<a style='cursor:pointer; font-size: 8pt;' onclick='$(\"#$prefix" . "-$id\").dialog({title:\"$title\",show: { effect: \"scale\", duration: 200 },modal:true,buttons:{" . get_string("close", "mod_emarking") . ": function(){\$(this).dialog(\"close\");}}});'>" . $title . "</a>";
+    $output .= "<a class='viewmore' style='' onclick='$(\"#$prefix" . "-$id\").dialog({title:\"$title\",show: { effect: \"scale\", duration: 200 },modal:true,buttons:{" . get_string("close", "mod_emarking") . ": function(){\$(this).dialog(\"close\");}}});'>" . $title . "</a>";
     
     return $output;
 }
@@ -723,7 +735,7 @@ function emarking_tabs($context, $cm, $emarking)
             $markingtab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("reviewpeersfeedback", 'mod_emarking'));
         }
         if($emarking->type == EMARKING_TYPE_NORMAL) {
-        	$markingtab->subtree[] = new tabobject("regrade", $CFG->wwwroot . "/mod/emarking/marking/regrades.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+        	$markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
         }
     } else {
         if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_NORMAL)

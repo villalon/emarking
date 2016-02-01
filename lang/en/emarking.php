@@ -59,6 +59,7 @@ $string ['regradesopendate_help'] = 'Date from which the students can submit reg
 $string ['regradesclosedate'] = 'Regrade requests close date';
 $string ['regradesclosedate_help'] = 'Date until the students can submit regrading requests';
 $string ['mustseeexambeforeregrade'] = 'You must review your exam feedback before you can request a regrade.';
+$string ['viewmore'] = 'View more';
 
 // MARKERS AND PAGES OSM CONFIGURATION
 $string['markerspercriteria']='Markers';

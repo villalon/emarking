@@ -23,8 +23,11 @@ list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 
 require_login($course, true);
 
-require_capability ( 'mod/emarking:grade', $context );
-require_capability ( 'mod/emarking:regrade', $context );
+$usercangrade = has_capability ( 'mod/emarking:grade', $context );
+$usercanregrade = has_capability ( 'mod/emarking:regrade', $context );
+$issupervisor = has_capability ( 'mod/emarking:supervisegrading', $context );
+
+$filteruser = !$issupervisor && !$usercangrade;
 
 $url = new moodle_url("/mod/emarking/marking/regraderequests.php", array("id"=>$cm->id));
 
@@ -43,12 +46,15 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades" );
 
+$sqlfilter = $filteruser ? " AND u.id = $USER->id" : "";
+
 $sql = "select 
 			rg.*,
 			u.id AS userid,
 			u.firstname,
 			u.lastname,
 			c.description AS criterion,
+			c.id AS criterionid,
 			dr.id AS ids,
 			dr.status AS status,
             T.maxscore,
@@ -65,37 +71,38 @@ $sql = "select
         rg.bonus as originalbonus,
         ol.definition as originaldefinition,
         b.definition as currentdefinition
-from mdl_emarking AS e
-inner join mdl_emarking_submission  AS s ON (s.emarking = :emarking AND s.emarking = e.id)
-INNER JOIN mdl_emarking_draft AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
-INNER JOIN mdl_emarking_regrade AS rg ON (rg.draft = dr.id)
-INNER JOIN mdl_gradingform_rubric_levels AS ol on (ol.id = rg.levelid)
-INNER JOIN mdl_user  AS u on (s.student = u.id)
+from {emarking} AS e
+inner join {emarking_submission} AS s ON (s.emarking = :emarking AND s.emarking = e.id)
+INNER JOIN {emarking_draft} AS dr ON (dr.submissionid = s.id AND dr.qualitycontrol=0)
+INNER JOIN {emarking_regrade} AS rg ON (rg.draft = dr.id)
+INNER JOIN {gradingform_rubric_levels} AS ol on (ol.id = rg.levelid)
+INNER JOIN {user}  AS u on (s.student = u.id $sqlfilter)
 INNER JOIN (
 			SELECT
 			s.id AS emarkingid,
 			a.id AS criterionid,
 			MAX(l.score) AS maxscore,
             MIN(l.score) AS minscore
-			FROM mdl_emarking AS s
-			INNER JOIN mdl_course_modules  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
-			INNER JOIN mdl_context  AS c on (c.instanceid = cm.id)
-			INNER JOIN mdl_grading_areas  AS ar on (ar.contextid = c.id)
-			INNER JOIN mdl_grading_definitions  AS d on (ar.id = d.areaid)
-			INNER JOIN mdl_gradingform_rubric_criteria  AS a on (d.id = a.definitionid)
-			INNER JOIN mdl_gradingform_rubric_levels  AS l on (a.id = l.criterionid)
+			FROM {emarking} AS s
+			INNER JOIN {course_modules}  AS cm on (s.id = :emarkingid2 AND s.id = cm.instance)
+			INNER JOIN {context}  AS c on (c.instanceid = cm.id)
+			INNER JOIN {grading_areas}  AS ar on (ar.contextid = c.id)
+			INNER JOIN {grading_definitions}  AS d on (ar.id = d.areaid)
+			INNER JOIN {gradingform_rubric_criteria}  AS a on (d.id = a.definitionid)
+			INNER JOIN {gradingform_rubric_levels}  AS l on (a.id = l.criterionid)
 			GROUP BY s.id, criterionid
 		) AS T ON (s.emarking = T.emarkingid AND T.criterionid = ol.criterionid)
-INNER JOIN mdl_course  AS co ON (e.course = co.id)
-INNER JOIN mdl_gradingform_rubric_criteria AS c on (ol.criterionid = c.id)
-LEFT JOIN mdl_emarking_comment AS comment ON (comment.draft = dr.id AND comment.criterionid = c.id AND comment.levelid > 0)
-LEFT JOIN mdl_gradingform_rubric_levels AS b on (b.id = comment.levelid)
-LEFT JOIN mdl_emarking_page AS page ON (page.submission = s.id AND comment.page = page.id)
+INNER JOIN {course} AS co ON (e.course = co.id)
+INNER JOIN {gradingform_rubric_criteria} AS c on (ol.criterionid = c.id)
+LEFT JOIN {emarking_comment} AS comment ON (comment.draft = dr.id AND comment.criterionid = c.id AND comment.levelid > 0)
+LEFT JOIN {gradingform_rubric_levels} AS b on (b.id = comment.levelid)
+LEFT JOIN {emarking_page} AS page ON (page.submission = s.id AND comment.page = page.id)
 ORDER BY u.lastname ASC, c.sortorder";
 $records = $DB->get_records_sql($sql,array("emarking"=>$emarking->id, "emarkingid2"=>$emarking->id));
 
 if(count($records) == 0) {
 	echo $OUTPUT->notification(get_string('noregraderequests', 'mod_emarking'), 'notifyproblem');
+	echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
 	echo $OUTPUT->footer();
 	die();
 }
@@ -118,14 +125,14 @@ foreach($records as $record) {
         $statusicon = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
     }
 
-    $regradecomment = emarking_view_more(get_string("justification", "mod_emarking"), $record->comment, "comment", $record->id);
+    $regradecomment = emarking_get_text_view_more($record->comment, 50,  $record->id);
     $motive = emarking_get_regrade_type_string($record->motive) .
-        '<br/>' . $regradecomment;
+        ': ' . $regradecomment;
     
     // Student info
     $urlstudent = new moodle_url('/user/view.php',array('id'=>$record->userid,'course'=>$course->id));
-    $studentcriterion = $OUTPUT->action_link($urlstudent, $record->firstname.' '.$record->lastname);
-    $studentcriterion .= '<br/>' . $record->criterion;
+    $studentcriterion = $record->userid == $USER->id ? '' : $OUTPUT->action_link($urlstudent, $record->firstname.' '.$record->lastname). '<br/>';
+    $studentcriterion .= $record->criterion;
     $studentcriterion .= '<br/>' .emarking_time_ago($record->timecreated, true);
     
     // Original grade
@@ -141,7 +148,10 @@ foreach($records as $record) {
     
     // Actions
     $urlsub = new moodle_url('/mod/emarking/marking/index.php',array('id'=>$record->ids));
-    $actions = $OUTPUT->action_link($urlsub, get_string('annotatesubmission','mod_emarking'),
+    
+    $actions = '';
+    if($usercangrade || $issupervisor) {
+    $actions .= $OUTPUT->action_link($urlsub, get_string('annotatesubmission','mod_emarking'). "&nbsp;|&nbsp;",
 			new popup_action ( 'click', $urlsub, 'emarking' . $record->ids, array (
 								'menubar' => 'no',
 								'titlebar' => 'no',
@@ -150,6 +160,14 @@ foreach($records as $record) {
 			                    'width' => 860,
 			                    'height' => 600,
 			)), array("class"=>"rowactions"));
+    }
+    
+    if($record->userid == $USER->id) {
+    	$url = new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id, "criterion"=>$record->criterionid, "delete"=>true));
+    	$actions .= $OUTPUT->action_link($url, get_string("delete") . "&nbsp;|&nbsp;", null, array("class"=>"rowactions"));
+    	$url = new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id, "criterion"=>$record->criterionid, "edit"=>true));
+    	$actions .= $OUTPUT->action_link($url, get_string("edit") . "&nbsp;|&nbsp;", null, array("class"=>"rowactions"));
+    }
     
     $array = array();
     $array[] = $studentcriterion;
@@ -163,4 +181,6 @@ foreach($records as $record) {
 $table->data = $data;
 
 echo html_writer::table($table);
+
+echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
 echo $OUTPUT->footer();

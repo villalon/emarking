@@ -25,7 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once ($CFG->libdir . '/formslib.php');
 
-class emarking_justice_regrade_form extends moodleform {
+class emarking_regrade_form extends moodleform {
 
     /**
      * Defines forms elements
@@ -33,13 +33,23 @@ class emarking_justice_regrade_form extends moodleform {
     public function definition() {
         global $COURSE, $DB,$CFG;
 
-        $criterion = $this->_customdata['criterion'];
+        $definition = $this->_customdata['criteria'];
 
         $mform = $this->_form;
         
         // Add header
-        $mform->addElement('header', 'general', get_string('regraderequest', 'mod_emarking'). ' ' . strtolower(get_string('for')) . ' ' . $criterion->description);
+        $mform->addElement('header', 'general', get_string('regraderequest', 'mod_emarking'));
 
+        $criteria = array();
+        $criteria[0] = get_string("select");
+        foreach($definition->rubric_criteria as $criterion) {
+        	$criteria[$criterion['id']] = $criterion['description'];
+        }
+        
+        $mform->addElement('select', 'criterion', get_string('criterion', 'mod_emarking'), $criteria);
+        $mform->setDefault('criterion', 0);
+        $mform->setType('criterion', PARAM_INT);
+        
         // Array of motives for regrading
         $motives=array();
         $motives[] =& $mform->createElement('radio', 'motive', '', 
