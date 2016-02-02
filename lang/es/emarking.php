@@ -60,6 +60,7 @@ $string ['regradesclosedate'] = 'Cierre recorrecciones';
 $string ['regradesclosedate_help'] = 'Fecha límite para que los estudiantes envíen solicitudes de recorrección';
 $string ['mustseeexambeforeregrade'] = 'Debes revisar la corrección de tu prueba antes de solicitar recorrección.';
 $string ['viewmore'] = 'Ver más';
+$string ['cannotmodifyacceptedregrade'] = 'No se puede modificar una recorrección ya aceptada';
 
 // MARKERS AND PAGES OSM CONFIGURATION
 $string['markerspercriteria']='Correctores';
@@ -616,6 +617,7 @@ $string ['statusgradingfinished'] = 'Corregida';
 $string ['statusmissing'] = 'No entregada';
 $string ['statusnotsent'] = 'No enviada';
 $string ['statusregrading'] = 'En recorrección';
+$string ['statusregradingresponded'] = 'Recorregida';
 $string ['statuspublished'] = 'Publicada';
 $string ['statussubmitted'] = 'Subida';
 $string ['statuserror'] = 'Error';

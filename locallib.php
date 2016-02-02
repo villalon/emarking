@@ -640,7 +640,7 @@ function emarking_get_draft_status_icon($status, $prefix = false, $pctmarked = 0
             $html = $OUTPUT->pix_icon('i/flagged', emarking_get_string_for_status($status));
             break;
         case EMARKING_STATUS_REGRADING_RESPONDED:
-            $html = $OUTPUT->pix_icon('i/unflagged', emarking_get_string_for_status($status));
+            $html = $OUTPUT->pix_icon('i/grade_correct', emarking_get_string_for_status($status));
             break;
         case EMARKING_STATUS_ACCEPTED:
             $html = $OUTPUT->pix_icon('t/locked', emarking_get_string_for_status($status));
@@ -952,6 +952,8 @@ function emarking_get_string_for_status($status, $pctmarked = 0)
             return get_string('statusmissing', 'mod_emarking');
         case EMARKING_STATUS_REGRADING:
             return get_string('statusregrading', 'mod_emarking');
+        case EMARKING_STATUS_REGRADING_RESPONDED:
+            return get_string('statusregradingresponded', 'mod_emarking');
         case EMARKING_STATUS_PUBLISHED:
             return get_string('statuspublished', 'mod_emarking');
         case EMARKING_STATUS_SUBMITTED:

@@ -162,7 +162,7 @@ foreach($records as $record) {
 			)), array("class"=>"rowactions"));
     }
     
-    if($record->userid == $USER->id) {
+    if($record->userid == $USER->id && $record->accepted == 0) {
     	$url = new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id, "criterion"=>$record->criterionid, "delete"=>true));
     	$actions .= $OUTPUT->action_link($url, get_string("delete") . "&nbsp;|&nbsp;", null, array("class"=>"rowactions"));
     	$url = new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id, "criterion"=>$record->criterionid, "edit"=>true));

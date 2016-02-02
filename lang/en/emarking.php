@@ -60,6 +60,7 @@ $string ['regradesclosedate'] = 'Regrade requests close date';
 $string ['regradesclosedate_help'] = 'Date until the students can submit regrading requests';
 $string ['mustseeexambeforeregrade'] = 'You must review your exam feedback before you can request a regrade.';
 $string ['viewmore'] = 'View more';
+$string ['cannotmodifyacceptedregrade'] = 'A regrade request that has been accepted can not be modified';
 
 // MARKERS AND PAGES OSM CONFIGURATION
 $string['markerspercriteria']='Markers';
@@ -610,6 +611,7 @@ $string ['statusgradingfinished'] = 'Marked';
 $string ['statusmissing'] = 'Missing';
 $string ['statusnotsent'] = 'Not sent';
 $string ['statusregrading'] = 'Regrading';
+$string ['statusregradingresponded'] = 'Regrading responded';
 $string ['statuspublished'] = 'Published';
 $string ['statussubmitted'] = 'Uploaded';
 $string ['statuserror'] = 'Error';

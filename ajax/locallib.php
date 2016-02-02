@@ -1220,9 +1220,18 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         $regrade->timemodified = time();
         $regrade->accepted = $regradeaccepted;
         $DB->update_record('emarking_regrade', $regrade);
+        
+    	$remainingregrades = $DB->count_records("emarking_regrade", array("draft"=>$draft->id, "accepted"=>0));
+    	
+    	if($remainingregrades == 0) {
+    		$draft->status = EMARKING_STATUS_REGRADING_RESPONDED;
+    		$draft->timemodified = time();
+    		$DB->update_record("emarking_draft", $draft);
+    	}
     }
     
     $results = emarking_get_submission_grade($draft);
+    
     
     $newgrade = $results->finalgrade;
     

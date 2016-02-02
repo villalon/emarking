@@ -65,7 +65,7 @@ $issupervisor = has_capability ( 'mod/emarking:supervisegrading', $context );
 $usercangrade = has_capability ( 'mod/emarking:grade', $context );
 
 $url = new moodle_url ( '/mod/emarking/marking/regrades.php', array (
-		'id' => $cm->id
+		'id' => $cm->id 
 ) );
 $cancelurl = new moodle_url ( '/mod/emarking/marking/regraderequests.php', array (
 		'id' => $cm->id 
@@ -132,28 +132,35 @@ $data = new stdClass ();
 $data->regradesclosedate = userdate ( $emarking->regradesclosedate );
 if (! $requestswithindate) {
 	echo $OUTPUT->notification ( get_string ( 'regraderestricted', 'mod_emarking', $data ), 'notifyproblem' );
-	echo $OUTPUT->footer();
-	die();
+	echo $OUTPUT->footer ();
+	die ();
+}
+
+if ($regrade && $regrade->accepted > 0) {
+	echo $OUTPUT->notification ( get_string ( 'cannotmodifyacceptedregrade', 'mod_emarking' ), 'notifyproblem' );
+	echo $OUTPUT->footer ();
+	die ();
 }
 
 if ($regrade && $delete && $requestswithindate) {
 	$result = $DB->delete_records ( 'emarking_regrade', array (
 			'draft' => $emarkingdraft->id,
-			'criterion' => $criterionid
+			'criterion' => $criterionid 
 	) );
 	$successmessage = get_string ( 'saved', 'mod_emarking' );
 	echo $OUTPUT->notification ( $successmessage, 'notifysuccess' );
-	echo $OUTPUT->single_button($cancelurl, get_string("continue"), "GET");
-	echo $OUTPUT->footer();
-	die();
+	echo $OUTPUT->single_button ( $cancelurl, get_string ( "continue" ), "GET" );
+	echo $OUTPUT->footer ();
+	die ();
 }
 
 $mform = new emarking_regrade_form ( $url, array (
 		"criteria" => $definition 
 ) );
 
-if ($regrade)
+if ($regrade) {
 	$mform->set_data ( $regrade );
+}
 
 if ($mform->is_cancelled ()) {
 	redirect ( $cancelurl );
@@ -198,11 +205,10 @@ if ($mform->is_cancelled ()) {
 	
 	$successmessage = get_string ( 'saved', 'mod_emarking' );
 	echo $OUTPUT->notification ( $successmessage, 'notifysuccess' );
-	echo $OUTPUT->single_button($cancelurl, get_string("continue"), "GET");
+	echo $OUTPUT->single_button ( $cancelurl, get_string ( "continue" ), "GET" );
 } else {
 	// Form processing and displaying is done here
 	$mform->display ();
 }
-
 
 echo $OUTPUT->footer ();
