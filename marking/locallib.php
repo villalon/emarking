@@ -765,8 +765,6 @@ ORDER BY c.shortname, u.lastname, u.firstname";
             $questions [] = $row->description;
     }
     
-    // var_dump($questions);echo"<hr>";
-
     $current = 0;
     $laststudent = 0;
     $headers = array (
@@ -836,8 +834,6 @@ ORDER BY c.shortname, u.lastname, u.firstname";
 
     $tabledata = $newtabledata;
     
-    // var_dump($tabledata);die();
-
     $excelfilename = clean_filename ( $emarking->name . "-justice" . ".xls");
     
     emarking_save_data_to_excel($headers, $tabledata, $excelfilename);

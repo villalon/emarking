@@ -46,6 +46,8 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades" );
 
+list ( $gradingmanager, $gradingmethod, $definition, $rubriccontroller ) = emarking_validate_rubric ( $context );
+
 $sqlfilter = $filteruser ? " AND u.id = $USER->id" : "";
 
 $sql = "select 
@@ -117,9 +119,12 @@ $table->head = array(
 );
 
 $data = array();
+$totalregrades = 0;
 foreach($records as $record) {
 
-    if($record->accepted) {
+    $totalregrades++;
+	
+	if($record->accepted) {
     	$statusicon = $OUTPUT->pix_icon("i/valid", get_string('replied', 'mod_emarking'));
     } else {
         $statusicon = $OUTPUT->pix_icon("i/flagged", get_string('sent', 'mod_emarking'));
@@ -182,5 +187,8 @@ $table->data = $data;
 
 echo html_writer::table($table);
 
-echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
+if(count($definition->rubric_criteria) > $totalregrades) {
+	echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array("id"=>$cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
+}
+
 echo $OUTPUT->footer();

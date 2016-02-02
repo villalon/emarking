@@ -84,7 +84,6 @@ class emarking_export_form extends moodleform
         $errors = array();
         
         $totalmarkers = 0;
-        var_dump($data);
         
         if ($totalmarkers == 0)
             $errors['markers'] = get_string('notenoughmarkersforqualitycontrol', 'mod_emarking');

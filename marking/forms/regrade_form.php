@@ -34,16 +34,25 @@ class emarking_regrade_form extends moodleform {
         global $COURSE, $DB,$CFG;
 
         $definition = $this->_customdata['criteria'];
-
+        $draft = $this->_customdata['draft'];
+        
         $mform = $this->_form;
         
         // Add header
         $mform->addElement('header', 'general', get_string('regraderequest', 'mod_emarking'));
 
+        // Obtain criteria that hasn't been regraded yet
+        $regrades = $DB->get_records("emarking_regrade", array("draft"=>$draft->id));
+        $accepted = array();
+        foreach($regrades as $regrade) {
+        	$accepted[] = $regrade->criterion;
+        }
         $criteria = array();
         $criteria[0] = get_string("select");
         foreach($definition->rubric_criteria as $criterion) {
-        	$criteria[$criterion['id']] = $criterion['description'];
+        	if(!in_array($criterion["id"], $accepted)) {
+        		$criteria[$criterion['id']] = $criterion['description'];
+        	}
         }
         
         $mform->addElement('select', 'criterion', get_string('criterion', 'mod_emarking'), $criteria);
@@ -87,4 +96,22 @@ class emarking_regrade_form extends moodleform {
         // Add action buttons
         $this->add_action_buttons();
     }
+    
+
+    function validation($data, $files)
+    {
+    	global $CFG, $COURSE, $USER, $DB;
+    
+    	$errors = array();
+    
+    	if ($data["criterion"] == 0) {
+    		$errors["criterion"] = get_string("criterionrequired", "mod_emarking");
+    	}
+    	
+        if (strlen($data["comment"]) < 10) {
+    		$errors["comment"] = get_string("justificationrequired", "mod_emarking");
+    	}
+    	
+    	return $errors;
+    }    
 }

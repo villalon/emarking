@@ -60,9 +60,30 @@ if ($criterionid && ! $minlevel = $DB->get_record_sql ( "
 	print_error ( "Criterion with no minimum level" );
 }
 
+if (! $submission = $DB->get_record ( 'emarking_submission', array (
+		'emarking' => $emarking->id,
+		'student' => $USER->id
+) )) {
+	print_error("Invalid submission");
+}
+
+if (! $draft = $DB->get_record ( 'emarking_draft', array (
+		'emarkingid' => $emarking->id,
+		'submissionid' => $submission->id,
+		'qualitycontrol' => 0
+) )) {
+	print_error ( 'Fatal error! Couldn\'t find emarking draft' );
+}
+
+
 // Check if user has an editingteacher role
 $issupervisor = has_capability ( 'mod/emarking:supervisegrading', $context );
 $usercangrade = has_capability ( 'mod/emarking:grade', $context );
+$owndraft = $USER->id == $submission->student;
+
+if(!$owndraft && !$issupervisor) {
+	print_error ( "Invalid access!" );
+}
 
 $url = new moodle_url ( '/mod/emarking/marking/regrades.php', array (
 		'id' => $cm->id 
@@ -85,34 +106,27 @@ echo $OUTPUT->header ();
 echo $OUTPUT->heading ( $emarking->name );
 echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), 'regrades' );
 
-if (! $emarkingsubmission = $DB->get_record ( 'emarking_submission', array (
-		'emarking' => $emarking->id,
-		'student' => $USER->id 
-) )) {
-	echo $OUTPUT->notification ( get_string ( 'examnotavailable', 'mod_emarking' ), 'notifyproblem' );
-	echo $OUTPUT->footer ();
-	die ();
-}
-
-if (! $emarkingdraft = $DB->get_record ( 'emarking_draft', array (
-		'emarkingid' => $emarking->id,
-		'submissionid' => $emarkingsubmission->id,
-		'qualitycontrol' => 0 
-) )) {
-	print_error ( 'Fatal error! Couldn\'t find emarking draft' );
-}
-
-if (! $emarkingsubmission->seenbystudent) {
+if (! $submission->seenbystudent) {
 	echo $OUTPUT->notification ( get_string ( 'mustseeexambeforeregrade', 'mod_emarking' ), 'notifyproblem' );
 	echo $OUTPUT->footer ();
 	die ();
 }
 
+$numpendingregrades = $DB->count_records ( 'emarking_regrade', array (
+			'draft' => $draft->id,
+			'accepted' => 0 
+	) );
+
+$numregrades = $DB->count_records ( 'emarking_regrade', array (
+		'draft' => $draft->id
+) );
+
+
 $regrade = null;
 $emarkingcomment = null;
 if ($criterionid) {
 	$regrade = $DB->get_record ( 'emarking_regrade', array (
-			'draft' => $emarkingdraft->id,
+			'draft' => $draft->id,
 			'criterion' => $criterionid 
 	) );
 	$emarkingcomment = $DB->get_record_sql ( '
@@ -122,7 +136,7 @@ if ($criterionid) {
             SELECT id FROM {gradingform_rubric_levels} as l
             WHERE l.criterionid = :criterionid) AND ec.draft = :draft', array (
 			'criterionid' => $criterionid,
-			'draft' => $emarkingdraft->id 
+			'draft' => $draft->id 
 	) );
 }
 
@@ -144,10 +158,21 @@ if ($regrade && $regrade->accepted > 0) {
 
 if ($regrade && $delete && $requestswithindate) {
 	$result = $DB->delete_records ( 'emarking_regrade', array (
-			'draft' => $emarkingdraft->id,
+			'draft' => $draft->id,
 			'criterion' => $criterionid 
 	) );
+
+	// If it was the only pending regrade, change draft status
+	if($numpendingregrades == 1) {
+		if($numregrades > 1)
+			$draft->status = EMARKING_STATUS_REGRADING_RESPONDED;
+		else
+			$draft->status = EMARKING_STATUS_PUBLISHED;
+		$DB->update_record("emarking_draft", $draft);
+	}
+	
 	$successmessage = get_string ( 'saved', 'mod_emarking' );
+	
 	echo $OUTPUT->notification ( $successmessage, 'notifysuccess' );
 	echo $OUTPUT->single_button ( $cancelurl, get_string ( "continue" ), "GET" );
 	echo $OUTPUT->footer ();
@@ -155,7 +180,8 @@ if ($regrade && $delete && $requestswithindate) {
 }
 
 $mform = new emarking_regrade_form ( $url, array (
-		"criteria" => $definition 
+		"criteria" => $definition ,
+		"draft" => $draft
 ) );
 
 if ($regrade) {
@@ -184,7 +210,7 @@ if ($mform->is_cancelled ()) {
 		$regrade->bonus = 0;
 	}
 	$regrade->student = $USER->id;
-	$regrade->draft = $emarkingdraft->id;
+	$regrade->draft = $draft->id;
 	$regrade->motive = $data->motive;
 	$regrade->comment = $data->comment;
 	$regrade->criterion = $criterionid;
@@ -197,11 +223,11 @@ if ($mform->is_cancelled ()) {
 		$regrade->id = $regradeid;
 	}
 	
-	$emarkingsubmission->status = EMARKING_STATUS_REGRADING;
-	$DB->update_record ( 'emarking_submission', $emarkingsubmission );
+	$submission->status = EMARKING_STATUS_REGRADING;
+	$DB->update_record ( 'emarking_submission', $submission );
 	
-	$emarkingdraft->status = EMARKING_STATUS_REGRADING;
-	$DB->update_record ( 'emarking_draft', $emarkingdraft );
+	$draft->status = EMARKING_STATUS_REGRADING;
+	$DB->update_record ( 'emarking_draft', $draft );
 	
 	$successmessage = get_string ( 'saved', 'mod_emarking' );
 	echo $OUTPUT->notification ( $successmessage, 'notifysuccess' );

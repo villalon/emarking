@@ -61,6 +61,8 @@ $string ['regradesclosedate_help'] = 'Fecha límite para que los estudiantes env
 $string ['mustseeexambeforeregrade'] = 'Debes revisar la corrección de tu prueba antes de solicitar recorrección.';
 $string ['viewmore'] = 'Ver más';
 $string ['cannotmodifyacceptedregrade'] = 'No se puede modificar una recorrección ya aceptada';
+$string ['criterionrequired'] = 'Debe seleccionar un criterio';
+$string ['justificationrequired'] = 'Debe justificar su solicitud';
 
 // MARKERS AND PAGES OSM CONFIGURATION
 $string['markerspercriteria']='Correctores';
