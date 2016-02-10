@@ -8,11 +8,12 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Exam successfully downloaded
  *
@@ -22,42 +23,36 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_emarking\event;
-
-defined ( 'MOODLE_INTERNAL' ) || die ();
-
+defined('MOODLE_INTERNAL') || die();
 class exam_downloaded extends \core\event\base {
-    
     public static function create_from_exam($exam, $context) {
-    
-        $event = self::create(array(
-            'context'       => $context,
-            'objectid'      => $exam->emarking,
-            'relateduserid' => $exam->requestedby
-        ));
-    
+        $event = self::create(
+                array(
+                    'context' => $context,
+                    'objectid' => $exam->emarking,
+                    'relateduserid' => $exam->requestedby));
         return $event;
     }
-    
-	protected function init() {
-		$this->data ['crud'] = 'r'; // c(reate), r(ead), u(pdate), d(elete)
-		$this->data ['edulevel'] = self::LEVEL_OTHER;
-		$this->data ['objecttable'] = 'emarking';
-	}
-	public static function get_name() {
-		return get_string ( 'examdownloaded', 'mod_emarking' );
-	}
-	public function get_description() {
-		return "The user with id '$this->userid' downloaded the exam from eMarking activity '$this->objectid' for the " .
-	    "course module id '$this->contextinstanceid'.";
-	}
-	public function get_legacy_logdata() {
-		// Override if you are migrating an add_to_log() call.
-		return array (
-				$this->courseid,
-				'emarking',
-				'view',
-				$this->objectid,
-				$this->contextinstanceid
-		);
-	}
+    protected function init() {
+        $this->data ['crud'] = 'r';
+        $this->data ['edulevel'] = self::LEVEL_OTHER;
+        $this->data ['objecttable'] = 'emarking';
+    }
+    public static function get_name() {
+        return get_string('examdownloaded', 'mod_emarking');
+    }
+    public function get_description() {
+        return "The user with id '$this->userid' downloaded the exam from eMarking activity" .
+               " '$this->objectid' for the " .
+               "course module id '$this->contextinstanceid'.";
+    }
+    public function get_legacy_logdata() {
+        // Override if you are migrating an add_to_log() call.
+        return array(
+            $this->courseid,
+            'emarking',
+            'view',
+            $this->objectid,
+            $this->contextinstanceid);
+    }
 }

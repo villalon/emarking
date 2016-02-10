@@ -17,32 +17,26 @@
 /**
  * Event observer.
  *
- * @package   mod
+ * @package mod
  * @subpackage emarking
- * @category  event
+ * @category event
  * @copyright 2015 Jorge Villalon <villalon@gmail.com>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
-
-$observers = array (
-    array (
+$observers = array(
+    array(
         'eventname' => '\core\event\user_enrolment_created',
-        'callback'  => 'mod_emarking_observer::user_enrolment_created',
-        'internal'  => false, // This means that we get events only after transaction commit.
-        'priority'  => 1000,
-    ),
-    array (
+        'callback' => 'mod_emarking_observer::user_enrolment_created',
+        'internal' => false, // This means that we get events only after transaction commit.
+        'priority' => 1000),
+    array(
         'eventname' => '\core\event\user_enrolment_updated',
-        'callback'  => 'mod_emarking_observer::user_enrolment_updated',
-        'internal'  => false, // This means that we get events only after transaction commit.
-        'priority'  => 1000,
-    ),
-    array (
+        'callback' => 'mod_emarking_observer::user_enrolment_updated',
+        'internal' => false, // This means that we get events only after transaction commit.
+        'priority' => 1000),
+    array(
         'eventname' => '\core\event\user_enrolment_deleted',
-        'callback'  => 'mod_emarking_observer::user_enrolment_deleted',
-        'internal'  => false, // This means that we get events only after transaction commit.
-        'priority'  => 1000,
-    ),
-);
+        'callback' => 'mod_emarking_observer::user_enrolment_deleted',
+        'internal' => false, // This means that we get events only after transaction commit.
+        'priority' => 1000));

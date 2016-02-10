@@ -28,7 +28,7 @@
 }
 
 #page-mod-emarking-marking-outcomes .c1,
-#page-mod-emarking-marking-pages .c1 {
+	#page-mod-emarking-marking-pages .c1 {
 	width: 100%;
 }
 
@@ -37,7 +37,7 @@
 }
 
 .viewmore {
-	cursor:pointer; 
+	cursor: pointer;
 	font-size: 6pt;
 }
 
@@ -60,16 +60,17 @@
 	display: none;
 	margin-left: 40px;
 	color: black;
-    font-weight: bold;
-    box-shadow: 0px 0px 3px #000;
+	font-weight: bold;
+	box-shadow: 0px 0px 3px #000;
 }
 
 .deletewidget:hover {
-	color:red;
+	color: red;
 }
+
 #page-mod-emarking-marking-pages .widget,
-#page-mod-emarking-marking-markers .widget {
-	border:none;
+	#page-mod-emarking-marking-markers .widget {
+	border: none;
 }
 
 #page-mod-emarking-marking-markers .widget {
@@ -78,12 +79,12 @@
 }
 
 #page-mod-emarking-marking-pages .deletewidget {
-    margin-left: 10px;    
+	margin-left: 10px;
 }
 
 #page-mod-emarking-marking-markers .deletewidget {
-    margin-left: 20px;
-    margin-top: -40px;    
+	margin-left: 20px;
+	margin-top: -40px;
 }
 
 .widget:hover .deletewidget {
@@ -93,12 +94,12 @@
 .widget {
 	float: left;
 	margin-right: 5px;
-    text-align: center;
-    background-color: #005aa8;
-    color: #fff;
-    padding: 3px;
-    box-shadow: 0px 0px 3px #000;
-    font-weight: bold;
+	text-align: center;
+	background-color: #005aa8;
+	color: #fff;
+	padding: 3px;
+	box-shadow: 0px 0px 3px #000;
+	font-weight: bold;
 }
 
 input[type="text"] {
@@ -106,7 +107,6 @@ input[type="text"] {
 }
 
 .exportbuttons .singlebutton {
-	
 }
 
 .timeago {
@@ -127,8 +127,8 @@ input[type="text"] {
 	color: #fff;
 	padding: 3px;
 	border-radius: 50%;
-    box-shadow: 0px 0px 3px #000;
-    font-weight: bold;
+	box-shadow: 0px 0px 3px #000;
+	font-weight: bold;
 }
 
 .regradecomment {
@@ -303,46 +303,46 @@ clear {
 }
 
 .emarking-area-cost-button-style {
-	background-color:lightgreen;
-	 font: 100%/100% Georgia, "Times New Roman", Times, serif;
-	 height:4em;
-	 width:10em;
+	background-color: lightgreen;
+	font: 100%/100% Georgia, "Times New Roman", Times, serif;
+	height: 4em;
+	width: 10em;
 }
 
 .emarking-totalcost-button-style {
 	background: #6495ED;
 	border-style: solid;
 	font: 100%/100% Georgia, "Times New Roman", Times, serif;
-	color:white;
+	color: white;
 }
 
 .emarking-column-cost-button-style {
-	background-color:lightgreen;
-	 font: 80%/100% Georgia, "Times New Roman", Times, serif;
-	 height:3em;
-	 width:10em;
+	background-color: lightgreen;
+	font: 80%/100% Georgia, "Times New Roman", Times, serif;
+	height: 3em;
+	width: 10em;
 }
 
 .emarking-column-totalcost-button-style {
 	background: #6495ED;
 	border-style: solid;
 	font: 80%/100% Georgia, "Times New Roman", Times, serif;
-	color:white;
+	color: white;
 }
 
-.emarking-left-table-ranking{
+.emarking-left-table-ranking {
 	width: 49%;
-	  float: left;
+	float: left;
 }
 
-.emarking-right-table-ranking{
+.emarking-right-table-ranking {
 	width: 49%;
-	  float: right;
+	float: right;
 }
 
 hr.style-one {
-    border: 0;
-    height: 1px;
-    background: #333;
-    background-image: linear-gradient(to right, #ccc, #333, #ccc);
+	border: 0;
+	height: 1px;
+	background: #333;
+	background-image: linear-gradient(to right, #ccc, #333, #ccc);
 }

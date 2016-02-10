@@ -16,18 +16,15 @@
 
 /**
  * Definition of messages
- *
- * @package    mod
+ * 
+ * @package mod
  * @subpackage emarking
- * @copyright  2013 Jorge Villalon <villalon@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2013 Jorge Villalon <villalon@gmail.com>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
-$messageproviders = array (
-		// Notify copy center that a teacher has submitted a new print order
-		'notification' => array (
-				'capability'  => 'mod/emarking:receivenotification'
-		)
-);
+$messageproviders = array(
+    // Notify copy center that a teacher has submitted a new print order.
+    'notification' => array(
+        'capability' => 'mod/emarking:receivenotification'));

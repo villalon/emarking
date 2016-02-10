@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *
@@ -21,25 +21,24 @@
  * @copyright 2012-onwards Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// EMARKING TYPES WORKFLOW
-$string['orsentexam'] = 'Asociar prueba impresa';
-$string['orsentexam_help'] = 'Puede asociar una prueba que fue enviada a imprimir previamente.';
-$string['print'] = 'Imprimir';
-$string['onscreenmarking'] = 'Corrección en pantalla';
-$string['scan'] = 'Digitalizar';
-$string['enablescan'] = 'Habilitar digitalización';
-$string['scanisenabled'] = 'Digitalización está habilitada. La corrección es manual, las respuestas se digitalizan y se suben al sistema como respaldo.';
-$string['scanwasenabled'] = 'Digitalización habilitada exitosamente.';
-$string['osmisenabled'] = 'Digitalización está habilitada. Las respuestas se digitalizan y se suben al sistema para ser corregidas en pantalla usando una rúbrica.';
-$string['enableosm'] = 'Habilitar corrección en pantalla';
-$string['enableosm_help'] = 'Debe habilitar la digitalización para poder habilitar la corrección en pantalla';
-$string['emarkingwithnoexam'] = 'Existe un problema de configuración con su actividad. Por favor notifique al administrador.';
-$string['printsettings'] = 'Configuración de impresión';
-$string['printsettings_help'] = 'Help for print settings';
-$string['markingtypemandatory'] = 'Debe seleccionar un tipo de corrección';
+// EMARKING TYPES WORKFLOW.
+$string ['orsentexam'] = 'Asociar prueba impresa';
+$string ['orsentexam_help'] = 'Puede asociar una prueba que fue enviada a imprimir previamente.';
+$string ['print'] = 'Imprimir';
+$string ['onscreenmarking'] = 'Corrección en pantalla';
+$string ['scan'] = 'Digitalizar';
+$string ['enablescan'] = 'Habilitar digitalización';
+$string ['scanisenabled'] = 'Digitalización está habilitada. La corrección es manual, las respuestas se digitalizan y se suben al sistema como respaldo.';
+$string ['scanwasenabled'] = 'Digitalización habilitada exitosamente.';
+$string ['osmisenabled'] = 'Digitalización está habilitada. Las respuestas se digitalizan y se suben al sistema para ser corregidas en pantalla usando una rúbrica.';
+$string ['enableosm'] = 'Habilitar corrección en pantalla';
+$string ['enableosm_help'] = 'Debe habilitar la digitalización para poder habilitar la corrección en pantalla';
+$string ['emarkingwithnoexam'] = 'Existe un problema de configuración con su actividad. Por favor notifique al administrador.';
+$string ['printsettings'] = 'Configuración de impresión';
+$string ['printsettings_help'] = 'Help for print settings';
+$string ['markingtypemandatory'] = 'Debe seleccionar un tipo de corrección';
 $string ['emarkingviewed'] = 'Ver prueba';
-
-// REGRADES
+// REGRADES.
 $string ['justification'] = 'Justificación';
 $string ['justification_help'] = 'Usted debe justificar su solicitud de recorrección';
 $string ['noregraderequests'] = 'No hay solicitudes de recorrección';
@@ -63,50 +62,46 @@ $string ['viewmore'] = 'Ver más';
 $string ['cannotmodifyacceptedregrade'] = 'No se puede modificar una recorrección ya aceptada';
 $string ['criterionrequired'] = 'Debe seleccionar un criterio';
 $string ['justificationrequired'] = 'Debe justificar su solicitud';
-
-// MARKERS AND PAGES OSM CONFIGURATION
-$string['markerspercriteria']='Correctores';
-$string['pagespercriteria']='Páginas';
-$string['markerscanseewholerubric']='Correctores pueden ver la rúbrica completa.';
-$string['markerscanseeallpages'] = 'Correctores ven todas las páginas.';
-$string['markerscanseeselectedcriteria'] = 'Correctores ven solamente criterios que se le han asignado.';
-$string['markerscanseenothing'] = 'Hay páginas asignadas a criterios, pero no correctores. Esto provocará que solo los administradores puedan ver las páginas.';
-$string['markerscanseepageswithcriteria'] = 'Correctores ven solo las páginas de los criterios que tienen asignados.';
-$string['assignedmarkers'] = 'Correctores asignados';
-$string['assignedoutcomes'] = 'Resultados asignados';
-$string['nooutcomesassigned'] = 'No hay resultados asociados a la rúbrica de esta prueba';
-$string['assignmarkerstocriteria'] = 'Agregar correctores a criterios';
-$string['assignoutcomestocriteria'] = 'Agregar resultados a criterios';
-$string['currentstatus'] = 'Configuración actual';
-$string['noneditingteacherconfiguration'] = 'Como ayudante no puedes modificar la configuración.';
-$string['coursehasnooutcomes'] = 'El curso no tiene resultados de aprendizaje asociados. Además deberá asociar resultados de aprendizaje a la prueba emarking. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
-$string['gotooutcomessettings'] = 'Ir a configuración de resultados de aprendizaje';
-$string['emarkinghasnooutcomes'] = 'La prueba no tiene asociado ningún resultado de aprendizaje. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
-$string['gotoemarkingsettings'] = 'Ir a configuración de emarking';
-$string['emarkingdst'] = 'eMarking destino';
-$string['emarkingdst_help'] = 'Seleccione las pruebas eMarking a las que copiará la configuración';
-$string['override'] = 'Sobreescribir rúbrica';
-$string['override_help'] = 'Sobreescribe la rúbrica de la prueba eMarking destino, usando la de esta prueba';
-$string['noparallelemarkings'] = 'No hay pruebas eMarking en los cursos paralelos';
-$string['scalelevels'] = 'Porcentajes para escala';
-$string['studentachievement'] = '% de estudiantes';
-$string['level'] = 'Nivel de logro';
-
-// GENERAL
-$string['criteria'] = 'Criterios';
-$string['deleterow'] = 'Borrar fila';
-$string['nodejspath'] = 'Ruta de NodeJS';
-$string['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091';
-$string['emarkinggraded'] = 'Corrección eMarking';
-
-// SMS SECURITY
+// MARKERS AND PAGES OSM CONFIGURATION.
+$string ['markerspercriteria'] = 'Correctores';
+$string ['pagespercriteria'] = 'Páginas';
+$string ['markerscanseewholerubric'] = 'Correctores pueden ver la rúbrica completa.';
+$string ['markerscanseeallpages'] = 'Correctores ven todas las páginas.';
+$string ['markerscanseeselectedcriteria'] = 'Correctores ven solamente criterios que se le han asignado.';
+$string ['markerscanseenothing'] = 'Hay páginas asignadas a criterios, pero no correctores. Esto provocará que solo los administradores puedan ver las páginas.';
+$string ['markerscanseepageswithcriteria'] = 'Correctores ven solo las páginas de los criterios que tienen asignados.';
+$string ['assignedmarkers'] = 'Correctores asignados';
+$string ['assignedoutcomes'] = 'Resultados asignados';
+$string ['nooutcomesassigned'] = 'No hay resultados asociados a la rúbrica de esta prueba';
+$string ['assignmarkerstocriteria'] = 'Agregar correctores a criterios';
+$string ['assignoutcomestocriteria'] = 'Agregar resultados a criterios';
+$string ['currentstatus'] = 'Configuración actual';
+$string ['noneditingteacherconfiguration'] = 'Como ayudante no puedes modificar la configuración.';
+$string ['coursehasnooutcomes'] = 'El curso no tiene resultados de aprendizaje asociados. Además deberá asociar resultados de aprendizaje a la prueba emarking. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
+$string ['gotooutcomessettings'] = 'Ir a configuración de resultados de aprendizaje';
+$string ['emarkinghasnooutcomes'] = 'La prueba no tiene asociado ningún resultado de aprendizaje. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
+$string ['gotoemarkingsettings'] = 'Ir a configuración de emarking';
+$string ['emarkingdst'] = 'eMarking destino';
+$string ['emarkingdst_help'] = 'Seleccione las pruebas eMarking a las que copiará la configuración';
+$string ['override'] = 'Sobreescribir rúbrica';
+$string ['override_help'] = 'Sobreescribe la rúbrica de la prueba eMarking destino, usando la de esta prueba';
+$string ['noparallelemarkings'] = 'No hay pruebas eMarking en los cursos paralelos';
+$string ['scalelevels'] = 'Porcentajes para escala';
+$string ['studentachievement'] = '% de estudiantes';
+$string ['level'] = 'Nivel de logro';
+// GENERAL.
+$string ['criteria'] = 'Criterios';
+$string ['deleterow'] = 'Borrar fila';
+$string ['nodejspath'] = 'Ruta de NodeJS';
+$string ['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091';
+$string ['emarkinggraded'] = 'Corrección eMarking';
+// SMS SECURITY.
 $string ['download'] = 'Descargar';
 $string ['cancel'] = 'Cancelar';
 $string ['resendcode'] = 'Reenviar código de seguridad';
 $string ['smsservertimeout'] = 'Se agotó el tiempo de espera para enviar el código. Por favor avise al administrador.';
 $string ['smsservererror'] = 'Tuvimos problemas de comunicación con el servidor de mensajes celulares. Por favor reintente más tarde.';
-    
-// EXAMS
+// EXAMS.
 $string ['examdetails'] = 'Detalles de la prueba';
 $string ['examalreadysent'] = 'La prueba ya fue impresa, no puede modificarse.';
 $string ['examdate'] = 'Fecha y hora de la prueba';
@@ -127,116 +122,109 @@ $string ['examstatusdownloaded'] = 'Descargada';
 $string ['examstatusprinted'] = 'Impresa';
 $string ['examstatussent'] = 'Enviada';
 $string ['downloadexam'] = 'Descargar prueba';
-
-// JUSTICE PERCEPTION
-$string['er-4'] = '-4 (mucho peor de lo que merecía)';
-$string['er-3'] = '-3';
-$string['er-2'] = '-2';
-$string['er-1'] = '-1';
-$string['er0'] = '0 (más o menos lo que merecía)';
-$string['er1'] = '1';
-$string['er2'] = '2';
-$string['er3'] = '3';
-$string['er4'] = '4 (mucho más de lo que merecía)';
-$string['of-4'] = '-4 (extremadamente injusta)';
-$string['of-3'] = '-3';
-$string['of-2'] = '-2';
-$string['of-1'] = '-1';
-$string['of0'] = '0 (ni justa ni injusta)';
-$string['of1'] = '1';
-$string['of2'] = '2';
-$string['of3'] = '3';
-$string['of4'] = '4 (extremadamente justa)';
+// JUSTICE PERCEPTION.
+$string ['er-4'] = '-4 (mucho peor de lo que merecía)';
+$string ['er-3'] = '-3';
+$string ['er-2'] = '-2';
+$string ['er-1'] = '-1';
+$string ['er0'] = '0 (más o menos lo que merecía)';
+$string ['er1'] = '1';
+$string ['er2'] = '2';
+$string ['er3'] = '3';
+$string ['er4'] = '4 (mucho más de lo que merecía)';
+$string ['of-4'] = '-4 (extremadamente injusta)';
+$string ['of-3'] = '-3';
+$string ['of-2'] = '-2';
+$string ['of-1'] = '-1';
+$string ['of0'] = '0 (ni justa ni injusta)';
+$string ['of1'] = '1';
+$string ['of2'] = '2';
+$string ['of3'] = '3';
+$string ['of4'] = '4 (extremadamente justa)';
 $string ['justiceperceptionprocess'] = '¿Cómo evaluaría cuan justa fue la corrección de esta evaluación?';
 $string ['justiceperceptionexpectation'] = '¿Cómo se compara su calificación en esta evaluación con la que usted piensa que se merecía?';
-$string['justiceperceptionprocesscriterion'] = '¿Cómo evaluaría cuan justa fue la corrección de cada pregunta?';
-$string['justiceperceptionexpectationcriterion'] = '¿Cómo se compara su puntaje en cada pregunta con el que usted piensa que se merecía?';
+$string ['justiceperceptionprocesscriterion'] = '¿Cómo evaluaría cuan justa fue la corrección de cada pregunta?';
+$string ['justiceperceptionexpectationcriterion'] = '¿Cómo se compara su puntaje en cada pregunta con el que usted piensa que se merecía?';
 $string ['thanksforjusticeperception'] = 'Gracias por expresar su opinión';
-$string['justicedisabled'] = 'Deshabilitada';
-$string['justicepersubmission'] = 'Solicitar una opinión por prueba';
-$string['justicepercriterion'] = 'Solicitar una opinión por criterio de la rúbrica';
-$string['justice'] = 'Justicia';
-$string['justiceperception'] = 'Preguntar percepción de justicia';
-$string['justiceperception_help'] = 'Esta opción permite a los estudiantes entregar su percepción de justicia respecto del proceso de corrección (justicia procedural) y su resultado (justicia distributiva). Se puede preguntar por la prueba en general o por cada criterio de la rúbrica.';
-$string['agreementflexibility'] = 'Flexibilidad de acuerdo';
-$string['agreementflexibility_help'] = 'Define la diferencia máxima entre las calificaciones entregadas por un corrector y el promedio de los demás correctores para ser considerado fuera de rango.';
-$string['agreementflexibility00'] = 'Estricto (calificaciones deben ser iguales)';
-$string['agreementflexibility20'] = 'Flexible (permite diferencias de 20%)';
-$string['agreementflexibility40'] = 'Laxo (permite diferencias de 40%)';
-$string['firststagedate'] = 'Fecha límite para corregir';
-$string['firststagedate_help'] = 'Fecha límite en la que los correctores deben corregir todas sus pruebas';
-$string['secondstagedate'] = 'Fecha límite para acuerdo';
-$string['secondstagedate_help'] = 'Fecha límite en la que los correctores deben alcanzar el acuerdo';
-$string['mustseefeedbackbeforejustice'] = 'Debes revisar la corrección de tu prueba antes de entregar tu opinión.';
-$string['reviewpeersfeedback'] = 'Revisar compañeros';
-
-// PREDEFINED COMMENTS
-$string['datahasheaders'] = 'Ignorar primera fila';
-$string['predefinedcomments'] = 'Comentarios predefinidos';
-$string['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';
-$string['onlyfirstcolumn'] = 'Solo la primera columna es importada. Un ejemplo de los datos a importar se muestra abajo:';
-$string['onecolumnrequired'] = 'Debes ingresar una o mas columnas';
-$string['twolinesrequired'] = 'Debes ingresar dos o mas líneas';
-$string['mobilephoneregex'] = 'Expresión regular de celulares';
-$string['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
-$string['invalidphonenumber'] = 'Número de celular inválido, se requiere un teléfono completo en formato internacional (ej: +56912345678)';
-$string['errorsendingemail'] = 'Se produjo un error con el servidor de correo';
-$string['second'] = 'Segundo';
-$string['seconds'] = 'Segundos';
-$string['processomr'] = 'Procesar OMR';
-$string['signature'] = 'Firma';
-$string['advanced'] = 'Avanzado';
-$string['photo'] = 'Fotografía';
-$string['settingupprinting'] = 'Configurando impresiones';
-$string['printing'] = 'Imprimiendo';
-$string['tokenexpired'] = 'El código de seguridad ha expirado. Obtenga uno nuevo.';
-$string['otherenrolment'] = 'Otro método de matriculación.';
-$string['sent'] = 'Enviada';
-$string['replied'] = 'Contestada';
-$string['usernotloggedin'] = 'Usuario no está logueado';
-$string['invalidsessionkey'] = 'Clave de sesión inválida';
-$string['emarkingsecuritycode'] = 'Código de seguridad eMarking';
-$string['savechanges'] = 'Guardar cambios';
+$string ['justicedisabled'] = 'Deshabilitada';
+$string ['justicepersubmission'] = 'Solicitar una opinión por prueba';
+$string ['justicepercriterion'] = 'Solicitar una opinión por criterio de la rúbrica';
+$string ['justice'] = 'Justicia';
+$string ['justiceperception'] = 'Preguntar percepción de justicia';
+$string ['justiceperception_help'] = 'Esta opción permite a los estudiantes entregar su percepción de justicia respecto del proceso de corrección (justicia procedural) y su resultado (justicia distributiva). Se puede preguntar por la prueba en general o por cada criterio de la rúbrica.';
+$string ['agreementflexibility'] = 'Flexibilidad de acuerdo';
+$string ['agreementflexibility_help'] = 'Define la diferencia máxima entre las calificaciones entregadas por un corrector y el promedio de los demás correctores para ser considerado fuera de rango.';
+$string ['agreementflexibility00'] = 'Estricto (calificaciones deben ser iguales)';
+$string ['agreementflexibility20'] = 'Flexible (permite diferencias de 20%)';
+$string ['agreementflexibility40'] = 'Laxo (permite diferencias de 40%)';
+$string ['firststagedate'] = 'Fecha límite para corregir';
+$string ['firststagedate_help'] = 'Fecha límite en la que los correctores deben corregir todas sus pruebas';
+$string ['secondstagedate'] = 'Fecha límite para acuerdo';
+$string ['secondstagedate_help'] = 'Fecha límite en la que los correctores deben alcanzar el acuerdo';
+$string ['mustseefeedbackbeforejustice'] = 'Debes revisar la corrección de tu prueba antes de entregar tu opinión.';
+$string ['reviewpeersfeedback'] = 'Revisar compañeros';
+// PREDEFINED COMMENTS.
+$string ['datahasheaders'] = 'Ignorar primera fila';
+$string ['predefinedcomments'] = 'Comentarios predefinidos';
+$string ['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';
+$string ['onlyfirstcolumn'] = 'Solo la primera columna es importada. Un ejemplo de los datos a importar se muestra abajo:';
+$string ['onecolumnrequired'] = 'Debes ingresar una o mas columnas';
+$string ['twolinesrequired'] = 'Debes ingresar dos o mas líneas';
+$string ['mobilephoneregex'] = 'Expresión regular de celulares';
+$string ['mobilephoneregex_help'] = 'Una expresión regular que valide un número de teléfono celular en su país. (p.ej: +569\d{8})';
+$string ['invalidphonenumber'] = 'Número de celular inválido, se requiere un teléfono completo en formato internacional (ej: +56912345678)';
+$string ['errorsendingemail'] = 'Se produjo un error con el servidor de correo';
+$string ['second'] = 'Segundo';
+$string ['seconds'] = 'Segundos';
+$string ['processomr'] = 'Procesar OMR';
+$string ['signature'] = 'Firma';
+$string ['advanced'] = 'Avanzado';
+$string ['photo'] = 'Fotografía';
+$string ['settingupprinting'] = 'Configurando impresiones';
+$string ['printing'] = 'Imprimiendo';
+$string ['tokenexpired'] = 'El código de seguridad ha expirado. Obtenga uno nuevo.';
+$string ['otherenrolment'] = 'Otro método de matriculación.';
+$string ['sent'] = 'Enviada';
+$string ['replied'] = 'Contestada';
+$string ['usernotloggedin'] = 'Usuario no está logueado';
+$string ['invalidsessionkey'] = 'Clave de sesión inválida';
+$string ['emarkingsecuritycode'] = 'Código de seguridad eMarking';
+$string ['savechanges'] = 'Guardar cambios';
 $string ['changessaved'] = 'Cambios guardados exitosamente';
-$string['qualitycontrol'] = 'Control de Calidad';
-$string['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
-$string['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
-$string['enablequalitycontrol'] = 'Habilitar Control de Calidad';
-$string['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas serán asignados a los correctores de CC para que sean corregidos nuevamente y así calcular el acuerdo entre correctores.';
-$string['qualitycontroldescription'] = 'Un grupo de pruebas serán asignadas a los correctores seleccionados para que sean corregidas nuevamente y así calcular el acuerdo entre correctores.';
-
-// MARKERS TRAINING
-$string['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
-$string['notenoughmarkersforqualitycontrol'] = 'No ha seleccionado correctores para que realicen el control de calidad. Por favor seleccione al menos un corrector como responsable de corregir las pruebas de control.';
-$string['markerstrainingnotforstudents'] = 'Esta es una actividad de entrenamiento para correctores. Usted no tiene acceso a ella.';
-$string['updatemark'] = 'Cambiar corrección';
-
-// PEER REVIEW
+$string ['qualitycontrol'] = 'Control de Calidad';
+$string ['markersqualitycontrol'] = 'Correctores asignados a Control de Calidad';
+$string ['markersqualitycontrol_help'] = 'Los correctores asignados a Control de Calidad son los que corregirán las pruebas con las que se calculará luego el acuerdo entre correctores.';
+$string ['enablequalitycontrol'] = 'Habilitar Control de Calidad';
+$string ['enablequalitycontrol_help'] = 'Si se habilita CC, un grupo de pruebas serán asignados a los correctores de CC para que sean corregidos nuevamente y así calcular el acuerdo entre correctores.';
+$string ['qualitycontroldescription'] = 'Un grupo de pruebas serán asignadas a los correctores seleccionados para que sean corregidas nuevamente y así calcular el acuerdo entre correctores.';
+// MARKERS TRAINING.
+$string ['notenoughmarkersfortraining'] = 'No hay suficientes correctores para un entrenamiento. Por favor matricule correctores como profesores sin permiso de edición para realizar el entrenamiento.';
+$string ['notenoughmarkersforqualitycontrol'] = 'No ha seleccionado correctores para que realicen el control de calidad. Por favor seleccione al menos un corrector como responsable de corregir las pruebas de control.';
+$string ['markerstrainingnotforstudents'] = 'Esta es una actividad de entrenamiento para correctores. Usted no tiene acceso a ella.';
+$string ['updatemark'] = 'Cambiar corrección';
+// PEER REVIEW.
 $string ['notenoughstudenstforpeerreview'] = 'No hay suficientes estudiantes para revisión entre pares';
 $string ['reassignpeers'] = 'Reasignar pares';
-
-// ANONYMOUS
-$string['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
-$string['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
-$string['studentvisible_markervisible'] = 'Estudiante visible / Corrector visible';
-$string['studentvisible_markeranonymous'] = 'Estudiante visible / Corrector anónimo';
-$string['anonymous'] = 'Corrección anónima';
-$string['yespeerisanonymous'] = 'Si (Par es anónimo)';
-$string['anonymous_help'] = 'Seleccione para que el proceso de corrección sea anónimo, en cuyo caso los nombres de los estudiantes serán escondidos.';
-$string['anonymousstudent'] = 'Estudiante anónimo';
-$string['viewpeers'] = 'Estudiantes ven pruebas de otros estudiantes';
-$string['viewpeers_help'] = 'Se le permite a los estudiantes revisar pruebas de sus compañeros de manera anónima';
-
-// EMARKING IMPORT RUBRIC
-$string['rubriclevel'] = 'Nivel';
-$string['importrubric'] = 'Importar rúbrica';
-$string['pastefromexcel'] = 'Pegar desde Excel';
-$string['pastefromexcel_help'] = 'Seleccione las celdas deseadas en Excel, cópielas y luego péguelas en el cuadro de texto';
+// ANONYMOUS.
+$string ['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
+$string ['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
+$string ['studentvisible_markervisible'] = 'Estudiante visible / Corrector visible';
+$string ['studentvisible_markeranonymous'] = 'Estudiante visible / Corrector anónimo';
+$string ['anonymous'] = 'Corrección anónima';
+$string ['yespeerisanonymous'] = 'Si (Par es anónimo)';
+$string ['anonymous_help'] = 'Seleccione para que el proceso de corrección sea anónimo, en cuyo caso los nombres de los estudiantes serán escondidos.';
+$string ['anonymousstudent'] = 'Estudiante anónimo';
+$string ['viewpeers'] = 'Estudiantes ven pruebas de otros estudiantes';
+$string ['viewpeers_help'] = 'Se le permite a los estudiantes revisar pruebas de sus compañeros de manera anónima';
+// EMARKING IMPORT RUBRIC.
+$string ['rubriclevel'] = 'Nivel';
+$string ['importrubric'] = 'Importar rúbrica';
+$string ['pastefromexcel'] = 'Pegar desde Excel';
+$string ['pastefromexcel_help'] = 'Seleccione las celdas deseadas en Excel, cópielas y luego péguelas en el cuadro de texto';
 $string ['rubricneeded'] = 'eMarking requiere el uso de rúbricas para la corrección. Por favor cree una manualmente o impórtela desde Excel.';
 $string ['rubricdraft'] = 'eMarking requiere una rúbrica lista, la rúbrica se encuentra en estado de borrador. Por favor completar rúbrica';
 $string ['confirmimport'] = 'A continuación se muestra la rúbrica que será creada, por favor verifique que todos los detalles están correctos. NOTA: La rúbrica puede modificarse posteriormente en el editor.';
-
-// E-MARKING TYPES
+// E-MARKING TYPES.
 $string ['markingtype'] = 'Tipo de corrección';
 $string ['markingtype_help'] = '<h2>Tipos de corrección</h2><br>
 		Hay cuatro tipos de corrección en eMarking:
@@ -254,24 +242,21 @@ $string ['type_student_training'] = 'Entrenamiento de estudiantes';
 $string ['type_peer_review'] = 'Revisión entre pares';
 $string ['type_print_only'] = 'Solo impresión';
 $string ['type_print_scan'] = 'Imprimir y digitalizar';
-
-// EMARKING PRINTING
-$string['digitizedanswersreminder'] = 'Recordatorio pruebas digitalizadas';
-$string['daysbeforedigitizingreminder'] = 'Días previos al recordatorio';
-$string['daysbeforedigitizingreminder_help'] = 'Número de días tras el cual se enviará el mensaje recordatorio a profesores respecto de la digitalización de sus pruebas.';
-$string['digitizedanswersmessage'] = 'Mensaje del recordatorio de pruebas digitalizadas';
-$string['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesores luego de cumplido un período de días tras la digitalización de sus pruebas.';
+// EMARKING PRINTING.
+$string ['digitizedanswersreminder'] = 'Recordatorio pruebas digitalizadas';
+$string ['daysbeforedigitizingreminder'] = 'Días previos al recordatorio';
+$string ['daysbeforedigitizingreminder_help'] = 'Número de días tras el cual se enviará el mensaje recordatorio a profesores respecto de la digitalización de sus pruebas.';
+$string ['digitizedanswersmessage'] = 'Mensaje del recordatorio de pruebas digitalizadas';
+$string ['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesores luego de cumplido un período de días tras la digitalización de sus pruebas.';
 $string ['viewadminprints'] = '<a href="{$a}">Administrar impresoras</a>';
 $string ['viewpermitsprinters'] = '<br/><a href="{$a}">Administrar permisos de impresoras</a>';
-
-// EMARKING UPLOAD ANSWERS
+// EMARKING UPLOAD ANSWERS.
 $string ['confirmprocess'] = 'Confirmar proceso';
 $string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';
 $string ['uploadanswers'] = 'Subir respuestas digitalizadas';
 $string ['uploadanswers_help'] = 'En esta página usted puede subir las respuestas digitalizadas de sus estudiantes. El format es un archivo ZIP que contiene dos archivos de imagen PNG por cada página de la prueba (una de ellas es la versión anónima). Este archivo se obtiene usando la aplicación eMarking desktop que se puede descargar <a href="">aquí</a>';
 $string ['uploadanswersuccessful'] = 'Respuestas digitalizadas subidas exitosamente';
-
-// REPORTS
+// REPORTS.
 $string ['reports'] = 'Reportes';
 $string ['gradereport'] = 'Grades report';
 $string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular eMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
@@ -292,58 +277,54 @@ $string ['greaterthan'] = 'Mayor {$a}';
 $string ['pagesperexam'] = 'Páginas por prueba';
 $string ['printdetails'] = 'Detalles impresión';
 $string ['apply'] = 'Aplicar';
-
-// EMARKING COST REPORT
-$string['costreport'] = 'Reportes';
-$string['totalactivies'] = 'Numero de actividades';
-$string['emarkingcourses'] = 'Cursos con eMarking';
-$string['meantestlenght'] = 'Largo promedio de prueba';
-$string['totalprintedpages'] = 'Hojas totales impresas';
-$string['reportbuttonsheader'] = 'Costos de eMarking';
-$string['courseranking'] = 'Ranking de cursos';
-$string['teacherranking'] = 'Ranking de profesores';
-$string['printingcost'] = 'Costo por hoja impresa';
-$string['printingcost_help'] = 'El costo monetario de cada hoja impresa';
-$string['totalprintingcost'] = 'Costo total de impresiones';
-$string['costsettings'] = 'Configuracion';
-$string['costconfigtab'] = 'Definir costo categorico';
-$string['costcategorytable'] = 'Ver costo categorico';
-$string['editcost'] = 'Editar';
-$string['activities'] = 'Actividades';
-$string['emarkingcourses'] = 'Cursos con eMarking';
-$string['meanexamleanght'] = 'Largo promedio prueba';
-$string['totalprintedpages'] = 'Paginas impresas';
-$string['totalcost'] = 'Costo total';
-$string['numericcost_help'] = 'Ingresar un valor numerico para el costo por hoja';
-$string['numericvalue'] = 'Ingresa un valor numerico';
-$string['validcostcenter'] = 'Ingresa un valor numerico';
-$string['validcostcenter_help'] = 'Ingresar un numero valido para el centro de costos';
-$string['categoryselection_help'] = 'Selecciona la categoria que deseas agregar/editar';
-$string['categoryselection'] = 'Elegir una categoria';
-$string['downloadexcel'] = 'Descargar excel';
-$string['category'] = 'Categoría';
-$string['categorycost'] = 'Costo de categoría';
-$string['costcenter'] = 'Central de costos';
-$string['costofonepage'] = 'Costo de impresion por hoja';
-$string['costcenternumber'] = 'Numero de central de costo';
-$string['month'] = 'Mes';
-$string['coursename'] = 'Nombre del curso';
-$string['teachername'] = 'Nombre del profesor';
-$string['monthlycost'] = 'Costo mensual';
-$string['studentnumber'] = 'Numero de estudiantes';
-$string['categorychart'] = 'Grafico de la categoría';
-$string['subcategorychart'] = 'Gafico de la sub-categoría';
-$string['changeconfiguration'] = 'Modificar configuracion de costos';
-$string['cost'] = 'Costo por hoja';
-$string['exammodification'] = 'Ingresar nuevo valor para costo de impresion y central de costos';
-$string['numericplease'] = 'Ingresa un valor numerico';
-$string['costconfiguration'] = 'Configuración de costo';
-$string['costconfiguration_help'] = 'Para un analisis de costos correcto, ingrese un costo por hoja impresa distinto de 0';
-$string['defaultcost'] = 'Costo de impresion';
-$string['defaultcost_cost'] = 'Costo por defecto de imprimir una hoja';
-
-
-/////////////////////////////////////////////
+// EMARKING COST REPORT.
+$string ['costreport'] = 'Reportes';
+$string ['totalactivies'] = 'Numero de actividades';
+$string ['emarkingcourses'] = 'Cursos con eMarking';
+$string ['meantestlenght'] = 'Largo promedio de prueba';
+$string ['totalprintedpages'] = 'Hojas totales impresas';
+$string ['reportbuttonsheader'] = 'Costos de eMarking';
+$string ['courseranking'] = 'Ranking de cursos';
+$string ['teacherranking'] = 'Ranking de profesores';
+$string ['printingcost'] = 'Costo por hoja impresa';
+$string ['printingcost_help'] = 'El costo monetario de cada hoja impresa';
+$string ['totalprintingcost'] = 'Costo total de impresiones';
+$string ['costsettings'] = 'Configuracion';
+$string ['costconfigtab'] = 'Definir costo categorico';
+$string ['costcategorytable'] = 'Ver costo categorico';
+$string ['editcost'] = 'Editar';
+$string ['activities'] = 'Actividades';
+$string ['emarkingcourses'] = 'Cursos con eMarking';
+$string ['meanexamleanght'] = 'Largo promedio prueba';
+$string ['totalprintedpages'] = 'Paginas impresas';
+$string ['totalcost'] = 'Costo total';
+$string ['numericcost_help'] = 'Ingresar un valor numerico para el costo por hoja';
+$string ['numericvalue'] = 'Ingresa un valor numerico';
+$string ['validcostcenter'] = 'Ingresa un valor numerico';
+$string ['validcostcenter_help'] = 'Ingresar un numero valido para el centro de costos';
+$string ['categoryselection_help'] = 'Selecciona la categoria que deseas agregar/editar';
+$string ['categoryselection'] = 'Elegir una categoria';
+$string ['downloadexcel'] = 'Descargar excel';
+$string ['category'] = 'Categoría';
+$string ['categorycost'] = 'Costo de categoría';
+$string ['costcenter'] = 'Central de costos';
+$string ['costofonepage'] = 'Costo de impresion por hoja';
+$string ['costcenternumber'] = 'Numero de central de costo';
+$string ['month'] = 'Mes';
+$string ['coursename'] = 'Nombre del curso';
+$string ['teachername'] = 'Nombre del profesor';
+$string ['monthlycost'] = 'Costo mensual';
+$string ['studentnumber'] = 'Numero de estudiantes';
+$string ['categorychart'] = 'Grafico de la categoría';
+$string ['subcategorychart'] = 'Gafico de la sub-categoría';
+$string ['changeconfiguration'] = 'Modificar configuracion de costos';
+$string ['cost'] = 'Costo por hoja';
+$string ['exammodification'] = 'Ingresar nuevo valor para costo de impresion y central de costos';
+$string ['numericplease'] = 'Ingresa un valor numerico';
+$string ['costconfiguration'] = 'Configuración de costo';
+$string ['costconfiguration_help'] = 'Para un analisis de costos correcto, ingrese un costo por hoja impresa distinto de 0';
+$string ['defaultcost'] = 'Costo de impresion';
+$string ['defaultcost_cost'] = 'Costo por defecto de imprimir una hoja';
 $string ['invalidcustommarks'] = 'Marcadores personalizados inválidos, línea(s): ';
 $string ['exporttoexcel'] = 'Exportar a Excel';
 $string ['exportgrades'] = 'Exportar calificaciones';
@@ -365,8 +346,8 @@ $string ['linkrubric'] = 'Rúbrica multicolor';
 $string ['linkrubric_help'] = 'Una rúbrica multicolor mostrará un color diferente para cada criterio, tanto para las correcciones (cruces o ticks) como para los comentarios.';
 $string ['collaborativefeatures'] = 'Colaboración entre correctores';
 $string ['collaborativefeatures_help'] = 'Habilita el chat, el muro y el SOS para la colaboración de correctores. El chat permite a correctores comunicarse entre si. El muro permite a supervisores (profesor o administrador) enviar mensajes, los correctores no pueden escribir en el muro. El SOS permite a correctores solicitar ayuda respecto de una prueba que están corrigiendo.';
-$string['enrolments'] = 'Métodos de matriculación';
-$string['enrolments_help'] = 'Solo se incluirán los estudiantes matriculados en los métodos de matriculación seleccionados.';
+$string ['enrolments'] = 'Métodos de matriculación';
+$string ['enrolments_help'] = 'Solo se incluirán los estudiantes matriculados en los métodos de matriculación seleccionados.';
 $string ['enrolmanual'] = 'Matriculaciones manuales';
 $string ['enrolself'] = 'Auto-Matriculaciones';
 $string ['enroldatabase'] = 'Matriculaciones de base de datos externa';
@@ -647,8 +628,7 @@ $string ['gradehistogramtotal'] = 'Histograma de notas agregado';
 $string ['courseaproval'] = 'Aprobación de curso';
 $string ['range'] = 'Rango';
 $string ['marker'] = 'Corrector';
-
-/** Events */
+// Events.
 $string ['eventemarkinggraded'] = 'Emarking';
 $string ['eventrotatepageswitched'] = 'Rotar pagina';
 $string ['eventaddcommentadded'] = 'Agregar comentario';
@@ -663,8 +643,7 @@ $string ['eventunauthorizedccessgranted'] = 'WARNING: Acceso no autorizado a la 
 $string ['eventmarkersconfigcalled'] = 'Se ingresa al markers config';
 $string ['eventmarkersassigned'] = 'Correctores han sido assignado';
 $string ['eventemarkingcalled'] = 'Llamada al emarking';
-
-/** Delphi's strings */
+// Delphi's strings.
 $string ['marking_progress'] = 'Progreso de corrección';
 $string ['delphi_stage_one'] = 'Corrección';
 $string ['marking_deadline'] = 'Termina en';
@@ -674,4 +653,3 @@ $string ['marking_completed'] = 'Bien hecho, ahora debes esperar a los demás co
 $string ['stage'] = 'Etapa';
 $string ['agreement'] = 'Acuerdo';
 $string ['yourmarking'] = 'Tu corrección';
-

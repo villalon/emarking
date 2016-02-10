@@ -16,66 +16,57 @@
 
 /**
  *
- * @package   mod
+ * @package mod
  * @subpackage emarking
  * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-require_once($CFG->dirroot."/mod/emarking/locallib.php");
-
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once($CFG->dirroot . "/mod/emarking/locallib.php");
 global $DB, $USER;
-
-// Obtain parameter from URL
+// Obtain parameter from URL.
 $examid = required_param('id', PARAM_INT);
-
 require_login();
-
-if(!$exam = $DB->get_record('emarking_exams', array('id'=>$examid))) {
-	print_error(get_string('invalid_exam_id','mod_emarking'));
+if (! $exam = $DB->get_record('emarking_exams', array(
+    'id' => $examid))) {
+    print_error(get_string('invalid_exam_id', 'mod_emarking'));
 }
-
-if(!$requestedby = $DB->get_record('user', array('id'=>$exam->requestedby))) {
-	print_error(get_string('invalid_exam_id','mod_emarking'));
+if (! $requestedby = $DB->get_record('user', array(
+    'id' => $exam->requestedby))) {
+    print_error(get_string('invalid_exam_id', 'mod_emarking'));
 }
-
-if(!$course = $DB->get_record('course', array('id'=>$exam->course))) {
-	print_error(get_string('invalid_exam_id','mod_emarking'));
+if (! $course = $DB->get_record('course', array(
+    'id' => $exam->course))) {
+    print_error(get_string('invalid_exam_id', 'mod_emarking'));
 }
- 
 $context = context_coursecat::instance($course->category);
-
-if(!has_capability('mod/emarking:downloadexam', $context)) {
-	print_error('Invalid access');
+if (! has_capability('mod/emarking:downloadexam', $context)) {
+    print_error('Invalid access');
 }
-
-
-$postsubject = $course->fullname . ': '. $exam->name . '. ' . get_string('printnotification','mod_emarking') . ' ['.$exam->id.']';
-
-// Create the email to be sent
+$postsubject = $course->fullname . ': ' . $exam->name . '. ' . get_string('printnotification', 'mod_emarking') . ' [' . $exam->id .
+         ']';
+// Create the email to be sent.
 $posthtml = '<html>';
-$posthtml .= '<table><tr><th colspan="2">'.get_string('printnotification','mod_emarking').'</th></tr>';
-$posthtml .= '<tr><td>' .get_string('examid','mod_emarking') . '</td><td>' . $exam->id . '</td></tr>';
-$posthtml .= '<tr><td>' .get_string('fullnamecourse') . '</td><td>' . $course->fullname . '</td></tr>';
-$posthtml .= '<tr><td>' .get_string('shortnamecourse') . '</td><td>' . $course->shortname . '</td></tr>';
-$posthtml .= '<tr><td>' .get_string('requestedby', 'mod_emarking') . '</td><td>' . $requestedby->username . '</td></tr>';
-$posthtml .= '<tr><td>' .get_string('examdate','mod_emarking') . '</td><td>' . date("d M Y - H:i", $exam->examdate) . '</td></tr>';
+$posthtml .= '<table><tr><th colspan="2">' . get_string('printnotification', 'mod_emarking') . '</th></tr>';
+$posthtml .= '<tr><td>' . get_string('examid', 'mod_emarking') . '</td><td>' . $exam->id . '</td></tr>';
+$posthtml .= '<tr><td>' . get_string('fullnamecourse') . '</td><td>' . $course->fullname . '</td></tr>';
+$posthtml .= '<tr><td>' . get_string('shortnamecourse') . '</td><td>' . $course->shortname . '</td></tr>';
+$posthtml .= '<tr><td>' . get_string('requestedby', 'mod_emarking') . '</td><td>' . $requestedby->username . '</td></tr>';
+$posthtml .= '<tr><td>' . get_string('examdate', 'mod_emarking') . '</td><td>' . date("d M Y - H:i", $exam->examdate) .
+             '</td></tr>';
 $posthtml .= '</table>';
 $posthtml .= '</html>';
-
-// Create the email to be sent
-$posttext = get_string('printnotification','mod_emarking') . '\n';
-$posttext .= get_string('examid','mod_emarking') . ' : ' . $exam->id . '\n';
+// Create the email to be sent.
+$posttext = get_string('printnotification', 'mod_emarking') . '\n';
+$posttext .= get_string('examid', 'mod_emarking') . ' : ' . $exam->id . '\n';
 $posttext .= get_string('fullnamecourse') . ': ' . $course->fullname . '\n';
 $posttext .= get_string('shortnamecourse') . ': ' . $course->shortname . '\n';
 $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $requestedby->username . '\n';
-$posttext .= get_string('examdate','mod_emarking') . ': ' . date("d M Y - H:i", $exam->examdate) . '\n';
-
+$posttext .= get_string('examdate', 'mod_emarking') . ': ' . date("d M Y - H:i", $exam->examdate) . '\n';
 emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml);
-
-$exam->notified=1;
-$exam->status=EMARKING_EXAM_PRINTED;
-
+$exam->notified = 1;
+$exam->status = EMARKING_EXAM_PRINTED;
 $DB->update_record('emarking_exams', $exam);
-
-redirect(new moodle_url('/mod/emarking/print/printorders.php',array('category'=>$course->category,'status'=>'2')),get_string('printnotificationsent','mod_emarking'),2);
+redirect(new moodle_url('/mod/emarking/print/printorders.php', array(
+    'category' => $course->category,
+    'status' => '2')), get_string('printnotificationsent', 'mod_emarking'), 2);

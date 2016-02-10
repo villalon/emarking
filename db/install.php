@@ -18,12 +18,11 @@
  * This file replaces the legacy STATEMENTS section in db/install.xml,
  * lib.php/modulename_install() post installation hook and partially defaults.php
  *
- * @package    mod
+ * @package mod
  * @subpackage emarking
- * @copyright  2013 Jorge Villalon <villalon@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2013 Jorge Villalon <villalon@gmail.com>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 /**
  * Post installation procedure
  *
@@ -31,7 +30,6 @@
  */
 function xmldb_emarking_install() {
 }
-
 /**
  * Post installation recovery procedure
  *

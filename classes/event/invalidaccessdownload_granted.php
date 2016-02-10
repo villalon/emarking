@@ -8,15 +8,16 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * An invalid access to download is the more serious threat to eMarking
  * as someone was trying to download an exam with no permissions
- *
+ * 
  * @package mod
  * @subpackage emarking
  * @copyright 2015 Xiu-Fong Lin, 2016 Jorge Villalon
@@ -24,29 +25,28 @@
  */
 namespace mod_emarking\event;
 
-defined ( 'MOODLE_INTERNAL' ) || die ();
-
+defined('MOODLE_INTERNAL') || die();
 class invalidaccessdownload_attempted extends \core\event\base {
-	protected function init() {
-		$this->data ['crud'] = 'r'; // c(reate), r(ead), u(pdate), d(elete)
-		$this->data ['edulevel'] = self::LEVEL_OTHER;
-		$this->data ['objecttable'] = 'emarking';
-	}
-	public static function get_name() {
-		return get_string ( 'invalidaccess', 'mod_emarking' );
-	}
-	public function get_description() {
-		return "The user with id '$this->userid' attempted to download an exam with no permissions on eMarking activity '$this->objectid' for the " .
-	    "course module id '$this->contextinstanceid'.";
-	}
-	public function get_legacy_logdata() {
-		// Override if you are migrating an add_to_log() call.
-		return array (
-				$this->courseid,
-				'emarking',
-				'view',
-				$this->objectid,
-				$this->contextinstanceid
-		);
-	}
+    protected function init() {
+        $this->data ['crud'] = 'r';
+        $this->data ['edulevel'] = self::LEVEL_OTHER;
+        $this->data ['objecttable'] = 'emarking';
+    }
+    public static function get_name() {
+        return get_string('invalidaccess', 'mod_emarking');
+    }
+    public function get_description() {
+        return "The user with id '$this->userid' attempted to download an exam with no permissions on eMarking activity " .
+               "'$this->objectid' for the " .
+               "course module id '$this->contextinstanceid'.";
+    }
+    public function get_legacy_logdata() {
+        // Override if you are migrating an add_to_log() call.
+        return array(
+            $this->courseid,
+            'emarking',
+            'view',
+            $this->objectid,
+            $this->contextinstanceid);
+    }
 }

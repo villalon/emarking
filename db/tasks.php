@@ -14,14 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  *
- *
- * @package    mod
+ * @package mod
  * @subpackage emarking
- * @copyright  2015 Jorge Villalon <villalon@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2015 Jorge Villalon <villalon@gmail.com>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,6 +31,4 @@ $tasks = array(
         'hour' => '8',
         'day' => '*',
         'dayofweek' => '0',
-        'month' => '*'
-    )
-);
+        'month' => '*'));

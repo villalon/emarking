@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,30 +23,25 @@
  * @copyright 2012 Jorge Villalon <villalon@gmail.com>
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('NO_OUTPUT_BUFFERING', true);
-require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once("$CFG->dirroot/lib/weblib.php");
 require_once($CFG->dirroot . '/repository/lib.php');
 require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
-
 global $DB, $CFG, $USER;
-
-// Obtains basic data from cm id
+// Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
-
 $submissions = required_param_array('publish', PARAM_INTEGER);
-
-// Validate user is logged in and is not guest
+// Validate user is logged in and is not guest.
 require_login($course->id);
 if (isguestuser()) {
-	die();
+    die();
 }
-
-$url = new moodle_url('/mod/emarking/marking/publish.php',  array('id'=>$cm->id));
-
+$url = new moodle_url('/mod/emarking/marking/publish.php', array(
+    'id' => $cm->id));
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_popup_notification_allowed(false);
 $PAGE->set_url($url);
@@ -56,59 +50,62 @@ $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('publishtitle', 'mod_emarking'));
-
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
-
-// Create progress bar
+// Create progress bar.
 $pbar = new progress_bar('publish', 500, true);
-
 emarking_calculate_grades_users($emarking);
-
-// Count documents ignored and processed
+// Count documents ignored and processed.
 $totaldocumentsprocessed = 0;
 $totaldocumentsignored = 0;
 $totalsubmissions = count($submissions);
-
-foreach($submissions as $submissionid) {
-	if(!$draft = $DB->get_record('emarking_draft', array('id'=>$submissionid))) {
-		$totaldocumentsignored++;
-		continue;
-	}
-	if(!$submission = $DB->get_record('emarking_submission', array('id'=>$draft->submissionid))) {
-		$totaldocumentsignored++;
-		continue;
-	}
-	if(!$student = $DB->get_record('user', array('id'=>$submission->student))) {
-		$totaldocumentsignored++;
-		continue;
-	}
-	if(emarking_create_response_pdf($draft, $student, $context, $cm->id)) {
-		$totaldocumentsprocessed++;
-		$pbar->update($totaldocumentsprocessed, $totalsubmissions, get_string('publishinggrade', 'mod_emarking') . " " . $draft->id);
-		if(!emarking_publish_grade($draft)) {
-		    error_log("Fatal error publishing grade student: " . $student->id . " draft: " . $draft->id);
-		}
-	} else {
-		$totaldocumentsignored++;
-	}
+foreach ($submissions as $submissionid) {
+    if (! $draft = $DB->get_record('emarking_draft', array(
+        'id' => $submissionid))) {
+        $totaldocumentsignored ++;
+        continue;
+    }
+    if (! $submission = $DB->get_record('emarking_submission', array(
+        'id' => $draft->submissionid))) {
+        $totaldocumentsignored ++;
+        continue;
+    }
+    if (! $student = $DB->get_record('user', array(
+        'id' => $submission->student))) {
+        $totaldocumentsignored ++;
+        continue;
+    }
+    if (emarking_create_response_pdf($draft, $student, $context, $cm->id)) {
+        $totaldocumentsprocessed ++;
+        $pbar->update($totaldocumentsprocessed, $totalsubmissions, get_string('publishinggrade', 'mod_emarking') .
+                " " . $draft->id);
+        if (! emarking_publish_grade($draft)) {
+            echo $OUTPUT->notification("Fatal error publishing grade student: " . $student->id . " draft: " . $draft->id,
+                    'notifyproblem');
+        }
+    } else {
+        $totaldocumentsignored ++;
+    }
 }
-
 $pbar->update_full(100, get_string('publishinggradesfinished', 'mod_emarking'));
-
 $percentage = 0;
-if($totaldocumentsprocessed > 0) {
-	$percentage = round((($totaldocumentsprocessed - $totaldocumentsignored) / $totaldocumentsprocessed) * 100, 2);
+if ($totaldocumentsprocessed > 0) {
+    $percentage = round((($totaldocumentsprocessed - $totaldocumentsignored) / $totaldocumentsprocessed) * 100, 2);
 }
-
 $table = new html_table();
-$table->attributes['style'] = "width: 500px; margin-left:auto; margin-right:auto;";
-$table->head = array(get_string('results', 'mod_emarking'),'&nbsp;');
-$table->data[] = array(get_string('publishedgrades', 'mod_emarking'), $totaldocumentsprocessed . " ($percentage%)");
-$table->data[] = array(get_string('errors', 'mod_emarking'), $totaldocumentsignored);
+$table->attributes ['style'] = "width: 500px; margin-left:auto; margin-right:auto;";
+$table->head = array(
+    get_string('results', 'mod_emarking'),
+    '&nbsp;');
+$table->data [] = array(
+    get_string('publishedgrades', 'mod_emarking'),
+    $totaldocumentsprocessed . " ($percentage%)");
+$table->data [] = array(
+    get_string('errors', 'mod_emarking'),
+    $totaldocumentsignored);
 echo "<br/>";
 echo html_writer::table($table);
-
-$continue_url = new moodle_url('/mod/emarking/view.php', array('id'=>$cm->id));
-echo $OUTPUT->continue_button($continue_url);
+$continueurl = new moodle_url('/mod/emarking/view.php', array(
+    'id' => $cm->id));
+echo $OUTPUT->continue_button($continueurl);
 echo $OUTPUT->footer();

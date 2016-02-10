@@ -8,12 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -24,25 +23,23 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_emarking_generator extends testing_module_generator {
-
     public function create_instance($record = null, array $options = null) {
-        $record = (object)(array)$record;
-
+        $record = (object) (array) $record;
+        
         $defaultsettings = array(
-            'intro'             => "",
-            'introformat'                  => 1,
-            'grade'        => 7,
-            'grademin'                 => 1,
+            'intro' => "",
+            'introformat' => 1,
+            'grade' => 7,
+            'grademin' => 1,
             'custommarks' => "",
-            'anonymous'   => 0,
-        );
-
-        foreach ($defaultsettings as $name => $value) {
-            if (!isset($record->{$name})) {
+            'anonymous' => 0);
+        
+        foreach ( $defaultsettings as $name => $value ) {
+            if (! isset($record->{$name})) {
                 $record->{$name} = $value;
             }
         }
-
-        return parent::create_instance($record, (array)$options);
+        
+        return parent::create_instance($record, (array) $options);
     }
 }

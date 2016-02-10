@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,24 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Defines the version of emarking
- *
  * This code fragment is called by moodle_needs_upgrading() and
  * /admin/index.php
- 
- * @package    mod
+ * 
+ * @package mod
  * @subpackage emarking
- * @copyright  2011 Jorge Villalón
+ * @copyright 2011 Jorge Villalón
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
-
-$plugin->version   = 2016012102;      // The current module version (Date: YYYYMMDDXX)
-$plugin->requires  = 2013110500;      // Requires this Moodle version
-$plugin->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place
+$plugin->version = 2016012102; // The current module version (Date: YYYYMMDDXX).
+$plugin->requires = 2013110500; // Requires this Moodle version.
+$plugin->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place.

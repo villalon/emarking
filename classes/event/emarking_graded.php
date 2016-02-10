@@ -17,48 +17,46 @@
 /**
  * When an eMarking exam has been graded
  *
- * @package    mod
+ * @package mod
  * @subpackage emarking
- * @copyright  2016 Jorge Villalon
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2016 Jorge Villalon
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_emarking\event;
 defined('MOODLE_INTERNAL') || die();
-
 class emarking_graded extends \core\event\base {
-    
     public static function create_from_draft($draft, $submission, $context) {
-        
-        $event = self::create(array(
-            'context'       => $context,
-            'objectid'      => $draft->id,
-            'relateduserid' => $submission->student
-        ));
-
+        $event = self::create(
+                array(
+                    'context' => $context,
+                    'objectid' => $draft->id,
+                    'relateduserid' => $submission->student));
         return $event;
     }
-    
     /**
      * Returns description of what happened.
      *
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' graded the eMarking exam with id '$this->objectid' for user '$this->relateduserid' in the " .
-            "course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' graded the eMarking exam with id '$this->objectid'" .
+               " for user '$this->relateduserid' in the " .
+               "course module id '$this->contextinstanceid'.";
     }
-
     /**
      * Return the legacy event log data.
      *
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'emarking', 'grade exam', 'marking/index.php?id=' . 
-            $this->objectid, $this->objectid, $this->contextinstanceid);
+        return array(
+            $this->courseid,
+            'emarking',
+            'grade exam',
+            'marking/index.php?id=' . $this->objectid,
+            $this->objectid,
+            $this->contextinstanceid);
     }
-
     /**
      * Return localised event name.
      *
@@ -67,24 +65,23 @@ class emarking_graded extends \core\event\base {
     public static function get_name() {
         return get_string('emarkinggraded', 'mod_emarking');
     }
-
     /**
      * Get URL related to the action.
      *
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/emarking/marking/index.php', array('id' => $this->objectid));
+        return new \moodle_url('/mod/emarking/marking/index.php', array(
+            'id' => $this->objectid));
     }
-
     /**
      * Init method.
      *
      * @return void
      */
     protected function init() {
-        $this->data['crud'] = 'c';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'emarking_draft';
+        $this->data ['crud'] = 'c';
+        $this->data ['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data ['objecttable'] = 'emarking_draft';
     }
 }
