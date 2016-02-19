@@ -621,9 +621,9 @@ function emarking_get_regrade_motives() {
  * @return multitype:tabobject
  */
 function emarking_tabs($context, $cm, $emarking) {
-    global $CFG;
-    global $USER;
+    global $CFG, $USER;
     $usercangrade = has_capability("mod/emarking:grade", $context);
+    $issupervisor = has_capability("mod/emarking:supervisegrading", $context);
     $tabs = array();
     // Print tab.
     $printtab = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
@@ -636,7 +636,7 @@ function emarking_tabs($context, $cm, $emarking) {
     $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}",
             get_string('uploadanswers', 'mod_emarking'));
     $scantab->subtree [] = $scanlist;
-    if ($usercangrade) {
+    if ($usercangrade && $issupervisor) {
         $scantab->subtree [] = $uploadanswers;
     }
     // Grade tab.
@@ -727,14 +727,16 @@ function emarking_tabs($context, $cm, $emarking) {
             $tabs [] = $scantab;
         } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
             $tabs [] = $activatescan;
-        } else if ($emarking->type == EMARKING_TYPE_NORMAL) {
+        } else if ($emarking->type == EMARKING_TYPE_NORMAL && $issupervisor) {
             $markingtab->subtree [] = $uploadanswers;
         }
         // OSM tabs, either marking, reports and settings or enable osm.
         if ($emarking->type == EMARKING_TYPE_NORMAL) {
             $tabs [] = $markingtab;
             $tabs [] = $gradereporttab;
-            $tabs [] = $settingstab;
+            if($issupervisor) {
+                $tabs [] = $settingstab;
+            }
         } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
             $tabs [] = $activateosm;
         }

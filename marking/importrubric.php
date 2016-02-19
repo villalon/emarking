@@ -148,13 +148,14 @@ if ($predefinedform->get_data()) {
         }
         $table = new html_table();
         $table->attributes ['class'] = 'criteria';
+        $table->id = 'rubric-criteria';
         $table->data = $data;
         $table->head = $columns;
         $table->colclasses = array(
             'description',
             'levels');
         for ($i = 0; $i < count($data); $i ++) {
-            $table->rowclasses [$i] = 'criterion' . $i % 2 == 0 ? ' even' : ' odd';
+            $table->rowclasses [$i] = 'criterion' . ($i % 2 == 0 ? ' even' : ' odd');
         }
         echo html_writer::div(html_writer::table($table), "gradingform_rubric");
         $predefinedform->add_action_buttons(true, get_string('confirm'));
@@ -180,17 +181,19 @@ if ($predefinedform->get_data()) {
 echo $OUTPUT->footer();
 function emarking_table_from_line($line) {
     $levelstable = new html_table();
-    $levelstable->attributes = array(
-        "class" => "");
+    $levelstable->attributes ['class'] = 'none';
     $levelstable->data = array();
     $levelstable->data [0] = array();
     $levelstable->size = array();
     $levelstable->colclasses = array();
     for ($i = 1; $i < count($line); $i ++) {
-        $levelstable->data [0] [] = html_writer::div($line [$i], "definition");
+        if(strlen(trim($line [$i])) > 0) {
+        $levelstable->data [0] [] = html_writer::div($line [$i], 'definition');
         $levelstable->size [] = round(100 / (count($line) - 1), 1) . "%";
-        $levelstable->colclasses [] = "level";
+        $levelstable->colclasses [] = 'level';
+        }
     }
+    $levelstable->rowclasses[0] = null;
     return array(
         $line [0],
         $levelstable);

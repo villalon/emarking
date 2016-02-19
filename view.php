@@ -834,3 +834,6 @@ function emarking_get_drafts_from_concat($draft) {
     }
     return $drafts;
 }
+function emarking_get_drafts_per_status($emarking) {
+    
+}

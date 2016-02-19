@@ -23,6 +23,10 @@
 	min-width: 150px;
 }
 
+#page-mod-emarking-marking-importrubric .lastrow {
+	margin-bottom: 0px;
+}
+
 #page-mod-emarking-marking-regraderequests .lastcol {
 	min-width: 100px;
 }

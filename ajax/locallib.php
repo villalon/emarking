@@ -145,7 +145,7 @@ function emarking_finish_marking($emarking, $submission, $draft, $user, $context
  */
 function emarking_get_comment_draft_by_levelid($draft, $levelid) {
     global $DB;
-    $emarkingcomment = $DB->get_record_sql('emarking_comment', array(
+    $emarkingcomment = $DB->get_record('emarking_comment', array(
             'levelid' => $levelid,
             'draft' => $draft->id));
     return $emarkingcomment;
@@ -644,7 +644,7 @@ function emarking_get_submission_grade($draft) {
     '$draftids' as drafts
     FROM {emarking_draft} d
     INNER JOIN {emarking} e ON (d.id = ? AND d.emarkingid = e.id)
-    INNER JOIN {emarking_submission} sc ON (s.id = d.submissionid)
+    INNER JOIN {emarking_submission} s ON (s.id = d.submissionid)
     LEFT JOIN {user} u ON (s.student = u.id)
     LEFT JOIN {course} c ON (c.id = e.course)
     LEFT JOIN {user} um on (d.teacher = um.id)";
@@ -986,7 +986,7 @@ function emarking_get_previous_comments($submission, $draft) {
             ec.criterionid,
             ec.draft AS draftid,
             CASE WHEN ec.markerid = :user THEN 1 ELSE 0 END AS owncomment,
-            CASE WHEN ec.draft = :draft THEN c.pageno ELSE 0 END AS page
+            CASE WHEN ec.draft = :draft THEN ec.pageno ELSE 0 END AS page
 			FROM {emarking_submission} s
 			INNER JOIN {emarking_draft} d ON (s.emarking = :emarking AND d.submissionid = s.id)
 			INNER JOIN {emarking_comment} ec ON (ec.draft = d.id)

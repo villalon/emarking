@@ -31,6 +31,7 @@ require_once("$CFG->dirroot/lib/weblib.php");
 require_once($CFG->dirroot . '/repository/lib.php');
 require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
+require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 global $DB, $CFG, $USER;
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();

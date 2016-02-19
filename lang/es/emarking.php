@@ -250,6 +250,7 @@ $string ['digitizedanswersmessage'] = 'Mensaje del recordatorio de pruebas digit
 $string ['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesores luego de cumplido un período de días tras la digitalización de sus pruebas.';
 $string ['viewadminprints'] = '<a href="{$a}">Administrar impresoras</a>';
 $string ['viewpermitsprinters'] = '<br/><a href="{$a}">Administrar permisos de impresoras</a>';
+$string ['aofb'] = '{$a->identified} de {$a->total}';
 // EMARKING UPLOAD ANSWERS.
 $string ['confirmprocess'] = 'Confirmar proceso';
 $string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';
@@ -361,6 +362,7 @@ $string ['of'] = 'de';
 $string ['missingpages'] = 'Faltan páginas';
 $string ['transactionsuccessfull'] = 'Transacción exitosa';
 $string ['setasabsent'] = 'Ausente';
+$string ['setassubmitted'] = 'Presente';
 $string ['markers'] = 'Correctores';
 $string ['saved'] = 'Cambios guardados';
 $string ['downloadform'] = 'Descargar formulario de impresión';
@@ -457,6 +459,7 @@ $string ['headerqr_help'] = 'El encabezado personalizado de eMarking permite imp
 		<div class="required">Advertencia<ul>
 				<li>Para usar el encabezado la prueba debe tener un margen superior de al menos 3cm</li>
 		</ul></div>';
+$string ['headerqrrequired'] = 'Encabezado personalizado es obligatorio para corrección en pantalla.';
 $string ['identifieddocuments'] = 'Respuestas subidas';
 $string ['idnumber'] = 'RUT';
 $string ['ignoreddocuments'] = 'Respuestas ignoradas';
@@ -471,6 +474,7 @@ $string ['invalidcourse'] = 'Asignación de curso inválida';
 $string ['invalidcourseid'] = 'Id del curso inválido';
 $string ['invalidcoursemodule'] = 'Módulo del curso inválido';
 $string ['invalidexamid'] = 'ID de la prueba inválido';
+$string ['invalidfilenotpdf'] = 'Archivo inválido, no es un PDF';
 $string ['invalidid'] = 'ID inválido';
 $string ['invalididnumber'] = 'N&uacute;mero Id inválido';
 $string ['invalidemarkingid'] = 'Id de assignment inválido';

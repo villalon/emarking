@@ -33,14 +33,16 @@ global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 $action = required_param('action', PARAM_ALPHA);
 $username = required_param('username', PARAM_RAW_TRIMMED);
 $password = required_param('password', PARAM_RAW_TRIMMED);
-$courseid = required_param('course', PARAM_INT);
+$courseid = optional_param('course', -1, PARAM_INT);
 
-if (! $course = $DB->get_record('course', array(
+if ($courseid > 0 && ! $course = $DB->get_record('course', array(
     'id' => $courseid))) {
     emarking_json_error('Invalid course id');
+    $context = context_course::instance($course->id);
+} else {
+    $context = context_system::instance();
 }
 
-$context = context_course::instance($course->id);
 $PAGE->set_context($context);
 
 if (! $user = authenticate_user_login($username, $password)) {
@@ -61,6 +63,13 @@ if ($action === 'students') {
         $results [] = $r;
     }
     emarking_json_resultset($results);
+} else if($action === 'courses') {
+	$rs = get_user_capability_course($capability, $user->id);
+	$results = array();
+	foreach($rs as $r) {
+		$results[] = $r;
+	}
+	emarking_json_resultset($results);
 } else if ($action === 'activities') {
     $rs = get_coursemodules_in_course('emarking', $course->id);
     $results = array();

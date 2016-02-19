@@ -362,17 +362,19 @@ echo $OUTPUT->box_start(null, null, array(
     'style' => 'overflow:scroll'));
 echo html_writer::table($table);
 echo $OUTPUT->box_end();
+$criteriaheight = 25 * count($definition->rubric_criteria);
+$criteriaheight = 'height:' . $criteriaheight . 'px;';
 if ($totalemarkings == 1) {
     $divheight = "height:350px;";
     ?>
 <table style="width: 100%;">
 	<tr>
-		<td width="50%"><div id="chart_averages" style="width: 100%; <?php echo $divheight ?>"></div></td>
-		<td width="50%"><div id="chart_pass_ratio" style="width: 100%;<?php echo $divheight ?>"></div></td>
+		<td width="33.33%"><div id="chart_averages" style="width: 100%; <?php echo $divheight ?>"></div></td>
+		<td width="33.33%"><div id="chart_pass_ratio" style="width: 100%;<?php echo $divheight ?>"></div></td>
+		<td width="33.33%"><div id="chart_histogram" style="width: 100%;<?php echo $divheight ?>"></div></td>
 	</tr>
 	<tr>
-		<td width="50%"><div id="chart_histogram" style="width: 100%;<?php echo $divheight ?>"></div></td>
-		<td width="50%"><div id="chart_criteria" style="width: 100%;<?php echo $divheight ?>"></div></td>
+		<td width="100%" colspan="3"><div id="chart_criteria" style="width: 100%;<?php echo $criteriaheight ?>"></div></td>
 	</tr>
 </table>
 <?php
@@ -382,7 +384,7 @@ if ($totalemarkings == 1) {
 <div id="chart_pass_ratio" style="width: 100%; height: 500px;"></div>
 <div id="chart_histogram" style="width: 100%; height: 500px;"></div>
 <div id="chart_histogram_totals" style="width: 100%; height: 500px;"></div>
-<div id="chart_criteria" style="width: 100%; height: 500px;"></div>
+<div id="chart_criteria" style="width: 100%; <?php echo $criteriaheight ?>"></div>
 <?php
 }
 ?>
