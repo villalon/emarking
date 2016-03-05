@@ -44,7 +44,7 @@ if (! has_capability('mod/emarking:printordersview', $context)) {
     print_error('Not allowed!');
 }
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('course');
+$PAGE->set_pagelayout('incourse');
 $PAGE->navbar->add($category->name, $categoryurl);
 $PAGE->navbar->add(get_string('printorders', 'mod_emarking'), $ordersurl);
 $PAGE->navbar->add(get_string('statistics', 'mod_emarking'));

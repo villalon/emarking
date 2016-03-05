@@ -200,5 +200,15 @@ if (has_capability("mod/emarking:downloadexam", $context)) {
 </script>
 <?php
 }
+// Active types tab.
+$urlscan = new moodle_url("/mod/emarking/print/enablefeatures.php", array("id"=>$cm->id,"type"=>EMARKING_TYPE_PRINT_SCAN));
+$urlosm = new moodle_url("/mod/emarking/print/enablefeatures.php", array("id"=>$cm->id,"type"=>EMARKING_TYPE_NORMAL));
+echo html_writer::start_tag('div');
+if($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
+    echo $OUTPUT->single_button($urlscan, get_string("enablescan", "mod_emarking"));
+} else if($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+    echo $OUTPUT->single_button($urlosm, get_string("enableosm", "mod_emarking"));
+}
+echo html_writer::end_tag('div');
 echo $OUTPUT->single_button($urlcourse, get_string("backcourse", "mod_emarking"));
 echo $OUTPUT->footer();

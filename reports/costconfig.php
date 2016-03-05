@@ -57,7 +57,7 @@ $categoryurl = new moodle_url('/course/index.php', array(
 $pagetitle = get_string('costreport', 'mod_emarking');
 $PAGE->set_context($context);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('course');
+$PAGE->set_pagelayout('incourse');
 $PAGE->navbar->add($category->name, $categoryurl);
 $PAGE->navbar->add(get_string('printorders', 'mod_emarking'), $url);
 $PAGE->navbar->add($pagetitle);

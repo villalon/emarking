@@ -29,7 +29,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->set_pagelayout('report');
+$PAGE->set_pagelayout('incourse');
 $PAGE->set_url($url);
 if (! has_capability('mod/emarking:viewpeerstatistics', $context)) {
     redirect(new moodle_url("/mod/emarking/view.php?id=$cm->id"));
@@ -117,7 +117,7 @@ foreach ($data as $key => $values) {
 ksort($newdata);
 $data = array_merge(array(
     $headers), $newdata);
-$height = $totalstudents * 25;
+$height = $totalstudents * 45;
 $current = 0;
 $datajs = "[";
 foreach ($data as $d) {
@@ -126,19 +126,20 @@ foreach ($data as $d) {
         foreach ($d as $criterion) {
             $criteria [] = preg_replace("/\r?\n/", "\\n", addslashes($criterion));
         }
-        $datajs .= "['" . implode("','", $criteria) . "'],\n";
+        $datajs .= "['" . implode("','", $criteria) . "', {role: 'annotation'}],\n";
     } else {
         $datajs .= "['";
         for ($i = 0; $i < count($d); $i ++) {
-            $datajs .= $i == 0 ? $d [$i] . "'," : $d [$i] . ",";
+            $datajs .= $i == 0 ? $d [$i] . "'," : $d [$i] . ", ";
         }
-        $datajs .= "],\n";
+        $datajs .= " $current],\n";
     }
     $current ++;
 }
 $datajs .= "\n]";
 ?>
-<div id='chartRanking'></div>
+<?php echo $OUTPUT->heading(get_string('ranking', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="chartRanking" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
 // TODO: Show friendly message when we couldn't load Google's library.
@@ -147,7 +148,7 @@ google.setOnLoadCallback(drawRanking);
 function drawRanking() {
   var data = google.visualization.arrayToDataTable(<?php echo $datajs ?>);
   var options = {
-    title: '<?php echo get_string('justice.graph.test.performance', 'mod_emarking') ?>',
+    title: '<?php echo get_string('ranking', 'mod_emarking') ?>',
     isStacked: true,
     legend: 'top',
     fontSize: 12,

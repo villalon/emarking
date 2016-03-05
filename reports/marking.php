@@ -43,7 +43,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('report');
+$PAGE->set_pagelayout('incourse');
 $PAGE->navbar->add(get_string('markingreport', 'mod_emarking'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
@@ -64,14 +64,16 @@ $markingstats = $DB->get_record_sql(
                 SUM(submitted) as submitted,
                 SUM(grading) as grading,
                 SUM(graded) as graded,
+                SUM(published) as published,
                 SUM(regrading) as regrading
                 FROM (
                 SELECT  s.student,
                 s.id as submissionid,
                 CASE WHEN d.status < 10 THEN 1 ELSE 0 END AS missing,
                 CASE WHEN d.status = 10 THEN 1 ELSE 0 END AS submitted,
-                CASE WHEN d.status > 10 AND d.status < 20 THEN 1 ELSE 0 END AS grading,
-                CASE WHEN d.status = 20 THEN 1 ELSE 0 END AS graded,
+                CASE WHEN d.status > 10 AND d.status < 20 AND COUNT(DISTINCT c.id) < $numcriteria THEN 1 ELSE 0 END AS grading,
+                CASE WHEN d.status > 10 AND d.status < 20 AND COUNT(DISTINCT c.id) = $numcriteria THEN 1 ELSE 0 END AS graded,
+                CASE WHEN d.status = 20 THEN 1 ELSE 0 END AS published,
                 CASE WHEN d.status > 20 THEN 1 ELSE 0 END AS regrading,
                 d.timemodified,
                 d.grade,
@@ -108,11 +110,13 @@ $datatable = "['Status', 'Students'],
                 ['" .
          emarking_get_string_for_status(EMARKING_STATUS_GRADING) . "',         $markingstats->grading],
                 ['" .
-         emarking_get_string_for_status(EMARKING_STATUS_PUBLISHED) . "',               $markingstats->graded],
+         get_string('statusgradingfinished', 'mod_emarking') . "',               $markingstats->graded],
+                ['" .
+         emarking_get_string_for_status(EMARKING_STATUS_PUBLISHED) . "',               $markingstats->published],
                 ['" .
          emarking_get_string_for_status(EMARKING_STATUS_REGRADING) . "',               $markingstats->regrading],
                 ";
-$totalsubmissions = $markingstats->submitted + $markingstats->grading + $markingstats->graded + $markingstats->regrading;
+$totalsubmissions = $markingstats->submitted + $markingstats->grading + $markingstats->graded + $markingstats->published + $markingstats->regrading;
 $totalprogress = round($markingstats->graded / $totalsubmissions * 100, 2);
 if ($numcriteria == 0 || $totalsubmissions == 0) {
     echo $OUTPUT->notification(get_string('nosubmissionsgraded', 'mod_emarking'), 'notifyproblem');
@@ -228,7 +232,7 @@ $markingstatspermarker = $DB->get_recordset_sql(
             'emarkingid' => $emarking->id));
 $datamarkersavailable = false;
 $datatablemarkers = "";
-$datatablecontribution = "['Corrector', 'Corregido', 'Por recorregir', 'Por corregir'],";
+$datatablecontribution = "['".get_string('marker', 'mod_emarking')."', 'Corregido', 'Por recorregir', 'Por corregir'],";
 foreach ($markingstatspermarker as $permarker) {
     $description = trim(preg_replace('/\s\s+/', ' ', $permarker->description));
     $datatablemarkers .= "['$permarker->markername $description',
@@ -245,21 +249,18 @@ foreach ($markingstatspermarker as $permarker) {
     $datamarkersavailable = true;
 }
 $progress = round($totalcomments / ($totalsubmissions * $numcriteria) * 100, 2);
-echo $OUTPUT->heading(get_string('marking', 'mod_emarking') . " : " . $progress . "% (" . $totalprogress . "% publicadas)", 3);
 ?>
-<table style="width: 100%;">
-	<tr>
-		<td width="50%"><div id="statusdonut"
-				style="width: 100%; height: 300px;"></div></td>
-		<td width="50%"><div id="contributiondonut"
-				style="width: 100%; height: 300px;"></div></td>
-	</tr>
-</table>
-<div id="criteriabarchart" style="width: 100%; height: 500px;"></div>
+<?php echo $OUTPUT->heading(get_string('markingstatusincludingabsents', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="statusdonut" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
+<?php echo $OUTPUT->heading(get_string('permarkercontribution', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="contributiondonut" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
+<?php echo $OUTPUT->heading(get_string('statuspercriterion', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="criteriabarchart" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
 <?php
-if ($datamarkersavailable) {
-?>
+if ($datamarkersavailable) { //           title: 'Puntajes asignados por ayudante',
+    echo $OUTPUT->heading(get_string('permarkercontribution', 'mod_emarking'), 3, 'charttitle'); ?>
 <div id="markerscontribution" style="width: 100%; height: 500px;"></div>
+<?php echo $OUTPUT->heading(get_string('permarkerscores', 'mod_emarking'), 3, 'charttitle'); ?>
 <div id="markerscandle" style="width: 100%; height: 500px;"></div>
 <?php
 }
@@ -285,9 +286,9 @@ if ($datamarkersavailable) {
                                 <?php echo $datatable; ?>
                         ]);
                 var options = {
-                        title: '<?php echo get_string('markingstatusincludingabsents', 'mod_emarking'); ?>',
                         pieHole: 0,
                         legend: {position: 'bottom'},
+                        'height': 300
                     };
                 var chart = new google.visualization.PieChart(document.getElementById('statusdonut'));
                 chart.draw(data, options);
@@ -298,9 +299,9 @@ if ($datamarkersavailable) {
                                 <?php echo $datatabletotalcontribution; ?>
                         ]);
                 var options = {
-                        title: '<?php echo get_string('permarkercontribution', 'mod_emarking'); ?>',
                         pieHole: 0,
                         legend: {position: 'bottom'},
+                        'height': 300
                     };
                 var chart = new google.visualization.PieChart(document.getElementById('contributiondonut'));
                 chart.draw(data, options);
@@ -311,12 +312,12 @@ if ($datamarkersavailable) {
                                 <?php echo $datatablecriteria; ?>
                         ]);
                 var options = {
-                        title: 'Avance por pregunta',
                     legend: { position: 'top', maxLines: 3 },
                     bar: { groupWidth: '75%' },
                     isStacked: true,
+                    'height': <?php echo $numcriteria * 50 ?>,
                 };
-                var chart = new google.visualization.ColumnChart(document.getElementById('criteriabarchart'));
+                var chart = new google.visualization.BarChart(document.getElementById('criteriabarchart'));
                 chart.draw(data, options);
         }
 <?php
@@ -327,7 +328,6 @@ if ($datamarkersavailable) {
           <?php echo $datatablemarkers; ?>
         ], true);
         var options = {
-          title: 'Puntajes asignados por ayudante',
           tooltip: { trigger: 'selection' },
           legend:'none'
         };
@@ -351,6 +351,17 @@ if ($datamarkersavailable) {
 <?php
 }
 ?>
+$(window).resize(function(){
+    drawStatusDonut();
+    drawContributionDonut();
+    drawCriteriaBarChart();
+<?php
+if ($datamarkersavailable) {
+?>
+drawMarkersCandlestick();
+drawMarkersBarChart();
+<?php } ?>
+});
 </script>
 <?php
 echo $OUTPUT->footer();

@@ -84,7 +84,6 @@ $PAGE->navbar->add($title);
 echo $OUTPUT->header();
 // Heading and tabs if we are within a course module.
 echo $OUTPUT->heading($emarking->name);
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $label);
 $emarking->message = core_text::strtolower($title);
 echo $OUTPUT->box(get_string("updateemarkingtype", "mod_emarking", $emarking));
 echo $OUTPUT->confirm(get_string("areyousure", "mod_emarking"), $continue, $cancel);

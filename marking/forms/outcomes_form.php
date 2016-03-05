@@ -50,8 +50,8 @@ class emarking_outcomes_form extends moodleform {
         foreach ($outcomes as $outcome) {
             $chkoutcomes [$outcome->id] = $outcome->shortname;
         }
-        $select = $mform->addElement('select', 'dataoutcomes', get_string('outcomes', 'grades'), $chkoutcomes, null);
-        $select->setMultiple(true);
+        $select = $mform->addElement('select', 'dataoutcomes', get_string('outcome', 'grades'), $chkoutcomes, null);
+        $select->setMultiple(false);
         $criteriaitems = array();
         foreach ($criteria as $criterion) {
             $criteriaitems [$criterion ['id']] = $criterion ['description'];

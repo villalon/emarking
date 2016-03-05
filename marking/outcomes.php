@@ -222,31 +222,31 @@ echo $OUTPUT->footer();
 function process_mform($mform, $action, $emarking) {
     global $DB, $OUTPUT;
     if ($mform->get_data()) {
-        if ($action !== $mform->get_data()->action) {
+        if ($action !== $mform->get_data()->action
+                || $action !== "addoutcomes") {
             return;
         }
-        if ($action === "addoutcomes") {
-            $datalist = $mform->get_data()->dataoutcomes;
-        }
+        $datalist = $mform->get_data()->dataoutcomes;
         $toinsert = array();
-        foreach ($datalist as $data) {
-            if ($action === "addoutcomes") {
-                $criteria = $mform->get_data()->criteriaoutcomes;
-            }
-            foreach ($criteria as $criterion) {
-                $association = new stdClass();
-                $association->outcome = $data;
-                $association->criterion = $criterion;
-                $toinsert [] = $association;
-            }
+        $criteria = $mform->get_data()->criteriaoutcomes;
+        foreach ($criteria as $criterion) {
+            $association = new stdClass();
+            $association->outcome = $datalist;
+            $association->criterion = $criterion;
+            $toinsert [] = $association;
         }
         foreach ($toinsert as $data) {
             if ($action === "addoutcomes") {
-                $association = $DB->get_record("emarking_outcomes_criteria",
+                $association = $DB->get_records("emarking_outcomes_criteria",
                         array(
                             "emarking" => $emarking->id,
-                            "criterion" => $data->criterion,
-                            "outcome" => $data->outcome));
+                            "criterion" => $data->criterion));
+                if ($association) {
+                    $DB->delete_records('emarking_outcomes_criteria', 
+                            array(
+                                'emarking' => $emarking->id,
+                                'criterion' => $data->criterion));
+                }
                 $tablename = "emarking_outcomes_criteria";
             }
             $association = new stdClass();

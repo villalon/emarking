@@ -702,17 +702,6 @@ function emarking_tabs($context, $cm, $emarking) {
     }
     $gradereporttab->subtree [] = new tabobject("outcomesreport", $CFG->wwwroot . "/mod/emarking/reports/outcomes.php?id={$cm->id}",
             get_string("outcomes", "grades"));
-    $gradereporttab->subtree [] = new tabobject("comparison",
-            $CFG->wwwroot . "/mod/emarking/reports/comparativereport.php?id={$cm->id}",
-            get_string("comparativereport", "mod_emarking"));
-    // Active types tab.
-    $activatescan = new tabobject("enablescan",
-            $CFG->wwwroot . "/mod/emarking/print/enablefeatures.php?id={$cm->id}&type=" . EMARKING_TYPE_PRINT_SCAN,
-            get_string("enablescan", "mod_emarking"));
-    // Active types tab.
-    $activateosm = new tabobject("enableosm",
-            $CFG->wwwroot . "/mod/emarking/print/enablefeatures.php?id={$cm->id}&type=" . EMARKING_TYPE_NORMAL,
-            get_string("enableosm", "mod_emarking"));
     // Tabs sequence.
     if ($usercangrade) {
         // Print tab goes always except for markers training.
@@ -725,8 +714,6 @@ function emarking_tabs($context, $cm, $emarking) {
         // Scan or enablescan tab.
         if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
             $tabs [] = $scantab;
-        } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
-            $tabs [] = $activatescan;
         } else if ($emarking->type == EMARKING_TYPE_NORMAL && $issupervisor) {
             $markingtab->subtree [] = $uploadanswers;
         }
@@ -737,8 +724,6 @@ function emarking_tabs($context, $cm, $emarking) {
             if($issupervisor) {
                 $tabs [] = $settingstab;
             }
-        } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
-            $tabs [] = $activateosm;
         }
     } else if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
         // This case is for students (user can not grade).

@@ -42,7 +42,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('report');
+$PAGE->set_pagelayout('incourse');
 $PAGE->navbar->add(get_string('gradereport', 'grades'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
@@ -104,6 +104,12 @@ foreach ($scales as $scale) {
         $levels [$i] = trim($levels [$i]);
     }
     $scaleslevels [$scale->id] = $levels;
+}
+$totalscales = count($scaleslevels);
+if (! $totalscales || $totalscales == 0) {
+    echo $OUTPUT->notification(get_string('outcomesnotconfigured', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->footer();
+    die();
 }
 $sqlcriteria = '
 SELECT id,

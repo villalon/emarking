@@ -172,7 +172,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->setType('action', PARAM_ALPHA);
         // Enrolment methods to include in printing.
         if ($enrolcheckboxes = $this->get_enrolment_checkboxes($mform)) {
-            $mform->addGroup($enrolcheckboxes, 'enrolments', get_string('enrolments', 'mod_emarking'), 
+            $mform->addGroup($enrolcheckboxes, 'enrolments', get_string('includeenrolments', 'mod_emarking'), 
                     array(
                         '<br/>'), true);
             $mform->addHelpButton('enrolments', 'enrolments', 'mod_emarking');
@@ -637,6 +637,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         $types [EMARKING_TYPE_STUDENT_TRAINING] = get_string('type_student_training', 'mod_emarking');
         // If emarking is null then return an empty all values
         if (! $emarking) {
+            unset($types [EMARKING_TYPE_STUDENT_TRAINING]);
             return $types;
         } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
                  $emarking->type == EMARKING_TYPE_NORMAL) {

@@ -44,7 +44,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('report');
+$PAGE->set_pagelayout('incourse');
 $PAGE->navbar->add(get_string('gradereport', 'grades'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
@@ -331,12 +331,12 @@ foreach ($criteriastats as $stats) {
         $effectiveness [$effectivenessnum] = "['$description', ";
         $lastdescription = $description;
     }
-    $effectiveness [$effectivenessnum] .= $stats->effectiveness . ', ';
+    $effectiveness [$effectivenessnum] .= $stats->effectiveness . ", '$description'";
 }
 if ($effectivenessnum >= 0) {
     $effectiveness [$effectivenessnum] .= ']';
 }
-$effectivenessstring = "[\n['" . get_string('criterion', 'mod_emarking') . "', " . $parallelsnamescriteria . "],";
+$effectivenessstring = "[\n['" . get_string('criterion', 'mod_emarking') . "', " . $parallelsnamescriteria . " {role: 'annotation'}, ],";
 foreach ($effectiveness as $effectiverow) {
     $effectivenessstring .= "\n" . $effectiverow . ", ";
 }
@@ -363,28 +363,24 @@ echo $OUTPUT->box_start(null, null, array(
 echo html_writer::table($table);
 echo $OUTPUT->box_end();
 $criteriaheight = 25 * count($definition->rubric_criteria);
-$criteriaheight = 'height:' . $criteriaheight . 'px;';
+$divheight = 500;
 if ($totalemarkings == 1) {
-    $divheight = "height:350px;";
-    ?>
-<table style="width: 100%;">
-	<tr>
-		<td width="33.33%"><div id="chart_averages" style="width: 100%; <?php echo $divheight ?>"></div></td>
-		<td width="33.33%"><div id="chart_pass_ratio" style="width: 100%;<?php echo $divheight ?>"></div></td>
-		<td width="33.33%"><div id="chart_histogram" style="width: 100%;<?php echo $divheight ?>"></div></td>
-	</tr>
-	<tr>
-		<td width="100%" colspan="3"><div id="chart_criteria" style="width: 100%;<?php echo $criteriaheight ?>"></div></td>
-	</tr>
-</table>
+    $divheight = 350;
+}
+?>
+<?php echo $OUTPUT->heading(get_string('average', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="chart_averages" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
+<?php echo $OUTPUT->heading(get_string('gradehistogram', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="chart_pass_ratio" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
+<?php echo $OUTPUT->heading(get_string('courseaproval', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="chart_histogram" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
+<?php echo $OUTPUT->heading(get_string('criteriaefficiency', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="chart_criteria" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
 <?php
-} else {
-    ?>
-<div id="chart_averages" style="width: 100%; height: 500px;"></div>
-<div id="chart_pass_ratio" style="width: 100%; height: 500px;"></div>
-<div id="chart_histogram" style="width: 100%; height: 500px;"></div>
-<div id="chart_histogram_totals" style="width: 100%; height: 500px;"></div>
-<div id="chart_criteria" style="width: 100%; <?php echo $criteriaheight ?>"></div>
+if ($totalemarkings > 1) {
+?>
+<?php echo $OUTPUT->heading(get_string('gradehistogramtotal', 'mod_emarking'), 3, 'charttitle'); ?>
+<div id="chart_histogram_totals" style="width: 100%; text-align:center;"><?php echo $OUTPUT->pix_icon('i/loading', '')?></div>
 <?php
 }
 ?>
@@ -406,7 +402,7 @@ if ($totalemarkings > 1) {
       // Grades histogram.
       function drawHistogram() {
         var data = google.visualization.arrayToDataTable([
-          ['Rango', <?php echo $histogramcourses ?>],
+          ['<?php echo get_string('range', 'mod_emarking') ?>', <?php echo $histogramcourses ?>],
 <?php
 for ($i = 1; $i <= 12; $i++) {
 ?>
@@ -417,10 +413,10 @@ for ($i = 1; $i <= 12; $i++) {
         ]);
         var options = {
                         animation: {duration: 500},
-                        title: '<?php echo get_string('gradehistogram', 'mod_emarking') ?>',
                         hAxis: {title: '<?php echo get_string('range', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
                         vAxis: {format:'#'},
-                        legend: 'top'
+                        legend: 'top',
+                        'height': <?php echo $divheight ?>,
         };
         var chart = new google.visualization.ColumnChart(document.getElementById('chart_pass_ratio'));
         chart.draw(data, options);
@@ -445,12 +441,12 @@ for ($i = 1; $i <= 12; $i++) {
                 formatter.format(data, 3); // Apply formatter to second column
         var options = {
                         animation: {duration: 500},
-                        title: '<?php echo get_string('courseaproval', 'mod_emarking') ?>',
                         vAxis: {title: '<?php echo get_string('course') ?>', titleTextStyle: {color: 'black'}},
                         isStacked: true,
                         series: {0:{color:'red'},1:{color:'#EED1D0'},2:{color:'#57779E'}},
                         hAxis: {format:'#,###%', minValue:0, maxValue:1},
-                        legend: 'top'
+                        legend: 'top',
+                        'height': <?php echo $divheight ?>,
         };
         var chart = new google.visualization.BarChart(document.getElementById('chart_histogram'));
         chart.draw(data, options);
@@ -472,12 +468,12 @@ if ($totalemarkings > 1) {
         ]);
         var options = {
                         animation: {duration: 500},
-                        title: '<?php echo get_string('gradehistogramtotal', 'mod_emarking') ?>)',
                         hAxis: {title: '<?php echo get_string('range', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
                         seriesType: "bars",
                         series: {2:{type: "line", pointSize: 5}},
                         vAxis: {format:'#'},
-                        legend: 'top'
+                        legend: 'top',
+                        'height': <?php echo $divheight ?>,
         };
         var chart = new google.visualization.ComboChart(document.getElementById('chart_histogram_totals'));
         chart.draw(data, options);
@@ -497,10 +493,10 @@ for ($i = 1; $i <= $totalemarkings; $i++) {
 }
 ?>
           var options = {
-            title: '<?php echo get_string('criteriaefficiency', 'mod_emarking') ?>',
-            vAxis: {title: '<?php echo get_string('criterion', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
-            hAxis: {format:'#,###%', minValue:0, maxValue:1},
-                legend: 'top'
+        	    vAxis: {title: '<?php echo get_string('criterion', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
+        	    hAxis: {format:'#,###%', minValue:0, maxValue:1},
+                legend: 'top',
+                'height': <?php echo $criteriaheight ?>,
           };
           var chart = new google.visualization.BarChart(document.getElementById('chart_criteria'));
           chart.draw(data, options);
@@ -517,11 +513,11 @@ for ($i = 1; $i <= $totalemarkings; $i++) {
           ]);
           var options = {
                   animation: {duration:500},
-                title: '<?php echo get_string('average', 'mod_emarking') ?>',
             legend:'none',
                 vAxis: {minValue:<?php echo round($mingrade, 0) ?>, maxValue:<?php echo round($maxgrade, 0) ?>},
                 pointSize: 10,
-                legend: 'top'
+                legend: 'top',
+                'height': <?php echo $divheight ?>,
           };
           var chart = new google.visualization.LineChart(document.getElementById('chart_averages'));
           chart.draw(data, options);

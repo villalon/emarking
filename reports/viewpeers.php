@@ -31,7 +31,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->set_pagelayout('incourse');
+$PAGE->set_pagelayout('course');
 $PAGE->set_url($url);
 if (! has_capability('mod/emarking:viewpeerstatistics', $context)) {
     redirect(new moodle_url("/mod/emarking/view.php?id=$cm->id"));
