@@ -245,12 +245,17 @@ if ($cm->groupmode == SEPARATEGROUPS && ($emarking->type == EMARKING_TYPE_NORMAL
 							)
 					)";
 }
+$enrolments = explode(',',$exam->enrolments);
+for($i = 0; $i < count($enrolments); $i++) {
+    $enrolments[$i] = "'".$enrolments[$i]."'";
+}
+$enrolmentsfilter = implode(",", $enrolments);
 $sqluser = ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) ? "es.student AS id," : "u.*,";
 $sqldraftsorusers = ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) ? "{emarking_submission} es
 INNER JOIN {emarking} e ON (e.id = ? AND es.emarking = e.id)" : "(
 SELECT u.*, e.courseid
 FROM {user_enrolments} ue
-INNER JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
+INNER JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ? AND e.enrol IN ($enrolmentsfilter))
 INNER JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
 INNER JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.userid = ue.userid)
 INNER JOIN {role} r on (r.id = ra.roleid AND r.shortname = 'student')

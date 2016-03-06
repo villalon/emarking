@@ -78,8 +78,8 @@ $totalemarkings = 1;
 if ($parallels && count($parallels) > 0) {
     foreach ($parallels as $pcourse) {
         $assid = '';
-        if ($emarkingsform->get_data() && property_exists($emarkingsform->get_data(), 'emarkingid_' . $pcourse . '->id')) {
-            $varname = 'emarkingid_' . $pcourse . '->id';
+        if ($emarkingsform->get_data() && property_exists($emarkingsform->get_data(), 'emarkingid_' . $pcourse->id)) {
+            $varname = 'emarkingid_' . $pcourse->id;
             $assid = $emarkingsform->get_data()->$varname;
             if ($assid > 0) {
                 $emarkingids .= ',' . $assid;
@@ -362,7 +362,7 @@ echo $OUTPUT->box_start(null, null, array(
     'style' => 'overflow:scroll'));
 echo html_writer::table($table);
 echo $OUTPUT->box_end();
-$criteriaheight = 25 * count($definition->rubric_criteria);
+$criteriaheight = 55 * count($definition->rubric_criteria);
 $divheight = 500;
 if ($totalemarkings == 1) {
     $divheight = 350;
@@ -436,9 +436,9 @@ for ($i = 1; $i <= 12; $i++) {
 <?php echo $passratio?>
           ]);
                 var formatter = new google.visualization.NumberFormat({pattern: '#,###.##%'});
-                formatter.format(data, 1); // Apply formatter to second column
+                formatter.format(data, 1); // Apply formatter to first column
                 formatter.format(data, 2); // Apply formatter to second column
-                formatter.format(data, 3); // Apply formatter to second column
+                formatter.format(data, 3); // Apply formatter to third column
         var options = {
                         animation: {duration: 500},
                         vAxis: {title: '<?php echo get_string('course') ?>', titleTextStyle: {color: 'black'}},

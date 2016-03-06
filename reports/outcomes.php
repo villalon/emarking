@@ -160,21 +160,23 @@ SELECT
                 INNER JOIN {scale} sc ON (go.scaleid = sc.id)
 			GROUP BY s.emarking,d.id,go.id) AS G
 GROUP BY G.emarkingid,G.id,G.level';
+echo $sqlcriteria;
+echo $definition->id;
 $criteriastats = $DB->get_recordset_sql($sqlcriteria, array(
     'definitionid' => $definition->id));
 $datascales = array();
 $lastscaleid = 0;
 $totalstudents = 0;
 foreach ($criteriastats as $stat) {
-    $lastscaleid = $stat->scaleid;
-    if (! isset($datascales [$stat->scaleid])) {
-        $datascales [$stat->scaleid] = array();
-        $datascales [$stat->scaleid] ["title"] = $stat->shortname;
-        for ($i = 0; $i < count($scaleslevels [$stat->scaleid]); $i ++) {
-            $datascales [$stat->scaleid] [$scaleslevels [$stat->scaleid] [$i]] = 0;
+    $lastscaleid = $stat->id;
+    if (! isset($datascales [$stat->id])) {
+        $datascales [$stat->id] = array();
+        $datascales [$stat->id] ["title"] = $stat->shortname;
+        for ($i = 0; $i < count($scaleslevels [$stat->id]); $i ++) {
+            $datascales [$stat->id] [$scaleslevels [$stat->id] [$i]] = 0;
         }
     }
-    $datascales [$stat->scaleid] [$stat->level] = $stat->students;
+    $datascales [$stat->id] [$stat->level] = $stat->students;
     $totalstudents += $stat->students;
 }
 $headers = array();
@@ -233,11 +235,11 @@ $height = (count($data) * 150);
 ?>
           var options = {
             title: '<?php echo get_string('studentachievement', 'mod_emarking') ?>',
-            vAxis: {title: '<?php echo get_string('level', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
-            hAxis: {format:'#,###%', minValue:0, maxValue:1},
+            xAxis: {title: '<?php echo get_string('level', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
+            vAxis: {format:'#,###%', minValue:0, maxValue:1},
                 legend: 'top'
           };
-          var chart = new google.visualization.BarChart(document.getElementById('chart_criteria'));
+          var chart = new google.visualization.ColumnChart(document.getElementById('chart_criteria'));
           chart.draw(data, options);
         }
     </script>

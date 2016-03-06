@@ -188,7 +188,7 @@ foreach ($records as $record) {
 }
 $table->data = $data;
 echo html_writer::table($table);
-if (count($definition->rubric_criteria) > $totalregrades) {
+if (count($definition->rubric_criteria) > $totalregrades && $filteruser) {
     echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array(
         "id" => $cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
 }
