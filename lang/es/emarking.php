@@ -97,6 +97,21 @@ $string ['deleterow'] = 'Borrar fila';
 $string ['nodejspath'] = 'Ruta de NodeJS';
 $string ['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091';
 $string ['emarkinggraded'] = 'Corrección eMarking';
+// PERMISSIONS
+$string['emarking:activatedelphiprocess'] = 'Activar Delphi';
+$string['emarking:addinstance'] = 'Crear instancia de EMarking';
+$string['emarking:assignmarkers'] = 'Asignar correctores';
+$string['emarking:configuredelphiprocess'] = 'Configurar Delphi';
+$string['emarking:grade'] = 'Corregir';
+$string['emarking:manageanonymousmarking'] = 'Administrar anonimato';
+$string['emarking:managedelphiprocess'] = 'Administrar proceso Delphi';
+$string['emarking:managespecificmarks'] = 'Administrar anotaciones personalizadas';
+$string['emarking:regrade'] = 'Recorregir';
+$string['emarking:submit'] = 'Tener respuestas';
+$string['emarking:supervisegrading'] = 'Supervisar corrección';
+$string['emarking:uploadexam'] = 'Subir respuestas';
+$string['emarking:view'] = 'Ver instancia';
+$string['emarking:viewpeerstatistics'] = 'Ver estadísticas de pares';
 // SMS SECURITY.
 $string ['download'] = 'Descargar';
 $string ['cancel'] = 'Cancelar';

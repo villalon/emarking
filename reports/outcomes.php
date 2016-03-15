@@ -30,13 +30,13 @@ list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 // URLs for current page.
 $url = new moodle_url('/mod/emarking/reports/outcomes.php', array(
     'id' => $cm->id));
-// Validate the user has grading capabilities.
-require_capability('mod/emarking:grade', $context);
 // First check that the user is logged in.
 require_login($course->id);
 if (isguestuser()) {
     die();
 }
+// Validate the user has grading capabilities.
+require_capability('mod/emarking:grade', $context);
 // Page settings (URL, breadcrumbs and title).
 $PAGE->set_context($context);
 $PAGE->set_course($course);

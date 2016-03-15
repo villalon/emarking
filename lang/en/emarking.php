@@ -97,6 +97,21 @@ $string ['deleterow'] = 'Delete row';
 $string ['nodejspath'] = 'NodeJS path';
 $string ['nodejspath_help'] = 'The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091';
 $string ['emarkinggraded'] = 'eMarking graded';
+// PERMISSIONS
+$string['emarking:activatedelphiprocess'] = '';
+$string['emarking:addinstance'] = '';
+$string['emarking:assignmarkers'] = '';
+$string['emarking:configuredelphiprocess'] = '';
+$string['emarking:grade'] = '';
+$string['emarking:manageanonymousmarking'] = '';
+$string['emarking:managedelphiprocess'] = '';
+$string['emarking:managespecificmarks'] = '';
+$string['emarking:regrade'] = '';
+$string['emarking:submit'] = '';
+$string['emarking:supervisegrading'] = '';
+$string['emarking:uploadexam'] = '';
+$string['emarking:view'] = '';
+$string['emarking:viewpeerstatistics'] = '';
 // SMS SECURITY.
 $string ['download'] = 'Download';
 $string ['cancel'] = 'Cancel';
