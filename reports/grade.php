@@ -227,7 +227,7 @@ $sqlcriteria = '
                 INNER JOIN {course} co ON (sg.course = co.id)
                 GROUP BY s.emarking,a.id
                 ORDER BY a.sortorder,emarkingid';
-$criteriastats = $DB->get_recordset_sql($sqlcriteria, array(
+$outcomestats = $DB->get_recordset_sql($sqlcriteria, array(
     'definitionid' => $definition->id));
 $mingrade = 0;
 $maxgrade = 0;
@@ -316,7 +316,7 @@ $effectivenessnum = - 1;
 $effectiveness [0] = '';
 $lastdescription = random_string();
 $parallelsids = array();
-foreach ($criteriastats as $stats) {
+foreach ($outcomestats as $stats) {
     if (! isset($parallelsids [$stats->courseid])) {
         $parallelsnamescriteria .= "'$stats->fullname (N=$stats->count)',";
         $parallelsids [$stats->courseid] = $stats->fullname;

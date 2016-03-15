@@ -160,24 +160,24 @@ SELECT
                 INNER JOIN {scale} sc ON (go.scaleid = sc.id)
 			GROUP BY s.emarking,d.id,go.id) AS G
 GROUP BY G.emarkingid,G.id,G.level';
-echo $sqlcriteria;
-echo $definition->id;
-$criteriastats = $DB->get_recordset_sql($sqlcriteria, array(
+$outcomestats = $DB->get_recordset_sql($sqlcriteria, array(
     'definitionid' => $definition->id));
-$datascales = array();
-$lastscaleid = 0;
-$totalstudents = 0;
-foreach ($criteriastats as $stat) {
-    $lastscaleid = $stat->id;
-    if (! isset($datascales [$stat->id])) {
-        $datascales [$stat->id] = array();
-        $datascales [$stat->id] ["title"] = $stat->shortname;
-        for ($i = 0; $i < count($scaleslevels [$stat->id]); $i ++) {
-            $datascales [$stat->id] [$scaleslevels [$stat->id] [$i]] = 0;
+$dataoutcomes = array();
+$lastoutcomeid = 0;
+$totalstudents = array();
+foreach ($outcomestats as $outcome) {
+    $lastoutcomeid = $outcome->id;
+    $thislevels = $scaleslevels [$outcome->scaleid];
+    if (! isset($dataoutcomes [$outcome->id])) {
+        $dataoutcomes [$outcome->id] = array();
+        $dataoutcomes [$outcome->id] ["title"] = $outcome->shortname;
+        for ($i = 0; $i < count($thislevels); $i ++) {
+            $dataoutcomes [$outcome->id] [ $thislevels[$i]] = 0;
         }
+        $totalstudents [$outcome->id] = 0;
     }
-    $datascales [$stat->id] [$stat->level] = $stat->students;
-    $totalstudents += $stat->students;
+    $dataoutcomes [$outcome->id] [$outcome->level] = $outcome->students;
+    $totalstudents [$outcome->id] += $outcome->students;
 }
 $headers = array();
 foreach ($scaleslevels as $level) {
@@ -186,20 +186,22 @@ foreach ($scaleslevels as $level) {
         "Title"), $headers);
 }
 $data = array();
-$json = '[';
-foreach ($datascales as $scaleid => $scaledata) {
-    foreach ($scaledata as $k => $v) {
+$jsons = array();
+$json = '';
+foreach ($dataoutcomes as $outcomeid => $outcomedata) {
+    foreach ($outcomedata as $k => $v) {
         if ($k === "title") {
-            $scaledata [$k] = $v;
-            $json .= " ['Scale', '$v'], ";
+            $outcomedata [$k] = $v;
+            $json = "[ ['Scale', '$v'], ";
         } else {
-            $scaledata [$k] = $totalstudents > 0 ? round($v / $totalstudents * 100, 1) . "%" : 0;
-            $json .= " ['$k', " . ($totalstudents > 0 ? ($v / $totalstudents) : 0) . "], ";
+            $outcomedata [$k] = $totalstudents[$outcomeid] > 0 ? round($v / $totalstudents[$outcomeid] * 100, 1) . "%" : 0;
+            $json .= " ['$k', " . ($totalstudents[$outcomeid] > 0 ? ($v / $totalstudents[$outcomeid]) : 0) . "], ";
         }
     }
-    $data [] = $scaledata;
+    $data [] = $outcomedata;
+    $json .= ']';
+    $jsons[] = $json;
 }
-$json .= "]";
 $table = new html_table();
 $table->attributes ['style'] = "width: 100%; text-align:center; font-size:12px;";
 $table->head = $headers;
@@ -216,32 +218,30 @@ echo $OUTPUT->box_start(null, null, array(
 echo html_writer::table($table);
 echo $OUTPUT->box_end();
 $height = (count($data) * 150);
-?>
-<div id="chart_criteria" style="width: 100%; height: <?php echo $height ?>px;"></div>
+for($i = 1; $i <= count($jsons); $i++) { ?>
+<div id="chart_criteria<?php echo $i?>" style="width: 100%; height: <?php echo $height ?>px;"></div>
+<?php
+} ?>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
           // TODO: Show friendly message when we couldn't load Google's library.
       google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawCriteria);
-        // Per criteria effectiveness.
-        function drawCriteria() {
-          var data = google.visualization.arrayToDataTable(<?php echo $json ?>);
+      <?php for ($j = 1; $j <= count($jsons); $j++) { ?>
+      google.setOnLoadCallback(drawCriteria<?php echo $j?>);
+      // Per criteria effectiveness.
+        function drawCriteria<?php echo $j?>() {
+          var data = google.visualization.arrayToDataTable(<?php echo $jsons[$j-1] ?>);
           var formatter = new google.visualization.NumberFormat({pattern: '#,###.##%'});
-<?php for ($i = 1; $i <= $totalemarkings; $i++) {
-?>
-                formatter.format(data, <?php echo $i?>); // Apply formatter to second column
-<?php
-}
-?>
           var options = {
             title: '<?php echo get_string('studentachievement', 'mod_emarking') ?>',
             xAxis: {title: '<?php echo get_string('level', 'mod_emarking') ?>', titleTextStyle: {color: 'black'}},
             vAxis: {format:'#,###%', minValue:0, maxValue:1},
                 legend: 'top'
           };
-          var chart = new google.visualization.ColumnChart(document.getElementById('chart_criteria'));
+          var chart = new google.visualization.ColumnChart(document.getElementById('chart_criteria<?php echo $j?>'));
           chart.draw(data, options);
         }
+      <?php } ?>
     </script>
 <?php
 echo $OUTPUT->footer();
