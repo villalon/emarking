@@ -572,6 +572,7 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
     $submission->generalfeedback = null;
     $submission->grade = $emarking->grademin;
     $submission->sort = rand(1, 9999999);
+    $submission->answerkey = 0;
     $submission->id = $DB->insert_record('emarking_submission', $submission);
     // Normal marking - One draft default.
     if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||

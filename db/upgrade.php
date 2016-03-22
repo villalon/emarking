@@ -1360,5 +1360,16 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2016012102, 'emarking');
     }
+    if ($oldversion < 2016031500) {
+        // Define field answerkey to be added to emarking_submission.
+        $table = new xmldb_table('emarking_submission');
+        $field = new xmldb_field('answerkey', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', null);
+        // Conditionally launch add field answerkey.
+        if (! $dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016031500, 'emarking');
+    }
     return true;
 }

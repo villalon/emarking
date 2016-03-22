@@ -33,7 +33,7 @@ $categoryid = required_param('category', PARAM_INT);
 $statusicon = optional_param('status', 1, PARAM_INT);
 // Page.
 $page = optional_param('page', 0, PARAM_INT);
-$perpage = 10;
+$perpage = 100;
 // Exam id in case an exam required to be downloaded through a form.
 $examid = optional_param("examid", 0, PARAM_INT);
 // If the user is downloading a print form.
@@ -97,6 +97,10 @@ $PAGE->navbar->add(get_string('printorders', 'mod_emarking'), $ordersurl);
 $PAGE->navbar->add($pagetitle);
 $PAGE->set_heading(get_site()->fullname);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
+// Require jquery for modal.
+$PAGE->requires->jquery();
+$PAGE->requires->jquery_plugin('ui');
+$PAGE->requires->jquery_plugin('ui-css');
 // Creating tables and adding columns header.
 $examstable = new html_table();
 $examstable->head = array(
@@ -109,6 +113,7 @@ $examstable->head = array(
     $statusicon == 1 ? get_string('sent', "mod_emarking") : get_string('examdateprinted', 'mod_emarking'),
     $statusicon == 1 ? ucfirst(get_string('pages', 'mod_emarking')) : get_string('actions'),
     $statusicon == 1 ? get_string('actions') : get_string('printnotification', 'mod_emarking'));
+$examstable->id = "fbody";
 $examstable->size = array(
     '15%',
     '15%',
@@ -142,11 +147,12 @@ if ($statusicon == 1) {
 list($statussql, $params) = $DB->get_in_or_equal($statuses);
 $order = $statusicon == 1 ? "e.examdate asc, c.shortname ASC" : "e.examdate desc, c.shortname ASC";
 list($childrensql, $childrenparams) = $DB->get_in_or_equal(emarking_get_categories_childs($categoryid));
-$params = array_merge($childrenparams, $params);
+$childrenparams = array($categoryid, $categoryid);
 $sqlcount = " SELECT count(*)
  FROM {emarking_exams} as e
 INNER JOIN {course} as c ON (e.course = c.id)
-WHERE c.category {$childrensql} AND e.status {$statussql}";
+INNER JOIN {course_categories} as cc ON (cc.id = c.category)
+WHERE (cc.path LIKE '%/$categoryid' OR cc.path LIKE '%/$categoryid/%') AND e.status {$statussql}";
 // Get the count so we can use pagination.
 $examscount = $DB->count_records_sql($sqlcount, $params);
 $sql = "SELECT e.*,
@@ -160,7 +166,7 @@ $sql = "SELECT e.*,
 		INNER JOIN {course} as c ON (e.course = c.id)
 		INNER JOIN {user} as u ON (e.requestedby = u.id)
 		INNER JOIN {course_categories} as cc ON (cc.id = c.category)
-		WHERE c.category {$childrensql} AND e.status {$statussql}
+		WHERE (cc.path LIKE '%/$categoryid' OR cc.path LIKE '%/$categoryid/%') AND e.status {$statussql}
 		ORDER BY " . $order;
 // Getting all print orders.
 $exams = $DB->get_records_sql($sql, $params, $page * $perpage, ($page + 1) * $perpage); // Status = 1 means still not downloaded.
@@ -238,6 +244,8 @@ echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
 $activetab = $statusicon == 1 ? 'printorders' : 'printordershistory';
 echo $OUTPUT->tabtree(emarking_printoders_tabs($category), $activetab);
 if (count($exams) > 0) {
+    echo core_text::strtotitle(get_string("filter")) . "&nbsp;&nbsp;";
+    echo html_writer::tag("input", null, array("id"=>"searchInput"));
     echo html_writer::table($examstable); // Print the table.
     echo $OUTPUT->paging_bar($examscount, $page, $perpage,
             $CFG->wwwroot . '/mod/emarking/print/printorders.php?category=' . $categoryid . '&status=' . $statusicon . '&page=');
@@ -251,6 +259,41 @@ if ($CFG->emarking_usesms) {
     $message = get_string('emailinstructions', 'mod_emarking', $USER);
 }
 ?>
+<script type="text/javascript">
+$("#searchInput").keyup(function () {
+    //split the current value of searchInput
+    var data = this.value.split(" ");
+    //create a jquery object of the rows
+    var jo = $("#fbody").find("tbody").find("tr");
+    if (this.value == "") {
+        jo.show();
+        return;
+    }
+    //hide all the rows
+    jo.hide();
+
+    //Recusively filter the jquery object to get results.
+    jo.filter(function (i, v) {
+        var $t = $(this);
+        for (var d = 0; d < data.length; ++d) {
+            if ($t.is(":contains('" + data[d] + "')")) {
+                return true;
+            }
+        }
+        return false;
+    })
+    //show the rows that match.
+    .show();
+}).focus(function () {
+    this.value = "";
+    $(this).css({
+        "color": "black"
+    });
+    $(this).unbind('focus');
+}).css({
+    "color": "#C0C0C0"
+});
+</script>
 <script type="text/javascript">
     var messages = {
 		downloadexam: "<?php echo get_string("downloadexam", "mod_emarking") ?>",
