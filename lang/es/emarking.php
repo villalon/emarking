@@ -97,6 +97,7 @@ $string ['deleterow'] = 'Borrar fila';
 $string ['nodejspath'] = 'Ruta de NodeJS';
 $string ['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091';
 $string ['emarkinggraded'] = 'Corrección eMarking';
+$string ['answerkey'] = 'Pauta';
 // PERMISSIONS
 $string['emarking:activatedelphiprocess'] = 'Activar Delphi';
 $string['emarking:addinstance'] = 'Crear instancia de EMarking';
@@ -139,6 +140,7 @@ $string ['examstatusdownloaded'] = 'Descargada';
 $string ['examstatusprinted'] = 'Impresa';
 $string ['examstatussent'] = 'Enviada';
 $string ['downloadexam'] = 'Descargar prueba';
+$string ['comment_help'] = 'Comentario para hacer llegar a la impresión.';
 // JUSTICE PERCEPTION.
 $string ['er-4'] = '-4 (mucho peor de lo que merecía)';
 $string ['er-3'] = '-3';

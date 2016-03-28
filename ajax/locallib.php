@@ -857,35 +857,30 @@ function emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $is
     return $results;
 }
 /**
- *
+ * Returns the list of draft ids for answer keys
+ * @param unknown $submission
+ * @return multitype:stdClass
+ */
+function emarking_get_answerkeys_submission($submission) {
+    global $DB, $USER;
+    $results = $DB->get_records_sql('
+            SELECT d.id,
+                   d.grade,
+                   d.teacher
+            FROM {emarking_submission} s
+            INNER JOIN {emarking_draft} d ON (s.emarking = :emarking AND s.answerkey = 1 AND d.submissionid = s.id)',
+            array('emarking' => $submission->emarking));
+    return $results;
+}
+/**
+ * Selects a submission as answer key for the specific emarking activity
  * @return multitype:
  */
-function emarking_get_chat_history() {
+function emarking_set_answer_key($submission) {
     global $DB;
-    $room = required_param('room', PARAM_INT);
-    $source = required_param('source', PARAM_INT);
-    $sqlchathistory = "
-            SELECT ec.*,
-            u.firstname,
-            u.lastname,
-            u.email
-			FROM {emarking_chat} ec
-			INNER JOIN {user} u ON (u.id = ec.userid)
-		    WHERE ec.room=:room AND ec.source=:source
-		";
-    $params = array(
-        'room' => $room,
-        'source' => $source);
-    $results = $DB->get_records_sql($sqlchathistory, $params);
-    if (! $results) {
-        $results = array();
-    } else {
-        foreach ($results as $obj) {
-            $obj->url = $CFG->wwwroot . "/mod/emarking/marking/index.php";
-            $output [] = $obj;
-        }
-    }
-    return $results;
+    $submission->answerkey = $submission->answerkey ? 0 : 1;
+    $DB->update_record("emarking_submission", $submission);
+    return $submission->answerkey;
 }
 /**
  *

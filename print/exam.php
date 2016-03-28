@@ -119,6 +119,9 @@ if ($usercangrade) {
             get_string("downloadexam", "mod_emarking") . "</a>";
     }
     $examstable->data [] = array(
+        get_string("comment", "mod_emarking"),
+        $exam->comment);
+    $examstable->data [] = array(
         get_string("status", "mod_emarking"),
         $examstatus);
     $examstable->data [] = array(

@@ -248,6 +248,11 @@ switch ($action) {
         emarking_json_array(array(
             'nextsubmission' => $nextsubmission));
         break;
+    case 'setanswerkey' :
+        $newvalue = emarking_set_answer_key($submission);
+        emarking_json_array(array(
+            'newvalue' => $newvalue));
+        break;
     case 'getrubric' :
         $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         emarking_json_resultset($results);
@@ -262,6 +267,8 @@ switch ($action) {
         $output->markerid = $USER->id;
         $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         $output->rubric = $results;
+        $results = emarking_get_answerkeys_submission($submission);
+        $output->answerkeys = $results;
         emarking_json_array($output);
         break;
     case 'getchathistory' :

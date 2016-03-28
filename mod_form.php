@@ -121,6 +121,15 @@ class mod_emarking_mod_form extends moodleform_mod {
             $mform->addElement('static', 'examdownloaded', get_string("pdffile", "mod_emarking"), 
                     get_string("examalreadysent", "mod_emarking"));
         }
+        // Comment for printing.
+        $mform->addElement('textarea', 'comment', get_string('comment', 'mod_emarking'), 
+                array(
+                    'rows' => 5,
+                    'cols' => 100,
+                    'class' => 'smalltext'));
+        $mform->addHelpButton('comment', 'comment', 'mod_emarking');
+        $mform->setDefault('comment', '');
+        $mform->setType('comment', PARAM_TEXT);
         // Personalized header (using QR).
         $mform->addElement('checkbox', 'headerqr', get_string('headerqr', 'mod_emarking'), null, array(
                         'onChange' => 'check_qr();'));
@@ -412,6 +421,7 @@ class mod_emarking_mod_form extends moodleform_mod {
             $defaultvalues ["printlist"] = $exam->printlist;
             $defaultvalues ["printdoublesided"] = $exam->usebackside;
             $defaultvalues ["headerqr"] = $exam->headerqr;
+            $defaultvalues ["comment"] = $exam->comment;
             $defaultvalues ["extrasheets"] = $exam->extrasheets;
             $defaultvalues ["extraexams"] = $exam->extraexams;
             // If we are editing, we use the previous enrolments.
@@ -498,6 +508,7 @@ class mod_emarking_mod_form extends moodleform_mod {
             $freeze [] = 'extraexams';
             $freeze [] = 'enrolments';
             $freeze [] = 'name';
+            $freeze [] = 'comment';
             
             if ($mform->elementExists('multicourse')) {
                 $freeze [] = 'multicourse';

@@ -172,6 +172,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
         $exam->timemodified = time();
         $exam->requestedby = $USER->id;
         $exam->totalstudents = $studentsnumber;
+        $exam->comment = $mform->get_data()->comment;
         // Get the enrolments as a comma separated values.
         $enrollist = array();
         if (! empty($mform->get_data()->enrolments)) {
@@ -327,6 +328,7 @@ function emarking_update_instance(stdClass $emarking, mod_emarking_mod_form $mfo
         }
         // We update the exam row.
         $exam->name = $emarking->name;
+        $exam->comment = $mform->get_data()->comment;
         $exam->emarking = $emarking->instance;
         $DB->update_record("emarking_exams", $exam);
     }

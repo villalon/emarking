@@ -268,6 +268,7 @@ $sqldrafts = "
 SELECT
 $sqluser
 IFNULL(NM.submissionid,0) as submission,
+NM.answerkey,
 GROUP_CONCAT(IFNULL(NM.groupid,0) SEPARATOR '#') as groupid,
 GROUP_CONCAT(IFNULL(NM.draftid,0) SEPARATOR '#') as draft,
 GROUP_CONCAT(IFNULL(NM.status,0) SEPARATOR '#') as status,
@@ -302,6 +303,7 @@ GROUP_CONCAT(IFNULL(um.id, 0) SEPARATOR '#') as markerid
 FROM $sqldraftsorusers
 LEFT JOIN (
 SELECT s.student,
+s.answerkey,
 d.id as draftid,
 d.submissionid as submissionid,
 d.groupid as groupid,
@@ -556,9 +558,9 @@ foreach ($drafts as $draft) {
     if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $data [] = $finalgrade;
     }
-    $data [] = $pctmarked;
+    $data [] = $pctmarked . ($draft->answerkey ? '<br/>' . get_string('answerkey', 'mod_emarking') : '');
     $data [] = $actions;
-    $showpages->add_data($data);
+    $showpages->add_data($data, $draft->answerkey ? "alert-success" : "");
 }
 ?>
 <style>

@@ -27,6 +27,10 @@
 	text-align: center;
 }
 
+.isanswerkey {
+	background-color: #0f0;
+}
+
 #page-mod-emarking-marking-importrubric .lastrow {
 	margin-bottom: 0px;
 }

@@ -344,6 +344,8 @@
 					SEQUENCE="false" COMMENT="if the printing was notified" />
 				<FIELD NAME="enrolments" TYPE="char" LENGTH="250" NOTNULL="false"
 					SEQUENCE="false" COMMENT="the list of enrolments to include in printing" />
+				<FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false"
+					COMMENT="user comment" />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />

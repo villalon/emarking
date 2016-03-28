@@ -97,6 +97,7 @@ $string ['deleterow'] = 'Delete row';
 $string ['nodejspath'] = 'NodeJS path';
 $string ['nodejspath_help'] = 'The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091';
 $string ['emarkinggraded'] = 'eMarking graded';
+$string ['answerkey'] = 'Answer key';
 // PERMISSIONS
 $string['emarking:activatedelphiprocess'] = '';
 $string['emarking:addinstance'] = '';
@@ -139,6 +140,7 @@ $string ['examstatusdownloaded'] = 'Downloaded';
 $string ['examstatusprinted'] = 'Printed';
 $string ['examstatussent'] = 'Sent for printing';
 $string ['downloadexam'] = 'Download exam';
+$string ['comment_help'] = 'Comment for the printing staff.';
 // JUSTICE PERCEPTION.
 $string ['er-4'] = '-4 (much worse than I deserved)';
 $string ['er-3'] = '-3';

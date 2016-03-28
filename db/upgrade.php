@@ -1371,5 +1371,17 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2016031500, 'emarking');
     }
+    if ($oldversion < 2016032400) {
+        // Get the table for adding the field.
+        $table = new xmldb_table('emarking_exams');
+        // Adding comment field.
+        $field = new xmldb_field('comment', XMLDB_TYPE_TEXT, null, null, null, null, null, null);
+        // Conditionally launch add field comment.
+        if (! $dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016032400, 'emarking');
+    }
     return true;
 }

@@ -352,6 +352,7 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
              '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('examdate', 'mod_emarking') . '</td><td>' . date("d M Y - H:i", $exam->examdate) .
              '</td></tr>';
+    $posthtml .= '<tr><td>' . get_string('comment', 'mod_emarking') . '</td><td>' . $exam->comment . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('headerqr', 'mod_emarking') . '</td><td>' . $examhasqr . '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('doubleside', 'mod_emarking') . '</td><td>' .
              ($exam->usebackside ? get_string('yes') : get_string('no')) . '</td></tr>';
@@ -369,6 +370,7 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
     $posttext .= get_string('teacher', 'mod_emarking') . ' : ' . $teacherstring . '\n';
     $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $USER->firstname . ' ' . $USER->lastname . '\n';
     $posttext .= get_string('examdate', 'mod_emarking') . ': ' . date("d M Y - H:i", $exam->examdate) . '\n';
+    $posttext .= get_string('comment', 'mod_emarking') . ': ' . $exam->comment . '\n';
     $posttext .= get_string('headerqr', 'mod_emarking') . ': ' . $examhasqr . '\n';
     $posttext .= get_string('doubleside', 'mod_emarking') . ' : ' . ($exam->usebackside ? get_string('yes') : get_string('no')) .
              '\n';
