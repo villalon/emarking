@@ -26,6 +26,7 @@ require_once($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once($CFG->dirroot . "/mod/emarking/reports/locallib.php");
 require_once($CFG->dirroot . "/mod/emarking/marking/locallib.php");
 require_once($CFG->dirroot . '/lib/excellib.class.php');
+require_once($CFG->dirroot . '/mod/emarking/reports/forms/category_form.php');
 global $DB, $CFG;
 $categoryid = required_param('category', PARAM_INT);
 $status = optional_param("status", 0, PARAM_INT);
@@ -74,8 +75,26 @@ if ($status == 2) {
 if ($status == 3) {
     emarking_download_excel_monthly_cost($categoryid);
 }
+$subcategoryquery = "Select * FROM {course_categories} Where path like ?";
+$subcategories = $DB->get_records_sql($subcategoryquery, array("%/$categoryid/%"));
+foreach ($subcategories as $subcategory) {
+	$arraysubcategory [$subcategory->id] = $subcategory->name;
+}
+if(isset($arraysubcategory)){
+// Add the emarking cost form for categories.
+$addform = new emarking_category_form();
+// If the form is cancelled redirects you to the report center.
+if ($datas = $addform->get_data()) {
+// Redirect to the table with all the category costs.
+	redirect(new moodle_url("/mod/emarking/reports/costcenter.php", array(
+			"category" => $categoryid)));
+}
+}
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
+if(isset($arraysubcategory)){
+$addform->display();
+}
 // Div that contain the buttons table.
 echo html_writer::start_tag('div');
 // Generation of the buttons table.
@@ -184,7 +203,7 @@ $totalcostforchart = json_encode(emarking_get_total_cost_by_date($categoryid));
 // Column chart variables.
 $activitiespiechart = json_encode(emarking_get_activities_piechart($categoryid));
 $emarkingcoursespiechart = json_encode(emarking_get_emarking_courses_piechart($categoryid));
-$meanexamlenghtpiechart = json_encode(emarking_ge_tmean_exam_lenght_piechart($categoryid));
+$meanexamlenghtpiechart = json_encode(emarking_get_mean_exam_lenght_piechart($categoryid));
 $totalpagespiechart = json_encode(emarking_get_total_pages_piechart($categoryid));
 $totalcostpiechart = json_encode(emarking_get_total_cost_piechart($categoryid));
 echo $OUTPUT->footer();
