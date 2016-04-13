@@ -249,7 +249,8 @@ switch ($action) {
             'nextsubmission' => $nextsubmission));
         break;
     case 'setanswerkey' :
-        $newvalue = emarking_set_answer_key($submission);
+        $status = required_param('status', PARAM_INT);
+        $newvalue = emarking_set_answer_key($submission, $status);
         emarking_json_array(array(
             'newvalue' => $newvalue));
         break;

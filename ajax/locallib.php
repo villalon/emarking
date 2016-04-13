@@ -874,13 +874,18 @@ function emarking_get_answerkeys_submission($submission) {
 }
 /**
  * Selects a submission as answer key for the specific emarking activity
- * @return multitype:
+ * @param unknown $submission
+ * @param unknown $newstatus
+ * @return unknown
  */
-function emarking_set_answer_key($submission) {
+function emarking_set_answer_key($submission, $newstatus) {
     global $DB;
-    $submission->answerkey = $submission->answerkey ? 0 : 1;
+    if($newstatus < EMARKING_ANSWERKEY_NONE || $newstatus > EMARKING_ANSWERKEY_ACCEPTED) {
+        throw new Exception('Invalid status for answerkey');
+    }
+    $submission->answerkey = $newstatus;
     $DB->update_record("emarking_submission", $submission);
-    return $submission->answerkey;
+    return $newstatus;
 }
 /**
  *

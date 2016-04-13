@@ -71,6 +71,11 @@ if (! $exam = $DB->get_record("emarking_exams", $params)) {
         "return" => "1")));
     die("");
 }
+if (has_capability("mod/emarking:downloadexam", $context)) {
+    $downloadexambutton = "<input type='button' class='downloademarking' examid ='$exam->id' value='" .
+    get_string("downloadexam", "mod_emarking") . "'>";
+    echo $downloadexambutton;
+}
 list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
 // Create a new html table.
 $examstable = new html_table();
@@ -113,10 +118,6 @@ if ($usercangrade) {
         case 3 :
             $examstatus = get_string("examstatusprinted", "mod_emarking");
             break;
-    }
-    if (has_capability("mod/emarking:downloadexam", $context)) {
-        $examstatus .= "&nbsp;<a class='downloademarking' examid ='$exam->id'>" .
-            get_string("downloadexam", "mod_emarking") . "</a>";
     }
     $examstable->data [] = array(
         get_string("comment", "mod_emarking"),
