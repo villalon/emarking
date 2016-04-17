@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/config.php');
 require_once($CFG->libdir . "/formslib.php");
 
-class emarking_category_form extends moodleform {
+class emarking_uppercategory_form extends moodleform {
     /**
      * Defines forms elements
      */
@@ -37,16 +37,20 @@ class emarking_category_form extends moodleform {
         global $DB;
         $categoryid = required_param('category', PARAM_INT);
         $mform = $this->_form;
-        $arraysubcategory = array();
-		$subcategoryquery = "Select * FROM {course_categories} Where path like ?";
-		$subcategories = $DB->get_records_sql($subcategoryquery, array("%/$categoryid/%"));
-			foreach ($subcategories as $subcategory) {
-				$arraysubcategory [$subcategory->id] = $subcategory->name;
+        $arrayuppercategory = array();
+		$categoriesdepth = $DB->get_record_sql("SELECT depth FROM {course_categories} WHERE id = ?",array('id'=>$categoryid));
+		foreach($categoriesdepth as $categorydepth){
+		$depth = $categoriesdepth->depth;
+		}
+		$uppercategoriesquery = "SELECT * FROM {course_categories} WHERE depth < ?";
+		$uppercategories = $DB->get_records_sql($uppercategoriesquery, array($depth));
+			foreach ($uppercategories as $uppercategory) {
+				$arrayuppercategory [$uppercategory->id] = $uppercategory->name;
 			}
-        $mform->addElement('select', 'category', get_string('category', 'mod_emarking'), $arraysubcategory);
+        $mform->addElement('select', 'category', get_string('category', 'mod_emarking'), $arrayuppercategory);
         $mform->setDefault('category', $categoryid);
-        $mform->addHelpButton('category', 'categoryselection', 'mod_emarking');
-        $this->add_action_buttons(false,get_string('gotosubcategory', 'mod_emarking'));
+        $mform->addHelpButton('category', 'categoryselect', 'mod_emarking');
+        $this->add_action_buttons(false,get_string('gotouppercategory', 'mod_emarking'));
     }
     public function validation($data, $files) {
     }
