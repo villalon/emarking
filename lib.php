@@ -65,6 +65,11 @@ define('EMARKING_REGRADE_STATEMENT_PROBLEM', 3);
 define('EMARKING_REGRADE_ERROR_CARRIED_FORWARD', 4);
 define('EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER', 5);
 define('EMARKING_REGRADE_OTHER', 10);
+// Answer key status.
+define('EMARKING_ANSWERKEY_NONE', 0);
+define('EMARKING_ANSWERKEY_REQUESTED', 1);
+define('EMARKING_ANSWERKEY_REJECTED', 2);
+define('EMARKING_ANSWERKEY_ACCEPTED', 3);
 // Moodle core API.
 /**
  * Returns the information on whether the module supports a feature
