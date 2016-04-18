@@ -119,80 +119,23 @@ function emarking_costconfig_tabs($category) {
                 "category" => $category->id)), get_string("costcategorytable", 'mod_emarking'));
     return $tabs;
 }
-function emarking_buttonstable($categoryid) {
-    $buttonsarray = array();
-    // Creation of the activities button.
-    $activities = emarking_get_activities($categoryid);
-    $activitiesbutton = html_writer::tag('button', $activities . " " . get_string('totalactivies', 'emarking'),
-            array(
-                'id' => 'activitiesbutton',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $activitiesbutton;
-    // Creation of the emarkingcourses button.
-    $emarkingcourses = emarking_get_emarking_courses($categoryid);
-    $emarkingcoursesbutton = html_writer::tag('button', $emarkingcourses . " " . get_string('emarkingcourses', 'emarking'),
-            array(
-                'id' => 'emarkingcourses',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $emarkingcoursesbutton;
-    // Creation of the meanlengh button.
-    $originalpages = emarking_get_original_pages($categoryid);
-    $meantestlenghbutton = html_writer::tag('button', $originalpages . " " . get_string('meantestlenght', 'emarking'),
-            array(
-                'id' => 'meantestleangh',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $meantestlenghbutton;
-    // Creation of the totalprintedpages button.
-    $totalprintedpages = emarking_get_total_pages($categoryid);
-    $totalprintedpagesbutton = html_writer::tag('button', $totalprintedpages . " " . get_string('totalprintedpages', 'emarking'),
-            array(
-                'id' => 'totalprintedpages',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $totalprintedpagesbutton;
-    // Creation of the total cost.
-    $printingcost = emarking_get_printing_cost($categoryid);
-    $formatcost = number_format($printingcost);
-    $totalprintingcostbutton = html_writer::tag('button',
-            '$' . " " . $formatcost . " " . get_string('totalprintingcost', 'emarking'),
-            array(
-                'id' => 'totalprintingcost',
-                'class' => 'emarking-totalcost-button-style emarking-area-cost-button-style'));
-    $buttonsarray [] = $totalprintingcostbutton;
-    return $buttonsarray;
-}
-function emarking_columnbuttonstable($categoryid) {
-    $buttonsarray = array();
-    // Creation of the activities button.
-    $activitiesbutton = html_writer::tag('button', get_string('activities', 'emarking'),
-            array(
-                'id' => 'columnactivitiesbutton',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $activitiesbutton;
-    // Creation of the emarkingcourses button.
-    $emarkingcoursesbutton = html_writer::tag('button', get_string('emarkingcourses', 'emarking'),
-            array(
-                'id' => 'columnemarkingcourses',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $emarkingcoursesbutton;
-    // Creation of the meanlengh button.
-    $meantestlenghbutton = html_writer::tag('button', get_string('meanexamleanght', 'emarking'),
-            array(
-                'id' => 'columnmeantestleangh',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $meantestlenghbutton;
-    // Creation of the totalprintedpages button.
-    $totalprintedpagesbutton = html_writer::tag('button', get_string('totalprintedpages', 'emarking'),
-            array(
-                'id' => 'columntotalprintedpages',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $totalprintedpagesbutton;
-    // Creation of the total cost.
-    $totalprintingcostbutton = html_writer::tag('button', get_string('totalcost', 'emarking'),
-            array(
-                'id' => 'columntotalprintingcost',
-                'class' => 'emarking-column-totalcost-button-style emarking-column-cost-button-style'));
-    $buttonsarray [] = $totalprintingcostbutton;
-    return $buttonsarray;
+function emarking_buttons_creator($string, $id = null, $class = null) {
+	$button = html_writer::tag('button', $string,
+			array(
+					'id' => $id,
+					'class' => $class));
+	return $button;
+	}
+function emarking_get_subcategories($category){
+	global $DB;
+	$arraysubcategory = array();
+	$subcategoryquery = "SELECT * FROM {course_categories} WHERE ".$DB->sql_like('path', ':path');
+	if($subcategories = $DB->get_records_sql($subcategoryquery, array( "path" => "%/$category/%"))){
+		foreach ($subcategories as $subcategory) {
+			$arraysubcategory [$subcategory->id] = $subcategory->name;
+		}
+	}	
+	return $arraysubcategory;
 }
 function emarking_get_category_cost_table_data($category) {
     global $DB, $OUTPUT;
@@ -835,24 +778,6 @@ function emarking_get_total_pages_for_table($category) {
             '0'];
     }
     return $arraytotalpagesbydate;
-}
-function emarking_get_subcategories($category) {
-    global $DB;
-    $subcategoriesparams = array(
-        "%/$category/%");
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqlsubcategories = "SELECT id, name
-							FROM {course_categories} cc
-							WHERE cc.path like ?
-                               ";
-    // Gets the information of the above query.
-    $subcategoriesarray = array();
-    if ($subcategories = $DB->get_records_sql($sqlsubcategories, $subcategoriesparams)) {
-        foreach ($subcategories as $sub) {
-            $subcategoriesarray [$sub->id] = $sub->name;
-        }
-    }
-    return $subcategoriesarray;
 }
 function emarking_get_total_cost_piechart($category) {
     global $DB;

@@ -34,14 +34,18 @@ class emarking_cost_form extends moodleform {
      */
     public function definition() {
         global $DB;
-        $categoryid = required_param('category', PARAM_INT);
+        
         $mform = $this->_form;
+        $instance = $this->_customdata;
+        $categoryid = $instance["category"];
+        
         $arraycategory = array();
         if ($categories = $DB->get_records('course_categories')) {
             foreach ($categories as $category) {
                 $arraycategory [$category->id] = $category->name;
             }
         }
+        
         $mform->addElement('header', 'general', get_string('general', 'form'));
         $mform->addElement('select', 'category', get_string('category', 'mod_emarking'), $arraycategory);
         $mform->setDefault('category', $categoryid);
@@ -57,7 +61,7 @@ class emarking_cost_form extends moodleform {
         $this->add_action_buttons(true);
     }
     public function validation($data, $files) {
-        global $CFG;
+    
         $errors = array();
         if (! is_number($data ['cost'])) {
             $errors ['cost'] = get_string('numericplease', 'mod_emarking');
@@ -67,4 +71,64 @@ class emarking_cost_form extends moodleform {
         }
         return $errors;
     }
+}
+class emarking_subcategory_form extends moodleform {
+	/**
+	 * Defines forms elements
+	 */
+	public function definition() {
+		global $DB;
+		
+		$mform = $this->_form;
+		$instance = $this->_customdata;
+		$categoryid = $instance["category"];
+		
+		$arraysubcategory = array();
+		$arraysubcategory[-1] = get_string('selectcategory', 'mod_emarking');
+		$subcategoryquery = "SELECT * FROM {course_categories} WHERE ".$DB->sql_like('path', ':path');
+		$subcategories = $DB->get_records_sql($subcategoryquery, array( "path" => "%/$categoryid/%"));
+		foreach ($subcategories as $subcategory) {
+			$arraysubcategory [$subcategory->id] = $subcategory->name;
+		}
+		
+		$mform->addElement('select', 'category', get_string('category', 'mod_emarking'), $arraysubcategory);
+		$mform->addHelpButton('category', 'categoryselect', 'mod_emarking');
+		$this->add_action_buttons(false,get_string('gotosubcategory', 'mod_emarking'));
+		
+	}
+	public function validation($data, $files) {
+	
+		print_r($data);
+		$errors = array();
+			$errors ['category'] = get_string('selectcategory', 'mod_emarking');
+		
+		return $errors;	
+	}
+}
+class emarking_uppercategory_form extends moodleform {
+	/**
+	 * Defines forms elements
+	 */
+	public function definition() {
+		global $DB;
+		$mform = $this->_form;
+		$instance = $this->_customdata;
+		$categoryid = $instance["category"];
+		$arrayuppercategory = array();
+		$categoriesdepth = $DB->get_record_sql("SELECT depth FROM {course_categories} WHERE id = ?",array('id'=>$categoryid));
+		foreach($categoriesdepth as $categorydepth){
+			$depth = $categoriesdepth->depth;
+		}
+		$uppercategoriesquery = "SELECT * FROM {course_categories} WHERE depth < ?";
+		$uppercategories = $DB->get_records_sql($uppercategoriesquery, array($depth));
+		foreach ($uppercategories as $uppercategory) {
+			$arrayuppercategory [$uppercategory->id] = $uppercategory->name;
+		}
+		$mform->addElement('select', 'category', get_string('category', 'mod_emarking'), $arrayuppercategory);
+		$mform->setDefault('category', $categoryid);
+		$mform->addHelpButton('category', 'categoryselect', 'mod_emarking');
+		$this->add_action_buttons(false,get_string('gotouppercategory', 'mod_emarking'));
+	}
+	public function validation($data, $files) {
+	}
 }
