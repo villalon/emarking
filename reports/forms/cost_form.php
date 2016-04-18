@@ -84,7 +84,7 @@ class emarking_subcategory_form extends moodleform {
 		$categoryid = $instance["category"];
 		
 		$arraysubcategory = array();
-		$arraysubcategory[-1] = get_string('selectcategory', 'mod_emarking');
+		$arraysubcategory[$categoryid] = get_string('selectcategory', 'mod_emarking');
 		$subcategoryquery = "SELECT * FROM {course_categories} WHERE ".$DB->sql_like('path', ':path');
 		$subcategories = $DB->get_records_sql($subcategoryquery, array( "path" => "%/$categoryid/%"));
 		foreach ($subcategories as $subcategory) {
@@ -97,12 +97,6 @@ class emarking_subcategory_form extends moodleform {
 		
 	}
 	public function validation($data, $files) {
-	
-		print_r($data);
-		$errors = array();
-			$errors ['category'] = get_string('selectcategory', 'mod_emarking');
-		
-		return $errors;	
 	}
 }
 class emarking_uppercategory_form extends moodleform {
@@ -115,6 +109,7 @@ class emarking_uppercategory_form extends moodleform {
 		$instance = $this->_customdata;
 		$categoryid = $instance["category"];
 		$arrayuppercategory = array();
+		$arrayuppercategory[$categoryid] = get_string('selectcategory', 'mod_emarking');
 		$categoriesdepth = $DB->get_record_sql("SELECT depth FROM {course_categories} WHERE id = ?",array('id'=>$categoryid));
 		foreach($categoriesdepth as $categorydepth){
 			$depth = $categoriesdepth->depth;

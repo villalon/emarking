@@ -137,16 +137,9 @@ $mainbuttons = array(
 		emarking_buttons_creator(emarking_get_total_pages($categoryid). " " . get_string('totalprintedpages', 'emarking'), 'totalprintedpages', 'emarking-area-cost-button-style'),
 		emarking_buttons_creator('$' . " " .number_format(emarking_get_total_pages($categoryid)). " " . get_string('totalprintingcost', 'emarking'), 'totalprintingcost', 'emarking-totalcost-button-style emarking-area-cost-button-style')
 );
-$buttonstable = new html_table();
-$buttonstable->head = array(get_string('reportbuttonsheader', 'emarking'));
-$buttonstable->data [] = $mainbuttons;
-$buttonstable->size = [
-    '20%',
-    '20%',
-    '20%',
-    '20%',
-    '20%'];
-echo html_writer::table($buttonstable);
+
+echo emarking_table_creator(array(get_string('reportbuttonsheader', 'emarking')),array($mainbuttons),array('20%','20%','20%','20%','20%'));
+
 echo html_writer::end_tag('div');
 if($isyears==0){
 $actualyear = $yearormonth[1];
@@ -169,15 +162,7 @@ if (! empty($subcategories)) {
 			emarking_buttons_creator(get_string('totalcost', 'emarking'), 'columntotalprintingcost', 'emarking-column-totalcost-button-style emarking-column-cost-button-style')
 	);
     // Generation of the buttons table.
-    $piebuttonstable = new html_table();
-    $piebuttonstable->data [] = $secondarybuttons;
-    $piebuttonstable->size = [
-        '20%',
-        '20%',
-        '20%',
-        '20%',
-        '20%'];
-    echo html_writer::table($piebuttonstable);
+   echo emarking_table_creator(null,array($secondarybuttons),array('20%','20%','20%','20%','20%'));
     // Sub-category column chart.
     echo html_writer::tag('div', '', array(
         'id' => 'columnchartdiv'));
@@ -189,13 +174,7 @@ if (! empty($subcategories)) {
 echo html_writer::start_tag('div', array(
     'class' => 'emarking-left-table-ranking'));
 // Generation of the ranking table.
-$courseranking = emarking_get_total_pages_by_course($categoryid, 5);
-$coursetable = new html_table();
-$coursetable->head = array(
-    get_string('courseranking', 'emarking'),
-     get_string('pages', 'emarking'));
-$coursetable->data = $courseranking;
-echo html_writer::table($coursetable);
+echo emarking_table_creator(array(get_string('courseranking', 'emarking'),get_string('pages', 'emarking')),emarking_get_total_pages_by_course($categoryid, 5),null);
 // Excel export button.
 $buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
     'category' => $categoryid,
@@ -204,14 +183,8 @@ echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarkin
 echo html_writer::tag('hr','', array(
 		'class' => 'style-one'
 ));
-// Generation of the teachers Ranking.
-$teacherranking = emarking_get_teacher_ranking($categoryid, 5);
-$teachertable = new html_table();
-$teachertable->head = array(
-    get_string('teacherranking', 'emarking'),
-    get_string('totalactivies', 'emarking'));
-$teachertable->data = $teacherranking;
-echo html_writer::table($teachertable);
+// Generation of the teachers ranking table.
+echo emarking_table_creator(array(get_string('teacherranking', 'emarking'),get_string('totalactivies', 'emarking')),emarking_get_teacher_ranking($categoryid, 5),null);
 // Excel export button.
 $buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
     'category' => $categoryid,
@@ -228,21 +201,12 @@ $student = html_writer::tag('span', $category->name . "<br>" . get_string("stude
         array(
             'id' => 'studentspan'));
 // Generates the detailed information table.
-$detailtable = new html_table();
-$detailtable->data = [
-    [
-        $student]];
-echo html_writer::table($detailtable);
+echo emarking_table_creator(null,[[$student]],null);
 echo html_writer::tag('hr','', array(
 		'class' => 'style-one'
 ));
 // Get the monthly cost and gets it in a table.
-$totalcostfortable = emarking_get_total_pages_for_table($categoryid);
-$monthtable = new html_table();
-$monthtable->head = [
-    get_string("monthlycost", "mod_emarking")];
-$monthtable->data = $totalcostfortable;
-echo html_writer::table($monthtable);
+echo emarking_table_creator(array(get_string("monthlycost", "mod_emarking")),emarking_get_total_pages_for_table($categoryid),null);
 // Excel export button.
 $buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
     'category' => $categoryid,

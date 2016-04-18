@@ -126,6 +126,13 @@ function emarking_buttons_creator($string, $id = null, $class = null) {
 					'class' => $class));
 	return $button;
 	}
+function emarking_table_creator($head, $data, $size){
+$buttonstable = new html_table();
+$buttonstable->head = $head;
+$buttonstable->data = $data;
+$buttonstable->size = $size;
+return html_writer::table($buttonstable);
+}
 function emarking_get_subcategories($category){
 	global $DB;
 	$arraysubcategory = array();
