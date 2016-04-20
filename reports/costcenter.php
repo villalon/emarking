@@ -217,6 +217,7 @@ elseif ($status == 3) {
 }
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
+echo html_writer::tag('h4',get_string('categorynavegation', 'emarking'));
 if(isset($subcategories)){
 	echo html_writer::start_tag('div', array(
 			'class' => 'emarking-left-table-ranking'));

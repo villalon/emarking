@@ -525,7 +525,7 @@ function emarking_download_excel_course_ranking($category) {
 function emarking_download_excel_monthly_cost($category, $totalcostdata) {
     global $DB;
     $headers = [
-        get_string('monthlycost', 'mod_emarking')];
+        get_string('costbydate', 'mod_emarking')];
     $excelfilename = clean_filename("MonthlyCost" . $category);
     emarking_save_data_to_excel($headers, $totalcostdata, $excelfilename, 2);
 }
