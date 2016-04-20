@@ -1671,8 +1671,12 @@ function emarking_print_file($printername, $command, $file, $debugprinting) {
     if (! $printername) {
         return null;
     }
+    $server = '';
+    if (isset($CFG->emarking_printserver) && strlen($CFG->emarking_printserver) > 3) {
+        $server = '-h ' . $CFG->emarking_printserver;
+    }
     $command = explode("#", $command);
-    $cups = $command [0] . $printername . $command [1] . " " . $file;
+    $cups = $command [0] . $printername . ' ' . $server . ' ' . $command [1] . " " . $file;
     $printresult = null;
     if (! $debugprinting) {
         $printresult = exec($cups);

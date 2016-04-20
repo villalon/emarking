@@ -270,6 +270,8 @@ $string ['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesore
 $string ['viewadminprints'] = '<a href="{$a}">Administrar impresoras</a>';
 $string ['viewpermitsprinters'] = '<br/><a href="{$a}">Administrar permisos de impresoras</a>';
 $string ['aofb'] = '{$a->identified} de {$a->total}';
+$string ['printserver'] = 'Servidor de impresiones (número IP)';
+$string ['printserver_help'] = 'Hace que Moodle imprima las evaluaciones de E-Marking en un servidor de impresiones cups (dejar en blanco si no utiliza un servidor de impresiones).';
 // EMARKING UPLOAD ANSWERS.
 $string ['confirmprocess'] = 'Confirmar proceso';
 $string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';
