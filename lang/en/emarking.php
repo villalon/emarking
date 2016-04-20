@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  *
  * @package mod
@@ -314,7 +313,6 @@ $string ['costsettings'] = 'Settings';
 $string ['costconfigtab'] = 'Set category cost';
 $string ['costcategorytable'] = 'View category costs';
 $string ['editcost'] = 'Edit';
-$string ['nocostdata'] = 'There is no cost data to show, make sure you have eMarking activities send to print or printed';
 $string ['activities'] = 'Activities';
 $string ['emarkingcourses'] = 'eMarking courses';
 $string ['meanexamleanght'] = 'Avg. exam lenght';
@@ -326,22 +324,16 @@ $string ['validcostcenter'] = 'Must enter numeric value';
 $string ['validcostcenter_help'] = 'Must enter valid cost center number';
 $string ['categoryselection_help'] = 'Please select the category where you want to add/modify the cost';
 $string ['categoryselection'] = 'Chose a category';
-$string ['categoryselect_help'] = 'Please select the category where you want to go';
-$string ['categoryselect'] = 'Chose a category';
 $string ['downloadexcel'] = 'Download excel';
 $string ['category'] = 'Category';
-$string ['selectcategory'] = 'Select a category';
 $string ['categorycost'] = 'Category cost';
 $string ['costcenter'] = 'Cost center';
 $string ['costofonepage'] = 'Cost of printing one page';
 $string ['costcenternumber'] = 'Cost Center number';
 $string ['month'] = 'Month';
-$string ['year'] = 'Year';
-$string ['gotosubcategory'] = 'Go to subcategory';
-$string ['gotouppercategory'] = 'Go to uppercategory';
 $string ['coursename'] = 'Course Name';
 $string ['teachername'] = 'Teacher Name';
-$string ['costbydate'] = 'Cost by date';
+$string ['monthlycost'] = 'Monthly cost';
 $string ['studentnumber'] = 'Number of Students';
 $string ['categorychart'] = 'Category chart';
 $string ['subcategorychart'] = 'Sub-category chart';
@@ -417,8 +409,6 @@ $string ['emarkingprints'] = 'Emarking Printers';
 $string ['adminprints'] = 'Manage printers';
 $string ['permitsviewprinters'] = 'Permissions to view printers';
 $string ['notallowedprintermanagement'] = 'Not allowed to access the printer management';
-$string ['notallowed'] = 'Not allowed!';
-$string ['notallowedcostreport'] = 'Not allowed to see cost reports';
 $string ['printerdoesnotexist'] = 'The printer does not exist';
 $string ['ip'] = 'ip';
 $string ['commandcups'] = 'Command cups';
