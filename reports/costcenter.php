@@ -71,23 +71,24 @@ $PAGE->navbar->add($pagetitle);
 $PAGE->set_heading(get_site()->fullname);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 
-
-// Excel downloads.
-if ($status == 1) {
-    emarking_download_excel_course_ranking($categoryid);
+if(emarking_get_activities($categoryid) == 0){
+	print_error(get_string('nocostdata', 'mod_emarking'));	
 }
-elseif ($status == 2) {
-    emarking_download_excel_teacher_ranking($categoryid);
-}
-elseif ($status == 3) {
-    emarking_download_excel_monthly_cost($categoryid);
+//years or months in data
+$yearormonth = emarking_years_or_months($categoryid);
+$isyears = $yearormonth[0];
+// Area chart data.
+if($isyears == 1){
+	$date = "YEAR";
+} else{
+	$date = "MONTH";
 }
 
 $parentcategory = $DB->get_record('course_categories', array('id' => $categoryid));
 // Add the emarking cost form for categories.
 $adduppercategoryform = new emarking_uppercategory_form(null,array(
-			"category" => $categoryid
-	));
+		"category" => $categoryid
+));
 
 // If the form is cancelled redirects you to the report center.
 if ($datas = $adduppercategoryform->get_data()) {
@@ -104,17 +105,118 @@ if(isset($subcategories)){
 	));
 	// If the form is cancelled redirects you to the report center.
 	if ($datas = $addsubcategoryform->get_data()) {
-	// Redirect to the table with all the category costs.
+		// Redirect to the table with all the category costs.
 		redirect(new moodle_url("/mod/emarking/reports/costcenter.php", array(
 				"category" => $categoryid
-			)));
+		)));
 	}
 }
-
+$activitiesmain = emarking_get_query(array("%/$categoryid/%",$categoryid),
+		"idexam, COUNT(id) AS activities, printdate",
+		"eexam.id AS idexam,e.id AS id,".$date."(FROM_UNIXTIME(eexam.printdate)) AS printdate",
+		"(cc.path like ? OR cc.id = ?)",
+		null, null, null,
+		"printdate",
+		"printdate ASC");
+$activitiesmainchart = json_encode(emarking_array_by_date($isyears, $activitiesmain, get_string('activities', 'mod_emarking'), "printdate", "activities"));
+$emarkingcoursesmain = emarking_get_query(array("%/$categoryid/%", $categoryid, EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
+		"printdate, COUNT(course) AS coursecount",
+		"e.course AS course,".$date."(FROM_UNIXTIME(MIN(eexam.printdate))) as printdate",
+		"(cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)",
+		"course",
+		"printdate DESC",
+		null,
+		"printdate",
+		null);
+$emarkingcoursesmainchart = json_encode(emarking_array_by_date($isyears, $emarkingcoursesmain, get_string('emarkingcourses', 'mod_emarking'), "printdate", "coursecount"));
+$meanexamlenghtmain = emarking_get_query(array("%/$categoryid/%", $categoryid, EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
+		"printdate, AVG(pages) AS avgpages",
+		"eexam.id as id,".$date."(FROM_UNIXTIME(eexam.printdate)) as printdate,(eexam.totalpages+eexam.extrasheets) AS pages",
+		"(cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)",
+		"id",
+		null, null,
+		"printdate",
+		null);
+$meanexamlenghtmainchart = json_encode(emarking_array_by_date($isyears, $meanexamlenghtmain, get_string('meanexamleanght', 'mod_emarking'), "printdate", "avgpages"));
+$totalpagesmain = emarking_get_query(array("%/$categoryid/%", $categoryid, EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
+		"printdate,SUM(pages) AS totalpages",
+		"c.id AS courseid, eexam.id AS examid,".$date."(FROM_UNIXTIME(eexam.printdate)) as printdate, (eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams) AS pages",
+		"(cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)",
+		"eexam.id",
+		"pages DESC",
+		null,
+		"printdate",
+		null);
+$totalpagesmainchart = json_encode(emarking_array_by_date($isyears, $totalpagesmain, get_string('totalprintedpages', 'mod_emarking'), "printdate", "totalpages"));
+$totalcostmain = emarking_get_query(array("%/$categoryid/%", $categoryid, EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
+		"printdate, SUM(pages) AS totalcost",
+		"c.id AS courseid, eexam.id AS examid,".$date."(FROM_UNIXTIME(eexam.printdate)) as printdate, eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages",
+		"(cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)",
+		"eexam.id",
+		"pages DESC",
+		null,
+		"printdate",
+		null);
+$totalcostmainchart = json_encode(emarking_array_by_date($isyears, $totalcostmain, get_string('totalcost', 'mod_emarking'), "printdate", "totalcost"));
+if(! empty($subcategories)){
+	// Column chart variables.
+	$activitiescolumn = emarking_get_query(array("%/$categoryid/%"),
+			"cc.id as id, cc.name as name, COUNT(e.id) AS activities",
+			null, null, null, null,
+			"cc.path like ?",
+			"id",
+			null);
+	$activitiescolumnchart = json_encode(emarking_array_column_chart($activitiescolumn, array(get_string('category', 'mod_emarking'),get_string('activities', 'mod_emarking')), "activities", "name"));
+	$emarkingcoursescolumn = emarking_get_query(array("%/$categoryid/%"),
+			"id, name, COUNT(course) as countcourses",
+			"e.course AS course, cc.name as name, cc.id as id",
+			"cc.path like ?",
+			"course",
+			"name desc",
+			null,
+			"id",
+			null);
+	$emarkingcoursescolumnchart = json_encode(emarking_array_column_chart($emarkingcoursescolumn, array(get_string('category', 'mod_emarking'), get_string('emarkingcourses', 'mod_emarking')), "countcourses", "name"));
+	$meanexamlenghtcolumn = emarking_get_query(array("%/$categoryid/%", EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
+			"cc.id as id, cc.name as name, AVG((eexam.totalpages+eexam.extrasheets)) AS pages",
+			null, null, null, null,
+			"cc.path like ?  AND eexam.status IN (?,?)",
+			"id",
+			null);
+	$meanexamlenghtcolumnchart = json_encode(emarking_array_column_chart($meanexamlenghtcolumn, array(get_string('category', 'mod_emarking'), get_string('meanexamleanght', 'mod_emarking')), "pages", "name"));
+	$totalpagescolumn = emarking_get_query(array("%/$categoryid/%", EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
+			"categoryid, categoryname, SUM(pages) AS totalpages",
+			"c.id AS courseid, eexam.id AS examid, cc.id as categoryid, cc.name as categoryname, ((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages",
+			"cc.path like ?  AND eexam.status IN (?,?)",
+			"eexam.id",
+			"pages DESC",
+			null,
+			"categoryid",
+			null);
+	$totalpagescolumnchart = json_encode(emarking_array_column_chart($totalpagescolumn, array(get_string('category', 'mod_emarking'), get_string('totalprintedpages', 'mod_emarking')), "totalpages", "categoryname"));
+	$totalcostcolumn = emarking_get_query(array("%/$categoryid/%", EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
+			"categoryid, categoryname, SUM(pages) AS totalcost",
+			"c.id AS courseid, eexam.id AS examid, cc.id as categoryid, cc.name as categoryname, eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages",
+			"cc.path like ? AND eexam.status IN (?,?)",
+			"eexam.id",
+			"pages DESC",
+			null,
+			"categoryid",
+			null);
+	$totalcostcolumnchart = json_encode(emarking_array_column_chart($totalcostcolumn, array(get_string('category', 'mod_emarking'), get_string('totalcost', 'mod_emarking')), "totalcost", "categoryname"));
+}
+// Excel downloads.
+if ($status == 1) {
+    emarking_download_excel_course_ranking($categoryid);
+}
+elseif ($status == 2) {
+    emarking_download_excel_teacher_ranking($categoryid);
+}
+elseif ($status == 3) {
+    emarking_download_excel_monthly_cost($categoryid, emarking_array_by_date($isyears, $totalcostmain, get_string('totalcost', 'mod_emarking'), "printdate", "totalcost"));
+}
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle . ' ' . $category->name);
-$yearormonth = emarking_years_or_months($categoryid);
-$isyears = $yearormonth[0];
 if(isset($subcategories)){
 	echo html_writer::start_tag('div', array(
 			'class' => 'emarking-left-table-ranking'));
@@ -157,7 +259,7 @@ if (! empty($subcategories)) {
 	$secondarybuttons = array(
 			emarking_buttons_creator(get_string('activities', 'emarking'), 'columnactivitiesbutton', 'emarking-column-cost-button-style'),
 			emarking_buttons_creator(get_string('emarkingcourses', 'emarking'), 'columnemarkingcourses', 'emarking-column-cost-button-style'),
-			emarking_buttons_creator(get_string('meanexamleanght', 'emarking'), 'columnmeantestleangh', 'emarking-column-cost-button-style'),
+			emarking_buttons_creator(get_string('meanexamleanght', 'emarking'), 'columnmeantestlenght', 'emarking-column-cost-button-style'),
 			emarking_buttons_creator(get_string('totalprintedpages', 'emarking'), 'columntotalprintedpages', 'emarking-column-cost-button-style'),
 			emarking_buttons_creator(get_string('totalcost', 'emarking'), 'columntotalprintingcost', 'emarking-column-totalcost-button-style emarking-column-cost-button-style')
 	);
@@ -206,25 +308,15 @@ echo html_writer::tag('hr','', array(
 		'class' => 'style-one'
 ));
 // Get the monthly cost and gets it in a table.
-echo emarking_table_creator(array(get_string("monthlycost", "mod_emarking")),emarking_get_total_pages_for_table($categoryid),null);
+echo emarking_table_creator(array(get_string("costbydate", "mod_emarking")),emarking_get_total_cost_for_table($categoryid, $isyears),null);
 // Excel export button.
 $buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array(
     'category' => $categoryid,
     'status' => 3));
+
+emarking_get_category_cost(8);
 echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
 echo html_writer::end_tag('div');
-// Area chart data.
-$activitiesforchart = json_encode(emarking_get_activities_by_date($categoryid, $isyears));
-$emarkingcoursesforchart = json_encode(emarking_get_emarking_courses_by_date($categoryid, $isyears));
-$meantestlenghforchart = json_encode(emarking_get_original_pages_by_date($categoryid, $isyears));
-$totalpagesforchart = json_encode(emarking_get_total_pages_by_date($categoryid, $isyears));
-$totalcostforchart = json_encode(emarking_get_total_cost_by_date($categoryid, $isyears));
-// Column chart variables.
-$activitiespiechart = json_encode(emarking_get_activities_piechart($categoryid));
-$emarkingcoursespiechart = json_encode(emarking_get_emarking_courses_piechart($categoryid));
-$meanexamlenghtpiechart = json_encode(emarking_get_mean_exam_lenght_piechart($categoryid));
-$totalpagespiechart = json_encode(emarking_get_total_pages_piechart($categoryid));
-$totalcostpiechart = json_encode(emarking_get_total_cost_piechart($categoryid));
 echo $OUTPUT->footer();
 ?>
 <html>
@@ -235,7 +327,7 @@ echo $OUTPUT->footer();
       google.setOnLoadCallback(drawChart);
       function drawChart() {
         // Initial data for the area  chart.
-        var areadata = google.visualization.arrayToDataTable(<?php echo $activitiesforchart; ?>);
+        var areadata = google.visualization.arrayToDataTable(<?php echo $activitiesmainchart; ?>);
         // Options for the area chart.
         var areaoptions = {
           title: '<?php echo get_string("categorychart", "mod_emarking");?>',
@@ -259,23 +351,23 @@ echo $OUTPUT->footer();
        $(".emarking-area-cost-button-style").click(function(){
            if( $(this).attr("id") == "activitiesbutton" )
            {
-           		var data = google.visualization.arrayToDataTable(<?php echo $activitiesforchart; ?>);
+           		var data = google.visualization.arrayToDataTable(<?php echo $activitiesmainchart; ?>);
            }
            if( $(this).attr("id") == "emarkingcourses" )
            {
-		   		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursesforchart; ?>);
+		   		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursesmainchart; ?>);
            }
-           if( $(this).attr("id") == "meantestleangh" )
+           if( $(this).attr("id") == "meantestlenght" )
            {
-        		var data = google.visualization.arrayToDataTable(<?php echo $meantestlenghforchart; ?>);
+        		var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtmainchart; ?>);
            }
            if( $(this).attr("id") == "totalprintedpages" )
            {
-        		var data = google.visualization.arrayToDataTable(<?php echo $totalpagesforchart; ?>);
+        		var data = google.visualization.arrayToDataTable(<?php echo $totalpagesmainchart; ?>);
            }
            if( $(this).attr("id") == "totalprintingcost" )
            {
-        		var data = google.visualization.arrayToDataTable(<?php echo $totalcostforchart; ?>);
+        		var data = google.visualization.arrayToDataTable(<?php echo $totalcostmainchart; ?>);
            }
            areaChartHandler(data);
        	})
@@ -286,7 +378,7 @@ echo $OUTPUT->footer();
       google.setOnLoadCallback(drawChart);
       function drawChart() {
     	// Initial data for the column chart.
-    	  var columndata = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
+    	  var columndata = google.visualization.arrayToDataTable(<?php echo $activitiescolumnchart; ?>);
     	// Options for the column chart.
     	   var columnoptions = {
                   title: '<?php echo get_string("subcategorychart", "mod_emarking");?>',
@@ -306,23 +398,23 @@ echo $OUTPUT->footer();
         	$(".emarking-column-cost-button-style").click(function(){
                 if( $(this).attr("id") == "columnactivitiesbutton" )
                 {
-                		var data = google.visualization.arrayToDataTable(<?php echo $activitiespiechart; ?>);
+                		var data = google.visualization.arrayToDataTable(<?php echo $activitiescolumnchart; ?>);
                 }
                 if( $(this).attr("id") == "columnemarkingcourses" )
                 {
-                		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursespiechart; ?>);
+                		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursescolumnchart; ?>);
                 }
-                if( $(this).attr("id") == "columnmeantestleangh" )
+                if( $(this).attr("id") == "columnmeantestlenght" )
                 {
-             	    var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtpiechart; ?>);
+             	    var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtcolumnchart; ?>);
                 }
                 if( $(this).attr("id") == "columntotalprintedpages" )
                 {
-             	    var data = google.visualization.arrayToDataTable(<?php echo $totalpagespiechart; ?>);
+             	    var data = google.visualization.arrayToDataTable(<?php echo $totalpagescolumnchart; ?>);
                 }
                 if( $(this).attr("id") == "columntotalprintingcost" )
                 {
-             	    var data = google.visualization.arrayToDataTable(<?php echo $totalcostpiechart; ?>);
+             	    var data = google.visualization.arrayToDataTable(<?php echo $totalcostcolumnchart; ?>);
                 }
               columnChartHandler(data);
             	});

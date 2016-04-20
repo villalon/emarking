@@ -85,11 +85,8 @@ class emarking_subcategory_form extends moodleform {
 		
 		$arraysubcategory = array();
 		$arraysubcategory[$categoryid] = get_string('selectcategory', 'mod_emarking');
-		$subcategoryquery = "SELECT * FROM {course_categories} WHERE ".$DB->sql_like('path', ':path');
-		$subcategories = $DB->get_records_sql($subcategoryquery, array( "path" => "%/$categoryid/%"));
-		foreach ($subcategories as $subcategory) {
-			$arraysubcategory [$subcategory->id] = $subcategory->name;
-		}
+		$subcategories = emarking_get_subcategories($categoryid);
+		$arraysubcategory = array_merge($arraysubcategory, $subcategories);
 		
 		$mform->addElement('select', 'category', get_string('category', 'mod_emarking'), $arraysubcategory);
 		$mform->addHelpButton('category', 'categoryselect', 'mod_emarking');
