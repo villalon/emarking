@@ -270,6 +270,8 @@ $string ['digitizedanswersmessage_desc'] = 'Este mensaje se enviará a profesore
 $string ['viewadminprints'] = '<a href="{$a}">Administrar impresoras</a>';
 $string ['viewpermitsprinters'] = '<br/><a href="{$a}">Administrar permisos de impresoras</a>';
 $string ['aofb'] = '{$a->identified} de {$a->total}';
+$string ['printserver'] = 'Servidor de impresiones (número IP)';
+$string ['printserver_help'] = 'Hace que Moodle imprima las evaluaciones de E-Marking en un servidor de impresiones cups (dejar en blanco si no utiliza un servidor de impresiones).';
 // EMARKING UPLOAD ANSWERS.
 $string ['confirmprocess'] = 'Confirmar proceso';
 $string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';
@@ -325,8 +327,6 @@ $string ['validcostcenter'] = 'Ingresa un valor numerico';
 $string ['validcostcenter_help'] = 'Ingresar un numero valido para el centro de costos';
 $string ['categoryselection_help'] = 'Selecciona la categoria que deseas agregar/editar';
 $string ['categoryselection'] = 'Elegir una categoria';
-$string ['categoryselect_help'] = 'Selecciona la categoria a la que deseas ir';
-$string ['categoryselect'] = 'Elegir una categoria';
 $string ['downloadexcel'] = 'Descargar excel';
 $string ['category'] = 'Categoría';
 $string ['categorycost'] = 'Costo de categoría';
@@ -334,9 +334,6 @@ $string ['costcenter'] = 'Central de costos';
 $string ['costofonepage'] = 'Costo de impresion por hoja';
 $string ['costcenternumber'] = 'Numero de central de costo';
 $string ['month'] = 'Mes';
-$string ['year'] = 'a&ntilde;o';
-$string ['gotosubcategory'] = 'ir a categoría inferior';
-$string ['gotouppercategory'] = 'ir a categoría superior';
 $string ['coursename'] = 'Nombre del curso';
 $string ['teachername'] = 'Nombre del profesor';
 $string ['monthlycost'] = 'Costo mensual';

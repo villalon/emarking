@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  *
  * @package mod
@@ -269,6 +270,8 @@ $string ['digitizedanswersmessage_desc'] = 'This message will be sent to teacher
 $string ['viewadminprints'] = '<a href="{$a}">Manage printers</a>';
 $string ['viewpermitsprinters'] = '<br/><a href="{$a}">Manage printers permissions</a>';
 $string ['aofb'] = '{$a->identified} of {$a->total}';
+$string ['printserver'] = 'Print server IP number';
+$string ['printserver_help'] = 'Tells Moodle to print an E-Marking evaluation to a cups server (leave blank if there is no print server).';
 // EMARKING UPLOAD ANSWERS.
 $string ['confirmprocess'] = 'Confirm process';
 $string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';

@@ -80,6 +80,10 @@ $settings->add(
                          get_string('viewadminprints', 'mod_emarking', $CFG->wwwroot . "/mod/emarking/print/printers.php") .
                          get_string('viewpermitsprinters', 'mod_emarking', $CFG->wwwroot . "/mod/emarking/print/usersprinters.php"),
                         0, PARAM_BOOL));
+// If printing should be done to a print server (cups server).
+$settings->add(
+        new admin_setting_configtext('emarking_printserver', get_string('printserver', 'mod_emarking'),
+                get_string('printserver_help', 'mod_emarking'), '', PARAM_TEXT));
 // Message for the digitized answers reminder.
 $settings->add(
         new admin_setting_configtextarea('emarking_digitizedanswersmessage',
