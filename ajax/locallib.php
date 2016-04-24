@@ -330,7 +330,7 @@ function emarking_check_grade_permission($readonly, $draft, $context) {
  * @param unknown $readonly
  * @param unknown $cm
  */
-function emarking_check_grade_permission($ownsubmission, $draft, $context) {
+function emarking_check_add_regrade_permission($ownsubmission, $draft, $context) {
     // Checks and logs attempt if we are within an grading action.
     if (!$ownsubmission) {
         $item = array(
