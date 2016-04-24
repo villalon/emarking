@@ -325,6 +325,23 @@ function emarking_check_grade_permission($readonly, $draft, $context) {
     }
 }
 /**
+ * Checks the requesto for regrade permission and logs unauthorized access
+ *
+ * @param unknown $readonly
+ * @param unknown $cm
+ */
+function emarking_check_grade_permission($ownsubmission, $draft, $context) {
+    // Checks and logs attempt if we are within an grading action.
+    if (!$ownsubmission) {
+        $item = array(
+            'context' => $context,
+            'objectid' => $draft->id);
+        // Add to Moodle log so some auditing can be done.
+        \mod_emarking\event\unauthorizedajax_attempted::create($item)->trigger();
+        emarking_json_error('Unauthorized access!');
+    }
+}
+/**
  * Adds a mark to a draft
  *
  * @param unknown $submission

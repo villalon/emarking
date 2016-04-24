@@ -205,7 +205,7 @@ switch ($action) {
         emarking_json_array($output);
         break;
     case 'addregrade' :
-        emarking_check_grade_permission($readonly, $draft, $context);
+        emarking_check_add_regrade_permission($ownsubmission, $draft, $context);
         // Add to Moodle log so some auditing can be done.
         \mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
         $output = emarking_regrade($emarking, $draft);
