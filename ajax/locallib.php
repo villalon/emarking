@@ -43,7 +43,7 @@ function emarking_regrade($emarking, $draft) {
     if (! $rubricinfo = emarking_get_rubricinfo_by_level($rubriclevel)) {
         emarking_json_error("Invalid rubric info");
     }
-    $emarkingcomment = emarking_get_comment_draft_by_levelid($rubriclevel, $draft);
+    $emarkingcomment = emarking_get_comment_draft_by_levelid($draft, $rubriclevel);
     // Check if there was already a regrade request.
     $newrecord = false;
     if (! $emarkingregrade = $DB->get_record('emarking_regrade',
