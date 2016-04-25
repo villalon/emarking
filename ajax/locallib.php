@@ -43,7 +43,7 @@ function emarking_regrade($emarking, $draft) {
     if (! $rubricinfo = emarking_get_rubricinfo_by_level($rubriclevel)) {
         emarking_json_error("Invalid rubric info");
     }
-    $emarkingcomment = emarking_get_comment_draft_by_levelid($rubriclevel, $draft);
+    $emarkingcomment = emarking_get_comment_draft_by_levelid($draft, $rubriclevel);
     // Check if there was already a regrade request.
     $newrecord = false;
     if (! $emarkingregrade = $DB->get_record('emarking_regrade',
@@ -316,6 +316,23 @@ function emarking_delete_comment() {
 function emarking_check_grade_permission($readonly, $draft, $context) {
     // Checks and logs attempt if we are within an grading action.
     if ($readonly) {
+        $item = array(
+            'context' => $context,
+            'objectid' => $draft->id);
+        // Add to Moodle log so some auditing can be done.
+        \mod_emarking\event\unauthorizedajax_attempted::create($item)->trigger();
+        emarking_json_error('Unauthorized access!');
+    }
+}
+/**
+ * Checks the requesto for regrade permission and logs unauthorized access
+ *
+ * @param unknown $readonly
+ * @param unknown $cm
+ */
+function emarking_check_add_regrade_permission($ownsubmission, $draft, $context) {
+    // Checks and logs attempt if we are within an grading action.
+    if (!$ownsubmission) {
         $item = array(
             'context' => $context,
             'objectid' => $draft->id);
