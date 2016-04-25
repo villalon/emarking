@@ -84,9 +84,9 @@ class emarking_subcategory_form extends moodleform {
 		$categoryid = $instance["category"];
 		
 		$arraysubcategory = array();
-		$arraysubcategory[$categoryid] = get_string('selectsubcategory', 'mod_emarking');
+		$arraysubcategory[$categoryid] = get_string('selectcategory', 'mod_emarking');
 		$subcategories = emarking_get_subcategories($categoryid);
-		$arraysubcategory = array_merge($arraysubcategory, $subcategories);
+		$arraysubcategory = $arraysubcategory + $subcategories;
 		
 		$mform->addElement('select', 'category', get_string('category', 'mod_emarking'), $arraysubcategory);
 		$mform->addHelpButton('category', 'categoryselect', 'mod_emarking');
@@ -106,7 +106,7 @@ class emarking_uppercategory_form extends moodleform {
 		$instance = $this->_customdata;
 		$categoryid = $instance["category"];
 		$arrayuppercategory = array();
-		$arrayuppercategory[$categoryid] = get_string('selectuppercategory', 'mod_emarking');
+		$arrayuppercategory[$categoryid] = get_string('selectcategory', 'mod_emarking');
 		$categoriesdepth = $DB->get_record_sql("SELECT depth FROM {course_categories} WHERE id = ?",array('id'=>$categoryid));
 		foreach($categoriesdepth as $categorydepth){
 			$depth = $categoriesdepth->depth;

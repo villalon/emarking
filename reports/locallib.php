@@ -86,8 +86,8 @@ function emarking_get_google_chart($divid, array $labels, array $data, $title, $
 /**
  * Navigation tabs for reports
  *
- * @param unknown $category
- *            The category object
+ * @param int $category
+ *            The category id
  * @return multitype:tabobject array of tabobjects
  */
 function emarking_reports_tabs($category) {
@@ -107,6 +107,13 @@ function emarking_reports_tabs($category) {
     $tabs [] = $statstab;
     return $tabs;
 }
+/**
+ * Navigation tabs for cost configuration
+ *
+ * @param int $category
+ *            The category id
+ * @return multitype:tabobject array of tabobjects
+ */
 function emarking_costconfig_tabs($category) {
     $tabs = array();
     // Print orders.
@@ -119,6 +126,17 @@ function emarking_costconfig_tabs($category) {
                 "category" => $category->id)), get_string("costcategorytable", 'mod_emarking'));
     return $tabs;
 }
+/**
+ * Navigation tabs for reports
+ *
+ * @param string $string
+ *            The text you want in the button
+ * @param string $id
+ * 			  The id you want the button to have
+ * @param string $class
+ * 			  The class you want the button to have           
+ * @return button object
+ */
 function emarking_buttons_creator($string, $id = null, $class = null) {
 	$button = html_writer::tag('button', $string,
 			array(
@@ -126,17 +144,28 @@ function emarking_buttons_creator($string, $id = null, $class = null) {
 					'class' => $class));
 	return $button;
 	}
+/**
+ * Navigation tabs for reports
+ *
+ * @param array $head
+ *            array with the headers of the table
+ * @param 2 levels array $data
+ * 			  array with each column as an array 
+ * @param array $size
+ * 			  array with the % of each column
+ * @return table object
+ */
 function emarking_table_creator($head, $data, $size){
 	$buttonstable = new html_table();
 	$buttonstable->head = $head;
 	$buttonstable->data = $data;
-	$buttonstable->size = $size;
+	$buttonstable->size = $size;	
 	return html_writer::table($buttonstable);
 }
 function emarking_get_subcategories($category){
 	global $DB;
 	$arraysubcategory = array();
-	$subcategoryquery = "SELECT * FROM {course_categories} as cc
+	$subcategoryquery = "SELECT cc.id as id, cc.name as name FROM {course_categories} as cc
 						INNER JOIN {course} c ON (cc.id = c.category)
 						INNER JOIN {emarking_exams} eexam ON (c.id = eexam.course)
 						INNER JOIN {emarking} e ON (e.id = eexam.emarking)
@@ -191,14 +220,11 @@ function emarking_get_activities($category) {
 							   INNER JOIN {course_categories} cc ON (cc.id = c.category)
 						       WHERE (cc.path like ? OR cc.id = ?)";
     // Gets the information of the above query.
-    if ($activities = $DB->get_records_sql($sqlactivities, $activitiesparams)) {
-        foreach ($activities as $activity) {
-            $totalactivity = $activity->activities;
-        }
+    if ($activities = $DB->get_record_sql($sqlactivities, $activitiesparams)) {
+		return $activities->activities;
     } else {
-        $totalactivity = 0;
+        return 0;
     }
-    return $totalactivity;
 }
 function emarking_get_teacher_ranking($category, $limit = null) {
     global $DB;
@@ -248,16 +274,11 @@ function emarking_get_original_pages($category) {
                                INNER JOIN {course_categories} cc ON (cc.id = c.category)
 							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)";
     // Gets the information of the above query.
-    if ($originalpages = $DB->get_records_sql($sqloriginalpages, $originalpagesparams)) {
-        foreach ($originalpages as $pages) {
-            if (! $pages->pages == null) {
-                $totaloriginalpages = round((int) $pages->pages);
-            } else {
-                $totaloriginalpages = 0;
-            }
-        }
+    if ($originalpages = $DB->get_record_sql($sqloriginalpages, $originalpagesparams)) {
+          return round((int) $originalpages->pages);
+    }else {
+          return 0;            
     }
-    return $totaloriginalpages;
 }
 function emarking_get_total_pages_by_course($category, $limit = null) {
     global $DB;
@@ -321,16 +342,11 @@ function emarking_get_total_pages($category) {
                     GROUP BY eexam.id
                     ORDER BY pages DESC) AS pagestotal";
     // Gets the information of the above query.
-    if ($page = $DB->get_records_sql($sqlpage, $pageparams)) {
-        foreach ($page as $pages) {
-            if (! $pages->totalpages == null) {
-                $totalpages = $pages->totalpages;
-            } else {
-                $totalpages = 0;
-            }
-        }
+    if ($pages = $DB->get_record_sql($sqlpage, $pageparams)) {
+          return $pages->totalpages;
+    } else {
+          return 0;
     }
-    return $totalpages;
 }
 function emarking_get_emarking_courses($category) {
     global $DB;
@@ -349,12 +365,11 @@ function emarking_get_emarking_courses($category) {
 				WHERE (cc.path like ? OR cc.id = ?)
                 GROUP BY e.course) courses";
     // Gets the information of the above query.
-    if ($emarkingcourses = $DB->get_records_sql($sqlemarkingcourses, $emarkingcoursesparams)) {
-        foreach ($emarkingcourses as $courses) {
-            $totalemarkingcourses = $courses->courses;
-        }
-    }
-    return $totalemarkingcourses;
+    if ($emarkingcourses = $DB->get_record_sql($sqlemarkingcourses, $emarkingcoursesparams)) {
+            return $emarkingcourses->courses;
+    } else {
+        return 0;	
+	}
 }
 function emarking_get_students($category) {
     global $DB;
@@ -373,13 +388,11 @@ function emarking_get_students($category) {
 					WHERE ra.roleid=? AND (cc.path like ? OR cc.id = ?)
 	";
     // Gets the information of the above query.
-    if ($students = $DB->get_records_sql($sqlstudents, $studentsparams)) {
-        $arraystudents = array();
-        foreach ($students as $student) {
-            $arraystudents [] = $student->user;
-        }
+    if ($students = $DB->get_record_sql($sqlstudents, $studentsparams)) {
+		return $students->user;
+    } else {
+    return 0;
     }
-    return $arraystudents;
 }
 function emarking_get_total_cost_for_table($category, $isyears) {
     global $DB, $CFG;
@@ -434,8 +447,7 @@ function emarking_get_total_cost_for_table($category, $isyears) {
 	        }
      	}
     } else {
-        $arraytotalpagesbydate = [
-            '0'];
+        $arraytotalpagesbydate = [];
     }
     return $arraytotalpagesbydate;
 }
@@ -452,7 +464,7 @@ function emarking_get_printing_cost($category) {
             FROM (
                 SELECT c.id AS courseid,
                 eexam.id AS examid,
-                eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
+                eexam.printingcost*(eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams) AS pages
 				FROM {emarking} e
    				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
                 INNER JOIN {course} c ON (c.id = eexam.course)
@@ -461,13 +473,11 @@ function emarking_get_printing_cost($category) {
                 GROUP BY eexam.id
                 ORDER BY pages DESC) AS pagestotal";
     // Gets the information of the above query.
-    $arrayprintingcost = array();
-    if ($printingcost = $DB->get_records_sql($sqlprintingcost, $totalpritningcost)) {
-        foreach ($printingcost as $cost) {
-            $totalprintingcost = $cost->totalcost;
-        }
+    if ($printingcost = $DB->get_record_sql($sqlprintingcost, $totalpritningcost)) {
+    	return $printingcost->totalcost;
+    } else{
+    	return 0;
     }
-    return $totalprintingcost;
 }
 function emarking_years_or_months($category){
 	global $DB;
@@ -488,14 +498,12 @@ function emarking_years_or_months($category){
                 				GROUP BY printyear) as y
 								";
 	// Gets the information of the above query.
-	if ($activitiesbydate = $DB->get_records_sql($sqlactivitiesbydate, $activitiesbydateparams)) {
-		foreach ($activitiesbydate as $activitys) {
-			if($activitys->isyears >= 2){
+	if ($activitiesbydate = $DB->get_record_sql($sqlactivitiesbydate, $activitiesbydateparams)) {
+			if($activitiesbydate->isyears >= 2){
 				$isyears=1;
 			}else{
-				$actualyear = $activitys->printyear;
-			}
-		}
+				$actualyear = $activitiesbydate->printyear;
+			}	
 	}
 	if($isyears == 0){
 	$yearormonth= array($isyears, $actualyear);
@@ -526,7 +534,7 @@ function emarking_download_excel_monthly_cost($category, $totalcostdata) {
     global $DB;
     $headers = [
         get_string('costbydate', 'mod_emarking')];
-    $excelfilename = clean_filename("MonthlyCost" . $category);
+    $excelfilename = clean_filename("Costes" . $category);
     emarking_save_data_to_excel($headers, $totalcostdata, $excelfilename, 2);
 }
 function emarking_get_query($params, $SELECT, $SUBSELECT = null, $SUBWHERE = null, $SUBGROUPBY = null, $SUBORDERBY = null, $WHERE = null, $GROUPBY = null, $ORDERBY = null) {
