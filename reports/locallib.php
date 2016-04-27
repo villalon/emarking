@@ -343,10 +343,11 @@ function emarking_get_total_pages($category) {
                     ORDER BY pages DESC) AS pagestotal";
     // Gets the information of the above query.
     if ($pages = $DB->get_record_sql($sqlpage, $pageparams)) {
+    	if ($pages->totalpages != null){
           return $pages->totalpages;
-    } else {
+    	} 
           return 0;
-    }
+	}
 }
 function emarking_get_emarking_courses($category) {
     global $DB;

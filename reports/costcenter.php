@@ -258,9 +258,10 @@ $mainbuttons = array(
 		emarking_buttons_creator(get_string('emarkingcourses', 'emarking'). ": " .emarking_get_emarking_courses($categoryid) , 'emarkingcourses', 'emarking-area-cost-button-style'),
 		emarking_buttons_creator(get_string('meanexamleanght', 'emarking'). ": " .emarking_get_original_pages($categoryid), 'meantestlenght', 'emarking-area-cost-button-style'),
 		emarking_buttons_creator(get_string('totalprintedpages', 'emarking'). ": " . emarking_get_total_pages($categoryid), 'totalprintedpages', 'emarking-area-cost-button-style'),
-		emarking_buttons_creator(get_string('totalprintingcost', 'emarking').": " . '$' . " " .number_format(emarking_get_printing_cost($categoryid)), 'totalprintingcost', 'emarking-totalcost-button-style emarking-area-cost-button-style')
+		emarking_buttons_creator(get_string('totalprintingcost', 'emarking').": " . '$' .number_format(emarking_get_printing_cost($categoryid)), 'totalprintingcost', 'emarking-totalcost-button-style emarking-area-cost-button-style')
 );
-echo emarking_table_creator(array(get_string('reportbuttonsheader', 'emarking')),array($mainbuttons),array('20%','20%','20%','20%','20%'));
+echo html_writer::tag('h4',get_string('reportbuttonsheader', 'emarking'),array('style' => 'width:100%;', 'class' => 'emarking-right-table-ranking'));
+echo emarking_table_creator(null,array($mainbuttons),array('20%','20%','20%','20%','20%'));
 echo html_writer::end_tag('div');
 
 // Alert for users.
@@ -278,6 +279,12 @@ if(emarking_get_printing_cost($categoryid) == 0 && emarking_get_total_pages($cat
 	echo get_string('nototalcost', 'emarking');
 	echo html_writer::end_tag('div');
 }
+// Get the students in the category.
+if(emarking_get_students($categoryid) == 0){
+	echo html_writer::start_tag('div', array('class' => 'alert alert-danger'));
+	echo get_string('nostudent', 'emarking');
+	echo html_writer::end_tag('div');
+}
 
 // Shows the year if the data is in month format
 if($isyears==0){
@@ -286,8 +293,6 @@ echo html_writer::tag('center', get_string('year', 'emarking').":".$yearormonth[
 
 // Google chart div.
 echo html_writer::tag('div', '', array('id' => 'areachartdiv','style' => 'width:100%; height: 400px;'));
-
-echo html_writer::tag('hr','', array('class' => 'style-one'));
 
 // Main buttons for column chart
 if (! empty($subcategories)) {
@@ -299,6 +304,7 @@ if (! empty($subcategories)) {
 			emarking_buttons_creator(get_string('totalcost', 'emarking'), 'columntotalprintingcost', 'emarking-column-totalcost-button-style emarking-column-cost-button-style')
 	);
     // Generation of the buttons table.
+   echo html_writer::tag('h4',get_string('secondarybuttonsheader', 'emarking'));
    echo emarking_table_creator(null,array($secondarybuttons),array('20%','20%','20%','20%','20%'));
    
     // Sub-category column chart.
@@ -311,12 +317,13 @@ if (! empty($subcategories)) {
 echo html_writer::start_tag('div', array('class' => 'emarking-left-table-ranking'));
 
 // Generation of the ranking table.
+echo html_writer::tag('h4',get_string('courserankingtitle', 'emarking'));
 if(empty(emarking_get_total_pages_by_course($categoryid, 5))){
 	echo html_writer::start_tag('div', array('class' => 'alert alert-danger'));
 	echo get_string('nocourseranking', 'emarking');
 	echo html_writer::end_tag('div');
 } else {
-	echo emarking_table_creator(array(get_string('courseranking', 'emarking'),get_string('pages', 'emarking')),emarking_get_total_pages_by_course($categoryid, 5),null);
+	echo emarking_table_creator(array(get_string('courseranking', 'emarking'),get_string('totalprintedpages', 'emarking')),emarking_get_total_pages_by_course($categoryid, 5),null);
 	// Excel export button.
 	$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array('category' => $categoryid,'status' => 1));
 	echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
@@ -324,6 +331,7 @@ if(empty(emarking_get_total_pages_by_course($categoryid, 5))){
 
 echo html_writer::tag('hr','', array('class' => 'style-one'));
 
+echo html_writer::tag('h4',get_string('teacherrankingtitle', 'emarking'));
 if(empty(emarking_get_teacher_ranking($categoryid, 5))){
 	echo html_writer::start_tag('div', array('class' => 'alert alert-danger'));
 	echo get_string('noteacherranking', 'emarking');
@@ -342,27 +350,21 @@ echo html_writer::end_tag('div');
 // Start of the detailed view table div.
 echo html_writer::start_tag('div', array('class' => 'emarking-right-table-ranking'));
 
-// Get the students in the category.
-if(emarking_get_students($categoryid) == 0){
-	echo html_writer::start_tag('div', array('class' => 'alert alert-danger'));
-	echo get_string('nostudent', 'emarking');
-	echo html_writer::end_tag('div');
-} else {
-echo html_writer::tag('span',get_string("studentnumber", "mod_emarking") . ": " . emarking_get_students($categoryid),array('id' => 'studentspan'));
-}
-
-echo html_writer::tag('hr','', array('class' => 'style-one'));
-
-// Get the monthly cost and gets it in a table.
+// Get the period cost and gets it in a table.
+echo html_writer::tag('h4',get_string('costbyperiod', 'emarking'));
 if(empty(emarking_get_total_cost_for_table($categoryid, $isyears))){
 	echo html_writer::start_tag('div', array('class' => 'alert alert-danger'));
 	echo get_string('nocostdata', 'emarking');
 	echo html_writer::end_tag('div');
 }else{
-echo emarking_table_creator(array(get_string("costbydate", "mod_emarking")),emarking_get_total_cost_for_table($categoryid, $isyears),null);
-// Excel export button.
-$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array('category' => $categoryid,'status' => 3));
-echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
+	if($isyears == 1){
+		echo emarking_table_creator(array(get_string("year", "mod_emarking"),get_string("totalcost", "mod_emarking")),emarking_get_total_cost_for_table($categoryid, $isyears),null);
+	} else {
+		echo emarking_table_creator(array(get_string("month", "mod_emarking"),get_string("totalcost", "mod_emarking")),emarking_get_total_cost_for_table($categoryid, $isyears),null);
+	}
+	// Excel export button.
+	$buttonurl = new moodle_url('/mod/emarking/reports/costcenter.php', array('category' => $categoryid,'status' => 3));
+	echo $OUTPUT->single_button($buttonurl, get_string("downloadexcel", "mod_emarking"));
 }
 
 echo html_writer::end_tag('div');
@@ -382,19 +384,19 @@ echo $OUTPUT->footer();
         var areaoptions = {
           title: '<?php echo get_string("categorychart", "mod_emarking");?>',
           hAxis: {title: 'Time',  titleTextStyle: {color: '#3333'}},
-          vAxis: {title: 'Activity', minValue: 0},
-          legend: {position:'top'}
+          legend: {position:'left'},
+          pointSize: 20
         };
         // Initialize the column chart.
-        var areachart = new google.visualization.AreaChart(document.getElementById('areachartdiv'));
+        var areachart = new google.visualization.ScatterChart(document.getElementById('areachartdiv'));
         areachart.draw(areadata, areaoptions);
         // Funtion to reload the data of the area chart.
         function areaChartHandler(data) {
     		var areaoptions = {
     		          title: '<?php echo get_string("categorychart", "mod_emarking");?>',
     		          hAxis: {title: 'Time',  titleTextStyle: {color: '#3333'}},
-    		          vAxis: {title: 'Activity', minValue: 0},
-    		          legend: {position:'top'}
+    		          legend: {position:'left'},
+    		          pointSize: 20
     		        };
     		areachart.draw(data, areaoptions);;
         }
