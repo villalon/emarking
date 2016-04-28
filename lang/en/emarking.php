@@ -279,7 +279,6 @@ $string ['uploadanswers_help'] = 'In this page you can upload the digitized answ
 $string ['uploadanswers'] = 'Upload answers';
 $string ['uploadanswersuccessful'] = 'Upload answers successful';
 // REPORTS.
-$string ['reports'] = 'Reports';
 $string ['gradereport'] = 'Grades report';
 $string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular eMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
 			<strong>Basic statistics:</strong>Shows the average, quartiles and ranges for the course.<br/>
@@ -301,6 +300,9 @@ $string ['printdetails'] = 'Print details';
 $string ['apply'] = 'Apply';
 $string ['statuspercriterion'] = 'Status per criterion';
 // EMARKING COST REPORT.
+$string ['period'] = 'Period';
+$string ['subcategoryname'] = 'Subcategory name';
+$string ['reports'] = 'Reports';
 $string ['teacherrankingtitle'] = 'Ranking: Teacher name v/s activities';
 $string ['courserankingtitle'] = 'Ranking: course name v/s printed pages';
 $string ['costreport'] = 'Reports';
@@ -321,7 +323,7 @@ $string ['costcategorytable'] = 'View category costs';
 $string ['editcost'] = 'Edit';
 $string ['activities'] = 'Activities';
 $string ['emarkingcourses'] = 'eMarking courses';
-$string ['meanexamleanght'] = 'Avg. exam lenght';
+$string ['meanexamlength'] = 'Avg. exam lenght';
 $string ['totalprintedpages'] = 'Printed pages';
 $string ['totalcost'] = 'Total cost';
 $string ['numericvalue_help'] = 'Must enter a numeric cost for each page';
