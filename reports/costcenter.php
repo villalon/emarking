@@ -144,7 +144,7 @@ $meanexamlenghtmain = emarking_get_query(array("%/$categoryid/%", $categoryid, E
 		null, null,
 		"printdate",
 		null);
-$meanexamlenghtmainchart = json_encode(emarking_array_by_date($isyears, $meanexamlenghtmain, get_string('meanexamleanght', 'mod_emarking'), "printdate", "avgpages"));
+$meanexamlenghtmainchart = json_encode(emarking_array_by_date($isyears, $meanexamlenghtmain, get_string('meanexamlength', 'mod_emarking'), "printdate", "avgpages"));
 
 $totalpagesmain = emarking_get_query(array("%/$categoryid/%", $categoryid, EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
 		"printdate,SUM(pages) AS totalpages",
@@ -195,7 +195,7 @@ if(!empty($subcategories)){
 			"cc.path like ?  AND eexam.status IN (?,?)",
 			"id",
 			null);
-	$meanexamlenghtcolumnchart = json_encode(emarking_array_column_chart($meanexamlenghtcolumn, array(get_string('category', 'mod_emarking'), get_string('meanexamleanght', 'mod_emarking')), "pages", "name"));
+	$meanexamlenghtcolumnchart = json_encode(emarking_array_column_chart($meanexamlenghtcolumn, array(get_string('category', 'mod_emarking'), get_string('meanexamlength', 'mod_emarking')), "pages", "name"));
 	
 	$totalpagescolumn = emarking_get_query(array("%/$categoryid/%", EMARKING_EXAM_PRINTED, EMARKING_EXAM_SENT_TO_PRINT),
 			"categoryid, categoryname, SUM(pages) AS totalpages",
@@ -256,7 +256,7 @@ echo html_writer::start_tag('div');
 $mainbuttons = array(
 		emarking_buttons_creator(get_string('totalactivies', 'emarking'). ": " .emarking_get_activities($categoryid), 'activitiesbutton', 'emarking-area-cost-button-style'),
 		emarking_buttons_creator(get_string('emarkingcourses', 'emarking'). ": " .emarking_get_emarking_courses($categoryid) , 'emarkingcourses', 'emarking-area-cost-button-style'),
-		emarking_buttons_creator(get_string('meanexamleanght', 'emarking'). ": " .emarking_get_original_pages($categoryid), 'meantestlenght', 'emarking-area-cost-button-style'),
+		emarking_buttons_creator(get_string('meanexamlength', 'emarking'). ": " .emarking_get_original_pages($categoryid), 'meantestlenght', 'emarking-area-cost-button-style'),
 		emarking_buttons_creator(get_string('totalprintedpages', 'emarking'). ": " . emarking_get_total_pages($categoryid), 'totalprintedpages', 'emarking-area-cost-button-style'),
 		emarking_buttons_creator(get_string('totalprintingcost', 'emarking').": " . '$' .number_format(emarking_get_printing_cost($categoryid)), 'totalprintingcost', 'emarking-totalcost-button-style emarking-area-cost-button-style')
 );
@@ -299,7 +299,7 @@ if (! empty($subcategories)) {
 	$secondarybuttons = array(
 			emarking_buttons_creator(get_string('activities', 'emarking'), 'columnactivitiesbutton', 'emarking-column-cost-button-style'),
 			emarking_buttons_creator(get_string('emarkingcourses', 'emarking'), 'columnemarkingcourses', 'emarking-column-cost-button-style'),
-			emarking_buttons_creator(get_string('meanexamleanght', 'emarking'), 'columnmeantestlenght', 'emarking-column-cost-button-style'),
+			emarking_buttons_creator(get_string('meanexamlength', 'emarking'), 'columnmeantestlenght', 'emarking-column-cost-button-style'),
 			emarking_buttons_creator(get_string('totalprintedpages', 'emarking'), 'columntotalprintedpages', 'emarking-column-cost-button-style'),
 			emarking_buttons_creator(get_string('totalcost', 'emarking'), 'columntotalprintingcost', 'emarking-column-totalcost-button-style emarking-column-cost-button-style')
 	);
@@ -380,10 +380,12 @@ echo $OUTPUT->footer();
       function drawChart() {
         // Initial data for the area  chart.
         var areadata = google.visualization.arrayToDataTable(<?php echo $activitiesmainchart; ?>);
+		var titleupdate = '<?php echo get_string("activities", "mod_emarking"); ?>';
         // Options for the area chart.
         var areaoptions = {
           title: '<?php echo get_string("categorychart", "mod_emarking");?>',
-          hAxis: {title: 'Time',  titleTextStyle: {color: '#3333'}},
+          hAxis: {title: '<?php echo get_string("period", "mod_emarking"); ?>',  titleTextStyle: {color: '#3333'}},
+          vAxis: {title: titleupdate},
           legend: {position:'left'},
           pointSize: 20
         };
@@ -391,10 +393,11 @@ echo $OUTPUT->footer();
         var areachart = new google.visualization.ScatterChart(document.getElementById('areachartdiv'));
         areachart.draw(areadata, areaoptions);
         // Funtion to reload the data of the area chart.
-        function areaChartHandler(data) {
+        function areaChartHandler(data, titleupdate) {
     		var areaoptions = {
     		          title: '<?php echo get_string("categorychart", "mod_emarking");?>',
-    		          hAxis: {title: 'Time',  titleTextStyle: {color: '#3333'}},
+    		          hAxis: {title: '<?php echo get_string("period", "mod_emarking"); ?>',  titleTextStyle: {color: '#3333'}},
+    		          vAxis: {title: titleupdate},
     		          legend: {position:'left'},
     		          pointSize: 20
     		        };
@@ -404,24 +407,29 @@ echo $OUTPUT->footer();
            if( $(this).attr("id") == "activitiesbutton" )
            {
            		var data = google.visualization.arrayToDataTable(<?php echo $activitiesmainchart; ?>);
+           		var titleupdate = '<?php echo get_string("activities", "mod_emarking"); ?>';
            }
            if( $(this).attr("id") == "emarkingcourses" )
            {
 		   		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursesmainchart; ?>);
+		   		var titleupdate = '<?php echo get_string("emarkingcourses", "mod_emarking"); ?>';
            }
            if( $(this).attr("id") == "meantestlenght" )
            {
         		var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtmainchart; ?>);
+        		var titleupdate = '<?php echo get_string("meanexamlength", "mod_emarking"); ?>';
            }
            if( $(this).attr("id") == "totalprintedpages" )
            {
         		var data = google.visualization.arrayToDataTable(<?php echo $totalpagesmainchart; ?>);
+        		var titleupdate = '<?php echo get_string("totalprintedpages", "mod_emarking"); ?>';
            }
            if( $(this).attr("id") == "totalprintingcost" )
            {
         		var data = google.visualization.arrayToDataTable(<?php echo $totalcostmainchart; ?>);
+        		var titleupdate = '<?php echo get_string("totalcost", "mod_emarking"); ?>';
            }
-           areaChartHandler(data);
+           areaChartHandler(data, titleupdate);
        	})
       }
     </script>
@@ -431,18 +439,23 @@ echo $OUTPUT->footer();
       function drawChart() {
     	// Initial data for the column chart.
     	  var columndata = google.visualization.arrayToDataTable(<?php echo $activitiescolumnchart; ?>);
+    	  var titleupdate = '<?php echo get_string("activities", "mod_emarking"); ?>';
     	// Options for the column chart.
     	   var columnoptions = {
                   title: '<?php echo get_string("subcategorychart", "mod_emarking");?>',
+                  hAxis: {title: "<?php echo get_string("subcategoryname", "mod_emarking"); ?>",  titleTextStyle: {color: '#3333'}},
+                  vAxis: {title: titleupdate},
                   legend: {position:'top'}
                 };
     	// Initialize the column chart.
            var columnchart = new google.visualization.ColumnChart(document.getElementById('columnchartdiv'));
            columnchart.draw(columndata, columnoptions);
         // Funtion to reload the data of the column chart.
-        	function columnChartHandler(data, columnoptions) {
+        	function columnChartHandler(data, titleupdate) {
          	var columnoptions = {
             	title: '<?php echo get_string("subcategorychart", "mod_emarking");?>',
+            	hAxis: {title: '<?php echo get_string("subcategoryname", "mod_emarking"); ?>',  titleTextStyle: {color: '#3333'}},
+            	vAxis: {title: titleupdate},
             	legend: {position:'top'}
            		};
          	columnchart.draw(data, columnoptions);
@@ -450,25 +463,30 @@ echo $OUTPUT->footer();
         	$(".emarking-column-cost-button-style").click(function(){
                 if( $(this).attr("id") == "columnactivitiesbutton" )
                 {
-                		var data = google.visualization.arrayToDataTable(<?php echo $activitiescolumnchart; ?>);
+                	var data = google.visualization.arrayToDataTable(<?php echo $activitiescolumnchart; ?>);
+                	var titleupdate ='<?php echo get_string("activities", "mod_emarking"); ?>';	
                 }
                 if( $(this).attr("id") == "columnemarkingcourses" )
                 {
-                		var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursescolumnchart; ?>);
+                	var data = google.visualization.arrayToDataTable(<?php echo $emarkingcoursescolumnchart; ?>);
+                	var titleupdate = '<?php echo get_string("emarkingcourses", "mod_emarking"); ?>';
                 }
                 if( $(this).attr("id") == "columnmeantestlenght" )
                 {
-             	    var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtcolumnchart; ?>);
+             		var data = google.visualization.arrayToDataTable(<?php echo $meanexamlenghtcolumnchart; ?>);
+             		var titleupdate = '<?php echo get_string("meanexamlength", "mod_emarking"); ?>';
                 }
                 if( $(this).attr("id") == "columntotalprintedpages" )
                 {
              	    var data = google.visualization.arrayToDataTable(<?php echo $totalpagescolumnchart; ?>);
+             		var titleupdate = '<?php echo get_string("totalprintedpages", "mod_emarking"); ?>';
                 }
                 if( $(this).attr("id") == "columntotalprintingcost" )
                 {
              	    var data = google.visualization.arrayToDataTable(<?php echo $totalcostcolumnchart; ?>);
+             		var titleupdate = '<?php echo get_string("totalcost", "mod_emarking"); ?>';
                 }
-              columnChartHandler(data);
+              columnChartHandler(data, titleupdate);
             	});
       }
     </script>
