@@ -303,6 +303,7 @@ $string ['statuspercriterion'] = 'Avance por pregunta';
 // EMARKING COST REPORT.
 $string ['period'] = 'Periodo';
 $string ['subcategoryname'] = 'Nombre de la sub-categoría';
+$string ['reports'] = 'Reportes';
 $string ['teacherrankingtitle'] = 'Ranking: nombre del profesor v/s actividades';
 $string ['courserankingtitle'] = 'Ranking: nombre del curso v/s páginas impresas';
 $string ['costreport'] = 'Reportes';
