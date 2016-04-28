@@ -28,32 +28,38 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot . '/mod/emarking/reports/forms/cost_form.php');
 require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/reports/locallib.php');
-global $CFG, $DB, $OUTPUT;
+global $DB, $OUTPUT;
+
 $categoryid = required_param('category', PARAM_INT);
-$action = optional_param("action", "view", PARAM_TEXT);
+
 // User must be logged in.
 require_login();
 if (isguestuser()) {
     die();
 }
+
 // Validate category.
 if (! $category = $DB->get_record('course_categories', array(
     'id' => $categoryid))) {
     print_error(get_string('invalidcategoryid', 'mod_emarking'));
 }
+
 // We are in the category context.
 $context = context_coursecat::instance($categoryid);
+
 // And have viewcostreport capability.
 if (! has_capability('mod/emarking:viewcostreport', $context)) {
     // TODO: Log invalid access to printreport.
-    print_error('Not allowed!');
+    print_error(get_string('notallowedcostreport', 'mod_emarking'));
 }
+
 // This page url.
 $url = new moodle_url('/mod/emarking/reports/costconfig.php', array(
     'category' => $categoryid));
 // Url that lead you to the category page.
 $categoryurl = new moodle_url('/course/index.php', array(
     'categoryid' => $categoryid));
+
 $pagetitle = get_string('costreport', 'mod_emarking');
 $PAGE->set_context($context);
 $PAGE->set_url($url);
@@ -63,26 +69,30 @@ $PAGE->navbar->add(get_string('printorders', 'mod_emarking'), $url);
 $PAGE->navbar->add($pagetitle);
 $PAGE->set_heading(get_site()->fullname);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
+
 // Add the emarking cost form for categories.
-$addform = new emarking_cost_form();
-$alliterations = array();
+$addform = new emarking_cost_form(null,array(
+			"category" => $categoryid
+	));
+
 // If the form is cancelled redirects you to the report center.
 if ($addform->is_cancelled()) {
     $backtocourse = new moodle_url('/mod/emarking/reports/categorycosttable.php', array(
         'category' => $categoryid));
     redirect($backtocourse);
-} else if ($datas = $addform->get_data()) {
+    
+} else if ($data = $addform->get_data()) {
     // Saves the form info in to variables.
-    $category = $datas->category;
-    $cost = $datas->cost;
-    $costcenter = $datas->costcenter;
+    $category = $data->category;
+    $cost = $data->cost;
+    $costcenter = $data->costcenter;
     // Parameters for getting the category cost if it exist.
     $categoryparams = array(
         $category);
     // Sql that get the specific category cost if it exist.
-    $sqlupdate = "SELECT cc.id as id, ecc.printingcost as printingcost
-					FROM mdl_course_categories as cc
-					LEFT JOIN mdl_emarking_category_cost as ecc ON (cc.id = ecc.category)
+    $sqlupdate = "SELECT cc.id AS id, ecc.printingcost AS printingcost
+					FROM {course_categories} AS cc
+					LEFT JOIN {emarking_category_cost} AS ecc ON (cc.id = ecc.category)
 				    WHERE cc.id = ?";
     // Run the sql with its parameters.
     $costes = $DB->get_records_sql($sqlupdate, $categoryparams);
@@ -94,22 +104,24 @@ if ($addform->is_cancelled()) {
             $record->category = $costs->id;
             $record->printingcost = $cost;
             $record->costcenter = $costcenter;
-            $result [] = $record;
-            $DB->insert_records("emarking_category_cost", $result);
+            $result [] = $record;  
         } else {
             $parametrosupdate = array(
                 $cost,
                 $costcenter,
                 $costs->id);
-            $sqlupdate = "UPDATE mdl_emarking_category_cost
+            $sqlupdate = "UPDATE {emarking_category_cost}
 		 				SET printingcost = ?, costcenter = ?
 						WHERE category = ?";
             $DB->execute($sqlupdate, $parametrosupdate);
         }
     }
+    if(isset($result)){
+    	$DB->insert_records("emarking_category_cost", $result);
+    }
     // Redirect to the table with all the category costs.
     redirect(new moodle_url("/mod/emarking/reports/categorycosttable.php", array(
-        "category" => $datas->category)));
+        "category" => $data->category)));
 }
 // If there is no data or is it not cancelled show the header, the tabs and the form.
 echo $OUTPUT->header();

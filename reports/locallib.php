@@ -86,8 +86,8 @@ function emarking_get_google_chart($divid, array $labels, array $data, $title, $
 /**
  * Navigation tabs for reports
  *
- * @param unknown $category
- *            The category object
+ * @param int $category
+ *            The category id
  * @return multitype:tabobject array of tabobjects
  */
 function emarking_reports_tabs($category) {
@@ -107,6 +107,13 @@ function emarking_reports_tabs($category) {
     $tabs [] = $statstab;
     return $tabs;
 }
+/**
+ * Navigation tabs for cost configuration
+ *
+ * @param int $category
+ *            The category id
+ * @return multitype:tabobject array of tabobjects
+ */
 function emarking_costconfig_tabs($category) {
     $tabs = array();
     // Print orders.
@@ -119,81 +126,56 @@ function emarking_costconfig_tabs($category) {
                 "category" => $category->id)), get_string("costcategorytable", 'mod_emarking'));
     return $tabs;
 }
-function emarking_buttonstable($categoryid) {
-    $buttonsarray = array();
-    // Creation of the activities button.
-    $activities = emarking_get_activities($categoryid);
-    $activitiesbutton = html_writer::tag('button', $activities . " " . get_string('totalactivies', 'emarking'),
-            array(
-                'id' => 'activitiesbutton',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $activitiesbutton;
-    // Creation of the emarkingcourses button.
-    $emarkingcourses = emarking_get_emarking_courses($categoryid);
-    $emarkingcoursesbutton = html_writer::tag('button', $emarkingcourses . " " . get_string('emarkingcourses', 'emarking'),
-            array(
-                'id' => 'emarkingcourses',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $emarkingcoursesbutton;
-    // Creation of the meanlengh button.
-    $originalpages = emarking_get_original_pages($categoryid);
-    $meantestlenghbutton = html_writer::tag('button', $originalpages . " " . get_string('meantestlenght', 'emarking'),
-            array(
-                'id' => 'meantestleangh',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $meantestlenghbutton;
-    // Creation of the totalprintedpages button.
-    $totalprintedpages = emarking_get_total_pages($categoryid);
-    $totalprintedpagesbutton = html_writer::tag('button', $totalprintedpages . " " . get_string('totalprintedpages', 'emarking'),
-            array(
-                'id' => 'totalprintedpages',
-                'class' => 'emarking-area-cost-button-style'));
-    $buttonsarray [] = $totalprintedpagesbutton;
-    // Creation of the total cost.
-    $printingcost = emarking_get_printing_cost($categoryid);
-    $formatcost = number_format($printingcost);
-    $totalprintingcostbutton = html_writer::tag('button',
-            '$' . " " . $formatcost . " " . get_string('totalprintingcost', 'emarking'),
-            array(
-                'id' => 'totalprintingcost',
-                'class' => 'emarking-totalcost-button-style emarking-area-cost-button-style'));
-    $buttonsarray [] = $totalprintingcostbutton;
-    return $buttonsarray;
+/**
+ * Navigation tabs for reports
+ *
+ * @param string $string
+ *            The text you want in the button
+ * @param string $id
+ * 			  The id you want the button to have
+ * @param string $class
+ * 			  The class you want the button to have           
+ * @return button object
+ */
+function emarking_buttons_creator($string, $id = null, $class = null) {
+	$button = html_writer::tag('button', $string,
+			array(
+					'id' => $id,
+					'class' => $class));
+	return $button;
+	}
+/**
+ * Navigation tabs for reports
+ *
+ * @param array $head
+ *            array with the headers of the table
+ * @param 2 levels array $data
+ * 			  array with each column as an array 
+ * @param array $size
+ * 			  array with the % of each column
+ * @return table object
+ */
+function emarking_table_creator($head, $data, $size){
+	$buttonstable = new html_table();
+	$buttonstable->head = $head;
+	$buttonstable->data = $data;
+	$buttonstable->size = $size;	
+	return html_writer::table($buttonstable);
 }
-function emarking_columnbuttonstable($categoryid) {
-    $buttonsarray = array();
-    // Creation of the activities button.
-    $activitiesforchart = json_encode(emarking_get_activities_by_date($categoryid));
-    $activitiesbutton = html_writer::tag('button', get_string('activities', 'emarking'),
-            array(
-                'id' => 'columnactivitiesbutton',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $activitiesbutton;
-    // Creation of the emarkingcourses button.
-    $emarkingcoursesbutton = html_writer::tag('button', get_string('emarkingcourses', 'emarking'),
-            array(
-                'id' => 'columnemarkingcourses',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $emarkingcoursesbutton;
-    // Creation of the meanlengh button.
-    $meantestlenghbutton = html_writer::tag('button', get_string('meanexamleanght', 'emarking'),
-            array(
-                'id' => 'columnmeantestleangh',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $meantestlenghbutton;
-    // Creation of the totalprintedpages button.
-    $totalprintedpagesbutton = html_writer::tag('button', get_string('totalprintedpages', 'emarking'),
-            array(
-                'id' => 'columntotalprintedpages',
-                'class' => 'emarking-column-cost-button-style'));
-    $buttonsarray [] = $totalprintedpagesbutton;
-    // Creation of the total cost.
-    $totalprintingcostbutton = html_writer::tag('button', get_string('totalcost', 'emarking'),
-            array(
-                'id' => 'columntotalprintingcost',
-                'class' => 'emarking-column-totalcost-button-style emarking-column-cost-button-style'));
-    $buttonsarray [] = $totalprintingcostbutton;
-    return $buttonsarray;
+function emarking_get_subcategories($category){
+	global $DB;
+	$arraysubcategory = array();
+	$subcategoryquery = "SELECT cc.id as id, cc.name as name FROM {course_categories} as cc
+						INNER JOIN {course} c ON (cc.id = c.category)
+						INNER JOIN {emarking_exams} eexam ON (c.id = eexam.course)
+						INNER JOIN {emarking} e ON (e.id = eexam.emarking)
+					    WHERE ".$DB->sql_like('path', ':path')."GROUP BY cc.id";
+	if($subcategories = $DB->get_records_sql($subcategoryquery, array( "path" => "%/$category/%"))){
+		foreach ($subcategories as $subcategory) {
+			$arraysubcategory [$subcategory->id] = $subcategory->name;
+		}
+	}	
+	return $arraysubcategory;
 }
 function emarking_get_category_cost_table_data($category) {
     global $DB, $OUTPUT;
@@ -238,14 +220,11 @@ function emarking_get_activities($category) {
 							   INNER JOIN {course_categories} cc ON (cc.id = c.category)
 						       WHERE (cc.path like ? OR cc.id = ?)";
     // Gets the information of the above query.
-    if ($activities = $DB->get_records_sql($sqlactivities, $activitiesparams)) {
-        foreach ($activities as $activity) {
-            $totalactivity = $activity->activities;
-        }
+    if ($activities = $DB->get_record_sql($sqlactivities, $activitiesparams)) {
+		return $activities->activities;
     } else {
-        $totalactivity = 0;
+        return 0;
     }
-    return $totalactivity;
 }
 function emarking_get_teacher_ranking($category, $limit = null) {
     global $DB;
@@ -295,16 +274,11 @@ function emarking_get_original_pages($category) {
                                INNER JOIN {course_categories} cc ON (cc.id = c.category)
 							   WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)";
     // Gets the information of the above query.
-    if ($originalpages = $DB->get_records_sql($sqloriginalpages, $originalpagesparams)) {
-        foreach ($originalpages as $pages) {
-            if (! $pages->pages == null) {
-                $totaloriginalpages = round((int) $pages->pages);
-            } else {
-                $totaloriginalpages = 0;
-            }
-        }
+    if ($originalpages = $DB->get_record_sql($sqloriginalpages, $originalpagesparams)) {
+          return round((int) $originalpages->pages);
+    }else {
+          return 0;            
     }
-    return $totaloriginalpages;
 }
 function emarking_get_total_pages_by_course($category, $limit = null) {
     global $DB;
@@ -368,16 +342,12 @@ function emarking_get_total_pages($category) {
                     GROUP BY eexam.id
                     ORDER BY pages DESC) AS pagestotal";
     // Gets the information of the above query.
-    if ($page = $DB->get_records_sql($sqlpage, $pageparams)) {
-        foreach ($page as $pages) {
-            if (! $pages->totalpages == null) {
-                $totalpages = $pages->totalpages;
-            } else {
-                $totalpages = 0;
-            }
-        }
-    }
-    return $totalpages;
+    if ($pages = $DB->get_record_sql($sqlpage, $pageparams)) {
+    	if ($pages->totalpages != null){
+          return $pages->totalpages;
+    	} 
+          return 0;
+	}
 }
 function emarking_get_emarking_courses($category) {
     global $DB;
@@ -396,12 +366,11 @@ function emarking_get_emarking_courses($category) {
 				WHERE (cc.path like ? OR cc.id = ?)
                 GROUP BY e.course) courses";
     // Gets the information of the above query.
-    if ($emarkingcourses = $DB->get_records_sql($sqlemarkingcourses, $emarkingcoursesparams)) {
-        foreach ($emarkingcourses as $courses) {
-            $totalemarkingcourses = $courses->courses;
-        }
-    }
-    return $totalemarkingcourses;
+    if ($emarkingcourses = $DB->get_record_sql($sqlemarkingcourses, $emarkingcoursesparams)) {
+            return $emarkingcourses->courses;
+    } else {
+        return 0;	
+	}
 }
 function emarking_get_students($category) {
     global $DB;
@@ -420,251 +389,18 @@ function emarking_get_students($category) {
 					WHERE ra.roleid=? AND (cc.path like ? OR cc.id = ?)
 	";
     // Gets the information of the above query.
-    if ($students = $DB->get_records_sql($sqlstudents, $studentsparams)) {
-        $arraystudents = array();
-        foreach ($students as $student) {
-            $arraystudents [] = $student->user;
-        }
-    }
-    return $arraystudents;
-}
-function emarking_get_total_pages_to_print($category) {
-    global $DB;
-    $totalpagestoprintparams = array(
-        "%/$category/%",
-        $category,
-        EMARKING_EXAM_UPLOADED);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqltotalpagestoprint = "
-            SELECT SUM(pages) AS totalpages
-            FROM (
-                SELECT c.id AS courseid,
-                eexam.id AS examid,
-                (eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams) AS pages
-				FROM {emarking} e
-   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = eexam.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE (cc.path like ? OR cc.id = ?) AND eexam.status = ?
-                GROUP BY eexam.id
-                ORDER BY pages DESC
-				) AS pagestotal
-            ORDER BY totalpages DESC";
-    // Gets the information of the above query.
-    if ($totalpagestoprint = $DB->get_records_sql($sqltotalpagestoprint, $totalpagestoprintparams)) {
-        $arraypagestoprint = array();
-        foreach ($totalpagestoprint as $pagestoprint) {
-            $arraypagestoprint [] = $pagestoprint->totalpages;
-        }
-    }
-    return $arraypagestoprint;
-}
-function emarking_get_activities_by_date($category) {
-    global $DB;
-    $activitiesbydateparams = array(
-        "%/$category/%",
-        $category);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqlactivitiesbydate = "
-            SELECT idexam,
-            COUNT(id) AS activities,
-            printdate
-            FROM (
-				SELECT eexam.id AS idexam,
-                e.id AS id,
-                MONTH(FROM_UNIXTIME(eexam.printdate)) AS printdate
-				FROM {emarking} e
-   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-				INNER JOIN {course} c ON (c.id = eexam.course)
-				INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE (cc.path like ? OR cc.id = ?)
-				) AS months
-            GROUP BY printdate
-            ORDER BY printdate ASC";
-    // Gets the information of the above query.
-    $arrayactivitiesbydate = array();
-    if ($activitiesbydate = $DB->get_records_sql($sqlactivitiesbydate, $activitiesbydateparams)) {
-        $arrayactivitiesbydate [0] = [
-            get_string('month', 'mod_emarking'),
-            get_string('activities', 'mod_emarking')];
-        for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
-            if (! isset($arrayactivitiesbydate [$contadormes])) {
-                $arrayactivitiesbydate [$contadormes] = [
-                    date("F", mktime(0, 0, 0, $contadormes, 10)),
-                    0];
-            }
-        }
-        foreach ($activitiesbydate as $activitys) {
-            $arrayactivitiesbydate [$activitys->printdate] [0] = date("F", mktime(0, 0, 0, $activitys->printdate, 10));
-            $arrayactivitiesbydate [$activitys->printdate] [1] = (int) $activitys->activities;
-        }
+    if ($students = $DB->get_record_sql($sqlstudents, $studentsparams)) {
+		return $students->user;
     } else {
-        $arrayactivitiesbydate = [
-            [
-                'nodata',
-                'nodata'],
-            [
-                0,
-                0],
-            [
-                0,
-                0]];
+    return 0;
     }
-    return $arrayactivitiesbydate;
 }
-function emarking_get_emarking_courses_by_date($category) {
-    global $DB;
-    $emarkingcoursesbydateparams = array(
-        "%/$category/%",
-        $category,
-        EMARKING_EXAM_PRINTED,
-        EMARKING_EXAM_SENT_TO_PRINT);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqlemarkingcoursesbydate = "
-            SELECT printdate,
-            COUNT(course) AS coursecount
-            FROM (
-                SELECT e.course AS course,
-                MONTH(FROM_UNIXTIME(MIN(eexam.printdate))) as printdate
-                FROM {emarking} e
-				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = e.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
-                GROUP BY course
-                ORDER BY printdate DESC) m
-            GROUP BY printdate";
-    // Gets the information of the above query.
-    if ($emarkingcoursesbydate = $DB->get_records_sql($sqlemarkingcoursesbydate, $emarkingcoursesbydateparams)) {
-        $arrayemarkingcoursesbydate = array();
-        $arrayemarkingcoursesbydate [0] = [
-            get_string('month', 'mod_emarking'),
-            get_string('emarkingcourses', 'mod_emarking')];
-        for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
-            if (! isset($arrayemarkingcoursesbydate [$contadormes])) {
-                $arrayemarkingcoursesbydate [$contadormes] = [
-                    date("F", mktime(0, 0, 0, $contadormes, 10)),
-                    0];
-            }
-        }
-        foreach ($emarkingcoursesbydate as $coursesbydate) {
-            $arrayemarkingcoursesbydate [$coursesbydate->printdate] [0] = date("F", mktime(0, 0, 0, $coursesbydate->printdate, 10));
-            $arrayemarkingcoursesbydate [$coursesbydate->printdate] [1] = (int) $coursesbydate->coursecount;
-        }
-    } else {
-        $arrayemarkingcoursesbydate = [
-            [
-                'nodata',
-                'nodata'],
-            [
-                0,
-                0],
-            [
-                0,
-                0]];
-    }
-    return $arrayemarkingcoursesbydate;
-}
-function emarking_get_original_pages_by_date($category) {
-    global $DB;
-    $totaloriginalpagesbydateparams = array(
-        "%/$category/%",
-        $category,
-        EMARKING_EXAM_PRINTED,
-        EMARKING_EXAM_SENT_TO_PRINT);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqloriginalpagesbydate = "
-            SELECT printdate,
-            AVG(pages) AS avgpages
-            FROM (
-                SELECT eexam.id as id,
-                MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate,
-                (eexam.totalpages+eexam.extrasheets) AS pages
-				FROM {emarking} e
-   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = eexam.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
-				GROUP BY id ) as pages
-           GROUP BY printdate";
-    // Gets the information of the above query.
-    if ($originalpagesbydate = $DB->get_records_sql($sqloriginalpagesbydate, $totaloriginalpagesbydateparams)) {
-        $arrayoriginalpagesbydate = array();
-        $arrayoriginalpagesbydate [0] = [
-            get_string('month', 'mod_emarking'),
-            get_string('meanexamleanght', 'mod_emarking')];
-        for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
-            if (! isset($arrayoriginalpagesbydate [$contadormes])) {
-                $arrayoriginalpagesbydate [$contadormes] = [
-                    date("F", mktime(0, 0, 0, $contadormes, 10)),
-                    0];
-            }
-        }
-        foreach ($originalpagesbydate as $pagesbydate) {
-            $arrayoriginalpagesbydate [$pagesbydate->printdate] [0] = date("F", mktime(0, 0, 0, $pagesbydate->printdate, 10));
-            $arrayoriginalpagesbydate [$pagesbydate->printdate] [1] = round((int) $pagesbydate->avgpages);
-        }
-    } else {
-        $arrayoriginalpagesbydate = [
-            [
-                'nodata',
-                'nodata'],
-            [
-                0,
-                0],
-            [
-                0,
-                0]];
-    }
-    return $arrayoriginalpagesbydate;
-}
-function emarking_get_total_pages_by_date($category) {
-    global $DB;
-    $totalpagesbydateparams = array(
-        "%/$category/%",
-        $category,
-        EMARKING_EXAM_PRINTED,
-        EMARKING_EXAM_SENT_TO_PRINT);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqltotalpagesbydate = "
-            SELECT printdate,
-            SUM(pages) AS totalpages
-            FROM (
-                SELECT c.id AS courseid,
-                eexam.id AS examid,
-                MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate,
-                (eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams) AS pages
-			    FROM {emarking} e
-   			    INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = eexam.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-			    WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
-                GROUP BY eexam.id
-                ORDER BY pages DESC) AS pagestotal
-            GROUP BY printdate";
-    // Gets the information of the above query.
-    if ($totalpagesbydate = $DB->get_records_sql($sqltotalpagesbydate, $totalpagesbydateparams)) {
-        $arraytotalpagesbydate = array();
-        $arraytotalpagesbydate [0] = [
-            get_string('month', 'mod_emarking'),
-            get_string('totalprintedpages', 'mod_emarking')];
-        for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
-            if (! isset($arraytotalpagesbydate [$contadormes])) {
-                $arraytotalpagesbydate [$contadormes] = [
-                    date("F", mktime(0, 0, 0, $contadormes, 10)),
-                    0];
-            }
-        }
-        foreach ($totalpagesbydate as $pagesbydate) {
-            $arraytotalpagesbydate [$pagesbydate->printdate] [0] = date("F", mktime(0, 0, 0, $pagesbydate->printdate, 10));
-            $arraytotalpagesbydate [$pagesbydate->printdate] [1] = (int) $pagesbydate->totalpages;
-        }
-    }
-    return $arraytotalpagesbydate;
-}
-function emarking_get_total_pages_for_table($category) {
+function emarking_get_total_cost_for_table($category, $isyears) {
     global $DB, $CFG;
-    $printingcost = emarking_get_printing_cost($category);
+    $data = "MONTH";
+    if($isyears == 1){
+    	$data = "YEAR";
+    }
     $totalpagesbydateparams = array(
         "%/$category/%",
         $category,
@@ -677,7 +413,7 @@ function emarking_get_total_pages_for_table($category) {
             FROM (
                 SELECT c.id AS courseid,
                 eexam.id AS examid,
-                MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate,
+                ".$data."(FROM_UNIXTIME(eexam.printdate)) as printdate,
                 eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
 				FROM {emarking} e
    				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
@@ -689,245 +425,32 @@ function emarking_get_total_pages_for_table($category) {
             GROUP BY printdate";
     // Gets the information of the above query.
     if ($totalpagesbydate = $DB->get_records_sql($sqltotalpagesbydate, $totalpagesbydateparams)) {
-        $arraytotalpagesbydate = array();
-        for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
-            if (! isset($arraytotalpagesbydate [$contadormes])) {
-                $arraytotalpagesbydate [$contadormes] = [
-                    date("F", mktime(0, 0, 0, $contadormes, 10)),
-                    '$' . " " . "0"];
-            }
-        }
-        foreach ($totalpagesbydate as $costbydate) {
-            $arraytotalpagesbydate [$costbydate->printdate] [0] = date("F", mktime(0, 0, 0, $costbydate->printdate, 10));
-            $arraytotalpagesbydate [$costbydate->printdate] [1] = '$' . " " . number_format((int) $costbydate->totalcost);
-        }
+    	$arraytotalpagesbydate = array();
+    	if($isyears == 1){
+    		$yearcount=1;
+    		foreach ($totalpagesbydate as $costbydate) {
+    			$arraytotalpagesbydate [$yearcount][0] = $costbydate->printdate;
+    			$arraytotalpagesbydate [$yearcount][1] = '$' . " " . number_format((int) $costbydate->totalcost);
+    			$yearcount++;
+    		}
+    	}
+     	else{
+	        for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
+	            if (! isset($arraytotalpagesbydate [$contadormes])) {
+	                $arraytotalpagesbydate [$contadormes] = [
+	                    date("F", mktime(0, 0, 0, $contadormes, 10)),
+	                    '$' . " " . "0"];
+	            }
+	        }
+	        foreach ($totalpagesbydate as $costbydate) {
+	            $arraytotalpagesbydate [$costbydate->printdate] [0] = date("F", mktime(0, 0, 0, $costbydate->printdate, 10));
+	            $arraytotalpagesbydate [$costbydate->printdate] [1] = '$' . " " . number_format((int) $costbydate->totalcost);
+	        }
+     	}
     } else {
-        $arraytotalpagesbydate = [
-            '0'];
+        $arraytotalpagesbydate = [];
     }
     return $arraytotalpagesbydate;
-}
-function emarking_get_subcategories($category) {
-    global $DB;
-    $subcategoriesparams = array(
-        "%/$category/%");
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqlsubcategories = "SELECT id, name
-							FROM {course_categories} cc
-							WHERE cc.path like ?
-                               ";
-    // Gets the information of the above query.
-    $subcategoriesarray = array();
-    if ($subcategories = $DB->get_records_sql($sqlsubcategories, $subcategoriesparams)) {
-        foreach ($subcategories as $sub) {
-            $subcategoriesarray [$sub->id] = $sub->name;
-        }
-    }
-    return $subcategoriesarray;
-}
-function emarking_get_total_cost_piechart($category) {
-    global $DB;
-    $totalcostpiechartparams = array(
-        "%/$category/%",
-        EMARKING_EXAM_PRINTED,
-        EMARKING_EXAM_SENT_TO_PRINT);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqltotalcostpiechart = "
-            SELECT categoryid,
-            categoryname,
-            SUM(pages) AS totalpages
-            FROM (
-                SELECT c.id AS courseid,
-                eexam.id AS examid,
-                cc.id as categoryid,
-                cc.name as categoryname,
-                eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
-				FROM {emarking} e
-   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = eexam.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE cc.path like ? AND eexam.status IN (?,?)
-                GROUP BY eexam.id
-                ORDER BY pages DESC) AS pagestotal
-            GROUP BY categoryid";
-    // Gets the information of the above query.
-    $arraytotalcost = array();
-    $i = 1;
-    if ($totalcostpiechart = $DB->get_records_sql($sqltotalcostpiechart, $totalcostpiechartparams)) {
-        $arraytotalcost [0] = [
-            get_string('category', 'mod_emarking'),
-            get_string('totalcost', 'mod_emarking')];
-        foreach ($totalcostpiechart as $cost) {
-            if (! $cost->totalpages == null) {
-                $arraytotalcost [$i] [0] = $cost->categoryname;
-                $arraytotalcost [$i] [1] = (int) $cost->totalpages;
-            } else {
-                $arraytotalcost [$i] [0] = $cost->categoryname;
-                $arraytotalcost [$i] [1] = 0;
-            }
-            $i ++;
-        }
-    }
-    return $arraytotalcost;
-}
-function emarking_get_total_pages_piechart($category) {
-    global $DB;
-    $totalpagespiechartparams = array(
-        "%/$category/%",
-        EMARKING_EXAM_PRINTED,
-        EMARKING_EXAM_SENT_TO_PRINT);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqltotalpagespiechart = "
-            SELECT categoryid,
-            categoryname,
-            SUM(pages) AS totalpages
-            FROM (
-                SELECT c.id AS courseid,
-                eexam.id AS examid,
-                cc.id as categoryid,
-                cc.name as categoryname,
-                ((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
-				FROM {emarking} e
-   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = eexam.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE cc.path like ?  AND eexam.status IN (?,?)
-                GROUP BY eexam.id
-                ORDER BY pages DESC) AS pagestotal
-            GROUP BY categoryid";
-    // Gets the information of the above query.
-    $arraytotalpages = array();
-    $i = 1;
-    if ($totalpagespiechart = $DB->get_records_sql($sqltotalpagespiechart, $totalpagespiechartparams)) {
-        $arraytotalpages [0] = [
-            get_string('category', 'mod_emarking'),
-            get_string('totalprintedpages', 'mod_emarking')];
-        foreach ($totalpagespiechart as $pages) {
-            if (! $pages->totalpages == null) {
-                $arraytotalpages [$i] [0] = $pages->categoryname;
-                $arraytotalpages [$i] [1] = (int) $pages->totalpages;
-            } else {
-                $arraytotalpages [$i] [0] = $pages->categoryname;
-                $arraytotalpages [$i] [1] = 0;
-            }
-            $i ++;
-        }
-    }
-    return $arraytotalpages;
-}
-function emarking_get_activities_piechart($category) {
-    global $DB;
-    $activitiespiechartparams = array(
-        "%/$category/%");
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqlactivitiespiechart = "
-            SELECT cc.id as id,
-            cc.name as name,
-            COUNT(e.id) AS activities
-			FROM {emarking} e
-   			INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-            INNER JOIN {course} c ON (c.id = eexam.course)
-            INNER JOIN {course_categories} cc ON (cc.id = c.category)
-			WHERE cc.path like ?
-            GROUP BY id";
-    // Gets the information of the above query.
-    $arrayactivities = array();
-    $i = 1;
-    if ($activitiespiechart = $DB->get_records_sql($sqlactivitiespiechart, $activitiespiechartparams)) {
-        $arrayactivities [0] = [
-            get_string('category', 'mod_emarking'),
-            get_string('activities', 'mod_emarking')];
-        foreach ($activitiespiechart as $activities) {
-            if (! $activities->activities == null) {
-                $arrayactivities [$i] [0] = $activities->name;
-                $arrayactivities [$i] [1] = (int) $activities->activities;
-            } else {
-                $arrayactivities [$i] [0] = $activities->name;
-                $arrayactivities [$i] [1] = 0;
-            }
-            $i ++;
-        }
-    }
-    return $arrayactivities;
-}
-function emarking_get_emarking_courses_piechart($category) {
-    global $DB;
-    $emarkingcoursespiechartparams = array(
-        "%/$category/%");
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqlemarkingcoursespiechart = "
-            SELECT id,
-            name,
-            COUNT(course) as countcourses
-            FROM (
-                SELECT e.course AS course,
-                cc.name as name,
-                cc.id as id
-				FROM {emarking} e
-				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = e.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE cc.path like ?
-                GROUP BY course
-                ORDER BY name desc) as m
-           GROUP BY id";
-    // Gets the information of the above query.
-    $arrayemarkingcourses = array();
-    $i = 1;
-    if ($emarkingcoursespiechart = $DB->get_records_sql($sqlemarkingcoursespiechart, $emarkingcoursespiechartparams)) {
-        $arrayemarkingcourses [0] = [
-            get_string('category', 'mod_emarking'),
-            get_string('emarkingcourses', 'mod_emarking')];
-        foreach ($emarkingcoursespiechart as $courses) {
-            if (! $courses->countcourses == null) {
-                $arrayemarkingcourses [$i] [0] = $courses->name;
-                $arrayemarkingcourses [$i] [1] = (int) $courses->countcourses;
-            } else {
-                $arrayemarkingcourses [$i] [0] = $courses->name;
-                $arrayemarkingcourses [$i] [1] = 0;
-            }
-            $i ++;
-        }
-    }
-    return $arrayemarkingcourses;
-}
-function emarking_get_mean_exam_lenght_piechart($category) {
-    global $DB;
-    $meanexamlenghtpiechartparams = array(
-        "%/$category/%",
-        EMARKING_EXAM_PRINTED,
-        EMARKING_EXAM_SENT_TO_PRINT);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqlmeanexamlenghtpiechart = "
-            SELECT cc.id as id,
-            cc.name as name,
-            AVG((eexam.totalpages+eexam.extrasheets)) AS pages
-			FROM {emarking} e
-   			INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-            INNER JOIN {course} c ON (c.id = eexam.course)
-            INNER JOIN {course_categories} cc ON (cc.id = c.category)
-			WHERE cc.path like ?  AND eexam.status IN (?,?)
-			GROUP BY id";
-    // Gets the information of the above query.
-    $arraymeanlenght = array();
-    $i = 1;
-    $activities = emarking_get_activities_piechart($category);
-    if ($meanexamlenghtpiechart = $DB->get_records_sql($sqlmeanexamlenghtpiechart, $meanexamlenghtpiechartparams)) {
-        $arraymeanlenght [0] = [
-            get_string('category', 'mod_emarking'),
-            get_string('meanexamleanght', 'mod_emarking')];
-        foreach ($meanexamlenghtpiechart as $lenght) {
-            if (! $lenght->pages == null) {
-                $arraymeanlenght [$i] [0] = $lenght->name;
-                $arraymeanlenght [$i] [1] = round((int) $lenght->pages);
-            } else {
-                $arraymeanlenght [$i] [0] = $lenght->name;
-                $arraymeanlenght [$i] [1] = 0;
-            }
-            $i ++;
-        }
-    }
-    return $arraymeanlenght;
 }
 function emarking_get_printing_cost($category) {
     global $DB;
@@ -942,7 +465,7 @@ function emarking_get_printing_cost($category) {
             FROM (
                 SELECT c.id AS courseid,
                 eexam.id AS examid,
-                eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
+                eexam.printingcost*(eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams) AS pages
 				FROM {emarking} e
    				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
                 INNER JOIN {course} c ON (c.id = eexam.course)
@@ -951,58 +474,44 @@ function emarking_get_printing_cost($category) {
                 GROUP BY eexam.id
                 ORDER BY pages DESC) AS pagestotal";
     // Gets the information of the above query.
-    $arrayprintingcost = array();
-    if ($printingcost = $DB->get_records_sql($sqlprintingcost, $totalpritningcost)) {
-        foreach ($printingcost as $cost) {
-            $totalprintingcost = $cost->totalcost;
-        }
+    if ($printingcost = $DB->get_record_sql($sqlprintingcost, $totalpritningcost)) {
+    	return $printingcost->totalcost;
+    } else{
+    	return 0;
     }
-    return $totalprintingcost;
 }
-function emarking_get_total_cost_by_date($category) {
-    global $DB;
-    $totalcostbydateparams = array(
-        "%/$category/%",
-        $category,
-        EMARKING_EXAM_PRINTED,
-        EMARKING_EXAM_SENT_TO_PRINT);
-    // Sql that counts all the resourses since the last time the app was used.
-    $sqltotalcostbydate = "
-            SELECT printdate,
-            SUM(pages) AS totalcost
-            FROM (
-                SELECT c.id AS courseid,
-                eexam.id AS examid,
-                MONTH(FROM_UNIXTIME(eexam.printdate)) as printdate,
-                eexam.printingcost*((eexam.totalpages+eexam.extrasheets)*(eexam.totalstudents+eexam.extraexams)) AS pages
-				FROM {emarking} e
-   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
-                INNER JOIN {course} c ON (c.id = eexam.course)
-                INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				WHERE (cc.path like ? OR cc.id = ?) AND eexam.status IN (?,?)
-                GROUP BY eexam.id
-                ORDER BY pages DESC) AS pagestotal
-            GROUP BY printdate
-            ";
-    // Gets the information of the above query.
-    if ($totalcostbydate = $DB->get_records_sql($sqltotalcostbydate, $totalcostbydateparams)) {
-        $arraytotalcostbydate = array();
-        $arraytotalcostbydate [0] = [
-            get_string('month', 'mod_emarking'),
-            get_string('totalcost', 'mod_emarking')];
-        for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
-            if (! isset($arraytotalcostbydate [$contadormes])) {
-                $arraytotalcostbydate [$contadormes] = [
-                    date("F", mktime(0, 0, 0, $contadormes, 10)),
-                    0];
-            }
-        }
-        foreach ($totalcostbydate as $costbydate) {
-            $arraytotalcostbydate [$costbydate->printdate] [0] = date("F", mktime(0, 0, 0, $costbydate->printdate, 10));
-            $arraytotalcostbydate [$costbydate->printdate] [1] = (int) $costbydate->totalcost;
-        }
-    }
-    return $arraytotalcostbydate;
+function emarking_years_or_months($category){
+	global $DB;
+	$isyears=0;
+	$activitiesbydateparams = array(
+			"%/$category/%",
+			$category);
+	// Sql that counts all the resourses since the last time the app was used.
+	$sqlactivitiesbydate = "SELECT COUNT(printyear) as isyears,
+							printyear
+							FROM
+								(SELECT YEAR(FROM_UNIXTIME(eexam.printdate)) AS printyear
+								FROM {emarking} e
+								INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
+                				INNER JOIN {course} c ON (c.id = e.course)
+                				INNER JOIN {course_categories} cc ON (cc.id = c.category)
+			    				WHERE (cc.path like ? OR cc.id = ?)
+                				GROUP BY printyear) as y
+								";
+	// Gets the information of the above query.
+	if ($activitiesbydate = $DB->get_record_sql($sqlactivitiesbydate, $activitiesbydateparams)) {
+			if($activitiesbydate->isyears >= 2){
+				$isyears=1;
+			}else{
+				$actualyear = $activitiesbydate->printyear;
+			}	
+	}
+	if($isyears == 0){
+	$yearormonth= array($isyears, $actualyear);
+	}else{
+	$yearormonth= array($isyears);
+	}
+	return $yearormonth;
 }
 function emarking_download_excel_teacher_ranking($category) {
     global $DB;
@@ -1022,11 +531,117 @@ function emarking_download_excel_course_ranking($category) {
     $excelfilename = clean_filename("CourseRankCategory" . $category);
     emarking_save_data_to_excel($headers, $courserankingdata, $excelfilename, 2);
 }
-function emarking_download_excel_monthly_cost($category) {
+function emarking_download_excel_monthly_cost($category, $totalcostdata) {
     global $DB;
-    $totalcostdata = emarking_get_total_cost_by_date($category);
     $headers = [
-        get_string('monthlycost', 'mod_emarking')];
-    $excelfilename = clean_filename("MonthlyCost" . $category);
+        get_string('costbydate', 'mod_emarking')];
+    $excelfilename = clean_filename("Costes" . $category);
     emarking_save_data_to_excel($headers, $totalcostdata, $excelfilename, 2);
+}
+function emarking_get_query($params, $SELECT, $SUBSELECT = null, $SUBWHERE = null, $SUBGROUPBY = null, $SUBORDERBY = null, $WHERE = null, $GROUPBY = null, $ORDERBY = null) {
+	global $DB;
+	// Sql that counts all the resourses since the last time the app was used.
+	$query = "SELECT ".$SELECT." FROM";
+	if($SUBSELECT != null){
+		$query = $query." (SELECT ".$SUBSELECT." 
+				FROM {emarking} e
+   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
+                INNER JOIN {course} c ON (c.id = eexam.course)
+                INNER JOIN {course_categories} cc ON (cc.id = c.category)";	
+     if($SUBWHERE != null){
+				$query = $query." WHERE 	".$SUBWHERE;
+     }
+	 if($SUBGROUPBY != null){
+	 			$query = $query." GROUP BY ".$SUBGROUPBY;
+	 }
+	 if($SUBORDERBY != null){
+	 			$query = $query." ORDER BY ".$SUBORDERBY;
+	 }
+
+	 			$query = $query." ) AS subquery";
+	 }else{
+	 	$query = $query." {emarking} e
+   				INNER JOIN {emarking_exams} eexam ON (e.id = eexam.emarking)
+                INNER JOIN {course} c ON (c.id = eexam.course)
+                INNER JOIN {course_categories} cc ON (cc.id = c.category)";	
+	 }
+	 if($WHERE != null){
+	 			$query= $query." WHERE ".$WHERE;
+	 }
+	 if($GROUPBY != null){
+            	$query = $query. " GROUP BY ".$GROUPBY;
+            }
+     if($ORDERBY != null){
+            $query = $query." ORDER BY ".$ORDERBY;
+     }
+	if ($result = $DB->get_records_sql($query, $params)){
+		return $result;
+	}else {
+		return 0;
+	}	
+}
+function emarking_array_column_chart($queryresult, $arraytitles, $queryvalue1, $queryvalue2){
+	$array = array();
+	$i = 1;
+	$value1 = str_replace('"','',$queryvalue1);
+	$value2 = str_replace('"','',$queryvalue2);
+	if(!$queryresult){
+		$array = [['nodata','nodata'],[0,0],[0,0]];
+		return $array;
+	}
+	
+	$array [0] = $arraytitles;
+	foreach ($queryresult as $results) {
+		if (! $results->$value1 == null) {
+			$array [$i] [0] = $results->$value2;
+			$array [$i] [1] = round((int) $results->$value1);
+		} else {
+			$array [$i] [0] = $results->$value2;
+			$array [$i] [1] = 0;
+		}
+		$i ++;
+	}
+	
+	return $array;
+	}
+function emarking_array_by_date($isyears, $queryresult, $secondarraytitle, $querydatevalue, $queryvalue){
+	$array = array();
+	$secondtitle = str_replace('"','',$secondarraytitle);
+	$date = str_replace('"','',$querydatevalue);
+	$value = str_replace('"','',$queryvalue);
+	if(!$queryresult){
+		$array = [
+				['nodata','nodata'],[0,0],[0,0]];
+		return $array;
+	}
+	if($isyears == 1){
+		$array [0] = [
+				get_string('year', 'mod_emarking'),
+				$secondtitle			
+		];
+		$yearcount=1;
+		foreach ($queryresult as $results) {
+			$array [$yearcount] [0] = $results->$date;
+			$array [$yearcount] [1] = (int) $results->$value;
+			$yearcount++;
+		}
+	}
+	if($isyears == 0){
+	$array [0] = [
+			get_string('month', 'mod_emarking'),
+			$secondtitle
+	];
+	for ($contadormes = 1; $contadormes <= 12; $contadormes ++) {
+		if (! isset($array [$contadormes])) {
+			$array [$contadormes] = [
+					date("F", mktime(0, 0, 0, $contadormes, 10)),
+					0];
+		}
+	}
+	foreach ($queryresult as $results) {
+		$array [$results->$date] [0] = date("F", mktime(0, 0, 0, $results->$date, 10));
+		$array [$results->$date] [1] = (int) $results->$value;
+	}
+	}
+	return $array;
 }
