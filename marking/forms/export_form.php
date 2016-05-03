@@ -56,7 +56,9 @@ class emarking_export_form extends moodleform {
             $mform->setType('emarkingdst', PARAM_INT);
             $mform->addElement('checkbox', 'override', get_string('override', 'mod_emarking'));
             $mform->addHelpButton('override', 'override', 'mod_emarking');
-            // Buttons.
+            $mform->addElement('checkbox', 'overridemarkers', get_string('overridemarkers', 'mod_emarking'));
+            $mform->addHelpButton('overridemarkers', 'overridemarkers', 'mod_emarking');
+                        // Buttons.
             $this->add_action_buttons(true, get_string('submit'));
         } else {
             $mform->addElement('static', 'dummy', get_string('noparallelemarkings', 'mod_emarking'));

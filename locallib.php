@@ -193,14 +193,16 @@ function emarking_time_difference($time1, $time2, $small = false) {
  * @param unknown $emarkingsrc
  * @param unknown $emarkingdst
  * @param unknown $rubricoverride
+ * @param unknown $markersoverride
  */
-function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride) {
+function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $markersoverride) {
     global $DB, $OUTPUT;
     $transaction = $DB->start_delegated_transaction();
     $criteriaitems = emarking_match_rubrics($emarkingsrc, $emarkingdst, $rubricoverride);
     try {
         emarking_copy_predefined_comments($emarkingsrc, $emarkingdst);
         emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems);
+        emarking_copy_markers($emarkingsrc, $emarkingdst, $criteriaitems);
         emarking_copy_outcomes($emarkingsrc, $emarkingdst, $criteriaitems, $rubricoverride);
     } catch (moodle_exception $exception) {
         $DB->rollback_delegated_transaction($transaction, $exception);
@@ -300,6 +302,38 @@ function emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems) {
         $newpagecriterion->timecreated = time();
         $newpagecriterion->timemodified = time();
         $DB->insert_record('emarking_page_criterion', $newpagecriterion);
+    }
+    echo $OUTPUT->box("Success!");
+}
+/**
+ * Copies the markers settings from a source emarking activity to a destination one
+ *
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ */
+function emarking_copy_markers($emarkingsrc, $emarkingdst, $criteriaitems) {
+    global $DB, $OUTPUT;
+    echo $OUTPUT->box("Copying markers settings");
+    $DB->delete_records('emarking_marker_criterion', array(
+            'emarking' => $emarkingdst->id));
+    $markerscriteria = $DB->get_records('emarking_marker_criterion', array(
+            'emarking' => $emarkingsrc->id));
+    foreach ($markerscriteria as $markercriterion) {
+        $context = context_course::instance($emarkingdst->course);
+        if(!has_capability('mod/emarking:grade', $context, $markercriterion->marker)) {
+            $manual = enrol_get_plugin('manual');
+            $instance = $DB->get_record('enrol', array('courseid'=>$emarkingdst->course, 'enrol'=>'manual'));
+            $role = $DB->get_record('role', array('archetype'=>'teacher'));
+            $manual->enrol_user($instance, $markercriterion->marker, $role->id);
+        }
+        $newmarkercriterion = new stdClass();
+        $newmarkercriterion->emarking = $emarkingdst->id;
+        $newmarkercriterion->marker = $markercriterion->marker;
+        $newmarkercriterion->criterion = $criteriaitems [$markercriterion->criterion];
+        $newmarkercriterion->block = $markercriterion->block;
+        $newmarkercriterion->timecreated = time();
+        $newmarkercriterion->timemodified = time();
+        $DB->insert_record('emarking_marker_criterion', $newmarkercriterion);
     }
     echo $OUTPUT->box("Success!");
 }

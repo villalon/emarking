@@ -34,6 +34,7 @@ global $DB, $CFG, $USER;
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 $emarkingdst = optional_param_array('emarkingdst', array(), PARAM_INT);
 $rubricoverride = optional_param('override', false, PARAM_BOOL);
+$markersoverride = optional_param('overridemarkers', false, PARAM_BOOL);
 // Validate user is logged in and is not guest.
 require_login($course->id);
 if (isguestuser()) {
@@ -66,7 +67,7 @@ if (count($emarkingdst) > 0) {
     foreach ($destinationemarkings as $emarkingdestination) {
         echo $OUTPUT->box_start();
         echo $OUTPUT->heading($emarkingdestination->name, 4);
-        $result = emarking_copy_settings($emarking, $emarkingdestination, $rubricoverride);
+        $result = emarking_copy_settings($emarking, $emarkingdestination, $rubricoverride, $markersoverride);
         if ($result) {
             echo $OUTPUT->notification(get_string("transactionsuccessfull", "mod_emarking"), 'notifysuccess');
         } else {
