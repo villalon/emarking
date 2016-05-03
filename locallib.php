@@ -202,7 +202,9 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $ma
     try {
         emarking_copy_predefined_comments($emarkingsrc, $emarkingdst);
         emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems);
-        emarking_copy_markers($emarkingsrc, $emarkingdst, $criteriaitems);
+        if($markersoverride) {
+            emarking_copy_markers($emarkingsrc, $emarkingdst, $criteriaitems);
+        }
         emarking_copy_outcomes($emarkingsrc, $emarkingdst, $criteriaitems, $rubricoverride);
     } catch (moodle_exception $exception) {
         $DB->rollback_delegated_transaction($transaction, $exception);
