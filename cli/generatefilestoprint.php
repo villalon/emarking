@@ -69,7 +69,7 @@ $exams = $DB->get_records_sql(
         WHERE status = :status AND emarking > 0
         ', array(
             'status' => EMARKING_EXAM_UPLOADED));
-
+$ignore = array(2254,2255,2256);
 echo "\nExams for printing:\n";
 $i = 0;
 foreach ($exams as $exam) {
@@ -77,7 +77,7 @@ foreach ($exams as $exam) {
     echo "Printing exam $exam->id";
     $studentsforprinting = emarking_get_students_count_for_printing($exam->course, $exam);
     echo " for $studentsforprinting students ...";
-    if($studentsforprinting <= 0) {
+    if($studentsforprinting <= 0 || in_array($exam->id, $ignore)) {
         echo " Skipping\n";
         continue;
     }

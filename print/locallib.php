@@ -139,7 +139,8 @@ function emarking_get_student_picture_path($studentidnumber) {
 function emarking_get_student_picture($student, $userimgdir) {
     global $CFG, $DB;
     // Get the image file for student if user pictures are configured.
-    if ($studentimage = emarking_get_student_picture_path($student->idnumber) && file_exists($studentimage)) {
+    $studentimage = emarking_get_student_picture_path($student->idnumber);
+    if (isset($studentimage) && file_exists($studentimage)) {
         return $studentimage;
     }
         // If no picture was found in the pictures repo try to use the.
@@ -1494,6 +1495,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     // Here we produce a PDF file for each student.
     $currentstudent = 0;
     foreach ($studentinfo as $stinfo) {
+        $studentrecord = $DB->get_record('user', array('id'=>$stinfo->id));
         // If we have a progress bar, we notify the new PDF being created.
         if ($pbar) {
             $pbar->update($currentstudent + 1, count($studentinfo), $stinfo->name);
