@@ -153,6 +153,10 @@ echo $OUTPUT->heading($emarking->name);
 // Navigation tabs.
 $tabname = $scan ? "scanlist" : "mark";
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+
+echo "<div style='width:100px;height:100px;background-color:red;border-radius:50%;float:right;'></div>";
+
+
 // Reassign peers if everything is ok with it.
 if ($reassignpeers && $usercangrade && $issupervisor && $numdraftsgrading == 0) {
     if (emarking_assign_peers($emarking)) {

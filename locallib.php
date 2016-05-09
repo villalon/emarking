@@ -1006,9 +1006,10 @@ function emarking_get_groups_for_printing($courseid) {
  * @param unknown $postsubject
  * @param unknown $posttext
  * @param unknown $posthtml
+ * @param unknown $fromuser
  */
-function emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml) {
-    global $USER, $CFG;
+function emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml, $fromuser) {
+    global $CFG;
     $context = context_course::instance($course->id);
     $userstonotify = array();
     // Notify users that a new exam was sent. First, get all roles that have the capability in this context or higher.
@@ -1037,7 +1038,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
         $eventdata = new stdClass();
         $eventdata->component = 'mod_emarking';
         $eventdata->name = 'notification';
-        $eventdata->userfrom = $USER;
+        $eventdata->userfrom = $fromuser;
         $eventdata->userto = $user->id;
         $eventdata->subject = $postsubject;
         $eventdata->fullmessage = $posttext;

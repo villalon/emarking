@@ -63,7 +63,7 @@ $posttext .= get_string('fullnamecourse') . ': ' . $course->fullname . '\n';
 $posttext .= get_string('shortnamecourse') . ': ' . $course->shortname . '\n';
 $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $requestedby->username . '\n';
 $posttext .= get_string('examdate', 'mod_emarking') . ': ' . date("d M Y - H:i", $exam->examdate) . '\n';
-emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml);
+emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml, $USER);
 $exam->notified = 1;
 $exam->status = EMARKING_EXAM_PRINTED;
 $DB->update_record('emarking_exams', $exam);

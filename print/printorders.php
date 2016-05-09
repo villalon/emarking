@@ -184,11 +184,16 @@ foreach ($exams as $exam) {
     $actions = html_writer::start_tag("div", array(
         "class" => "printactions"));
     // Download exam link.
-    $actions .= html_writer::div(
+    if($exam->filetoprint > 0) {
+        $actions .= html_writer::div(
             $OUTPUT->pix_icon("i/down", get_string("download"), null,
                     array(
                         "examid" => $exam->id,
                         "class" => "downloademarking")));
+    } else {
+        $actions .= html_writer::div(
+                $OUTPUT->pix_icon("i/scheduled", get_string('examgenerationinprogress', 'mod_emarking'), null));
+    }
     // Print directly.
     if ($CFG->emarking_enableprinting) {
         $urlprint = new moodle_url('/mod/emarking/print/printexam.php', array(

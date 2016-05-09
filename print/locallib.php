@@ -319,9 +319,10 @@ function emarking_send_digitizing_notification($cron = true, $debug = false, $de
  *
  * @param unknown_type $exam
  * @param unknown_type $course
+ * @param unknown_type $title
+ * @param unknown_type $user
  */
-function emarking_send_newprintorder_notification($exam, $course, $title = null) {
-    global $USER;
+function emarking_send_newprintorder_notification($exam, $course, $title = null, $user) {
     $postsubject = $course->fullname . ' : ' . $exam->name . '. ' . get_string('newprintorder', 'mod_emarking') . ' [' . $exam->id .
              ']';
     if ($title) {
@@ -348,7 +349,7 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
     $posthtml .= '<tr><td>' . get_string('fullnamecourse') . '</td><td>' . $course->fullname . ' (' . $course->shortname . ')' .
              '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('teacher', 'mod_emarking') . '</td><td>' . $teacherstring . '</td></tr>';
-    $posthtml .= '<tr><td>' . get_string('requestedby', 'mod_emarking') . '</td><td>' . $USER->firstname . ' ' . $USER->lastname .
+    $posthtml .= '<tr><td>' . get_string('requestedby', 'mod_emarking') . '</td><td>' . $user->firstname . ' ' . $user->lastname .
              '</td></tr>';
     $posthtml .= '<tr><td>' . get_string('examdate', 'mod_emarking') . '</td><td>' . date("d M Y - H:i", $exam->examdate) .
              '</td></tr>';
@@ -368,7 +369,7 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
     $posttext .= get_string('examid', 'mod_emarking') . ' : ' . $exam->id . '\n';
     $posttext .= get_string('fullnamecourse') . ' : ' . $course->fullname . ' (' . $course->shortname . ')' . '\n';
     $posttext .= get_string('teacher', 'mod_emarking') . ' : ' . $teacherstring . '\n';
-    $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $USER->firstname . ' ' . $USER->lastname . '\n';
+    $posttext .= get_string('requestedby', 'mod_emarking') . ': ' . $user->firstname . ' ' . $user->lastname . '\n';
     $posttext .= get_string('examdate', 'mod_emarking') . ': ' . date("d M Y - H:i", $exam->examdate) . '\n';
     $posttext .= get_string('comment', 'mod_emarking') . ': ' . $exam->comment . '\n';
     $posttext .= get_string('headerqr', 'mod_emarking') . ': ' . $examhasqr . '\n';
@@ -378,7 +379,7 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
     $posttext .= get_string('originals', 'mod_emarking') . ' : ' . $originals . '\n';
     $posttext .= get_string('copies', 'mod_emarking') . ' : ' . $copies . '\n';
     $posttext .= get_string('totalpagesprint', 'mod_emarking') . ': ' . $totalsheets . '\n';
-    emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml);
+    emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml, $user);
 }
 /**
  * creates email to course manager, teacher and non-editingteacher, when a printing order has been downloaded.
@@ -386,9 +387,8 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null)
  * @param unknown_type $exam
  * @param unknown_type $course
  */
-function emarking_send_examdownloaded_notification($exam, $course) {
-    global $USER;
-    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusdownloaded", "mod_emarking"));
+function emarking_send_examdownloaded_notification($exam, $course, $user) {
+    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusdownloaded", "mod_emarking"), $user);
 }
 /**
  * creates email to course manager, teacher and non-editingteacher, when a printing order has been downloaded.
@@ -398,7 +398,7 @@ function emarking_send_examdownloaded_notification($exam, $course) {
  */
 function emarking_send_examprinted_notification($exam, $course) {
     global $USER;
-    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusprinted", "mod_emarking"));
+    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusprinted", "mod_emarking"), $USER);
 }
 /**
  * Extracts all pages in a big PDF file as separate PDF files, deleting the original PDF if successfull.
@@ -1378,7 +1378,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
  * @return NULL
  */
 function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null, progress_bar $pbar = null,
-        $sendprintorder = false, $idprinter = null, $printanswersheet = false, $debugprinting = false) {
+        $sendprintorder = false, $idprinter = null, $printanswersheet = false, $debugprinting = false, $savetofile = false) {
     global $DB, $CFG, $USER, $OUTPUT;
     require_once($CFG->dirroot . '/mod/emarking/lib/openbub/ans_pdf_open.php');
     // Validate emarking exam object.
@@ -1388,7 +1388,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     }
     // Contexto del curso para verificar permisos.
     $context = context_course::instance($downloadexam->course);
-    if (! has_capability('mod/emarking:downloadexam', $context)) {
+    if (! has_capability('mod/emarking:downloadexam', $context) && false) {
         throw new Exception(get_string("invalidaccess", "mod_emarking"));
     }
     // Verify that remote printing is enable, otherwise disable a printing order.
@@ -1615,7 +1615,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             echo $zipdebugmsg;
         }
         // Notify everyone that the exam was downloaded.
-        emarking_send_examdownloaded_notification($downloadexam, $course);
+        emarking_send_examdownloaded_notification($downloadexam, $course, $USER);
         $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
         $downloadexam->printdate = time();
         $DB->update_record('emarking_exams', $downloadexam);
@@ -1646,6 +1646,42 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         }
         emarking_import_pdf_into_pdf($pdf, $stinfo->examfile);
     }
+    if($savetofile) {
+        $savedfile = $filedir . '/' . $examfilename . '.pdf';
+        $pdf->Output($savedfile, 'F');
+        $requestedby = $DB->get_record('user', array('id' => $downloadexam->requestedby));
+        // Copy file from temp folder to Moodle's filesystem.
+        $filerecord = array(
+                'contextid' => $context->id,
+                'component' => 'mod_emarking',
+                'filearea' => 'examstoprint',
+                'itemid' => $downloadexam->emarking,
+                'filepath' => '/',
+                'filename' => $examfilename . '.pdf',
+                'timecreated' => time(),
+                'timemodified' => time(),
+                'userid' => $requestedby->id,
+                'author' => $requestedby->firstname . ' ' . $requestedby->lastname,
+                'license' => 'allrightsreserved');
+        // Filesystem.
+        $fs = get_file_storage();
+        // If the file already exists we delete it.
+        if ($fs->file_exists($context->id, 'mod_emarking', 'examstoprint', $downloadexam->emarking, '/', $examfilename . '.pdf')) {
+            $previousfile = $fs->get_file($context->id, 'mod_emarking', 'examstoprint', $downloadexam->emarking, '/', $examfilename . '.pdf');
+            $previousfile->delete();
+        }
+        // Info for the new file.
+        $fileinfo = $fs->create_file_from_pathname($filerecord, $filedir . '/' . $examfilename . '.pdf');
+        // Notify everyone that the exam was downloaded.
+        emarking_send_examdownloaded_notification($downloadexam, $course, $requestedby);
+        $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
+        $downloadexam->printdate = time();
+        $downloadexam->filetoprint = $fileinfo->get_id();
+        $DB->update_record('emarking_exams', $downloadexam);
+        // Add to Moodle log so some auditing can be done.
+        \mod_emarking\event\exam_downloaded::create_from_exam($downloadexam, $context)->trigger();
+        return true;
+    } else {
     // Notify everyone that the exam was downloaded.
     emarking_send_examdownloaded_notification($downloadexam, $course);
     $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
@@ -1653,7 +1689,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     $DB->update_record('emarking_exams', $downloadexam);
     // Add to Moodle log so some auditing can be done.
     \mod_emarking\event\exam_downloaded::create_from_exam($downloadexam, $context)->trigger();
-    $pdf->Output($examfilename . '.pdf', 'D');
+        $pdf->Output($examfilename . '.pdf', 'D');
+    }
 }
 function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport) {
     $originalpdfpages = $pdf->setSourceFile($pdftoimport);

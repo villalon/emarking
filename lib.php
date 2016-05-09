@@ -815,6 +815,9 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
             send_file_not_found();
         }
     }
+    if ($filearea === 'examstoprint' && !is_siteadmin()) {
+        send_file_not_found();
+    }
     $fs = get_file_storage();
     if (! $file = $fs->get_file($context->id, 'mod_emarking', $filearea, $arg0, '/', $filename)) {
         echo $context->id . ".." . $filearea . ".." . $arg0 . ".." . $filename;

@@ -122,8 +122,8 @@ $linkrubric = $emarking->linkrubric;
 // Readonly by default for security.
 $readonly = true;
 // If the user can grade and the submission was at least submitted but not published yet, otherwise has to be a supervisor.
-if (($usercangrade && $submission->status >= EMARKING_STATUS_SUBMITTED && $submission->status < EMARKING_STATUS_PUBLISHED) ||
-         ($issupervisor && $submission->status >= EMARKING_STATUS_PUBLISHED)) {
+if (($usercangrade && $draft->status >= EMARKING_STATUS_SUBMITTED && $draft->status < EMARKING_STATUS_PUBLISHED) ||
+         ($issupervisor && $draft->status >= EMARKING_STATUS_PUBLISHED)) {
     $readonly = false;
 }
 if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
