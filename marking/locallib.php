@@ -329,7 +329,7 @@ function emarking_publish_grade($draft) {
     $submission->generalfeedback = $draft->generalfeedback;
     $submission->grade = $draft->grade;
     $submission->teacher = $draft->teacher;
-    $DB->update_record('emarking_submission', $submission);
+    return $DB->update_record('emarking_submission', $submission);
 }
 /**
  * Exports all grades and scores in an exam in Excel format

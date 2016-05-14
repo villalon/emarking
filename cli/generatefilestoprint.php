@@ -26,6 +26,11 @@ error_reporting(E_ALL);
 define('CLI_SCRIPT', true);
 
 require (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+// Force a debugging mode regardless the settings in the site administration
+@error_reporting(E_ALL | E_STRICT); // NOT FOR PRODUCTION SERVERS!
+@ini_set('display_errors', '1');    // NOT FOR PRODUCTION SERVERS!
+$CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
+$CFG->debugdisplay = 1;             // NOT FOR PRODUCTION SERVERS!
 require_once ($CFG->libdir . '/clilib.php'); // cli only functions
 require_once ($CFG->dirroot . "/lib/pdflib.php");
 require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
@@ -37,8 +42,12 @@ require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
 
 // now get cli options
 list($options, $unrecognized) = cli_get_params(array(
-    'help' => false), array(
-    'h' => 'help'));
+    'help' => false,
+    'category' => 0
+), array(
+    'h' => 'help',
+    'c' => 'category'
+));
 
 if ($unrecognized) {
     $unrecognized = implode("\n  ", $unrecognized);
@@ -61,13 +70,23 @@ Example:
 
 cli_heading('EMarking generate files to print'); // TODO: localize
 
+if($options ['category'] && !$category = $DB->get_record('course_catehgory', array('id'=>$options['category']))) {
+    cli_error('Invalid category id');
+    die();
+}
+
+$categoryfilter = '';
+if($category) {
+    $categoryfilter = ' AND c.category = ' . $category->id;
+}
+
 $exams = $DB->get_records_sql(
         '
-        SELECT e.*, c.fullname, c.shortname, c.id AS courseid
+        SELECT e.*, c.fullname, c.shortname, c.id AS courseid, c.category
         FROM {emarking_exams} e
         INNER JOIN {course} c ON (e.course = c.id)
-        WHERE status = :status AND emarking > 0
-        ', array(
+        WHERE status = :status AND emarking > 0 
+        ' . $categoryfilter, array(
             'status' => EMARKING_EXAM_UPLOADED));
 $ignore = array(2254,2255,2256);
 echo "\nExams for printing:\n";
