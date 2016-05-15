@@ -111,18 +111,7 @@ foreach ($exams as $exam) {
         $details .= html_writer::div($OUTPUT->pix_icon("shuffle", get_string("printrandom", "mod_emarking"), "mod_emarking"));
     }
     $details .= emarking_enrolments_div($exam);
-    $examstatus = "";
-    switch ($exam->status) {
-        case 1 :
-            $examstatus = get_string("examstatussent", "mod_emarking");
-            break;
-        case 2 :
-            $examstatus = get_string("examstatusdownloaded", "mod_emarking");
-            break;
-        case 3 :
-            $examstatus = get_string("examstatusprinted", "mod_emarking");
-            break;
-    }
+    $examstatus = emarking_exam_status_string($exam->status);
     $details .= $examstatus;
     $details .= html_writer::end_tag("div");
     // The marking process course module.

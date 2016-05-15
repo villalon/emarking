@@ -140,7 +140,11 @@ $string ['exams'] = 'Pruebas';
 $string ['examnotavailable'] = 'Tu prueba no está disponible';
 $string ['examstatusdownloaded'] = 'Descargada';
 $string ['examstatusprinted'] = 'Impresa';
-$string ['examstatussent'] = 'Enviada';
+$string ['examstatussent'] = 'Subida';
+$string ['examstatusbeingprocessed'] = 'Procesándose';
+$string ['examstatuserrorprinting'] = 'Error al imprimir';
+$string ['examstatuserrorprocessing'] = 'Error al procesar';
+$string ['examstatusprocessed'] = 'Procesada';
 $string ['downloadexam'] = 'Descargar prueba';
 $string ['comment_help'] = 'Comentario para hacer llegar a la impresión.';
 // JUSTICE PERCEPTION.

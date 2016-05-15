@@ -59,9 +59,10 @@ if ($options ['help']) {
 
 Options:
 -h, --help            Print out this help
-
+-c, --category        Print out this only exams from course in this category
+            
 Example:
-\$sudo -u www-data /usr/bin/php admin/cli/generatefilestoprint.php
+\$sudo -u www-data /usr/bin/php admin/cli/generatefilestoprint.php --category 2
 "; // TODO: localize - to be translated later when everything is finished
     
     echo $help;
@@ -70,7 +71,7 @@ Example:
 
 cli_heading('EMarking generate files to print'); // TODO: localize
 
-if($options ['category'] && !$category = $DB->get_record('course_catehgory', array('id'=>$options['category']))) {
+if($options ['category'] && !$category = $DB->get_record('course_categories', array('id'=>$options['category']))) {
     cli_error('Invalid category id');
     die();
 }
@@ -100,20 +101,33 @@ foreach ($exams as $exam) {
         echo " Skipping\n";
         continue;
     }
+    // We start processing the exam.
+    $exam->status = EMARKING_EXAM_BEING_PROCESSED;
+    $DB->update_record('emarking_exams', $exam);
+    // The transaction is for the generation.
     $transaction = $DB->start_delegated_transaction();
     try {
         $result = emarking_download_exam($exam->id, false, false, NULL, false, false, false, false, true);
         if ($result) {
             echo "Success\n";
             $DB->commit_delegated_transaction($transaction);
+            // Update the exam status to success.
+            $exam->status = EMARKING_EXAM_PROCESSED;
+            $DB->update_record('emarking_exams', $exam);
         } else {
             echo "Logical error!\n";
             $e = new moodle_exception('Invalid PDF generation');
             $DB->rollback_delegated_transaction($transaction, $e);
+            // Update the exam status to error.
+            $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
+            $DB->update_record('emarking_exams', $exam);
         }
     } catch (Exception $e) {
         echo "Error!\n";
         $DB->rollback_delegated_transaction($transaction, $e);
+        // Update the exam status to error.
+        $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
+        $DB->update_record('emarking_exams', $exam);
     }
     $i ++;
 }

@@ -1384,18 +1384,21 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016032400, 'emarking');
     }
     if ($oldversion < 2016050800) {
-    
         // Define field filetoprint to be added to emarking_exams.
         $table = new xmldb_table('emarking_exams');
-        $field = new xmldb_field('filetoprint', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'comment');
-    
+        $field = new xmldb_field('filetoprint', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'comment');    
         // Conditionally launch add field filetoprint.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-    
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2016050800, 'emarking');
+    }
+    if ($oldversion < 2016051500) {
+        // Update all exams to new statuses.
+        $DB->execute('UPDATE {emarking_exams} SET status = status * 10');
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016051500, 'emarking');
     }
     return true;
 }

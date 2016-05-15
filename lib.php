@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Library of interface functions and constants for module emarking
@@ -21,7 +21,7 @@
  * All the emarking specific functions, needed to implement all the module
  * logic, should go to locallib.php. This will help to save some memory when
  * Moodle is performing actions across all modules.
- *
+ * 
  * @package mod_emarking
  * @copyright 2013-2015 Jorge Villalón
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
@@ -37,9 +37,13 @@ define('EMARKING_TYPE_STUDENT_TRAINING', 3);
 define('EMARKING_TYPE_PEER_REVIEW', 4);
 define('EMARKING_TYPE_PRINT_SCAN', 5);
 // Print orders status.
-define('EMARKING_EXAM_UPLOADED', 1);
-define('EMARKING_EXAM_SENT_TO_PRINT', 2);
-define('EMARKING_EXAM_PRINTED', 3);
+define('EMARKING_EXAM_UPLOADED', 10);
+define('EMARKING_EXAM_ERROR_PROCESSING', 12);
+define('EMARKING_EXAM_BEING_PROCESSED', 13);
+define('EMARKING_EXAM_PROCESSED', 18);
+define('EMARKING_EXAM_SENT_TO_PRINT', 20);
+define('EMARKING_EXAM_ERROR_PRINTING', 22);
+define('EMARKING_EXAM_PRINTED', 30);
 // Anonymous definitions.
 define('EMARKING_ANON_STUDENT', 0);
 define('EMARKING_ANON_BOTH', 1);
@@ -58,7 +62,7 @@ define('EMARKING_STATUS_PUBLISHED', 20); // Feedback generated.
 define('EMARKING_STATUS_REGRADING', 30); // Student did not accept. asked for regrade.
 define('EMARKING_STATUS_REGRADING_RESPONDED', 35); // Regrades were processed.
 define('EMARKING_STATUS_ACCEPTED', 40); // Student accepted the submission.
-// Regrade motives.
+                                        // Regrade motives.
 define('EMARKING_REGRADE_MISASSIGNED_SCORE', 1);
 define('EMARKING_REGRADE_UNCLEAR_FEEDBACK', 2);
 define('EMARKING_REGRADE_STATEMENT_PROBLEM', 3);
@@ -73,7 +77,7 @@ define('EMARKING_ANSWERKEY_ACCEPTED', 3);
 // Moodle core API.
 /**
  * Returns the information on whether the module supports a feature
- *
+ * 
  * @see plugin_supports() in lib/moodlelib.php
  * @param string $feature
  *            FEATURE_xx constant for requested feature
@@ -99,10 +103,10 @@ function emarking_supports($feature) {
  * (defined by the form in mod_form.php) this function
  * will create a new instance and return the id number
  * of the new instance.
- *
+ * 
  * @param object $emarking
  *            An object from the form in mod_form.php
- * @param mod_emarking_mod_form $mform
+ * @param mod_emarking_mod_form $mform            
  * @return int The id of the newly inserted emarking record
  */
 function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = null) {
@@ -213,7 +217,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
             print_error(get_string('errorsavingpdf', 'mod_emarking'));
         }
         // Send new print order notification.
-        emarking_send_newprintorder_notification($exam, $COURSE);
+        emarking_send_newprintorder_notification($exam, $COURSE, NULL, $USER);
         // If it is a multi-course submission, insert several exams.
         if (! empty($mform->get_data()->multicourse)) {
             $multicourse = $mform->get_data()->multicourse;
@@ -271,14 +275,14 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 }
 /**
  * Creates a copy of the emarking in the database.
- *
- * @param unknown $originalemarking
+ * 
+ * @param unknown $originalemarking            
  * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
  */
 function emarking_copy_to_cm($originalemarking, $destinationcourse) {
     global $CFG, $DB;
-    require_once($CFG->dirroot . "/course/lib.php");
-    require_once($CFG->dirroot . "/mod/emarking/mod_form.php");
+    require_once ($CFG->dirroot . "/course/lib.php");
+    require_once ($CFG->dirroot . "/mod/emarking/mod_form.php");
     $emarkingmod = $DB->get_record('modules', array(
         'name' => 'emarking'));
     $emarking = new stdClass();
@@ -310,10 +314,10 @@ function emarking_copy_to_cm($originalemarking, $destinationcourse) {
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
- *
+ * 
  * @param object|\stdClass $emarking
  *            An object from the form in mod_form.php
- * @param mod_emarking_mod_form $mform
+ * @param mod_emarking_mod_form $mform            
  * @return boolean Success/Fail
  */
 function emarking_update_instance(stdClass $emarking, mod_emarking_mod_form $mform = null) {
@@ -364,7 +368,7 @@ function emarking_update_instance(stdClass $emarking, mod_emarking_mod_form $mfo
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
  * and any data that depends on it.
- *
+ * 
  * @param int $id
  *            Id of the module instance
  * @return boolean Success/Failure
@@ -380,7 +384,7 @@ function emarking_delete_instance($id) {
     // If we have an associated exam that was already sent to print
     // we can't delete the e-marking activity.
     if ($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
-        throw new moodle_exception("emarking/cannotdeleteprintedemarking",
+        throw new moodle_exception("emarking/cannotdeleteprintedemarking", 
                 "An already printed emarking activity can not be deleted.");
     }
     // Delete dependent records.
@@ -419,14 +423,14 @@ function emarking_delete_instance($id) {
             $pages = $DB->get_records('emarking_page', array(
                 'submission' => $submission->id));
             foreach ($pages as $page) {
-                if (! $DB->delete_records('emarking_page_criterion',
+                if (! $DB->delete_records('emarking_page_criterion', 
                         array(
                             'page' => $page->id,
                             'emarking' => $emarking->id))) {
                     $tran->rollback(new Exception('Could not delete page_criterion objects'));
                     return false;
                 }
-                if (! $DB->delete_records('emarking_comment',
+                if (! $DB->delete_records('emarking_comment', 
                         array(
                             'page' => $page->id,
                             'draft' => $draft->id))) {
@@ -471,7 +475,7 @@ function emarking_delete_instance($id) {
  * Used for user activity reports.
  * $return->time = the time they did it
  * $return->info = a short text description
- *
+ * 
  * @param
  *            $course
  * @param
@@ -491,7 +495,7 @@ function emarking_user_outline($course, $user, $mod, $emarking) {
 /**
  * Prints a detailed representation of what a user has done with
  * a given particular instance of this module, for user activity reports.
- *
+ * 
  * @param stdClass $course
  *            the current course record
  * @param stdClass $user
@@ -508,7 +512,7 @@ function emarking_user_complete($course, $user, $mod, $emarking) {
  * Given a course and a time, this module should find recent activity
  * that has occurred in emarking activities and print it out.
  * Return true if there was output, or false is there was none.
- *
+ * 
  * @return boolean
  */
 function emarking_print_recent_activity($course, $viewfullnames, $timestart) {
@@ -520,7 +524,7 @@ function emarking_print_recent_activity($course, $viewfullnames, $timestart) {
  * custom activity records.
  * These records are then rendered into HTML via
  * {@link emarking_print_recent_mod_activity()}.
- *
+ * 
  * @param array $activities
  *            sequentially indexed array of objects with the 'cmid' property
  * @param int $index
@@ -541,7 +545,7 @@ function emarking_get_recent_mod_activity(&$activities, &$index, $timestart, $co
 }
 /**
  * Prints single activity item prepared by {@see emarking_get_recent_mod_activity()}
- *
+ * 
  * @return void
  */
 function emarking_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
@@ -551,7 +555,7 @@ function emarking_print_recent_mod_activity($activity, $courseid, $detail, $modn
  * This function searches for things that need to be done, such
  * as sending out mail, toggling flags etc .
  * ..
- *
+ * 
  * @return boolean
  * @todo Finish documenting this function
  */
@@ -560,7 +564,7 @@ function emarking_cron() {
 }
 /**
  * Returns all other caps used in the module
- *
+ * 
  * @example return array('moodle/site:accessallgroups');
  * @return array
  */
@@ -575,7 +579,7 @@ function emarking_get_extra_capabilities() {
  * Commented code should be
  * modified if necessary. See forum, glossary or journal modules
  * as reference.
- *
+ * 
  * @param int $emarkingid
  *            ID of an instance of this module
  * @return bool true if the scale is used by the given emarking instance
@@ -587,8 +591,8 @@ function emarking_scale_used($emarkingid, $scaleid) {
 /**
  * Checks if scale is being used by any instance of emarking.
  * This is used to find out if scale used anywhere.
- *
- * @param $scaleid int
+ * 
+ * @param $scaleid int            
  * @return boolean true if the scale is used by any emarking instance
  */
 function emarking_scale_used_anywhere($scaleid) {
@@ -597,16 +601,16 @@ function emarking_scale_used_anywhere($scaleid) {
 /**
  * Creates or updates grade item for the give emarking instance
  * Needed by grade_update_mod_grades() in lib/gradelib.php
- *
+ * 
  * @param stdClass $emarking
  *            instance object with extra cmidnumber and modname property
- * @param null $grades
+ * @param null $grades            
  * @return int 0 if ok, error code otherwise
  */
 function emarking_grade_item_update(stdClass $emarking, $grades = null) {
     global $CFG;
-    require_once($CFG->libdir . '/gradelib.php');
-    require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->dirroot . '/mod/emarking/marking/locallib.php');
     if ($grades == null) {
         emarking_calculate_grades_users($emarking);
     }
@@ -626,7 +630,7 @@ function emarking_grade_item_update(stdClass $emarking, $grades = null) {
 /**
  * Update emarking grades in the gradebook
  * Needed by grade_update_mod_grades() in lib/gradelib.php
- *
+ * 
  * @param stdClass $emarking
  *            instance object with extra cmidnumber and modname property
  * @param int $userid
@@ -637,7 +641,7 @@ function emarking_grade_item_update(stdClass $emarking, $grades = null) {
  */
 function emarking_update_grades(stdClass $emarking, $userid = 0, $nullifnone = true) {
     global $CFG;
-    require_once($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
     if ($emarking->grade == 0) {
         emarking_grade_item_update($emarking);
     } else if ($grades = emarking_get_user_grades($emarking, $userid)) {
@@ -651,15 +655,15 @@ function emarking_update_grades(stdClass $emarking, $userid = 0, $nullifnone = t
 }
 /**
  * Get emarking grades in a format compatible with the gradebook
- *
+ * 
  * @param
  *            $emarking
- * @param int $userid
+ * @param int $userid            
  * @return array
  */
 function emarking_get_user_grades($emarking, $userid = 0) {
     global $DB, $CFG;
-    require_once($CFG->dirroot . '/grade/grading/lib.php');
+    require_once ($CFG->dirroot . '/grade/grading/lib.php');
     emarking_calculate_grades_users($emarking, $userid);
     $gradebookgrades = array();
     $params = array(
@@ -681,7 +685,7 @@ function emarking_get_user_grades($emarking, $userid = 0) {
 }
 /**
  * Removes all grades from gradebook
- *
+ * 
  * @param int $courseid
  *            The ID of the course to reset
  * @param string $type
@@ -703,7 +707,7 @@ function emarking_reset_gradebook($courseid, $type = '') {
 }
 /**
  * Lists all gradable areas for the advanced grading methods framework
- *
+ * 
  * @return array('string'=>'string') An array with area names as keys and descriptions as values
  */
 function emarking_grading_areas_list() {
@@ -715,10 +719,10 @@ function emarking_grading_areas_list() {
  * Returns the lists of all browsable file areas within the given module context
  * The file area 'intro' for the activity introduction field is added automatically
  * by {@link file_browser::get_file_info_context_module()}
- *
- * @param stdClass $course
- * @param stdClass $cm
- * @param stdClass $context
+ * 
+ * @param stdClass $course            
+ * @param stdClass $cm            
+ * @param stdClass $context            
  * @return array of [(string)filearea] => (string)description
  */
 function emarking_get_file_areas($course, $cm, $context) {
@@ -726,18 +730,18 @@ function emarking_get_file_areas($course, $cm, $context) {
 }
 /**
  * File browsing support for emarking file areas
- *
+ * 
  * @package mod_emarking
  * @category files
- * @param file_browser $browser
- * @param array $areas
- * @param stdClass $course
- * @param stdClass $cm
- * @param stdClass $context
- * @param string $filearea
- * @param int $itemid
- * @param string $filepath
- * @param string $filename
+ * @param file_browser $browser            
+ * @param array $areas            
+ * @param stdClass $course            
+ * @param stdClass $cm            
+ * @param stdClass $context            
+ * @param string $filearea            
+ * @param int $itemid            
+ * @param string $filepath            
+ * @param string $filename            
  * @return file_info instance or null if not found
  */
 function emarking_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
@@ -745,7 +749,7 @@ function emarking_get_file_info($browser, $areas, $course, $cm, $context, $filea
 }
 /**
  * Serves the files from the emarking file areas
- *
+ * 
  * @package mod_emarking
  * @category files
  * @param stdClass $course
@@ -765,7 +769,7 @@ function emarking_get_file_info($browser, $areas, $course, $cm, $context, $filea
  */
 function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array()) {
     global $DB, $CFG, $USER;
-    require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+    require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
     require_login();
     $filename = array_pop($args);
     $arg0 = array_pop($args);
@@ -815,8 +819,19 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
             send_file_not_found();
         }
     }
-    if ($filearea === 'examstoprint' && !is_siteadmin()) {
-        send_file_not_found();
+    if ($filearea === 'examstoprint') {
+        $token = required_param('token', PARAM_INT);
+        if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
+            $now = new DateTime();
+            $tokendate = new DateTime();
+            $tokendate->setTimestamp($_SESSION [$USER->sesskey . "smsdate"]);
+            $diff = $now->diff($tokendate);
+            if ($diff->i > 5 && false) {
+                send_file_not_found();
+            }
+        }
+        // Add to Moodle log so some auditing can be done.
+        \mod_emarking\event\exam_downloaded::create_from_exam($exam, $contextcourse)->trigger();
     }
     $fs = get_file_storage();
     if (! $file = $fs->get_file($context->id, 'mod_emarking', $filearea, $arg0, '/', $filename)) {
@@ -830,12 +845,12 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
 /**
  * Extends the global navigation tree by adding emarking nodes if there is a relevant content
  * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
+ * 
  * @param navigation_node $navref
  *            An object representing the navigation tree node of the emarking module instance
- * @param stdClass $course
- * @param stdClass $module
- * @param cm_info $cm
+ * @param stdClass $course            
+ * @param stdClass $module            
+ * @param cm_info $cm            
  */
 function emarking_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm) {
 }
@@ -844,7 +859,7 @@ function emarking_extend_navigation(navigation_node $navref, stdclass $course, s
  * This function is called when the context for the page is a emarking module.
  * This is not called by AJAX
  * so it is safe to rely on the $PAGE.
- *
+ * 
  * @param settings_navigation $settingsnav
  *            {@link settings_navigation}
  * @param navigation_node $emarkingnode
@@ -857,10 +872,10 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, $
     $context = $PAGE->context;
     if (is_siteadmin($USER) || (has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enableprinting)) {
         $settingnode = $settingsnav->add(get_string('emarkingprints', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
-        $thingnode = $settingnode->add(get_string('adminprints', 'mod_emarking'),
+        $thingnode = $settingnode->add(get_string('adminprints', 'mod_emarking'), 
                 new moodle_url("/mod/emarking/print/printers.php", array(
                     'sesskey' => $USER->sesskey)));
-        $thingnode = $settingnode->add(get_string('permitsviewprinters', 'mod_emarking'),
+        $thingnode = $settingnode->add(get_string('permitsviewprinters', 'mod_emarking'), 
                 new moodle_url("mod/emarking/print/usersprinters.php", array(
                     'sesskey' => $USER->sesskey)));
     }

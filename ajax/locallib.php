@@ -1093,7 +1093,9 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     $comment->bonus = $bonus;
     $comment->textformat = $format;
     $comment->levelid = $levelid;
-    $comment->markerid = $userid;
+    if($previouslvlid != $levelid) {
+        $comment->markerid = $userid;
+    }
     $DB->update_record('emarking_comment', $comment);
     $diff = abs($previousbonus - $bonus);
     if ($comment->levelid > 0) {

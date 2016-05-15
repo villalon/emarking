@@ -138,11 +138,16 @@ $examstable->colclasses [1] = 'exams_examname';
 // Parameters for SQL calls.
 if ($statusicon == 1) {
     $statuses = array(
-        EMARKING_EXAM_UPLOADED);
+            EMARKING_EXAM_UPLOADED,
+            EMARKING_EXAM_BEING_PROCESSED,
+            EMARKING_EXAM_ERROR_PROCESSING,
+            EMARKING_EXAM_PROCESSED
+    );
 } else {
     $statuses = array(
-        EMARKING_EXAM_SENT_TO_PRINT,
-        EMARKING_EXAM_PRINTED);
+            EMARKING_EXAM_SENT_TO_PRINT,
+            EMARKING_EXAM_ERROR_PRINTING,
+            EMARKING_EXAM_PRINTED);
 }
 list($statussql, $params) = $DB->get_in_or_equal($statuses);
 $order = $statusicon == 1 ? "e.examdate asc, c.shortname ASC" : "e.examdate desc, c.shortname ASC";
@@ -184,15 +189,30 @@ foreach ($exams as $exam) {
     $actions = html_writer::start_tag("div", array(
         "class" => "printactions"));
     // Download exam link.
-    if($exam->filetoprint > 0) {
+    if($exam->status == EMARKING_EXAM_PROCESSED) {
         $actions .= html_writer::div(
             $OUTPUT->pix_icon("i/down", get_string("download"), null,
                     array(
                         "examid" => $exam->id,
                         "class" => "downloademarking")));
-    } else {
+    } else if($exam->status == EMARKING_EXAM_UPLOADED) {
         $actions .= html_writer::div(
                 $OUTPUT->pix_icon("i/scheduled", get_string('examgenerationinprogress', 'mod_emarking'), null));
+    } else if($exam->status == EMARKING_EXAM_BEING_PROCESSED) {
+        $actions .= html_writer::div(
+                $OUTPUT->pix_icon("i/configlock", get_string('examgenerationinprogress', 'mod_emarking'), null));
+    } else if($exam->status == EMARKING_EXAM_ERROR_PROCESSING) {
+        $actions .= html_writer::div(
+                $OUTPUT->pix_icon("i/risk_xss", get_string('examgenerationinprogress', 'mod_emarking'), null));
+    } else if($exam->status == EMARKING_EXAM_SENT_TO_PRINT) {
+        $actions .= html_writer::div(
+                $OUTPUT->pix_icon("i/grade_correct", get_string('examgenerationinprogress', 'mod_emarking'), null));
+    } else if($exam->status == EMARKING_EXAM_ERROR_PRINTING) {
+        $actions .= html_writer::div(
+                $OUTPUT->pix_icon("i/risk_xss", get_string('examgenerationinprogress', 'mod_emarking'), null));
+    } else if($exam->status == EMARKING_EXAM_PRINTED) {
+        $actions .= html_writer::div(
+                $OUTPUT->pix_icon("i/grade_correct", get_string('examgenerationinprogress', 'mod_emarking'), null));
     }
     // Print directly.
     if ($CFG->emarking_enableprinting) {

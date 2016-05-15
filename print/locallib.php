@@ -250,6 +250,35 @@ function emarking_send_processanswers_notification($emarking, $course) {
     $DB->update_record('emarking', $emarking);
 }
 /**
+ * 
+ * @param unknown $exam
+ */
+function emarking_exam_status_string($exam) {
+    switch ($exam->status) {
+        case EMARKING_EXAM_UPLOADED :
+            $examstatus = get_string("examstatussent", "mod_emarking");
+            break;
+        case EMARKING_EXAM_SENT_TO_PRINT :
+            $examstatus = get_string("examstatusdownloaded", "mod_emarking");
+            break;
+        case EMARKING_EXAM_PRINTED :
+            $examstatus = get_string("examstatusprinted", "mod_emarking");
+            break;
+        case EMARKING_EXAM_BEING_PROCESSED :
+            $examstatus = get_string("examstatusbeingprocessed", "mod_emarking");
+            break;
+        case EMARKING_EXAM_ERROR_PRINTING :
+            $examstatus = get_string("examstatuserrorprinting", "mod_emarking");
+            break;
+        case EMARKING_EXAM_ERROR_PROCESSING :
+            $examstatus = get_string("examstatuserrorprocessing", "mod_emarking");
+            break;
+        case EMARKING_EXAM_PROCESSED :
+            $examstatus = get_string("examstatusprocessed", "mod_emarking");
+            break;
+    }
+}
+/**
  * Sends an email to everyone with the receivedigitizingnotification capability (usually teachers)
  * indicating instructions for post digitizing steps
  *
@@ -316,7 +345,7 @@ function emarking_send_digitizing_notification($cron = true, $debug = false, $de
     }
 }
 /**
- * creates email to course manager, teacher and non-editingteacher, when a printing order has been created.
+ * Creates email to course manager, teacher and non-editingteacher, when a printing order has been created.
  *
  * @param unknown_type $exam
  * @param unknown_type $course
@@ -1705,16 +1734,28 @@ function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport) {
         $pdf->useTemplate($template, 0, 0, 0, 0, true);
     }
 }
+/**
+ * Prints a file using cups, taking command parameters from configuration of printer
+ * and print server.
+ * @param unknown $printername
+ * @param unknown $command
+ * @param unknown $file
+ * @param unknown $debugprinting
+ * @return NULL|Ambigous <NULL, string>
+ */
 function emarking_print_file($printername, $command, $file, $debugprinting) {
     global $CFG;
     if (! $printername) {
-        return null;
+        return false;
     }
     $server = '';
     if (isset($CFG->emarking_printserver) && strlen($CFG->emarking_printserver) > 3) {
         $server = '-h ' . $CFG->emarking_printserver;
     }
     $command = explode("#", $command);
+    if(count($command) != 2) {
+        return false;
+    }
     $cups = $command [0] . $printername . ' ' . $server . ' ' . $command [1] . " " . $file;
     $printresult = null;
     if (! $debugprinting) {

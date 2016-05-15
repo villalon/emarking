@@ -141,6 +141,10 @@ $string ['examnotavailable'] = 'Your exam is not available';
 $string ['examstatusdownloaded'] = 'Downloaded';
 $string ['examstatusprinted'] = 'Printed';
 $string ['examstatussent'] = 'Sent for printing';
+$string ['examstatusbeingprocessed'] = 'Being processed';
+$string ['examstatuserrorprinting'] = 'Error printing';
+$string ['examstatuserrorprocessing'] = 'Error processing';
+$string ['examstatusprocessed'] = 'Processed';
 $string ['downloadexam'] = 'Download exam';
 $string ['comment_help'] = 'Comment for the printing staff.';
 // JUSTICE PERCEPTION.

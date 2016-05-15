@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This page processes a zip file containing scanned answers from students
@@ -26,12 +26,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('NO_OUTPUT_BUFFERING', true);
-require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
-require_once("$CFG->dirroot/lib/weblib.php");
-require_once($CFG->dirroot . '/repository/lib.php');
-require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
-require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
-require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once ("$CFG->dirroot/lib/weblib.php");
+require_once ($CFG->dirroot . '/repository/lib.php');
+require_once ($CFG->dirroot . '/mod/emarking/marking/locallib.php');
+require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
+require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 global $DB, $CFG, $USER;
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
@@ -76,15 +76,12 @@ foreach ($submissions as $submissionid) {
         $totaldocumentsignored ++;
         continue;
     }
-    if (emarking_create_response_pdf($draft, $student, $context, $cm->id)) {
-        $totaldocumentsprocessed ++;
-        $pbar->update($totaldocumentsprocessed, $totalsubmissions, get_string('publishinggrade', 'mod_emarking') .
-                " " . $draft->id);
-        if (! emarking_publish_grade($draft)) {
-            echo $OUTPUT->notification("Fatal error publishing grade student: " . $student->id . " draft: " . $draft->id,
-                    'notifyproblem');
-        }
-    } else {
+    $totaldocumentsprocessed ++;
+    $pbar->update($totaldocumentsprocessed, $totalsubmissions, 
+            get_string('publishinggrade', 'mod_emarking') . " " . $draft->id);
+    if (! emarking_publish_grade($draft)) {
+        echo $OUTPUT->notification("Fatal error publishing grade student: " . $student->id . " draft: " . $draft->id, 
+                'notifyproblem');
         $totaldocumentsignored ++;
     }
 }
