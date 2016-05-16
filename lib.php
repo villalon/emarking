@@ -772,7 +772,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
     require_login();
     $filename = array_pop($args);
-    $arg0 = array_pop($args);
+    $itemid = array_pop($args);
     $contextcategory = context_coursecat::instance($course->category);
     $contextcourse = context_course::instance($course->id);
     // Security! We always protect the exams filearea.
@@ -822,20 +822,34 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     if ($filearea === 'examstoprint') {
         $token = required_param('token', PARAM_INT);
         if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
+            if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$itemid))) {
+                send_file_not_found();
+            }
             $now = new DateTime();
             $tokendate = new DateTime();
             $tokendate->setTimestamp($_SESSION [$USER->sesskey . "smsdate"]);
             $diff = $now->diff($tokendate);
             if ($diff->i > 5 && false) {
+                // Add to Moodle log so some auditing can be done.
+                \mod_emarking\event\invalidtokendownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
                 send_file_not_found();
             }
+            if(!has_capability('mod/emarking:downloadexam', $contextcategory)) {
+                // Add to Moodle log so some auditing can be done.
+                \mod_emarking\event\invalidaccessdownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
+                send_file_not_found();
+            }
+        } else {
+            // Add to Moodle log so some auditing can be done.
+            \mod_emarking\event\invalidtokendownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
+            send_file_not_found();
         }
         // Add to Moodle log so some auditing can be done.
         \mod_emarking\event\exam_downloaded::create_from_exam($exam, $contextcourse)->trigger();
     }
     $fs = get_file_storage();
-    if (! $file = $fs->get_file($context->id, 'mod_emarking', $filearea, $arg0, '/', $filename)) {
-        echo $context->id . ".." . $filearea . ".." . $arg0 . ".." . $filename;
+    if (! $file = $fs->get_file($context->id, 'mod_emarking', $filearea, $itemid, '/', $filename)) {
+        echo $context->id . ".." . $filearea . ".." . $itemid . ".." . $filename;
         echo "File really not found";
         send_file_not_found();
     }

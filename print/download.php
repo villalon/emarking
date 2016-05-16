@@ -142,7 +142,8 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
     if (!$pdffilename) {
         throw new Exception(get_string("examhasnopdf", "mod_emarking"));
     }
-    $downloadurl = new moodle_url('/pluginfile.php/' . $contextcourse->id .'/mod_emarking/examstoprint/' .$exam->emarking . '/' . $pdffilename);
+    $downloadurl = new moodle_url('/pluginfile.php/' . $contextcourse->id .'/mod_emarking/examstoprint/' .$exam->emarking . '/'
+             . $pdffilename, array('token' => $token));
     redirect($downloadurl);
     // emarking_download_exam($examid, $multiplepdfs, null, null, null, null, true);
     die();

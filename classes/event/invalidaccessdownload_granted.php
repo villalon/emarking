@@ -27,6 +27,14 @@ namespace mod_emarking\event;
 
 defined('MOODLE_INTERNAL') || die();
 class invalidaccessdownload_attempted extends \core\event\base {
+    public static function create_from_exam($exam, $context) {
+        $event = self::create(
+                array(
+                    'context' => $context,
+                    'objectid' => $exam->emarking,
+                    'relateduserid' => $exam->requestedby));
+        return $event;
+    }
     protected function init() {
         $this->data ['crud'] = 'r';
         $this->data ['edulevel'] = self::LEVEL_OTHER;

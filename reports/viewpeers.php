@@ -84,15 +84,15 @@ $minstudent = max($studentposition - $delta, 1);
 $maxstudent = min($studentposition + $delta, count($exams));
 $table = new html_table();
 $table->head = array(
-    get_string('justice.similars.name', 'mod_emarking'),
-    get_string('justice.similars.grade', 'mod_emarking'),
-    get_string('justice.similars.actions', 'mod_emarking'));
+    get_string('anonymousstudent', 'mod_emarking'),
+    get_string('grade', 'mod_emarking'),
+    get_string('actions', 'mod_emarking'));
 $data = array();
 $pixicon = new pix_icon('i/preview', get_string('viewsubmission', 'mod_emarking'));
 $current = 0;
 foreach ($exams as $exam) {
     $current ++;
-    if ($current < $minstudent || $current > $maxstudent) {
+    if (($current < $minstudent && $current > 2) || $current > $maxstudent) {
         continue;
     }
     $examarray = array();
