@@ -96,6 +96,12 @@ echo "\nExams for printing:\n";
 $i = 0;
 foreach ($exams as $exam) {
     echo "[$exam->id] $exam->fullname $exam->name\n";
+    $newexam = $DB->get_record('emarking_exams', array('id'=>$exam->id));
+    if($newexam->status == EMARKING_EXAM_BEING_PROCESSED) {
+        echo " already in process\n";
+        continue;
+    }
+    $time = microtime(true);
     echo "Printing exam $exam->id";
     $studentsforprinting = emarking_get_students_count_for_printing($exam->course, $exam);
     echo " for $studentsforprinting students ...";
@@ -113,7 +119,8 @@ foreach ($exams as $exam) {
             // Update the exam status to success.
             $exam->status = EMARKING_EXAM_PROCESSED;
             $DB->update_record('emarking_exams', $exam);
-            echo "Success\n";
+            $time = microtime(true) - $time;
+            echo "Success in $time\n";
         } else {
             echo "Logical error!\n";
             $e = new moodle_exception('Invalid PDF generation');
