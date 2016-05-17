@@ -29,6 +29,8 @@ require (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 // Force a debugging mode regardless the settings in the site administration
 @error_reporting(E_ALL | E_STRICT); // NOT FOR PRODUCTION SERVERS!
 @ini_set('display_errors', '1');    // NOT FOR PRODUCTION SERVERS!
+@ini_set('mysql.connect_timeout', 900);
+@ini_set('default_socket_timeout', 900);
 $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
 $CFG->debugdisplay = 1;             // NOT FOR PRODUCTION SERVERS!
 require_once ($CFG->libdir . '/clilib.php'); // cli only functions
@@ -105,26 +107,22 @@ foreach ($exams as $exam) {
     $exam->status = EMARKING_EXAM_BEING_PROCESSED;
     $DB->update_record('emarking_exams', $exam);
     // The transaction is for the generation.
-    $transaction = $DB->start_delegated_transaction();
     try {
         $result = emarking_download_exam($exam->id, false, false, NULL, false, false, false, false, true);
         if ($result) {
-            echo "Success\n";
-            $DB->commit_delegated_transaction($transaction);
             // Update the exam status to success.
             $exam->status = EMARKING_EXAM_PROCESSED;
             $DB->update_record('emarking_exams', $exam);
+            echo "Success\n";
         } else {
             echo "Logical error!\n";
             $e = new moodle_exception('Invalid PDF generation');
-            $DB->rollback_delegated_transaction($transaction, $e);
             // Update the exam status to error.
             $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
             $DB->update_record('emarking_exams', $exam);
         }
     } catch (Exception $e) {
         echo "Error!\n";
-        $DB->rollback_delegated_transaction($transaction, $e);
         // Update the exam status to error.
         $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
         $DB->update_record('emarking_exams', $exam);

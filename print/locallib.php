@@ -751,7 +751,6 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     $current = 0;
     foreach ($studentinfo as $stlist) {
         if (! $stlist->id && $downloadexam->extraexams > 0) {
-            error_log(print_r($stlist, true));
             continue;
         }
         $current ++;
