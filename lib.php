@@ -820,9 +820,15 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
         }
     }
     if ($filearea === 'examstoprint') {
+        if (! has_capability('mod/emarking:downloadexam', $contextcategory)) {
+            // Add to Moodle log so some auditing can be done.
+            \mod_emarking\event\invalidaccessdownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
+            send_file_not_found();
+        }
         $token = required_param('token', PARAM_INT);
         if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
-            if(!$exam = $DB->get_record('emarking_exams', array('emarking'=>$itemid))) {
+            if (! $exam = $DB->get_record('emarking_exams', array(
+                'emarking' => $itemid))) {
                 send_file_not_found();
             }
             $now = new DateTime();
@@ -834,11 +840,9 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
                 \mod_emarking\event\invalidtokendownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
                 send_file_not_found();
             }
-            if(!has_capability('mod/emarking:downloadexam', $contextcategory)) {
-                // Add to Moodle log so some auditing can be done.
-                \mod_emarking\event\invalidaccessdownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
-                send_file_not_found();
-            }
+            // Everything is fine, now we update the exam status and deliver the file.
+            $exam->status = EMARKING_EXAM_SENT_TO_PRINT;
+            $DB->update_record('emarking_exams', $exam);
         } else {
             // Add to Moodle log so some auditing can be done.
             \mod_emarking\event\invalidtokendownload_attempted::create_from_exam($exam, $contextcourse)->trigger();

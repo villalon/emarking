@@ -93,6 +93,13 @@ if (! (has_capability("mod/emarking:downloadexam", $contextcat) || has_capabilit
         "error" => get_string("invalidaccess", "mod_emarking")));
     die();
 }
+// Check the exam status to validate if it is already generated.
+if ($exam->status < EMARKING_EXAM_PROCESSED) {
+    echo json_encode(array(
+        'error' => get_string('error') . core_text::strtolower(' ' . get_string('exam', 'mod_emarking') . ' ' .
+                get_string('examstatusbeingprocessed', 'mod_emarking'))));
+    die();
+}
 // If a token was sent and it was not valid, log and die.
 if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] !== $token) {
     $item = array(
@@ -127,7 +134,6 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
     }
     // Add to Moodle log so some auditing can be done.
     \mod_emarking\event\exam_downloaded::create_from_exam($exam, $contextcourse)->trigger();
-    // http://localhost/webcursos/pluginfile.php/1752/mod_emarking/examstoprint/113/cs50_Quiz-0.pdf
     // Get all the files uploaded as forms for this exam.
     $fs = get_file_storage();
     $files = $fs->get_area_files($contextcourse->id, 'mod_emarking', 'examstoprint', $exam->emarking);
@@ -142,9 +148,8 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
     if (!$pdffilename) {
         throw new Exception(get_string("examhasnopdf", "mod_emarking"));
     }
-    redirect('/pluginfile.php/' . $contextcourse->id .'/mod_emarking/examstoprint/' .$exam->emarking . '/'
+    redirect($CFG->wwwroot . '/pluginfile.php/' . $contextcourse->id .'/mod_emarking/examstoprint/' .$exam->emarking . '/'
              . $pdffilename . '?token=' . $token);
-    // emarking_download_exam($examid, $multiplepdfs, null, null, null, null, true);
     die();
 }
 // If the token was not sent, then create new token,

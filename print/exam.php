@@ -8,26 +8,26 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This page shows a list of exams sent for printing.
  * It can
  * be reached from a block within a category or from an eMarking
  * course module
- *
+ * 
  * @package mod
  * @subpackage emarking
  * @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
-require_once($CFG->dirroot . "/mod/emarking/locallib.php");
-require_once($CFG->dirroot . "/mod/emarking/print/locallib.php");
+require_once (dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
+require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
+require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 global $DB, $USER, $CFG;
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
@@ -72,8 +72,11 @@ if (! $exam = $DB->get_record("emarking_exams", $params)) {
     die("");
 }
 if (has_capability("mod/emarking:downloadexam", $context)) {
-    $downloadexambutton = "<input type='button' class='downloademarking' examid ='$exam->id' value='" .
-    get_string("downloadexam", "mod_emarking") . "'>";
+    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string('exam', 'mod_emarking') . ' ' .
+        core_text::strtolower(get_string('examstatusbeingprocessed', 'mod_emarking')) : get_string('downloadexam', 'mod_emarking');
+    $disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
+    $downloadexambutton = "<input type='button' class='downloademarking' examid ='$exam->id' value='" . $buttontext
+         . "' $disabled>";
     echo $downloadexambutton;
 }
 list($canbedeleted, $multicourse) = emarking_exam_get_parallels($exam);
@@ -205,12 +208,16 @@ if (has_capability("mod/emarking:downloadexam", $context)) {
 <?php
 }
 // Active types tab.
-$urlscan = new moodle_url("/mod/emarking/print/enablefeatures.php", array("id"=>$cm->id,"type"=>EMARKING_TYPE_PRINT_SCAN));
-$urlosm = new moodle_url("/mod/emarking/print/enablefeatures.php", array("id"=>$cm->id,"type"=>EMARKING_TYPE_NORMAL));
+$urlscan = new moodle_url("/mod/emarking/print/enablefeatures.php", array(
+    "id" => $cm->id,
+    "type" => EMARKING_TYPE_PRINT_SCAN));
+$urlosm = new moodle_url("/mod/emarking/print/enablefeatures.php", array(
+    "id" => $cm->id,
+    "type" => EMARKING_TYPE_NORMAL));
 echo html_writer::start_tag('div');
-if($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
+if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
     echo $OUTPUT->single_button($urlscan, get_string("enablescan", "mod_emarking"));
-} else if($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+} else if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
     echo $OUTPUT->single_button($urlosm, get_string("enableosm", "mod_emarking"));
 }
 echo html_writer::end_tag('div');
