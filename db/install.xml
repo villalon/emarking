@@ -62,8 +62,8 @@
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="collaborativefeatures" TYPE="int" LENGTH="10"
 					NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Wall, chat, SOS" />
-				<FIELD NAME="experimentalgroups" TYPE="int" LENGTH="10"
-					NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="justiceperception" TYPE="int" LENGTH="10"
+					NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Justice perception survey for students" />
 				<FIELD NAME="agreementflexibility" TYPE="int" LENGTH="3"
 					NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="firststagedate" TYPE="int" LENGTH="10" NOTNULL="false"
@@ -101,6 +101,8 @@
 					DEFAULT="0.00" SEQUENCE="false" DECIMALS="2" />
 				<FIELD NAME="generalfeedback" TYPE="text" NOTNULL="false"
 					SEQUENCE="false" COMMENT="General feedback for a submission" />
+				<FIELD NAME="seenbystudent" TYPE="int" LENGTH="10" NOTNULL="false"
+					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="teacher" TYPE="int" LENGTH="10" NOTNULL="false"
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true"
