@@ -62,26 +62,6 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2014021901, 'emarking');
     }
-    if ($oldversion < 2014031802) {
-        // Define table emarking_task to be created.
-        $table = new xmldb_table('emarking_task');
-        // Adding fields to table emarking_task.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('masteractivity', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('studentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('criterion', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('stage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        // Adding keys to table emarking_task.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array(
-            'id'));
-        // Conditionally launch create table for emarking_task.
-        if (! $dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2014031802, 'emarking');
-    }
     if ($oldversion < 2014031803) {
         // Define table emarking_markers to be created.
         $table = new xmldb_table('emarking_markers');
@@ -99,88 +79,6 @@ function xmldb_emarking_upgrade($oldversion) {
         }
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2014031803, 'emarking');
-    }
-    if ($oldversion < 2014040600) {
-        // Define table emarking_arguments to be created.
-        $table = new xmldb_table('emarking_arguments');
-        // Adding fields to table emarking_arguments.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        $table->add_field('levelid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('bonus', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0.00');
-        // Adding keys to table emarking_arguments.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array(
-            'id'));
-        // Conditionally launch create table for emarking_arguments.
-        if (! $dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2014040600, 'emarking');
-    }
-    if ($oldversion < 2014040601) {
-        // Define table emarking_argument_votes to be created.
-        $table = new xmldb_table('emarking_argument_votes');
-        // Adding fields to table emarking_argument_votes.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('argumentid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        // Adding keys to table emarking_argument_votes.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array(
-            'id'));
-        $table->add_key('fk_arguments', XMLDB_KEY_FOREIGN, array(
-            'argumentid'), 'emarking_arguments', array(
-            'id'));
-        // Conditionally launch create table for emarking_argument_votes.
-        if (! $dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2014040601, 'emarking');
-    }
-    if ($oldversion < 2014040602) {
-        // Define field studentid to be added to emarking_arguments.
-        $table = new xmldb_table('emarking_arguments');
-        $field = new xmldb_field('studentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'bonus');
-        // Conditionally launch add field studentid.
-        if (! $dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2014040602, 'emarking');
-    }
-    if ($oldversion < 2014041300) {
-        // Define table emarking_debate_timings to be created.
-        $table = new xmldb_table('emarking_debate_timings');
-        // Adding fields to table emarking_debate_timings.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('parentcm', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('studentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('criteriondesc', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('hasvotes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('lastargumentchange', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('lastvote', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('timehidden', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        // Adding keys to table emarking_debate_timings.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array(
-            'id'));
-        // Conditionally launch create table for emarking_debate_timings.
-        if (! $dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2014041300, 'emarking');
-    }
-    if ($oldversion < 2014041301) {
-        // Changing type of field criteriondesc on table emarking_debate_timings to text.
-        $table = new xmldb_table('emarking_debate_timings');
-        $field = new xmldb_field('criteriondesc', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'studentid');
-        // Launch change of type for field criteriondesc.
-        $dbman->change_field_type($table, $field);
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2014041301, 'emarking');
     }
     if ($oldversion < 2014041803) {
         // Changing type of field criteriondesc on table emarking_debate_timings to text.
@@ -531,31 +429,6 @@ function xmldb_emarking_upgrade($oldversion) {
         }
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2014063001, 'emarking');
-    }
-    if ($oldversion < 2014071301) {
-        // Define table emarking_crowd_actions to be created.
-        $table = new xmldb_table('emarking_crowd_actions');
-        // Adding fields to table emarking_crowd_actions.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('markerid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('time', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('parentcmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('studentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('action', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        $table->add_field('rawparams', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        $table->add_field('criteriondesc', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        $table->add_field('basescore', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('bonusscore', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('text', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
-        // Adding keys to table emarking_crowd_actions.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array(
-            'id'));
-        // Conditionally launch create table for emarking_crowd_actions.
-        if (! $dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2014071301, 'emarking');
     }
     if ($oldversion < 2014072001) {
         // Define field levelid to be added to emarking_regrade.
@@ -949,24 +822,6 @@ function xmldb_emarking_upgrade($oldversion) {
         }
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2015061101, 'emarking');
-    }
-    if ($oldversion < 2015061301) {
-        // Define table emarking_exam_answers to be created.
-        $table = new xmldb_table('emarking_exam_answers');
-        // Adding fields to table emarking_exam_answers.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('examid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        // Adding keys to table emarking_exam_answers.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array(
-            'id'));
-        // Conditionally launch create table for emarking_exam_answers.
-        if (! $dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2015061301, 'emarking');
     }
     if ($oldversion < 2015071700) {
         // Define table emarking_chat to be created.

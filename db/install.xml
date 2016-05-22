@@ -3,8 +3,7 @@
 	COMMENT="XMLDB file for Moodle mod/emarking" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 	<TABLES>
-		<TABLE NAME="emarking"
-			COMMENT="An eMarking activity in which an exam can be marked">
+		<TABLE NAME="emarking" COMMENT="An eMarking activity in which an exam can be marked">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -86,8 +85,7 @@
 				<INDEX NAME="course" UNIQUE="false" FIELDS="course" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="emarking_submission"
-			COMMENT="A submission is a set of pages submitted by a student as an exam">
+		<TABLE NAME="emarking_submission" COMMENT="A submission is a set of pages submitted by a student as an exam">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -122,8 +120,7 @@
 					COMMENT="Index to speed up looking for submissions in an emarking activity" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="emarking_marker_criterion"
-			COMMENT="A table that links a marker to a specific criterion">
+		<TABLE NAME="emarking_marker_criterion" COMMENT="A table that links a marker to a specific criterion">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -299,8 +296,7 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_exams"
-			COMMENT="Exams that will be printed through the emarking system">
+		<TABLE NAME="emarking_exams" COMMENT="Exams that will be printed through the emarking system">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -389,25 +385,6 @@
 					REFFIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_task" COMMENT="stores tasks for each marker.">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="masteractivity" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="suggested criterion id" />
-				<FIELD NAME="stage" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="stage of this item" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
 		<TABLE NAME="emarking_markers" COMMENT="Markers assigned to an eMarking activity">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
@@ -423,95 +400,6 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_arguments" COMMENT="Marker arguments for delphi">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="the marker id" />
-				<FIELD NAME="text" TYPE="text" NOTNULL="true" SEQUENCE="false"
-					COMMENT="the argument" />
-				<FIELD NAME="levelid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="the level id supported" />
-				<FIELD NAME="bonus" TYPE="number" LENGTH="10" NOTNULL="true"
-					DEFAULT="0.00" SEQUENCE="false" DECIMALS="5" />
-				<FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_argument_votes" COMMENT="The marker votes">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="the marker" />
-				<FIELD NAME="argumentid" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="The argument id" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-				<KEY NAME="fk_arguments" TYPE="foreign" FIELDS="argumentid"
-					REFTABLE="emarking_arguments" REFFIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_debate_timings"
-			COMMENT="Debates and times for latest actions performed on each">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="parentcm" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="the parent cm for context" />
-				<FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="the student under discussion" />
-				<FIELD NAME="criteriondesc" TYPE="text" NOTNULL="true"
-					SEQUENCE="false" COMMENT="the criterion description under debate" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="marker whos timings we store" />
-				<FIELD NAME="hasvotes" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false"
-					COMMENT="cache if marker has at least one vote on this debate." />
-				<FIELD NAME="lastargumentchange" TYPE="int" LENGTH="10"
-					NOTNULL="true" DEFAULT="0" SEQUENCE="false"
-					COMMENT="last argument changed. added or deleted" />
-				<FIELD NAME="lastvote" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="last time a vote changed" />
-				<FIELD NAME="timehidden" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false"
-					COMMENT="the time the marker hid this. 0 if not hidden." />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_crowd_actions" COMMENT="Default comment for the table, please edit me">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="time" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="parentcmid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="action" TYPE="text" NOTNULL="true" SEQUENCE="false" />
-				<FIELD NAME="rawparams" TYPE="text" NOTNULL="true" SEQUENCE="false" />
-				<FIELD NAME="criteriondesc" TYPE="text" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="basescore" TYPE="number" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="bonusscore" TYPE="number" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="text" TYPE="text" NOTNULL="true" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
 		<TABLE NAME="emarking_predefined_comment" COMMENT="Default comment for the table, please edit me">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
@@ -521,25 +409,6 @@
 				<FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false" />
 				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_experimental_groups" COMMENT="Default comment for the table, please edit me">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarkingid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="datestart" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="dateend" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="linkrubric" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
@@ -580,8 +449,7 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_grade_history"
-			COMMENT="This tables stores all the changes in grades for each draft">
+		<TABLE NAME="emarking_grade_history" COMMENT="This tables stores all the changes in grades for each draft">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -606,21 +474,6 @@
 			<INDEXES>
 				<INDEX NAME="idx_id_draft" UNIQUE="false" FIELDS="draftid" />
 			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_exam_answers" COMMENT="Digitized answer files">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="examid" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
 		</TABLE>
 		<TABLE NAME="emarking_chat" COMMENT="Default comment for the table, please edit me">
 			<FIELDS>
@@ -702,8 +555,7 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_outcomes_criteria"
-			COMMENT="Relationship between rubric criteria and learning outcomes">
+		<TABLE NAME="emarking_outcomes_criteria" COMMENT="Relationship between rubric criteria and learning outcomes">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -724,8 +576,7 @@
 					FIELDS="emarking" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="emarking_scale_levels"
-			COMMENT="Percentages by which the levels in a scale are chosen">
+		<TABLE NAME="emarking_scale_levels" COMMENT="Percentages by which the levels in a scale are chosen">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -742,7 +593,7 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_category_cost" COMMENT="Category cost">
+		<TABLE NAME="emarking_category_cost" COMMENT="Exam printing costs per course category">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />

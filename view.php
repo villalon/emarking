@@ -245,7 +245,7 @@ if ($cm->groupmode == SEPARATEGROUPS && ($emarking->type == EMARKING_TYPE_NORMAL
 							)
 					)";
 }
-$enrolments = explode(',',$exam->enrolments);
+$enrolments = explode(',',$exam ? $exam->enrolments : $CFG->emarking_enrolincludes);
 for($i = 0; $i < count($enrolments); $i++) {
     $enrolments[$i] = "'".$enrolments[$i]."'";
 }
