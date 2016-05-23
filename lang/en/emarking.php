@@ -393,6 +393,7 @@ $string ['enrolmeta'] = 'Meta-link enrolments';
 $string ['enrolcohort'] = 'Cohort enrolments';
 $string ['includestudentsinexam'] = 'Enrolment from which include students in personalized printing';
 $string ['permarkercontribution'] = 'Contribution per marker';
+$string ['yourcontribution'] = 'Your contribution';
 $string ['permarkerscores'] = 'Scores per marker';
 $string ['markingstatusincludingabsents'] = 'Marking status (including absents)';
 $string ['markingreport'] = 'Marking report';

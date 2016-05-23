@@ -164,10 +164,11 @@ input[type="text"] {
 }
 
 #page-mod-emarking-view .progress {
-	margin-bottom: 0px;
+	margin-bottom: 4px;
 	width: 100%;
 	background-color: #ccc;
 	background-image: none;
+	height: 16px;
 }
 
 .grade {

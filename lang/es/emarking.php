@@ -399,6 +399,7 @@ $string ['enrolmeta'] = 'Matriculaciones de metacurso';
 $string ['enrolcohort'] = 'Matriculaciones por cohorte';
 $string ['includestudentsinexam'] = 'Matriculaciones que incluir para impresión personalizada';
 $string ['permarkercontribution'] = 'Contribución por corrector';
+$string ['yourcontribution'] = 'Tu contribución';
 $string ['permarkerscores'] = 'Puntajes por corrector';
 $string ['markingstatusincludingabsents'] = 'Avance por estado (incluyendo ausentes)';
 $string ['markingreport'] = 'Avance';

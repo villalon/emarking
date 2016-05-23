@@ -1654,13 +1654,23 @@ function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $ema
             }
             $matrix .= "</table></div>";
         }
-        $matrixlink = "<div class=\"progress\"><a style='cursor:pointer;' " .
+        $matrixlink = "<div><div class=\"progress\" style=\"float:left; width:45%; margin-right:5px;\"><a style='cursor:pointer;' " .
         "onclick='$(\"#sub-$d->id\").dialog({modal:true,buttons:{Ok: function(){\$(this).dialog(\"close\");}}});'>
     <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"$d->pctmarked\"
     aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:$d->pctmarked%\">
     <span class=\"sr-only\">$d->pctmarked%</span>
     </div></a>
     </div>" . $matrix;
+        if($numcriteriauser > 0) {
+        $matrixlink .= "<div class=\"progress\" style=\"float:left; width:45%; margin-right:5px;\" title=\""
+                . get_string('yourcontribution', 'mod_emarking') . "\">
+    <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"$d->pctmarkeduser\"
+    aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:$d->pctmarkeduser%; background-color: #F89406;\">
+    <span class=\"sr-only\">$d->pctmarkeduser%</span>
+    </div>
+    </div>";
+        }
+        $matrixlink .= '</div>';
         return $matrixlink;
     }
     if ($d->status == EMARKING_STATUS_REGRADING) {

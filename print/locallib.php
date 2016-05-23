@@ -1415,7 +1415,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         'id' => $examid))) {
         throw new Exception(get_string("invalidexamid", "mod_emarking"));
     }
-    // Contexto del curso para verificar permisos.
+    // Course context for capabilities checking.
     $context = context_course::instance($downloadexam->course);
     if (! has_capability('mod/emarking:downloadexam', $context) && false) {
         throw new Exception(get_string("invalidaccess", "mod_emarking"));

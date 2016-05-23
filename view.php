@@ -215,6 +215,8 @@ if ($issupervisor && $emarking->type == EMARKING_TYPE_PEER_REVIEW && $numdraftsg
         'reassignpeers' => 'true'));
     echo $OUTPUT->single_button($csvurl, get_string('reassignpeers', 'mod_emarking'));
 }
+echo core_text::strtotitle(get_string("filter")) . "&nbsp;&nbsp;";
+echo html_writer::tag("input", null, array("id"=>"searchInput"));
 $publishgradesform = ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
          has_capability("mod/emarking:supervisegrading", $context) && ! $scan;
 // Only when marking normally for a grade we can publish grades.
@@ -477,6 +479,7 @@ $columns [] = 'status';
 $columns [] = 'actions';
 // Define flexible table (can be sorted in different ways).
 $showpages = new flexible_table('emarking-view-' . $cm->id);
+$showpages->set_attribute('id', 'emarking-main');
 $showpages->define_headers($headers);
 $showpages->define_columns($columns);
 $showpages->define_baseurl($urlemarking);
@@ -579,6 +582,39 @@ $('#select_all').change(function() {
         checkboxes.prop('checked', false);
         $('#select_all').prop('title','<?php echo get_string('selectall', 'mod_emarking') ?>');
 	}
+});
+$('#searchInput').keyup(function () {
+    //split the current value of searchInput
+    var data = this.value.split(" ");
+    //create a jquery object of the rows
+    var jo = $("#emarking-main").find("tbody").find("tr");
+    if (this.value == "") {
+        jo.show();
+        return;
+    }
+    //hide all the rows
+    jo.hide();
+
+    //Recusively filter the jquery object to get results.
+    jo.filter(function (i, v) {
+        var $t = $(this);
+        for (var d = 0; d < data.length; ++d) {
+            if ($t.is(":contains('" + data[d] + "')")) {
+                return true;
+            }
+        }
+        return false;
+    })
+    //show the rows that match.
+    .show();
+}).focus(function () {
+    this.value = "";
+    $(this).css({
+        "color": "black"
+    });
+    $(this).unbind('focus');
+}).css({
+    "color": "#C0C0C0"
 });
 function validatePublish() {
 	var checkboxes = $('#publishgrades').find(':checkbox');
