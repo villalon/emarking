@@ -1782,7 +1782,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         // Info for the new file.
         $fileinfo = $fs->create_file_from_pathname($filerecord, $filedir . '/' . $examfilename . '.pdf');
         // Notify everyone that the exam was downloaded.
-        emarking_send_examdownloaded_notification($downloadexam, $course, $requestedby);
+        emarking_send_examgenerated_notification($downloadexam, $course, $requestedby);
         $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
         $downloadexam->printdate = time();
         $downloadexam->filetoprint = $fileinfo->get_id();
@@ -1792,7 +1792,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         return true;
     } else {
     // Notify everyone that the exam was downloaded.
-    emarking_send_examdownloaded_notification($downloadexam, $course);
+    emarking_send_examdownloaded_notification($downloadexam, $course, $USER);
     $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
     $downloadexam->printdate = time();
     $DB->update_record('emarking_exams', $downloadexam);

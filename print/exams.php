@@ -111,7 +111,7 @@ foreach ($exams as $exam) {
         $details .= html_writer::div($OUTPUT->pix_icon("shuffle", get_string("printrandom", "mod_emarking"), "mod_emarking"));
     }
     $details .= emarking_enrolments_div($exam);
-    $examstatus = emarking_exam_status_string($exam->status);
+    $examstatus = emarking_exam_status_string($exam);
     $details .= $examstatus;
     $details .= html_writer::end_tag("div");
     // The marking process course module.

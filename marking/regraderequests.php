@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This page processes shows all regraderequests in an emarking activity
@@ -24,15 +24,15 @@
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 global $CFG, $OUTPUT, $PAGE, $DB; // To suppress eclipse warnings.
-require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 require_login($course, true);
 $usercangrade = has_capability('mod/emarking:grade', $context);
 $usercanregrade = has_capability('mod/emarking:regrade', $context);
-$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
+$issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER);
 $filteruser = ! $issupervisor && ! $usercangrade;
 $url = new moodle_url("/mod/emarking/marking/regraderequests.php", array(
     "id" => $cm->id));
@@ -106,9 +106,11 @@ $records = $DB->get_records_sql($sql, array(
     "emarkingid2" => $emarking->id));
 if (count($records) == 0) {
     echo $OUTPUT->notification(get_string('noregraderequests', 'mod_emarking'), 'notifyproblem');
-    echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array(
-        "id" => $cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
-    echo $OUTPUT->footer();
+    if ($filteruser) {
+        echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array(
+            "id" => $cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
+        echo $OUTPUT->footer();
+    }
     die();
 }
 $table = new html_table();
@@ -133,7 +135,7 @@ foreach ($records as $record) {
     $urlstudent = new moodle_url('/user/view.php', array(
         'id' => $record->userid,
         'course' => $course->id));
-    $studentcriterion = $record->userid == $USER->id ? '' : $OUTPUT->action_link($urlstudent,
+    $studentcriterion = $record->userid == $USER->id ? '' : $OUTPUT->action_link($urlstudent, 
             $record->firstname . ' ' . $record->lastname) . '<br/>';
     $studentcriterion .= $record->criterion;
     $studentcriterion .= '<br/>' . emarking_time_ago($record->timecreated, true);
@@ -149,8 +151,8 @@ foreach ($records as $record) {
         'id' => $record->ids));
     $actions = '';
     if ($usercangrade || $issupervisor) {
-        $actions .= $OUTPUT->action_link($urlsub, get_string('annotatesubmission', 'mod_emarking') . "&nbsp;|&nbsp;",
-                new popup_action('click', $urlsub, 'emarking' . $record->ids,
+        $actions .= $OUTPUT->action_link($urlsub, get_string('annotatesubmission', 'mod_emarking') . "&nbsp;|&nbsp;", 
+                new popup_action('click', $urlsub, 'emarking' . $record->ids, 
                         array(
                             'menubar' => 'no',
                             'titlebar' => 'no',
@@ -161,20 +163,20 @@ foreach ($records as $record) {
                     "class" => "rowactions"));
     }
     if ($record->userid == $USER->id && $record->accepted == 0) {
-        $url = new moodle_url("/mod/emarking/marking/regrades.php",
+        $url = new moodle_url("/mod/emarking/marking/regrades.php", 
                 array(
                     "id" => $cm->id,
                     "criterion" => $record->criterionid,
                     "delete" => true));
-        $actions .= $OUTPUT->action_link($url, get_string("delete") . "&nbsp;|&nbsp;", null,
+        $actions .= $OUTPUT->action_link($url, get_string("delete") . "&nbsp;|&nbsp;", null, 
                 array(
                     "class" => "rowactions"));
-        $url = new moodle_url("/mod/emarking/marking/regrades.php",
+        $url = new moodle_url("/mod/emarking/marking/regrades.php", 
                 array(
                     "id" => $cm->id,
                     "criterion" => $record->criterionid,
                     "edit" => true));
-        $actions .= $OUTPUT->action_link($url, get_string("edit") . "&nbsp;|&nbsp;", null,
+        $actions .= $OUTPUT->action_link($url, get_string("edit") . "&nbsp;|&nbsp;", null, 
                 array(
                     "class" => "rowactions"));
     }

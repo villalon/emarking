@@ -788,6 +788,7 @@ function emarking_get_file_info($browser, $areas, $course, $cm, $context, $filea
 function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array()) {
     global $DB, $CFG, $USER;
     require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
+    require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
     require_login();
     $filename = array_pop($args);
     $itemid = array_pop($args);
@@ -866,6 +867,8 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
             \mod_emarking\event\invalidtokendownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
             send_file_not_found();
         }
+        // Notify everyone that the exam was downloaded.
+        emarking_send_examdownloaded_notification($exam, $course, $USER);
         // Add to Moodle log so some auditing can be done.
         \mod_emarking\event\exam_downloaded::create_from_exam($exam, $contextcourse)->trigger();
     }
