@@ -110,18 +110,7 @@ $examstable->data [] = array(
     get_string("examdate", "mod_emarking"),
     date("l jS F Y, g:ia", usertime($exam->examdate)));
 if ($usercangrade) {
-    $examstatus = "";
-    switch ($exam->status) {
-        case 1 :
-            $examstatus = get_string("examstatussent", "mod_emarking");
-            break;
-        case 2 :
-            $examstatus = get_string("examstatusdownloaded", "mod_emarking");
-            break;
-        case 3 :
-            $examstatus = get_string("examstatusprinted", "mod_emarking");
-            break;
-    }
+    $examstatus = emarking_exam_status_string($exam);
     $examstable->data [] = array(
         get_string("comment", "mod_emarking"),
         $exam->comment);
@@ -213,7 +202,7 @@ $urlscan = new moodle_url("/mod/emarking/print/enablefeatures.php", array(
     "type" => EMARKING_TYPE_PRINT_SCAN));
 $urlosm = new moodle_url("/mod/emarking/print/enablefeatures.php", array(
     "id" => $cm->id,
-    "type" => EMARKING_TYPE_NORMAL));
+    "type" => EMARKING_TYPE_ON_SCREEN_MARKING));
 echo html_writer::start_tag('div');
 if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
     echo $OUTPUT->single_button($urlscan, get_string("enablescan", "mod_emarking"));

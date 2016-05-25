@@ -65,7 +65,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "justicereport");
-if ($issupervisor && $emarking->type == EMARKING_TYPE_NORMAL && $emarking->justiceperception) {
+if ($issupervisor && $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING && $emarking->justiceperception) {
     $csvurl = new moodle_url('justice.php', array(
         'id' => $cm->id,
         'exportcsv' => 'justice'));

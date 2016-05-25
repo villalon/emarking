@@ -35,7 +35,7 @@ if (isguestuser()) {
     die();
 }
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context);
-if ($emarking->type != EMARKING_TYPE_NORMAL) {
+if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING) {
     print_error('You can only have regrades in a normal emarking type');
 }
 if ($criterionid && ! $criterion = $DB->get_record('gradingform_rubric_criteria', array(

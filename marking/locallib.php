@@ -305,7 +305,7 @@ function emarking_publish_grade($draft) {
         'id' => $submission->emarking))) {
         throw new Exception("Invalid emarking in submission");
     }
-    if ($emarking->type != EMARKING_TYPE_NORMAL) {
+    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING) {
         throw new Exception("Invalid emarking type for publishing");
     }
     if ($draft->status <= EMARKING_STATUS_ABSENT) {
@@ -764,7 +764,7 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
  */
 function emarking_publish_all_grades($emarking) {
     global $DB, $USER, $CFG;
-    if ($emarking->type != EMARKING_TYPE_NORMAL) {
+    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING) {
         return;
     }
     $studentdrafts = $DB->get_records_sql(
@@ -792,7 +792,7 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
     if (! $cm = get_coursemodule_from_instance('emarking', $emarking->id)) {
         return;
     }
-    if ($emarking->type != EMARKING_TYPE_NORMAL) {
+    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING) {
         return;
     }
     $context = context_module::instance($cm->id);

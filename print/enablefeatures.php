@@ -40,7 +40,7 @@ if (isguestuser()) {
 $courseid = $cm->course;
 // Ony users that can grade can see exams.
 require_capability("mod/emarking:grade", $context);
-if (! ($newtype == EMARKING_TYPE_PRINT_SCAN || $newtype == EMARKING_TYPE_NORMAL) ||
+if (! ($newtype == EMARKING_TYPE_PRINT_SCAN || $newtype == EMARKING_TYPE_ON_SCREEN_MARKING) ||
          ! ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN) ||
          $emarking->type == $newtype) {
     print_error("Invalid parameters for enabling features");

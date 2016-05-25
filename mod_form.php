@@ -462,13 +462,7 @@ class mod_emarking_mod_form extends moodleform_mod {
                 return $errors;
             }
             return $errors;
-        } else if ($data ['type'] == EMARKING_TYPE_NORMAL) {
-            // Get all users with permission to grade in emarking.
-            if (! isset($data ['headerqr'])) {
-                $errors ['headerqr'] = get_string('headerqrrequired', 'mod_emarking');
-                return $errors;
-            }
-            return $errors;
+            
         } else if ($data ['type'] == EMARKING_TYPE_PEER_REVIEW) {
             // Get all users with permission to grade in emarking.
             $totalstudents = emarking_get_students_count_for_printing($COURSE->id);
@@ -477,27 +471,33 @@ class mod_emarking_mod_form extends moodleform_mod {
                 return $errors;
             }
             return $errors;
+        } else if ($data ['type'] == EMARKING_TYPE_ON_SCREEN_MARKING || $data ['type'] == EMARKING_TYPE_PRINT_SCAN) {
+            // Get all users with permission to grade in emarking.
+            if (! isset($data ['headerqr'])) {
+                $errors ['headerqr'] = get_string('headerqrrequired', 'mod_emarking');
+                return $errors;
+            }
         }
         
-        array_merge($errors, $this->get_exam_date_errors($data));
+        $errors = array_merge($errors, $this->get_exam_date_errors($data));
         
-        array_merge($errors, $this->get_upload_files_errors());
+        $errors = array_merge($errors, $this->get_upload_files_errors($data));
+
+        $errors = array_merge($errors, $this->get_grades_errors($data));
         
-        array_merge($errors, $this->get_grades_errors($data));
+        $errors = array_merge($errors, $this->get_slope_errors($data));
         
-        array_merge($errors, $this->get_slope_errors($data));
+        $errors = array_merge($errors, $this->get_regrade_dates_errors($data));
         
-        array_merge($errors, $this->get_regrade_dates_errors($data));
+        $errors = array_merge($errors, $this->get_custom_marks_errors($data));
         
-        array_merge($errors, $this->get_custom_marks_errors($data));
-        
-        array_merge($errors, $this->get_markers_errors($data, $ctx));
+        $errors = array_merge($errors, $this->get_markers_errors($data, $ctx));
         
         return $errors;
     }
     private function get_elements_to_freeze($emarking, $exam, $mform) {
         $freeze = array();
-        if ($emarking->type == EMARKING_TYPE_NORMAL) {
+        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
             $freeze [] = 'qualitycontrol';
         }
         if ($exam && $exam->status >= EMARKING_EXAM_SENT_TO_PRINT) {
@@ -642,7 +642,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         // All available types
         $types [EMARKING_TYPE_PRINT_ONLY] = get_string('type_print_only', 'mod_emarking');
         $types [EMARKING_TYPE_PRINT_SCAN] = get_string('type_print_scan', 'mod_emarking');
-        $types [EMARKING_TYPE_NORMAL] = get_string('type_normal', 'mod_emarking');
+        $types [EMARKING_TYPE_ON_SCREEN_MARKING] = get_string('type_normal', 'mod_emarking');
         $types [EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
         $types [EMARKING_TYPE_PEER_REVIEW] = get_string('type_peer_review', 'mod_emarking');
         $types [EMARKING_TYPE_STUDENT_TRAINING] = get_string('type_student_training', 'mod_emarking');
@@ -651,7 +651,7 @@ class mod_emarking_mod_form extends moodleform_mod {
             unset($types [EMARKING_TYPE_STUDENT_TRAINING]);
             return $types;
         } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
-                 $emarking->type == EMARKING_TYPE_NORMAL) {
+                 $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
             unset($types [EMARKING_TYPE_MARKER_TRAINING]);
             unset($types [EMARKING_TYPE_PEER_REVIEW]);
             unset($types [EMARKING_TYPE_STUDENT_TRAINING]);
@@ -692,7 +692,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         if (isset($CFG->emarking_minimumdaysbeforeprinting) && $CFG->emarking_minimumdaysbeforeprinting > 0) {
             $mindiff = intval($CFG->emarking_minimumdaysbeforeprinting);
         } else {
-            $mindiff = 365;
+            return $errors;
         }
         // Sundays are forbidden, saturdays from 6am to 4pm TODO: Move this settings to eMarking settings.
         if ($examw == 0 || ($examw == 6 && ($examh < 6 || $examh > 16))) {
@@ -721,7 +721,12 @@ class mod_emarking_mod_form extends moodleform_mod {
         }
         return $errors;
     }
-    private function get_upload_files_errors() {
+    /**
+     * Validates the uploaded file
+     * @param unknown $data
+     * @return multitype:Ambigous <string, lang_string> |multitype:string Ambigous <string, lang_string>
+     */
+    private function get_upload_files_errors($data) {
         global $USER, $COURSE;
         $errors = array();
         // We get the draftid from the form.
@@ -734,8 +739,11 @@ class mod_emarking_mod_form extends moodleform_mod {
         $numpagesprevious = - 1;
         $exampdfs = array();
         foreach ($files as $uploadedfile) {
+            if($uploadedfile->is_directory()) {
+                continue;
+            }
             if ($uploadedfile->get_mimetype() !== 'application/pdf') {
-                $errors ["exam_files"] = get_string('invalidfilenotpdf', 'mod_emarking');
+                $errors ['exam_files'] = get_string('invalidfilenotpdf', 'mod_emarking') . '_' . $uploadedfile->get_mimetype() .  '_' . $uploadedfile->get_filename();
                 return $errors;
             }
             $filename = $uploadedfile->get_filename();
@@ -745,21 +753,22 @@ class mod_emarking_mod_form extends moodleform_mod {
             // Executes pdftk burst to get all pages separated.
             $numpages = emarking_pdf_count_pages($newfilename, $tempdir, false);
             if (! is_numeric($numpages) || $numpages < 1) {
-                $errors ["exam_files"] = get_string('invalidpdfnopages', 'mod_emarking');
+                $errors ['exam_files'] = get_string('invalidpdfnopages', 'mod_emarking');
                 return $errors;
             }
             if ($numpagesprevious >= 0 && $numpagesprevious != $numpages) {
-                $errors ["exam_files"] = get_string('invalidpdfnumpagesforms', 'mod_emarking');
+                $errors ['exam_files'] = get_string('invalidpdfnumpagesforms', 'mod_emarking');
                 return $errors;
             }
             $exampdfs [] = array(
                 'pathname' => $pdffile,
                 'filename' => $filename);
         }
-        if (count($exampdfs) == 0) {
-            $errors ["exam_files"] = get_string('invalidpdfnopages', 'mod_emarking');
+        if (count($exampdfs) == 0 && $data['exam'] == 0) {
+            $errors ['exam_files'] = get_string('filerequiredtosendnewprintorder', 'mod_emarking');
             return $errors;
         }
+        return $errors;
     }
     private function get_grades_errors($data) {
         $errors = array();
@@ -833,7 +842,7 @@ class mod_emarking_mod_form extends moodleform_mod {
     private function get_markers_errors($data, $context) {
         $errors = array();
         $qualitycontrol = isset($data ['enablequalitycontrol']) ? $data ['enablequalitycontrol'] : false;
-        if ($data ['type'] == EMARKING_TYPE_NORMAL && $qualitycontrol) {
+        if ($data ['type'] == EMARKING_TYPE_ON_SCREEN_MARKING && $qualitycontrol) {
             // Get all users with permission to grade in emarking.
             $markers = get_enrolled_users($context, 'mod/emarking:grade');
             $totalmarkers = 0;

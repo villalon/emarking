@@ -73,71 +73,12 @@ Example:
 
 cli_heading('EMarking generate files to print'); // TODO: localize
 
+$category = NULL;
 if($options ['category'] && !$category = $DB->get_record('course_categories', array('id'=>$options['category']))) {
     cli_error('Invalid category id');
     die();
 }
 
-$categoryfilter = '';
-if($category) {
-    $categoryfilter = ' AND c.category = ' . $category->id;
-}
-
-$exams = $DB->get_records_sql(
-        '
-        SELECT e.*, c.fullname, c.shortname, c.id AS courseid, c.category
-        FROM {emarking_exams} e
-        INNER JOIN {course} c ON (e.course = c.id)
-        WHERE status = :status AND emarking > 0 
-        ' . $categoryfilter, array(
-            'status' => EMARKING_EXAM_UPLOADED));
-$ignore = array(2254,2255,2256);
-echo "\nExams for printing:\n";
-$i = 0;
-foreach ($exams as $exam) {
-    echo "[$exam->id] $exam->fullname $exam->name\n";
-    $newexam = $DB->get_record('emarking_exams', array('id'=>$exam->id));
-    if($newexam->status == EMARKING_EXAM_BEING_PROCESSED) {
-        echo " already in process\n";
-        continue;
-    }
-    $time = microtime(true);
-    echo "Printing exam $exam->id";
-    $studentsforprinting = emarking_get_students_count_for_printing($exam->course, $exam);
-    echo " for $studentsforprinting students ...";
-    if($studentsforprinting <= 0 || in_array($exam->id, $ignore)) {
-        echo " Skipping\n";
-        continue;
-    }
-    // We start processing the exam.
-    $exam->status = EMARKING_EXAM_BEING_PROCESSED;
-    $DB->update_record('emarking_exams', $exam);
-    // The transaction is for the generation.
-    try {
-        $result = emarking_download_exam($exam->id, false, false, NULL, false, false, false, false, true);
-        if ($result) {
-            // Update the exam status to success.
-            $exam->status = EMARKING_EXAM_PROCESSED;
-            $DB->update_record('emarking_exams', $exam);
-            $time = microtime(true) - $time;
-            echo "Success in $time\n";
-        } else {
-            echo "Logical error!\n";
-            $e = new moodle_exception('Invalid PDF generation');
-            // Update the exam status to error.
-            $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
-            $DB->update_record('emarking_exams', $exam);
-        }
-    } catch (Exception $e) {
-        echo "Error!\n";
-        // Update the exam status to error.
-        $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
-        $DB->update_record('emarking_exams', $exam);
-    }
-    $i ++;
-}
-echo ("\n\n");
-
-echo "$i exams processed successfully\n";
+emarking_generate_personalized_exams($category);
 
 exit(0); // 0 means success

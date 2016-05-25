@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *
@@ -22,20 +22,22 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_emarking\task;
-class notify_digitized_answers extends \core\task\scheduled_task {
+
+class generate_personalized_exams extends \core\task\scheduled_task {
     public function get_name() {
         // Shown in admin screens.
-        return get_string('digitizedanswersreminder', 'mod_emarking');
+        return get_string('personalizedexamsgeneration', 'mod_emarking');
     }
     public function execute() {
         global $CFG, $DB;
-        require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
-        mtrace("Starting notifications of digitizing answers");
-        if ($CFG->emarking_daysbeforedigitizingreminder == 0) {
-            mtrace("Digitizing answers reminder disabled in emarking config");
-            return;
-        }
-        list($totalmessages) = emarking_send_digitizing_notification();
-        mtrace("A total of $totalmessages was sent.");
+        require_once ($CFG->dirroot . "/lib/pdflib.php");
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        require_once ($CFG->dirroot . "/mod/emarking/lib/phpqrcode/phpqrcode.php");
+        require_once ($CFG->dirroot . '/mod/emarking/lib.php');
+        require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
+        require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
+
+        emarking_generate_personalized_exams();
     }
 }

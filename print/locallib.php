@@ -27,6 +27,72 @@ function emarking_get_temp_dir_path($postfix) {
     return $CFG->dataroot . "/temp/emarking/" . $postfix;
 }
 /**
+ * Generates personalized exams
+ * @param unknown $category
+ */
+function emarking_generate_personalized_exams($category = NULL) {
+    global $DB;
+    
+    $categoryfilter = '';
+    if($category) {
+        $categoryfilter = ' AND c.category = ' . $category->id;
+    }
+    
+    $exams = $DB->get_records_sql(
+            '
+        SELECT e.*, c.fullname, c.shortname, c.id AS courseid, c.category
+        FROM {emarking_exams} e
+        INNER JOIN {course} c ON (e.course = c.id)
+        WHERE status = :status AND emarking > 0
+        ' . $categoryfilter, array(
+                    'status' => EMARKING_EXAM_UPLOADED));
+    $i = 0;
+    foreach ($exams as $exam) {
+        $examname = "[$exam->id] $exam->fullname $exam->name";
+        $newexam = $DB->get_record('emarking_exams', array(
+                'id' => $exam->id));
+        if ($newexam->status == EMARKING_EXAM_BEING_PROCESSED) {
+            mtrace("$examname already being generated");
+            continue;
+        }
+        $time = microtime(true);
+        $studentsforprinting = emarking_get_students_count_for_printing($exam->course, $exam);
+        if ($studentsforprinting <= 0) {
+            mtrace("$examname skipping, no students enrolled.");
+            continue;
+        }
+        // We start processing the exam.
+        $exam->status = EMARKING_EXAM_BEING_PROCESSED;
+        $DB->update_record('emarking_exams', $exam);
+        // The transaction is for the generation.
+        try {
+            $result = emarking_download_exam($exam->id, false, false, NULL, false, false, false, false, true);
+            $time = round(microtime(true) - $time, 2);
+            if ($result) {
+                // Update the exam status to success.
+                $exam->status = EMARKING_EXAM_PROCESSED;
+                $DB->update_record('emarking_exams', $exam);
+                $message = 'printed successfully';
+            } else {
+                $message = 'error printing';
+                $e = new moodle_exception('Invalid PDF generation');
+                // Update the exam status to error.
+                $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
+                $DB->update_record('emarking_exams', $exam);
+            }
+        } catch (Exception $e) {
+            $message = 'exception printing';
+            // Update the exam status to error.
+            $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
+            $DB->update_record('emarking_exams', $exam);
+        }
+        mtrace("$examname $message: $studentsforprinting students ($time seconds)");
+        $i ++;
+    }
+    
+    mtrace("$i exams processed successfully.");
+}
+/**
  * Imports the OMR fonts
  *
  * @param string $echo
@@ -276,7 +342,11 @@ function emarking_exam_status_string($exam) {
         case EMARKING_EXAM_PROCESSED :
             $examstatus = get_string("examstatusprocessed", "mod_emarking");
             break;
+        default:
+            $examstatus = get_string("examstatusprocessed", "mod_emarking");
+            break;
     }
+    return $examstatus;
 }
 /**
  * Sends an email to everyone with the receivedigitizingnotification capability (usually teachers)
@@ -418,17 +488,26 @@ function emarking_send_newprintorder_notification($exam, $course, $title = null,
  * @param unknown_type $course
  */
 function emarking_send_examdownloaded_notification($exam, $course, $user) {
-    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusdownloaded", "mod_emarking"), $user);
+    emarking_send_newprintorder_notification($exam, $course, get_string('examstatusdownloaded', 'mod_emarking'), $user);
 }
 /**
- * creates email to course manager, teacher and non-editingteacher, when a printing order has been downloaded.
+ * creates email to course manager, teacher and non-editingteacher, when a printing order has been generated.
+ *
+ * @param unknown_type $exam
+ * @param unknown_type $course
+ */
+function emarking_send_examgenerated_notification($exam, $course, $user) {
+    emarking_send_newprintorder_notification($exam, $course, get_string('examstatusprocessed', 'mod_emarking'), $user);
+}
+/**
+ * creates email to course manager, teacher and non-editingteacher, when a printing order has been printed.
  *
  * @param unknown_type $exam
  * @param unknown_type $course
  */
 function emarking_send_examprinted_notification($exam, $course) {
     global $USER;
-    emarking_send_newprintorder_notification($exam, $course, get_string("examstatusprinted", "mod_emarking"), $USER);
+    emarking_send_newprintorder_notification($exam, $course, get_string('examstatusprinted', 'mod_emarking'), $USER);
 }
 /**
  * Extracts all pages in a big PDF file as separate PDF files, deleting the original PDF if successfull.
@@ -607,7 +686,7 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
     $submission->answerkey = 0;
     $submission->id = $DB->insert_record('emarking_submission', $submission);
     // Normal marking - One draft default.
-    if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
+    if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
              $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $draft = new stdClass();
         $draft->emarkingid = $emarking->id;
@@ -827,7 +906,7 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         $courseid = $parts [1];
         $pagenumber = $parts [2];
         // Now we process the files according to the emarking type.
-        if ($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             if (! $student = $DB->get_record('user', array(
                 'id' => $studentid))) {
                 $totaldocumentsignored ++;

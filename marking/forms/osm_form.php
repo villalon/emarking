@@ -218,7 +218,7 @@ class emarking_osm_form extends moodleform {
             }
         }
         $qualitycontrol = isset($data ['enablequalitycontrol']) ? $data ['enablequalitycontrol'] : false;
-        if ($data ['type'] == EMARKING_TYPE_NORMAL && $qualitycontrol) {
+        if ($data ['type'] == EMARKING_TYPE_ON_SCREEN_MARKING && $qualitycontrol) {
             // Get all users with permission to grade in emarking.
             $markers = get_enrolled_users($ctx, 'mod/emarking:grade');
             $totalmarkers = 0;

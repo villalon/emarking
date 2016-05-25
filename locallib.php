@@ -687,13 +687,13 @@ function emarking_tabs($context, $cm, $emarking) {
             $markingtab->subtree [] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}",
                     get_string("reviewpeersfeedback", 'mod_emarking'));
         }
-        if ($emarking->type == EMARKING_TYPE_NORMAL) {
+        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
             $markingtab->subtree [] = new tabobject("regrades",
                     $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}",
             get_string("regrades", 'mod_emarking'));
         }
     } else {
-        if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_NORMAL) {
+        if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
             $markingtab->subtree [] = new tabobject("regrades",
                     $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}",
             get_string("regrades", 'mod_emarking'));
@@ -703,7 +703,7 @@ function emarking_tabs($context, $cm, $emarking) {
     $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}",
             get_string("settings", 'mod_emarking'));
     // Settings for marking.
-    if ($emarking->type == EMARKING_TYPE_NORMAL) {
+    if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
         $settingstab->subtree [] = new tabobject("osmsettings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}",
                 get_string("marking", 'mod_emarking'));
         $settingstab->subtree [] = new tabobject("comment",
@@ -742,7 +742,7 @@ function emarking_tabs($context, $cm, $emarking) {
     if ($usercangrade) {
         // Print tab goes always except for markers training.
         if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
-                 $emarking->type == EMARKING_TYPE_NORMAL) {
+                 $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
             if (has_capability('mod/emarking:uploadexam', $context)) {
                 $tabs [] = $printtab;
             }
@@ -750,11 +750,11 @@ function emarking_tabs($context, $cm, $emarking) {
         // Scan or enablescan tab.
         if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
             $tabs [] = $scantab;
-        } else if ($emarking->type == EMARKING_TYPE_NORMAL && $issupervisor) {
+        } else if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING && $issupervisor) {
             $markingtab->subtree [] = $uploadanswers;
         }
         // OSM tabs, either marking, reports and settings or enable osm.
-        if ($emarking->type == EMARKING_TYPE_NORMAL) {
+        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
             $tabs [] = $markingtab;
             $tabs [] = $gradereporttab;
             if($issupervisor) {
@@ -1016,7 +1016,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
     $roles = get_roles_with_cap_in_context($context, 'mod/emarking:receivenotification');
     foreach ($roles [0] as $role) {
         // Get all users with any of the needed roles in the course context.
-        foreach (get_role_users($role, $context, true, 'u.id, u.username', null, true) as $usertonotify) {
+        foreach (get_role_users($role, $context, true, 'u.id, u.username', 'u.id, u.username', true) as $usertonotify) {
             $userstonotify [$usertonotify->id] = $usertonotify;
         }
     }
@@ -1631,7 +1631,7 @@ function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $ema
              ($d->status == EMARKING_STATUS_GRADING && $d->pctmarked == 100)) {
         return emarking_get_draft_status_icon($d->status, true, 100);
     }
-    if (($emarking->type == EMARKING_TYPE_NORMAL || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
+    if (($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
              ($d->status == EMARKING_STATUS_GRADING || $d->status == EMARKING_STATUS_SUBMITTED)) {
         // Completion matrix.
         $matrix = '';

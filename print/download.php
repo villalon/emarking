@@ -78,6 +78,8 @@ $url = new moodle_url("/mod/emarking/print/download.php",
             "examid" => $exam->id,
             "token" => $token,
             "sesskey" => $sesskey));
+$PAGE->set_context($contextcourse);
+$PAGE->set_url($url);
 $coursecategoryurl = new moodle_url("/mod/emarking/print/printorders.php", array(
     "category" => $course->category));
 $courseurl = new moodle_url("/mod/emarking/print/exams.php", array(
@@ -107,8 +109,6 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] !== $token) {
         "objectid" => $exam->emarking);
     // Add to Moodle log so some auditing can be done.
     \mod_emarking\event\invalidtokendownload_attempted::create($item)->trigger();
-    $PAGE->set_context($contextcourse);
-    $PAGE->set_url($url);
     echo $OUTPUT->header();
     echo $OUTPUT->notification(get_string("eventinvalidtokengranted", "mod_emarking"), "notifyproblem");
     $buttonurl = $incourse ? $courseurl : $coursecategoryurl;
@@ -123,8 +123,6 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
     $tokendate->setTimestamp($_SESSION [$USER->sesskey . "smsdate"]);
     $diff = $now->diff($tokendate);
     if ($diff->i > 5 && false) {
-        $PAGE->set_context($contextcourse);
-        $PAGE->set_url($url);
         echo $OUTPUT->header();
         echo $OUTPUT->notification(get_string("tokenexpired", "mod_emarking"), "notifyproblem");
         $buttonurl = $incourse ? $courseurl : $coursecategoryurl;

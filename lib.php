@@ -31,7 +31,7 @@
 defined('MOODLE_INTERNAL') || die();
 // EMarking type.
 define('EMARKING_TYPE_PRINT_ONLY', 0);
-define('EMARKING_TYPE_NORMAL', 1);
+define('EMARKING_TYPE_ON_SCREEN_MARKING', 1);
 define('EMARKING_TYPE_MARKER_TRAINING', 2);
 define('EMARKING_TYPE_STUDENT_TRAINING', 3);
 define('EMARKING_TYPE_PEER_REVIEW', 4);
@@ -134,29 +134,11 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     // If there's no previous exam to associate, and we are creating a new
     // EMarking, we need the PDF file.
     if ($data->exam == 0) {
-        // We get the draftid from the form.
-        $draftid = file_get_submitted_draft_itemid('exam_files');
-        $usercontext = context_user::instance($USER->id);
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftid);
-        $tempdir = emarking_get_temp_dir_path($COURSE->id);
-        emarking_initialize_directory($tempdir, true);
-        $numpagesprevious = - 1;
-        $exampdfs = array();
-        foreach ($files as $uploadedfile) {
-            if ($uploadedfile->get_mimetype() !== 'application/pdf') {
-                continue;
-            }
-            $filename = $uploadedfile->get_filename();
-            $filename = emarking_clean_filename($filename);
-            $newfilename = $tempdir . '/' . $filename;
-            $pdffile = emarking_get_path_from_hash($tempdir, $uploadedfile->get_pathnamehash());
-            // Executes pdftk burst to get all pages separated.
-            $numpages = emarking_pdf_count_pages($newfilename, $tempdir, false);
-            $exampdfs [] = array(
-                'pathname' => $pdffile,
-                'filename' => $filename);
+        $examfiles = emarking_validate_exam_files_from_draft();
+        if(count($examfiles) == 0) {
+            throw new Exception('Invalid PDF exam files');
         }
+        $numpages = $examfiles[0]['numpages'];
     } else {
         $examid = $data->exam;
     }
@@ -199,7 +181,8 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
         $exam->totalpages = $numpages;
         $exam->printingcost = emarking_get_category_cost($COURSE->id);
         $exam->id = $DB->insert_record('emarking_exams', $exam);
-        foreach ($exampdfs as $exampdf) {
+        $fs = get_file_storage();
+        foreach ($examfiles as $exampdf) {
             // Save the submitted file to check if it's a PDF.
             $filerecord = array(
                 'component' => 'mod_emarking',
@@ -236,7 +219,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
                         $newexam->id = $DB->insert_record('emarking_exams', $newexam);
                         $thiscontext = context_course::instance($thiscourse->id);
                         // Create file records for all new exams.
-                        foreach ($exampdfs as $exampdf) {
+                        foreach ($examfiles as $exampdf) {
                             // Save the submitted file to check if it's a PDF.
                             $filerecord = array(
                                 'component' => 'mod_emarking',
@@ -597,6 +580,41 @@ function emarking_scale_used($emarkingid, $scaleid) {
  */
 function emarking_scale_used_anywhere($scaleid) {
     return false;
+}
+/**
+ * Validates if the draft files uploaded by a user are valid PDF exams
+ * 
+ * @return array list of valid PDF exam files
+ */
+function emarking_validate_exam_files_from_draft() {
+    global $USER, $COURSE;
+    // We get the draftid from the form.
+    $draftid = file_get_submitted_draft_itemid('exam_files');
+    $usercontext = context_user::instance($USER->id);
+    $fs = get_file_storage();
+    $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftid);
+    $tempdir = emarking_get_temp_dir_path($COURSE->id);
+    emarking_initialize_directory($tempdir, true);
+    $numpagesprevious = - 1;
+    $exampdfs = array();
+    foreach ($files as $uploadedfile) {
+        if ($uploadedfile->is_directory() ||
+                $uploadedfile->get_mimetype() !== 'application/pdf') {
+            continue;
+        }
+        $filename = $uploadedfile->get_filename();
+        $filename = emarking_clean_filename($filename);
+        $newfilename = $tempdir . '/' . $filename;
+        $pdffile = emarking_get_path_from_hash($tempdir, $uploadedfile->get_pathnamehash());
+        // Executes pdftk burst to get all pages separated.
+        $numpages = emarking_pdf_count_pages($newfilename, $tempdir, false);
+        $exampdfs [] = array(
+                'pathname' => $pdffile,
+                'filename' => $filename,
+                'numpages' => $numpages
+        );
+    }
+    return $exampdfs;
 }
 /**
  * Creates or updates grade item for the give emarking instance
