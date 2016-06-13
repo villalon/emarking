@@ -73,7 +73,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "markers");
 // Get rubric instance.
-list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, false, false);
 $mformmarkers = new emarking_markers_form(null,
         array(
             'context' => $context,

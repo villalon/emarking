@@ -18,7 +18,7 @@
  * Utility to import OMR fonts into emarking
  * @package mod
  * @subpackage emarking
- * @copyright 2015 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require (dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/config.php');

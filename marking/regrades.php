@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012-onwards Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
@@ -34,7 +34,7 @@ require_login($course, true);
 if (isguestuser()) {
     die();
 }
-list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, false, false);
 if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING) {
     print_error('You can only have regrades in a normal emarking type');
 }

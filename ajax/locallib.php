@@ -718,7 +718,7 @@ function emarking_get_markers_configuration($context, $emarking) {
     // Initially we have empty results.
     $results = array();
     // Get rubric instance.
-    list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
+    list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, false, false);
     $results ['rubricname'] = $definition->name;
     $results ['criteria'] = array();
     foreach ($definition->rubric_criteria as $criterion) {

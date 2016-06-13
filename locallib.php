@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012-2016 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-2016 Jorge Villalon <villalon@gmail.com>
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -257,8 +257,8 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
         $rubriccontrollerdst->update_definition($rubriccontrollersrc->get_definition_copy($rubriccontrollerdst));
         $DB->set_field('grading_definitions', 'timecopied', time(), array(
             'id' => $definitionsrc->id));
-        list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst,
-                false);
+        list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) =
+        	emarking_validate_rubric($contextdst, false, false);
     }
     if (! $definitionsrc || ! $definitiondst) {
         throw new moodle_exception(
@@ -998,6 +998,22 @@ function emarking_get_groups_for_printing($courseid) {
     return $rs;
 }
 /**
+ * Returns two variables indicating if the user has permissions as
+ * supervisor or if she can grade exams
+ * 
+ * @param unknown $emarking
+ * @param unknown $context
+ * @return array $issupervisor, $usercangrade
+ */
+function emarking_get_grading_permissions($emarking, $context) {
+	// Check if user has an editingteacher role.
+	$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
+	$usercangrade = has_capability('mod/assign:grade', $context) ||
+	($emarking->type == EMARKING_TYPE_PEER_REVIEW
+			&& has_capability('mod/assign:submit', $context));
+	return array($issupervisor, $usercangrade);
+}
+/**
  * Sends email to course manager, teacher and non-editingteacher,
  * when a printing order has been created
  *
@@ -1411,16 +1427,20 @@ function emarking_rotate_image($pageno, $submission, $context) {
     return false;
 }
 /**
- * Validates that there is a rubric set for the emarking activity
- *
- * @param unknown $context
+ * Validates that there is a rubric set for the emarking activity. If there
+ * isn't it shows a message and optionally buttons to create or import a rubric.
+ * Optionally it will stop the page processing if no rubric is present.
+ * 
+ * @param context $context
  *            emarking context
- * @param string $die
+ * @param boolean $die
  *            die if there is no rubric
- * @param string $showform
- * @return multitype:unknown list($gradingmanager, $gradingmethod)
+ * @param boolean $showrubricbuttons
+ * 			  show buttons to create and import rubric
+ * @return multitype:unknown list($gradingmanager, $gradingmethod, $definition,
+ * 								  $rubriccontroller)
  */
-function emarking_validate_rubric($context, $die = true, $showform = true) {
+function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
     global $OUTPUT, $CFG, $COURSE;
     require_once($CFG->dirroot . '/grade/grading/lib.php');
     // Get rubric instance.
@@ -1439,7 +1459,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true) {
         "id" => $context->instanceid));
     // Validate that activity has a rubric ready.
     if ($gradingmethod !== 'rubric' || ! $definition || $definition == null) {
-        if ($showform) {
+        if ($showrubricbuttons) {
             echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
             if (has_capability("mod/emarking:addinstance", $context)) {
                 echo "<table>";

@@ -48,7 +48,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "outcomesreport");
-list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, false, false);
 $totalsubmissions = $DB->count_records_sql(
         "
                 SELECT COUNT(DISTINCT s.id) AS total

@@ -53,7 +53,7 @@ echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "comparison");
 // Get rubric definitions for both activities.
-list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true, false);
 $totalsubmissions = $DB->count_records_sql(
         "
 		SELECT COUNT(distinct e.id) AS total

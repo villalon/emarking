@@ -40,7 +40,7 @@ $urlemarking = new moodle_url('/mod/emarking/marking/agreement.php', array(
     'id' => $cm->id));
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context);
 // Get rubric instance.
-list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true, false);
 $filter = "";
 $markercolumn = get_string("yourmarking", "mod_emarking");
 $text = $markercolumn;

@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2015 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
@@ -50,7 +50,8 @@ $scan = $emarking->type == EMARKING_TYPE_PRINT_SCAN;
 // Get the associated exam.
 if ((! $exam = $DB->get_record("emarking_exams", array(
     "emarking" => $emarking->id)))
-        && $emarking->type != EMARKING_TYPE_MARKER_TRAINING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
+        && $emarking->type != EMARKING_TYPE_MARKER_TRAINING
+		&& $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
     print_error(get_string("emarkingwithnoexam", 'mod_emarking'));
 }
 // If we have a print only emarking we send the user to the exam view.
@@ -67,10 +68,9 @@ require_login($course->id);
 if (isguestuser()) {
     die();
 }
-// Check if user has an editingteacher role.
-$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
-$usercangrade = has_capability('mod/assign:grade', $context) ||
-         ($emarking->type == EMARKING_TYPE_PEER_REVIEW && has_capability('mod/assign:submit', $context));
+// Obtain user permissions for grading and supervising.
+list($issupervisor, $usercangrade) = emarking_get_grading_permissions($emarking,
+		$context);
 // Supervisors and site administrators can see everything always.
 if ($issupervisor || is_siteadmin($USER)) {
     $emarking->anonymous = EMARKING_ANON_NONE;
@@ -97,12 +97,13 @@ $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
-// Filter view for Markers' training and Peer review. If no drafts has been submitted.
+// Filter view for Markers' training and Peer review. If no drafts have been submitted.
 // take the user to the uploadanswers interface.
 // We calculate the number of drafts in the activity and the number of those being graded.
 $numdraftsgrading = 0;
 $numdrafts = 0;
-if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING
+		|| $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
     if (! $usercangrade && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading($emarking->name);
@@ -162,16 +163,22 @@ if ($reassignpeers && $usercangrade && $issupervisor && $numdraftsgrading == 0) 
     }
 }
 // Get rubric instance.
-list($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller) = emarking_validate_rubric($context,
-        $emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW, ! $scan);
+list($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller)
+	= emarking_validate_rubric(
+			$context,
+			$emarking->type == EMARKING_TYPE_MARKER_TRAINING
+			|| $emarking->type == EMARKING_TYPE_PEER_REVIEW, // Die if no rubric.
+			! $scan); // Show rubric creation button.
 // User filter checking capabilities. If user can not grade, then she can not.
 // see other users.
 $userfilter = 'WHERE 1=1 ';
 if (! $usercangrade) {
     $userfilter .= 'AND u.id = ' . $USER->id;
-} else if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING) && ! is_siteadmin($USER->id) && ! $issupervisor) {
+} else if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING)
+		&& ! is_siteadmin($USER->id) && ! $issupervisor) {
     $userfilter .= 'AND um.id = ' . $USER->id;
-} else if ($emarking->type == EMARKING_TYPE_PEER_REVIEW && ! $issupervisor && ! is_siteadmin($USER->id)) {
+} else if ($emarking->type == EMARKING_TYPE_PEER_REVIEW && ! $issupervisor
+		&& ! is_siteadmin($USER->id)) {
     $userfilter .= 'AND (um.id = ' . $USER->id . ' OR u.id = ' . $USER->id . ')';
 }
 $qcfilter = ' AND d.qualitycontrol = 0';
@@ -196,29 +203,14 @@ if ($rubriccriteria) {
     // Getting min and max scores.
     $rubricscores = $rubriccontroller->get_min_max_score();
 }
-echo html_writer::start_div('exportbuttons');
-// Show export to Excel button if supervisor and there are students to export.
-if ($issupervisor && $rubriccriteria) {
-    if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-        $csvurl = new moodle_url('view.php', array(
-            'id' => $cm->id,
-            'exportcsv' => 'grades'));
-        echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
-    }
-}
-// Show export to Excel button if supervisor and there are students to export.
-if ($issupervisor && $emarking->type == EMARKING_TYPE_PEER_REVIEW && $numdraftsgrading == 0) {
-    $csvurl = new moodle_url('view.php', array(
-        'id' => $cm->id,
-        'reassignpeers' => 'true'));
-    echo $OUTPUT->single_button($csvurl, get_string('reassignpeers', 'mod_emarking'));
-}
-echo html_writer::tag("input", null, array("id"=>"searchInput", 'value'=>get_string("filter")));
-echo html_writer::end_div();
-$publishgradesform = ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
+// Show export buttons when grades are available
+emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking,
+		$numdraftsgrading);
+$usercanpublishgrades = ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING
+		|| $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
          has_capability("mod/emarking:supervisegrading", $context) && ! $scan;
 // Only when marking normally for a grade we can publish grades.
-if ($publishgradesform) {
+if ($usercanpublishgrades) {
     echo "<form id='publishgrades' action='marking/publish.php' method='post'>";
     echo "<input type='hidden' name='id' value='$cm->id'>";
 }
@@ -533,7 +525,7 @@ foreach ($drafts as $draft) {
         $pctmarked .= emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria);
         $finalgrade .= emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking);
         $actions .= emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor,
-                $publishgradesform, $numcriteria, $scan, $cm, $rubriccriteria);
+                $usercanpublishgrades, $numcriteria, $scan, $cm, $rubriccriteria);
         $feedback .= strlen($d->feedback) > 0 ? $d->feedback : '';
         $timemodified .= html_writer::start_div("timemodified");
         $timemodified .= get_string('lastmodification', 'mod_emarking');
@@ -541,7 +533,7 @@ foreach ($drafts as $draft) {
         $timemodified .= $d->timemodified > 0 ? core_text::strtolower(emarking_time_ago($d->timemodified)) : '';
         $timemodified .= html_writer::end_div();
         // Checkbox for publishing grade.
-        if ($publishgradesform && $d->qc == 0 && $d->status >= EMARKING_STATUS_SUBMITTED && $d->status < EMARKING_STATUS_PUBLISHED &&
+        if ($usercanpublishgrades && $d->qc == 0 && $d->status >= EMARKING_STATUS_SUBMITTED && $d->status < EMARKING_STATUS_PUBLISHED &&
                 $rubriccriteria) {
                     $selectdraft .= "<input type=\"checkbox\" name=\"publish[]\" value=\"$d->id\" title=\"" . get_string("select") . "\">";
         }
@@ -556,7 +548,7 @@ foreach ($drafts as $draft) {
                 }
             }
         }
-        if ($publishgradesform && $d->qc == 0 && $d->status >= EMARKING_STATUS_SUBMITTED &&
+        if ($usercanpublishgrades && $d->qc == 0 && $d->status >= EMARKING_STATUS_SUBMITTED &&
                 $d->status < EMARKING_STATUS_PUBLISHED && $rubriccriteria) {
             $unpublishedsubmissions ++;
         }
@@ -644,11 +636,11 @@ function validatePublish() {
 <?php
 }
 $showpages->print_html();
-if ($publishgradesform && $unpublishedsubmissions > 0 && $rubriccriteria) {
+if ($usercanpublishgrades && $unpublishedsubmissions > 0 && $rubriccriteria) {
     echo "<input style='float:right;' type='submit' onclick='return validatePublish();' value='" .
              get_string('publishselectededgrades', 'mod_emarking') . "'>";
     echo "</form>";
-} else if ($publishgradesform && $unpublishedsubmissions == 0) {
+} else if ($usercanpublishgrades && $unpublishedsubmissions == 0) {
     echo "<script>$('#select_all').hide();</script>";
 }
 $submission = $DB->get_record('emarking_submission', array(
@@ -823,15 +815,6 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
                 'setassubmitted', 'mod_emarking');
         $actionsarray [] = $OUTPUT->action_link($deletesubmissionurl, $msgstatus);
     }
-    // Url for downloading PDF feedback.
-    $responseurl = new moodle_url(
-            '/pluginfile.php/' . $context->id . '/mod_emarking/response/' . $draft->id . '/response_' . $emarking->id . '_' .
-            $d->id . '.pdf');
-    // Download PDF button.
-    if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING && $d->status >= EMARKING_STATUS_PUBLISHED && $d->qc == 0 &&
-             ($d->id == $USER->id || is_siteadmin($USER) || $issupervisor)) {
-        $actionsarray [] = $OUTPUT->action_link($responseurl, get_string('downloadfeedback', 'mod_emarking'));
-    }
     $divclass = $usercangrade ? 'printactions' : 'useractions';
     $actionshtml = implode("&nbsp;|&nbsp;", $actionsarray);
     if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
@@ -880,6 +863,30 @@ function emarking_get_drafts_from_concat($draft) {
         $drafts [] = $newdraft;
     }
     return $drafts;
+}
+function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading) {
+	global $OUTPUT;
+	echo html_writer::start_div('exportbuttons');
+	// Show export to Excel button if supervisor and there are students to export.
+	if ($issupervisor && $rubriccriteria) {
+		if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
+			$csvurl = new moodle_url('view.php', array(
+					'id' => $cm->id,
+					'exportcsv' => 'grades'));
+			echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+		}
+	}
+	// Show export to Excel button if supervisor and there are students to export.
+	if ($issupervisor && $emarking->type == EMARKING_TYPE_PEER_REVIEW && $numdraftsgrading == 0) {
+		$csvurl = new moodle_url('view.php', array(
+				'id' => $cm->id,
+				'reassignpeers' => 'true'));
+		echo $OUTPUT->single_button($csvurl, get_string('reassignpeers', 'mod_emarking'));
+	}
+	if($numdraftsgrading > 1) {
+	echo html_writer::tag("input", null, array("id"=>"searchInput", 'value'=>get_string("filter")));
+	}
+	echo html_writer::end_div();
 }
 function emarking_get_drafts_per_status($emarking) {
     
