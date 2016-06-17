@@ -71,12 +71,15 @@ $tempdir = emarking_get_temp_dir_path($emarking->id);
 emarking_initialize_directory($tempdir, true);
 $zipfile = emarking_get_path_from_hash($tempdir, $fileid);
 // Process documents and obtain results.
-list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) = emarking_upload_answers($emarking, $zipfile, $course,
+list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
+	emarking_upload_answers($emarking, $zipfile, $course,
         $cm, $pbar);
 $pbar->update_full(100, get_string('qrdecodingfinished', 'mod_emarking'));
 $percentage = 0;
 if ($totaldocumentsprocessed > 0) {
-    $percentage = round((($totaldocumentsprocessed - $totaldocumentsignored) / $totaldocumentsprocessed) * 100, 2);
+    $percentage = round(
+    		(($totaldocumentsprocessed - $totaldocumentsignored)
+    				/ $totaldocumentsprocessed) * 100, 2);
 }
 $table = new html_table();
 $table->attributes ['style'] = "width: 500px; margin-left:auto; margin-right:auto;";

@@ -855,9 +855,10 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
 function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar $progressbar = null) {
     global $CFG, $DB;
     $context = context_module::instance($cm->id);
+    $exam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->id));
     // Setup de directorios temporales.
     $tempdir = emarking_get_temp_dir_path($emarking->id);
-    if (! emarking_unzip($fileid, $tempdir . "/")) {
+    if (! emarking_unzip($fileid, $tempdir . "/") || !$exam) {
         return array(
             false,
             get_string('errorprocessingextraction', 'mod_emarking'),
@@ -972,6 +973,10 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         if (!emarking_assign_peers($emarking, 10)) {
             echo "Error assigning peers";
         }
+    }
+    if($exam->usebackside == 0 && $doubleside) {
+    	$exam->usebackside = 1;
+    	$result = $DB->update_record('emarking_exams', $exam);
     }
     emarking_send_processanswers_notification($emarking, $course);
     return array(

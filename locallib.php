@@ -1644,12 +1644,20 @@ function emarking_unenrol_student($userid, $courseid) {
  * @param unknown $emarking
  * @return string
  */
-function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria) {
+function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria) {
     global $OUTPUT;
+    // Add warning icon if there are missing pages in draft.
+    $totalpages = $exam->usebackside == 0 ? $exam->totalpages :
+    	$exam->totalpages * 2;
+    $missingpages = $totalpages > 0 && $totalpages > $d->pages &&
+    	$d->status > EMARKING_STATUS_MISSING;
+    $missingpagesmessage = $missingpages ?
+    		$OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'))
+    		: '';
     // If the draft is published or the student was absent just show the icon.
     if ($d->status <= EMARKING_STATUS_ABSENT || $d->status == EMARKING_STATUS_PUBLISHED ||
              ($d->status == EMARKING_STATUS_GRADING && $d->pctmarked == 100)) {
-        return emarking_get_draft_status_icon($d->status, true, 100);
+        return emarking_get_draft_status_icon($d->status, true, 100) . $missingpagesmessage;
     }
     if (($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
              ($d->status == EMARKING_STATUS_GRADING || $d->status == EMARKING_STATUS_SUBMITTED)) {
@@ -1691,7 +1699,7 @@ function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $ema
     </div>";
         }
         $matrixlink .= '</div>';
-        return $matrixlink;
+        return $matrixlink . $missingpagesmessage;
     }
     if ($d->status == EMARKING_STATUS_REGRADING) {
         // Percentage of criteria already marked for this draft.
@@ -1701,11 +1709,7 @@ function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $ema
     }
     $statushtml = $d->qc == 0 ? emarking_get_draft_status_icon($d->status, true) : $OUTPUT->pix_icon('i/completion-auto-y',
             get_string("qualitycontrol", "mod_emarking"));
-    // Add warning icon if there are missing pages in draft.
-    if ($emarking->totalpages > 0 && $emarking->totalpages > $d->pages && $d->status > EMARKING_STATUS_MISSING) {
-        $statushtml .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
-    }
-    return $statushtml;
+    return $statushtml . $missingpagesmessage;
 }
 function emarking_get_category_cost($courseid) {
     global $DB, $CFG;

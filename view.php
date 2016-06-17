@@ -522,7 +522,7 @@ foreach ($drafts as $draft) {
     // Select checkbox.
     $selectdraft = '';
     foreach ($submissiondrafts as $d) {
-        $pctmarked .= emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria);
+        $pctmarked .= emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria);
         $finalgrade .= emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking);
         $actions .= emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor,
                 $usercanpublishgrades, $numcriteria, $scan, $cm, $rubriccriteria);
