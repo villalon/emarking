@@ -658,3 +658,4 @@ $string ['marking_completed'] = 'Well done, just wait for the others markers for
 $string ['stage'] = 'Stage';
 $string ['agreement'] = 'Agreement';
 $string ['yourmarking'] = 'Your marking';
+$string['process'] = 'Process';
