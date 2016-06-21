@@ -53,7 +53,7 @@ $PAGE->navbar->add(get_string('publishtitle', 'mod_emarking'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "export");
-list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, false, false);
 if (count($emarkingdst) > 0) {
     $destinationemarkings = array();
     foreach ($emarkingdst as $destinationid) {

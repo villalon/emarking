@@ -199,8 +199,6 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
             $fs->delete_area_files($contextid, 'emarking', 'exams', $exam->id);
             print_error(get_string('errorsavingpdf', 'mod_emarking'));
         }
-        // Send new print order notification.
-        emarking_send_newprintorder_notification($exam, $COURSE, NULL, $USER);
         // If it is a multi-course submission, insert several exams.
         if (! empty($mform->get_data()->multicourse)) {
             $multicourse = $mform->get_data()->multicourse;
@@ -230,8 +228,6 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
                                 'filename' => $exampdf ['filename']);
                             $file = $fs->create_file_from_pathname($filerecord, $exampdf ['pathname']);
                         }
-                        // Send new print order notification.
-                        emarking_send_newprintorder_notification($newexam, $thiscourse);
                     }
                 }
             }

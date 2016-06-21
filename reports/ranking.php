@@ -41,7 +41,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'ranking');
 // Get the grading manager, then method and finally controller.
-list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, false, false);
 $sqluserid = $usercangrade ? "$USER->id OR 1 = 1" : $USER->id;
 // Query para obtener listado.
 $sql = "select

@@ -72,7 +72,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "pages");
 // Get rubric instance.
-list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, false, false);
 $maxpages = $DB->get_record_sql(
         "
 SELECT MAX(p.page) AS maxpages

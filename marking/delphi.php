@@ -50,7 +50,7 @@ if ($exportcsv && $usercangrade && $issupervisor) {
     die();
 }
 // Get rubric instance.
-list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true, false);
 // Page navigation and URL settings.
 $PAGE->set_url($urlemarking);
 $PAGE->set_context($context);

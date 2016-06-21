@@ -97,7 +97,7 @@ if (count($emarkingoutcomes) == 0) {
     die();
 }
 // Get rubric instance.
-list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true);
+list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true, false);
 $mformoutcomes = new emarking_outcomes_form(null,
         array(
             'context' => $context,

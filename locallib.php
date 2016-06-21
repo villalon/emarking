@@ -18,7 +18,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012-2016 Jorge Villalon <jorge.villalon@uai.cl>
+ * @copyright 2012-2016 Jorge Villalon <villalon@gmail.com>
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
  * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -257,8 +257,8 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
         $rubriccontrollerdst->update_definition($rubriccontrollersrc->get_definition_copy($rubriccontrollerdst));
         $DB->set_field('grading_definitions', 'timecopied', time(), array(
             'id' => $definitionsrc->id));
-        list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst,
-                false);
+        list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) =
+        	emarking_validate_rubric($contextdst, false, false);
     }
     if (! $definitionsrc || ! $definitiondst) {
         throw new moodle_exception(
@@ -998,6 +998,22 @@ function emarking_get_groups_for_printing($courseid) {
     return $rs;
 }
 /**
+ * Returns two variables indicating if the user has permissions as
+ * supervisor or if she can grade exams
+ * 
+ * @param unknown $emarking
+ * @param unknown $context
+ * @return array $issupervisor, $usercangrade
+ */
+function emarking_get_grading_permissions($emarking, $context) {
+	// Check if user has an editingteacher role.
+	$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
+	$usercangrade = has_capability('mod/assign:grade', $context) ||
+	($emarking->type == EMARKING_TYPE_PEER_REVIEW
+			&& has_capability('mod/assign:submit', $context));
+	return array($issupervisor, $usercangrade);
+}
+/**
  * Sends email to course manager, teacher and non-editingteacher,
  * when a printing order has been created
  *
@@ -1411,16 +1427,20 @@ function emarking_rotate_image($pageno, $submission, $context) {
     return false;
 }
 /**
- * Validates that there is a rubric set for the emarking activity
- *
- * @param unknown $context
+ * Validates that there is a rubric set for the emarking activity. If there
+ * isn't it shows a message and optionally buttons to create or import a rubric.
+ * Optionally it will stop the page processing if no rubric is present.
+ * 
+ * @param context $context
  *            emarking context
- * @param string $die
+ * @param boolean $die
  *            die if there is no rubric
- * @param string $showform
- * @return multitype:unknown list($gradingmanager, $gradingmethod)
+ * @param boolean $showrubricbuttons
+ * 			  show buttons to create and import rubric
+ * @return multitype:unknown list($gradingmanager, $gradingmethod, $definition,
+ * 								  $rubriccontroller)
  */
-function emarking_validate_rubric($context, $die = true, $showform = true) {
+function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
     global $OUTPUT, $CFG, $COURSE;
     require_once($CFG->dirroot . '/grade/grading/lib.php');
     // Get rubric instance.
@@ -1439,7 +1459,7 @@ function emarking_validate_rubric($context, $die = true, $showform = true) {
         "id" => $context->instanceid));
     // Validate that activity has a rubric ready.
     if ($gradingmethod !== 'rubric' || ! $definition || $definition == null) {
-        if ($showform) {
+        if ($showrubricbuttons) {
             echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
             if (has_capability("mod/emarking:addinstance", $context)) {
                 echo "<table>";
@@ -1624,12 +1644,20 @@ function emarking_unenrol_student($userid, $courseid) {
  * @param unknown $emarking
  * @return string
  */
-function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria) {
+function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria) {
     global $OUTPUT;
+    // Add warning icon if there are missing pages in draft.
+    $totalpages = $exam->usebackside == 0 ? $exam->totalpages :
+    	$exam->totalpages * 2;
+    $missingpages = $totalpages > 0 && $totalpages > $d->pages &&
+    	$d->status > EMARKING_STATUS_MISSING;
+    $missingpagesmessage = $missingpages ?
+    		$OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'))
+    		: '';
     // If the draft is published or the student was absent just show the icon.
     if ($d->status <= EMARKING_STATUS_ABSENT || $d->status == EMARKING_STATUS_PUBLISHED ||
              ($d->status == EMARKING_STATUS_GRADING && $d->pctmarked == 100)) {
-        return emarking_get_draft_status_icon($d->status, true, 100);
+        return emarking_get_draft_status_icon($d->status, true, 100) . $missingpagesmessage;
     }
     if (($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
              ($d->status == EMARKING_STATUS_GRADING || $d->status == EMARKING_STATUS_SUBMITTED)) {
@@ -1654,24 +1682,22 @@ function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $ema
             }
             $matrix .= "</table></div>";
         }
-        $matrixlink = "<div><div class=\"progress\" style=\"float:left; width:45%; margin-right:5px;\"><a style='cursor:pointer;' " .
-        "onclick='$(\"#sub-$d->id\").dialog({modal:true,buttons:{Ok: function(){\$(this).dialog(\"close\");}}});'>
-    <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"$d->pctmarked\"
-    aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:$d->pctmarked%\">
-    <span class=\"sr-only\">$d->pctmarked%</span>
-    </div></a>
-    </div>" . $matrix;
+        $pct = round($d->pctmarked,0);
+        $matrixlink = html_writer::start_div();
+        $matrixlink .= emarking_get_progress_circle(
+        		$d->pctmarked,
+        		'green',
+        		'onclick=\'$("#sub-'.$d->id.'").dialog({modal:true,buttons:{Ok: function(){$(this).dialog("close");}}});\'',
+        		get_string('marking_progress', 'mod_emarking')). $matrix;
         if($numcriteriauser > 0) {
-        $matrixlink .= "<div class=\"progress\" style=\"float:left; width:45%; margin-right:5px;\" title=\""
-                . get_string('yourcontribution', 'mod_emarking') . "\">
-    <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"$d->pctmarkeduser\"
-    aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width:$d->pctmarkeduser%; background-color: #F89406;\">
-    <span class=\"sr-only\">$d->pctmarkeduser%</span>
-    </div>
-    </div>";
+        $matrixlink .= emarking_get_progress_circle(
+        		$d->pctmarkeduser,
+        		'orange',
+        		'',
+        		get_string('yourcontribution', 'mod_emarking'));
         }
-        $matrixlink .= '</div>';
-        return $matrixlink;
+        $matrixlink .= html_writer::end_div();
+        return $matrixlink . $missingpagesmessage;
     }
     if ($d->status == EMARKING_STATUS_REGRADING) {
         // Percentage of criteria already marked for this draft.
@@ -1681,11 +1707,7 @@ function emarking_get_draft_status_info($d, $numcriteria, $numcriteriauser, $ema
     }
     $statushtml = $d->qc == 0 ? emarking_get_draft_status_icon($d->status, true) : $OUTPUT->pix_icon('i/completion-auto-y',
             get_string("qualitycontrol", "mod_emarking"));
-    // Add warning icon if there are missing pages in draft.
-    if ($emarking->totalpages > 0 && $emarking->totalpages > $d->pages && $d->status > EMARKING_STATUS_MISSING) {
-        $statushtml .= $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'));
-    }
-    return $statushtml;
+    return $statushtml . $missingpagesmessage;
 }
 function emarking_get_category_cost($courseid) {
     global $DB, $CFG;
@@ -1716,4 +1738,15 @@ function emarking_get_category_cost($courseid) {
             }
         }
     }
+}
+function emarking_get_progress_circle($progress, $color = '', $onclick = '', $title = '') {
+	$pct = round($progress, 0);
+	$matrixlink = '<div style="cursor:pointer;" class="c100 p'.$pct.' small '.$color.'" '.$onclick.' title="'.$title.'">
+                    <span>'.$pct.'%</span>
+                    <div class="slice">
+                        <div class="bar"></div>
+                        <div class="fill"></div>
+                    </div>
+                </div>';
+	return $matrixlink;
 }

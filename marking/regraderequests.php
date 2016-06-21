@@ -49,7 +49,7 @@ $PAGE->requires->jquery_plugin('ui-css');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades");
-list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context);
+list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, false, false);
 $sqlfilter = $filteruser ? " AND u.id = $USER->id" : "";
 $sql = "select
 			rg.*,
