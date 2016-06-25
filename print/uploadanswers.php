@@ -49,18 +49,10 @@ $PAGE->set_cm($cm);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('uploadanswers', 'mod_emarking'));
-// Options for uploading the zip file within the form.
-$options = array(
-    'subdirs' => 0,
-    'maxbytes' => get_max_upload_file_size($CFG->maxbytes, $course->maxbytes, $course->maxbytes),
-    'maxfiles' => 1,
-    'accepted_types' => '.zip',
-    'return_types' => FILE_INTERNAL);
 $mform = new mod_emarking_upload_form(null,
         array(
             'coursemoduleid' => $cm->id,
-            'emarkingid' => $emarking->id,
-            'options' => $options));
+            'emarkingid' => $emarking->id));
 // If the user cancelled the form, redirect to activity.
 if ($mform->is_cancelled()) {
     redirect($urlemarking);
@@ -68,6 +60,7 @@ if ($mform->is_cancelled()) {
     // Save uploaded file in Moodle filesystem and check.
     $fs = get_file_storage();
     $fs->delete_area_files($context->id, 'mod_emarking', 'upload', $emarking->id);
+    $filemimetypes = array('dummy', 'application/pdf', 'application/zip');
     $file = $mform->save_stored_file('assignment_file', $context->id, 'mod_emarking', 'upload', $emarking->id, '/',
             emarking_clean_filename($mform->get_new_filename('assignment_file')));
     // Validate that file was correctly uploaded.
@@ -75,7 +68,7 @@ if ($mform->is_cancelled()) {
         print_error("Could not upload file");
     }
     // Check that the file is a zip.
-    if ($file->get_mimetype() !== 'application/zip') {
+    if (!array_search($file->get_mimetype(), $filemimetypes)) {
         echo $OUTPUT->header();
         echo $OUTPUT->box_start('generalbox');
         echo $OUTPUT->heading(get_string('error'));
@@ -85,8 +78,6 @@ if ($mform->is_cancelled()) {
         echo $OUTPUT->footer();
         die();
     }
-    // Parameters for execution.
-    $merge = isset($mform->get_data()->merge) ? false : true; // Inverted as question in form was inverted.
     $nocache = rand(1, 999999);
     // File is ok, process.
     // Setup de directorios temporales.
@@ -103,14 +94,11 @@ if ($mform->is_cancelled()) {
     $confirmurl = new moodle_url('/mod/emarking/print/processanswers.php',
             array(
                 'id' => $cm->id,
-                'merge' => $merge,
                 'file' => $file->get_pathnamehash(),
                 'emarkingid' => $emarking->id));
-    // Message changes if it will be merged.
-    $confirmessage = $merge ? 'confirmprocessfilemerge' : 'confirmprocessfile';
     // Show confirmation buttons.
     echo $OUTPUT->confirm(
-            get_string($confirmessage, 'mod_emarking',
+            get_string('confirmprocessfile', 'mod_emarking',
                     array(
                         'file' => $file->get_filename(),
                         'assignment' => $emarking->name)), $confirmurl, $urlemarking);

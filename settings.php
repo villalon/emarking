@@ -24,14 +24,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 global $PAGE, $CFG;
-// Cost settings.
-$settings->add(
-        new admin_setting_heading('emarking_costsettings', get_string('costconfiguration', 'mod_emarking'),
-                get_string('costconfiguration_help', 'mod_emarking')));
-// Default cost.
-$settings->add(
-        new admin_setting_configtext('emarking_defaultcost', get_string('defaultcost', 'mod_emarking'),
-                get_string('defaultcost_cost', 'mod_emarking'), 0, PARAM_INT));
 // Basic settings.
 $settings->add(
         new admin_setting_heading('emarking_basicsettings', get_string('printsettings', 'mod_emarking'),
@@ -61,6 +53,10 @@ $settings->add(
 $settings->add(
         new admin_setting_configcheckbox('emarking_includeuserpicture', get_string('includeuserpicture', 'mod_emarking'),
                 get_string('includeuserpicture_help', 'mod_emarking'), 0, PARAM_BOOL));
+// Enabling the upload of a zip file with digitized answers already processed.
+$settings->add(
+        new admin_setting_configcheckbox('emarking_enabledigitizedzipfile', get_string('enabledigitizedzipfile', 'mod_emarking'),
+                get_string('enabledigitizedzipfile_help', 'mod_emarking'), 0, PARAM_BOOL));
 // Path to user pictures.
 $settings->add(
         new admin_setting_configtext('emarking_pathuserpicture', get_string('pathuserpicture', 'mod_emarking'),
@@ -84,6 +80,10 @@ $settings->add(
 $settings->add(
         new admin_setting_configtext('emarking_printserver', get_string('printserver', 'mod_emarking'),
                 get_string('printserver_help', 'mod_emarking'), '', PARAM_TEXT));
+// Default cost center.
+$settings->add(
+        new admin_setting_configtext('emarking_defaultcost', get_string('defaultcost', 'mod_emarking'),
+                get_string('defaultcost_cost', 'mod_emarking'), 0, PARAM_INT));
 // Message for the digitized answers reminder.
 $settings->add(
         new admin_setting_configtextarea('emarking_digitizedanswersmessage',

@@ -36,7 +36,6 @@ global $DB, $CFG, $USER;
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 $emarkingid = required_param('emarkingid', PARAM_INT);
 $fileid = required_param('file', PARAM_ALPHANUM);
-$merge = required_param('merge', PARAM_BOOL);
 // Validate user is logged in and is not guest.
 require_login($course->id);
 if (isguestuser()) {
@@ -45,8 +44,7 @@ if (isguestuser()) {
 $url = new moodle_url('/mod/emarking/print/processanswers.php',
         array(
             'emarkingid' => $emarking->id,
-            'file' => $fileid,
-            'merge' => $merge));
+            'file' => $fileid));
 $urlassignment = new moodle_url('/mod/emarking/view.php', array(
     'id' => $cm->id));
 $PAGE->set_pagelayout('incourse');

@@ -1698,7 +1698,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         \mod_emarking\event\exam_downloaded::create_from_exam($downloadexam, $context)->trigger();
         return true;
     }
-    $examfilename = emarking_clean_filename($course->shortname, true) . "_" . emarking_clean_filename($downloadexam->name, true);
+    $examfilename = emarking_clean_filename($course->shortname, true) . '_' .
+        emarking_clean_filename($downloadexam->name, true);
     $zipdebugmsg = '';
     if ($multiplepdfs) {
         $zip = new ZipArchive();
@@ -1715,7 +1716,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         foreach ($studentinfo as $stinfo) {
             $currentstudent ++;
             if ($pbar != null) {
-                $pbar->update($currentstudent, count($studentinfo), get_string('printing', 'mod_emarking') . ' ' . $stinfo->name);
+                $pbar->update($currentstudent, count($studentinfo),
+                    get_string('printing', 'mod_emarking') . ' ' . $stinfo->name);
             }
             if (! isset($stinfo->examfile) || ! file_exists($stinfo->examfile)) {
                 continue;

@@ -117,6 +117,8 @@ class mod_emarking_mod_form extends moodleform_mod {
                         'optional' => false), $instance ['options']);
             $mform->addHelpButton('examdate', 'examdate', 'mod_emarking');
         } else {
+            $mform->addElement('hidden', 'examdate', $exam->examdate);
+            $mform->setType('examdate', PARAM_RAW);
             // Add message explaining why they can't change files or dates anymore.
             $mform->addElement('static', 'examdownloaded', get_string("pdffile", "mod_emarking"), 
                     get_string("examalreadysent", "mod_emarking"));
@@ -681,6 +683,12 @@ class mod_emarking_mod_form extends moodleform_mod {
     private function get_exam_date_errors($data) {
         global $CFG;
         $errors = array();
+        if(!isset($data ['examdate'])) {
+            $a = new stdClass();
+            $a->mindays = 2;
+            $errors ['examdate'] = get_string('examdateinvalid', 'mod_emarking', $a);
+            return $errors;
+        }
         // The exam date comes from the date selector.
         $examdate = new DateTime();
         $examdate->setTimestamp(usertime($data ['examdate']));
