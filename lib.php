@@ -898,7 +898,6 @@ function mod_emarking_extend_navigation_category_settings(navigation_node $paren
  */
 function emarking_extend_settings_navigation(settings_navigation $settingsnav, $emarkingnode) {
     global $PAGE, $DB, $USER, $CFG;
-    die("wyf!");
     $course = $PAGE->course;
     // Course context is used as this can work outside of the module.
     $context = $PAGE->context;
