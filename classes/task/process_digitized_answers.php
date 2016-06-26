@@ -58,10 +58,14 @@ class process_digitized_answers extends \core\task\scheduled_task {
                 mtrace('Invalid course module for emarking activity ' . $emarking->id);
                 continue;
             }
+            $totalfiles++;
+            $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $file->filename ($file->id)";
+            if($file->mimetype === 'application/pdf') {
+                mtrace($msg . ' PDF processing not implemented yet');
+                continue;
+            }
             $file->status = EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED;
             $DB->update_record('emarking_digitized_answers', $file);
-            $totalfiles++;
-            $msg = $totalfiles . ':'. $course->fullname . ':' . $emarking->name . ':' . $file->filename;
             // Process documents and obtain results.
             list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
             emarking_upload_answers($emarking, $zipfile, $course,
@@ -71,6 +75,8 @@ class process_digitized_answers extends \core\task\scheduled_task {
             } else {
                 $file->status = EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING;
             }
+            $file->totalpages = $totaldocumentsprocessed;
+            $file->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);
             $msg .= emarking_get_string_for_status_digitized($file->status) . ' processed:' . $totaldocumentsprocessed . ' ignored:' . $totaldocumentsignored;
             $DB->update_record('emarking_digitized_answers', $file);
             mtrace($msg);
