@@ -877,17 +877,13 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     send_file($file, $filename);
 }
 // Navigation API.
-/**
- * Extends the global navigation tree by adding emarking nodes if there is a relevant content
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- * 
- * @param navigation_node $navref
- *            An object representing the navigation tree node of the emarking module instance
- * @param stdClass $course            
- * @param stdClass $module            
- * @param cm_info $cm            
- */
-function emarking_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm) {
+function mod_emarking_extend_navigation_category_settings(navigation_node $parentnode, context_coursecat $context) {
+    if(has_capability('mod/emarking:printordersview', $context)) {
+        $categorynode = $parentnode->add(get_string('emarking', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
+        $thingnode = $categorynode->add(get_string('printorders', 'mod_emarking'),
+            new moodle_url("/mod/emarking/print/printorders.php", array(
+                'category' => $context->instanceid)));
+    }
 }
 /**
  * Extends the settings navigation with the emarking settings
@@ -906,7 +902,7 @@ function emarking_extend_settings_navigation(settings_navigation $settingsnav, $
     // Course context is used as this can work outside of the module.
     $context = $PAGE->context;
     if (is_siteadmin($USER) || (has_capability("mod/emarking:manageprinters", $context) && $CFG->emarking_enableprinting)) {
-        $settingnode = $settingsnav->add(get_string('emarkingprints', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
+        $settingnode = $emarkingnode->add(get_string('emarkingprints', 'mod_emarking'), null, navigation_node::TYPE_CONTAINER);
         $thingnode = $settingnode->add(get_string('adminprints', 'mod_emarking'), 
                 new moodle_url("/mod/emarking/print/printers.php", array(
                     'sesskey' => $USER->sesskey)));

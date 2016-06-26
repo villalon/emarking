@@ -82,13 +82,13 @@ $string ['coursehasnooutcomes'] = 'El curso no tiene resultados de aprendizaje a
 $string ['gotooutcomessettings'] = 'Ir a configuración de resultados de aprendizaje';
 $string ['emarkinghasnooutcomes'] = 'La prueba no tiene asociado ningún resultado de aprendizaje. Al menos un resultado debe asociarse para poder relacionarlo con la rúbrica.';
 $string ['gotoemarkingsettings'] = 'Ir a configuración de emarking';
-$string ['emarkingdst'] = 'eMarking destino';
-$string ['emarkingdst_help'] = 'Seleccione las pruebas eMarking a las que copiará la configuración';
+$string ['emarkingdst'] = 'EMarking destino';
+$string ['emarkingdst_help'] = 'Seleccione las pruebas EMarking a las que copiará la configuración';
 $string ['override'] = 'Sobreescribir rúbrica';
-$string ['override_help'] = 'Sobreescribe la rúbrica de la prueba eMarking destino, usando la de esta prueba';
+$string ['override_help'] = 'Sobreescribe la rúbrica de la prueba EMarking destino, usando la de esta prueba';
 $string ['overridemarkers'] = 'Sobreescribir correctores';
-$string ['overridemarkers_help'] = 'Sobreescribe los correctores asignados en la prueba eMarking destino';
-$string ['noparallelemarkings'] = 'No hay pruebas eMarking en los cursos paralelos';
+$string ['overridemarkers_help'] = 'Sobreescribe los correctores asignados en la prueba EMarking destino';
+$string ['noparallelemarkings'] = 'No hay pruebas EMarking en los cursos paralelos';
 $string ['scalelevels'] = 'Porcentajes para escala';
 $string ['studentachievement'] = '% de estudiantes';
 $string ['level'] = 'Nivel de logro';
@@ -98,7 +98,7 @@ $string ['criteria'] = 'Criterios';
 $string ['deleterow'] = 'Borrar fila';
 $string ['nodejspath'] = 'Ruta de NodeJS';
 $string ['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091';
-$string ['emarkinggraded'] = 'Corrección eMarking';
+$string ['emarkinggraded'] = 'Corrección EMarking';
 $string ['answerkey'] = 'Pauta';
 // PERMISSIONS
 $string['emarking:activatedelphiprocess'] = 'Activar Delphi';
@@ -213,7 +213,7 @@ $string ['sent'] = 'Enviada';
 $string ['replied'] = 'Contestada';
 $string ['usernotloggedin'] = 'Usuario no está logueado';
 $string ['invalidsessionkey'] = 'Clave de sesión inválida';
-$string ['emarkingsecuritycode'] = 'Código de seguridad eMarking';
+$string ['emarkingsecuritycode'] = 'Código de seguridad EMarking';
 $string ['savechanges'] = 'Guardar cambios';
 $string ['changessaved'] = 'Cambios guardados exitosamente';
 $string ['qualitycontrol'] = 'Control de Calidad';
@@ -246,13 +246,13 @@ $string ['rubriclevel'] = 'Nivel';
 $string ['importrubric'] = 'Importar rúbrica';
 $string ['pastefromexcel'] = 'Pegar desde Excel';
 $string ['pastefromexcel_help'] = 'Seleccione las celdas deseadas en Excel, cópielas y luego péguelas en el cuadro de texto';
-$string ['rubricneeded'] = 'eMarking requiere el uso de rúbricas para la corrección. Por favor cree una manualmente o impórtela desde Excel.';
-$string ['rubricdraft'] = 'eMarking requiere una rúbrica lista, la rúbrica se encuentra en estado de borrador. Por favor completar rúbrica';
+$string ['rubricneeded'] = 'EMarking requiere el uso de rúbricas para la corrección. Por favor cree una manualmente o impórtela desde Excel.';
+$string ['rubricdraft'] = 'EMarking requiere una rúbrica lista, la rúbrica se encuentra en estado de borrador. Por favor completar rúbrica';
 $string ['confirmimport'] = 'A continuación se muestra la rúbrica que será creada, por favor verifique que todos los detalles están correctos. NOTA: La rúbrica puede modificarse posteriormente en el editor.';
 // E-MARKING TYPES.
 $string ['markingtype'] = 'Tipo de corrección';
 $string ['markingtype_help'] = '<h2>Tipos de corrección</h2><br>
-		Hay cuatro tipos de corrección en eMarking:
+		Hay cuatro tipos de corrección en EMarking:
 		<ul>
 			<li><b>Solo impresión</b>: Las pruebas se imprimen a través del sistema, la corrección es manual, y opcionalmente se pueden subir las notas al libro de calificaciones.</li>
 			<li><b>Imprimir y digitalizar</b>: Las pruebas se imprimen a través del sistema, la corrección es manual, las respuestas se digitalizan y se suben al sistema como respaldo. Opcionalmente se pueden subir las notas al libro de calificaciones.</li>
@@ -284,12 +284,20 @@ $string ['personalizedexamsgeneration'] = 'Generación de pruebas personalizadas
 $string ['confirmprocess'] = 'Confirmar proceso';
 $string ['confirmprocessfile'] = 'You are about to process file {$a->file} as student submissions for assignment {$a->assignment}.<br> This will delete any previous submissions from students on that assignment. Are you sure?';
 $string ['uploadanswers'] = 'Subir respuestas digitalizadas';
-$string ['uploadanswers_help'] = 'En esta página usted puede subir las respuestas digitalizadas de sus estudiantes. El format es un archivo ZIP que contiene dos archivos de imagen PNG por cada página de la prueba (una de ellas es la versión anónima). Este archivo se obtiene usando la aplicación eMarking desktop que se puede descargar <a href="">aquí</a>';
+$string ['uploadanswers_help'] = 'En esta página usted puede subir las respuestas digitalizadas de sus estudiantes. El formato es un archivo PDF obtenido desde un escáner o un archivo ZIP que se obtiene usando la aplicación EMarking desktop que se puede descargar <a href="/mod/emarking/emarkingdesktop.zip">aquí</a>';
 $string ['uploadanswersuccessful'] = 'Respuestas digitalizadas subidas exitosamente';
+$string ['digitizedfile'] = 'Digitized answers';
+$string ['digitizedfile_help'] = 'In this page you can upload the digitized answers from your students. The format can be a PDF file from a scanner, or a zip file containing two png files for each page a student has (one is the anonymous version). This file can be obtained using the EMarking desktop application that can be downloaded <a href="/mod/emarking/emarkingdesktop.zip">here</a>';
+$string ['uploadexamfile'] = 'Archivo ZIP';
+$string ['uploadexamfilepdf'] = 'Archivo PDF';
+$string ['uploadinganswersheets'] = 'Subiendo respuestas digitalizadas';
+$string ['enabledigitizedzipfile'] = 'Habilitar respuestas en formato zip';
+$string ['enabledigitizedzipfile_help'] = 'Habilita subir respuestas digitalizadas previamente procesadas usando el software EMarking desktop';
+$string ['usedigitizedzipfile'] = 'Usar respuestas digitalizadas pre-procesadas';
 // REPORTS.
 $string ['reports'] = 'Reportes';
 $string ['gradereport'] = 'Grades report';
-$string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular eMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
+$string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular EMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
 			<strong>Basic statistics:</strong>Shows the average, quartiles and ranges for the course.<br/>
 			<strong>Average graph:</strong>Shows the average and standard deviation.<br/>
 			<strong>Grades histogram:</strong>Shows the number of students per range.<br/>
@@ -316,11 +324,11 @@ $string ['teacherrankingtitle'] = 'Ranking: nombre del profesor v/s actividades'
 $string ['courserankingtitle'] = 'Ranking: nombre del curso v/s páginas impresas';
 $string ['costreport'] = 'Reportes';
 $string ['totalactivies'] = 'Número de actividades';
-$string ['emarkingcourses'] = 'Cursos con eMarking';
+$string ['emarkingcourses'] = 'Cursos con EMarking';
 $string ['meantestlenght'] = 'Largo promedio de prueba';
 $string ['totalprintedpages'] = 'Hojas totales impresas';
-$string ['reportbuttonsheader'] = 'Costos de eMarking';
-$string ['secondarybuttonsheader'] = 'Costos de sub-categorías de eMarking';
+$string ['reportbuttonsheader'] = 'Costos de EMarking';
+$string ['secondarybuttonsheader'] = 'Costos de sub-categorías de EMarking';
 $string ['courseranking'] = 'Nombre del cursos';
 $string ['teacherranking'] = 'Nombre del profesores';
 $string ['printingcost'] = 'Costo por hoja impresa';
@@ -331,7 +339,7 @@ $string ['costconfigtab'] = 'Definir costo de categorías';
 $string ['costcategorytable'] = 'Ver costo de categorías';
 $string ['editcost'] = 'Editar';
 $string ['activities'] = 'Actividades';
-$string ['emarkingcourses'] = 'Cursos con eMarking';
+$string ['emarkingcourses'] = 'Cursos con EMarking';
 $string ['meanexamlength'] = 'Largo promedio prueba';
 $string ['totalprintedpages'] = 'Paginas impresas';
 $string ['totalcost'] = 'Costo total';
@@ -376,9 +384,34 @@ $string ['exportagreement'] = 'Exportar acuerdo';
 $string ['comparativereport'] = 'Comparativo';
 $string ['comparativereport_help'] = 'Comparativo';
 $string ['rubrcismustbeidentical'] = 'Las rúbricas deben ser idénticas para poder comparar';
+// EMARKING ORM
+$string['printquiz'] = 'Descargar cuestionario';
+$string['previewquiz'] = 'Previsualizar cuestionario';
+$string['answersheetsquiz'] = 'Descargar hojas de respuesta';
+$string['quizprinting'] = 'Impresión de cuestionarios';
+$string['confirmcreateattempts'] = 'Al crear los intentos se borrarán todos los intentos anteriores. ¿Está seguro(a)?';
+$string['createattempts'] = 'Crear intentos';
+$string['uploadanswers'] = 'Subir respuestas';
+$string['finished'] = 'Proceso finalizado';
+$string['processing'] = 'Procesando';
+$string['pdfquizcreated'] = 'El cuestinario fue creado en versión PDF exitosamente. Descárguelo desde el enlace siguiente:';
+$string['creatingquiz'] = 'Creando PDF para cuestionario';
+$string['loadingquestions'] = 'Cargando preguntas';
+$string['downloadingimages'] = 'Descargando imágenes';
+$string['creatingpdffile'] = 'Creando archivo PDF';
+$string['answersfile'] = 'Archivo de respuestas';
+$string['answersfile_help'] = 'Archivo que contiene las respuestas de los alumnos';
+$string['answersfileisrequired'] = 'Se necesita un archivo de respuestas';
+$string['fileisnotcsv'] = 'Solo se pueden procesar archivos csv';
+$string['csvdelimiter'] = 'Separador de campos';
+$string['csvdelimiter_help'] = 'El caracter utilizado para separar los campos en el archivo CSV';
+$string['finishimportcsv'] = 'Finalizar importación';
+$string['csvimportsuccessfull'] = 'Las respuestas se subieron exitosamente, pero el proceso no ha finalizado. Para finalizar el proceso haga clic en finalizar.';
+$string['idnumber'] = 'ID';
+// GENERAL STRINGS
 $string ['gradescheck'] = 'La nota mínima no puede ser igual o mayor que la nota máxima.';
 $string ['adjustslope'] = 'Ajustar pendiente de calificaciones';
-$string ['adjustslope_help'] = 'Ajusta cómo eMarking calculará la calificación final, usando una calificación y puntaje de ajuste. Las nuevas calificaciones se calcularán linealmente con una pendiente entre 0 puntos y la calificación mínima, y la calificación/puntaje de ajuste, para luego continuar hasta la calificación máxima.';
+$string ['adjustslope_help'] = 'Ajusta cómo EMarking calculará la calificación final, usando una calificación y puntaje de ajuste. Las nuevas calificaciones se calcularán linealmente con una pendiente entre 0 puntos y la calificación mínima, y la calificación/puntaje de ajuste, para luego continuar hasta la calificación máxima.';
 $string ['adjustslopegrade'] = 'Calificación de ajuste';
 $string ['adjustslopegrade_help'] = 'La calificación usada para calcular la pendiente de ajuste, i.e. entre la calificación mínima y la calificación de ajuste.';
 $string ['adjustslopescore'] = 'Puntaje de ajuste';
@@ -457,7 +490,7 @@ $string ['doyouwantdeleterelationship'] = '¿Quieres eliminar el permiso?';
 $string ['managepermissions'] = 'Administrar permisos de impresoras';
 $string ['emptypermissions'] = 'No existen permisos';
 $string ['addpermission'] = 'Agregar permiso';
-$string ['annotatesubmission_help'] = 'eMarking allows to mark digitized exams using rubrics. In this page you can see the course list and their submissions (digitized answers). It also shows the exam status, that can be missing for a student with no answers, submitted if it has not been graded, responded when the marking is finished and regrading when a regrade request was made by a student.';
+$string ['annotatesubmission_help'] = 'EMarking allows to mark digitized exams using rubrics. In this page you can see the course list and their submissions (digitized answers). It also shows the exam status, that can be missing for a student with no answers, submitted if it has not been graded, responded when the marking is finished and regrading when a regrade request was made by a student.';
 $string ['regrades_help'] = 'This page shows the regrade requests made by students.';
 $string ['ranking'] = 'Ranking';
 $string ['areyousure'] = '¿Está seguro?';
@@ -481,7 +514,7 @@ $string ['downloadsuccessfull'] = 'Descarga de prueba exitosa';
 $string ['email'] = 'Correo';
 $string ['emailinstructions'] = 'Ingrese el código de seguridad enviado a: {$a->email}';
 $string ['smsinstructions'] = 'Ingrese el código de seguridad enviado al teléfono: {$a->phone2}';
-$string ['emarking'] = 'eMarking';
+$string ['emarking'] = 'EMarking';
 $string ['enrolincludes'] = 'Métodos de matriculación por defecto';
 $string ['enrolincludes_help'] = 'Los métodos de matriculación que por defecto se seleccionarán al enviar a imprimir una prueba.';
 $string ['errors'] = 'Errores';
@@ -500,7 +533,7 @@ $string ['filerequiredzip_help'] = 'Se requiere un archivo ZIP con las respuesta
 $string ['filerequiredtosendnewprintorder'] = 'Se requiere un archivo PDF';
 $string ['grade'] = 'Calificación';
 $string ['headerqr'] = 'Encabezado personalizado';
-$string ['headerqr_help'] = 'El encabezado personalizado de eMarking permite imprimir la prueba personalizada para cada estudiante. Esto permite luego procesarla automáticamente para su corrección y entrega usando la actividad eMarking.<br/>
+$string ['headerqr_help'] = 'El encabezado personalizado de EMarking permite imprimir la prueba personalizada para cada estudiante. Esto permite luego procesarla automáticamente para su corrección y entrega usando la actividad EMarking.<br/>
 		Ejemplo de encabezado:<br/>
 		<img width="380" src="' . $CFG->wwwroot . '/mod/emarking/img/preview.jpg">
 		<div class="required">Advertencia<ul>
@@ -570,20 +603,20 @@ $string ['multicourse'] = 'Multicurso';
 $string ['multicourse_help'] = 'Select other course for which this exam will also be printed';
 $string ['singlepdf'] = 'PDF único con todos los estudiantes';
 $string ['multiplepdfs'] = 'Múltiples pdfs en un archivo zip';
-$string ['multiplepdfs_help'] = 'Si se selecciona, eMarking generará un archivo zip que contendrá un pdf personalizado por cada estudiante, si no se generará un solo pdf con todas las pruebas.';
+$string ['multiplepdfs_help'] = 'Si se selecciona, EMarking generará un archivo zip que contendrá un pdf personalizado por cada estudiante, si no se generará un solo pdf con todas las pruebas.';
 $string ['myexams'] = 'Mis pruebas';
 $string ['myexams_help'] = 'Esta página muestra todas las pruebas que han sido enviadas a imprimir para este curso. Usted puede editarlas o incluso cancelarlas mientras no hayan sido descargadas por el centro de copiado.';
 $string ['names'] = 'Nombres/Apellidos';
 $string ['emailsent'] = 'Security code sent to your email';
 $string ['newprintorder'] = 'Enviar prueba a impresión';
 $string ['newprintorder_help'] = 'Para enviar una prueba a imprimir debe indicar un nombre para la prueba (p.ej: Prueba 1), la fecha exacta en que se tomará la prueba y un archivo pdf con la prueba misma.<br/>
-		<strong>Encabezado personalizado eMarking:</strong> Si escoge esta opción, la prueba será impresa con un encabezado personalizado para cada estudiante, incluyendo su foto si está disponible. Este encabezado permite luego procesar automáticamente las pruebas usando el módulo eMarking, que apoya el proceso de corrección, entrega de calificaciones y recepción de recorrecciones.<br/>
+		<strong>Encabezado personalizado EMarking:</strong> Si escoge esta opción, la prueba será impresa con un encabezado personalizado para cada estudiante, incluyendo su foto si está disponible. Este encabezado permite luego procesar automáticamente las pruebas usando el módulo EMarking, que apoya el proceso de corrección, entrega de calificaciones y recepción de recorrecciones.<br/>
 		<strong>Instrucciones para el centro de copiado:</strong> Instrucciones especiales pueden ser enviadas al centro de copiado, tales como imprimir hojas extra por cada prueba o pruebas extra.
 		';
 $string ['nocostdata'] = 'No hay suficiente información para mostrar costos, confirme que las actividades fueron enviadas a imprimir.';
-$string ['nototalcost'] = 'No hay suficiente información para mostrar costos, confirme que sus actividades de eMarking tienen un costo asociado.';
-$string ['nocourseranking'] = 'No hay suficiente información para mostrar costos, confirme que hay actividades de eMarking.';
-$string ['noteacherranking'] = 'No hay suficiente información para mostrar costos, confirme que las actividades de eMarking fueron enviadas a imprimir.';
+$string ['nototalcost'] = 'No hay suficiente información para mostrar costos, confirme que sus actividades de EMarking tienen un costo asociado.';
+$string ['nocourseranking'] = 'No hay suficiente información para mostrar costos, confirme que hay actividades de EMarking.';
+$string ['noteacherranking'] = 'No hay suficiente información para mostrar costos, confirme que las actividades de EMarking fueron enviadas a imprimir.';
 $string ['nostudent'] = 'No hay estudiantes en esta categoría, confirme que asigno estudiantes a los cursos.';
 $string ['nodata'] = 'No hay datos';
 $string ['nopagestoprocess'] = 'Error. El archivo no contiene páginas a procesar, por favor suba las respuestas nuevamente.';
@@ -604,7 +637,7 @@ $string ['pdffile'] = 'Archivo(s) PDF de la prueba';
 $string ['pdffile_help'] = 'Si incluye más de un archivo PDF, éstos se utilizarán como formas diferentes a asignar para los estudiantes.';
 $string ['pdffileupdate'] = 'Reemplazar archivo(s) PDF de la prueba';
 $string ['pluginadministration'] = 'Administración de emarking';
-$string ['pluginname'] = 'eMarking';
+$string ['pluginname'] = 'EMarking';
 $string ['printdoublesided'] = 'Doble cara';
 $string ['printdoublesided_help'] = 'Al seleccionar doble cara, e-marking intentará imprimir la prueba por ambos lados del papel. Si CUPS (impresión en línea) no está configurada, se enviarán instrucciones a quien descargue la prueba.';
 $string ['printexam'] = 'Imprimir prueba';
@@ -636,7 +669,7 @@ $string ['selectall'] = 'Seleccionar todas';
 $string ['selectnone'] = 'Seleccionar ninguna';
 $string ['settings'] = 'Configuración';
 $string ['settingsadvanced'] = 'Configuración avanzada';
-$string ['settingsadvanced_help'] = 'Configuración avanzada para eMarking';
+$string ['settingsadvanced_help'] = 'Configuración avanzada para EMarking';
 $string ['settingssecurity'] = 'Configuración de seguridad';
 $string ['settingssecurity_help'] = 'Se puede agregar seguridad extra usando el servicio SMS de Twilio.com para validar la descarga de pruebas usando mensajes de texto.';
 $string ['smspassword'] = 'Token de autorización de Twilio.com';
@@ -667,7 +700,7 @@ $string ['totalpagesprint'] = 'Páginas totales a imprimir';
 $string ['uploadexamfile'] = 'Archivo Zip';
 $string ['uploadinganswersheets'] = 'Subiendo respuestas de los estudiantes';
 $string ['usesms'] = 'Usar Twilio.com para enviar SMS';
-$string ['usesms_help'] = 'Usar mensaje SMS en vez de correo electrónico para verificar códigos de seguridad de eMarking';
+$string ['usesms_help'] = 'Usar mensaje SMS en vez de correo electrónico para verificar códigos de seguridad de EMarking';
 $string ['viewsubmission'] = 'Ver prueba';
 $string ['formnewcomment'] = 'Texto del comentario';
 $string ['writecomment'] = 'Escriba un Comentario';
@@ -698,7 +731,7 @@ $string ['eventdeletemarkdeleted'] = 'Borrar Marca';
 $string ['eventinvalidaccessgranted'] = 'Acceso inválido, intentando cargar la prueba';
 $string ['eventsuccessfullydownloaded'] = 'Descarga de prueba exitosa';
 $string ['eventinvalidtokengranted'] = 'Código de seguridad no válido al intentar descargar prueba.';
-$string ['eventunauthorizedccessgranted'] = 'WARNING: Acceso no autorizado a la Interfaz Ajax de eMarking';
+$string ['eventunauthorizedccessgranted'] = 'WARNING: Acceso no autorizado a la Interfaz Ajax de EMarking';
 $string ['eventmarkersconfigcalled'] = 'Se ingresa al markers config';
 $string ['eventmarkersassigned'] = 'Correctores han sido assignado';
 $string ['eventemarkingcalled'] = 'Llamada al emarking';

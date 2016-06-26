@@ -346,6 +346,8 @@
 					COMMENT="user comment" />
 				<FIELD NAME="filetoprint" TYPE="int" LENGTH="10" NOTNULL="false"
 					SEQUENCE="false" />
+				<FIELD NAME="printingcost" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
