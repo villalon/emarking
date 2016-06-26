@@ -140,7 +140,7 @@ $string ['exams'] = 'Exams';
 $string ['examnotavailable'] = 'Your exam is not available';
 $string ['examstatusdownloaded'] = 'Downloaded';
 $string ['examstatusprinted'] = 'Printed';
-$string ['examstatussent'] = 'Sent for printing';
+$string ['examstatussent'] = 'Uploaded';
 $string ['examstatusbeingprocessed'] = 'Being processed';
 $string ['examstatuserrorprinting'] = 'Error printing';
 $string ['examstatuserrorprocessing'] = 'Error processing';
@@ -298,6 +298,8 @@ $string ['filerequiredpdf_help'] = 'A PDF file with the digitized answers is req
 $string ['filerequiredzip'] = 'A ZIP file with the digitized answers is required';
 $string ['filerequiredzip_help'] = 'A zip file with the digitized answers is required';
 $string ['fileisnotzip'] = 'File is not ZIP';
+$string ['nodigitizedanswerfiles'] = 'No digitized answers files have been uploaded yet';
+$string ['digitizedanswersprocessing'] = 'Digitized answers processing';
 // REPORTS.
 $string ['gradereport'] = 'Grades report';
 $string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular EMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>

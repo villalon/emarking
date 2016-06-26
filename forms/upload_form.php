@@ -47,7 +47,7 @@ class mod_emarking_upload_form extends moodleform {
         $mform = $this->_form;
         $instance = $this->_customdata;
         // Header.
-        $mform->addElement('header', 'digitizedfilepdf', get_string('digitizedfile', 'mod_emarking'));
+        $mform->addElement('header', 'digitizedfilepdf', get_string('uploadanswers', 'mod_emarking'));
         $mform->addHelpButton('digitizedfilepdf', 'digitizedfile', 'mod_emarking');
         // The course module id.
         $mform->addElement('hidden', 'id', $instance['coursemoduleid']);

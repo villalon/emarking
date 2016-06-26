@@ -894,6 +894,29 @@ function emarking_get_string_for_status($status, $pctmarked = 0) {
     }
 }
 /**
+ * Returns a human readable status for a digitized answers file
+ *
+ * @param int $status
+ *            the digitized answers status
+ * @return Ambigous <string, lang_string>
+ */
+function emarking_get_string_for_status_digitized($status) {
+    switch ($status) {
+        case EMARKING_DIGITIZED_ANSWER_MISSING :
+            return get_string('statusmissing', 'mod_emarking');
+        case EMARKING_DIGITIZED_ANSWER_UPLOADED :
+            return get_string('examstatussent', 'mod_emarking');
+        case EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED :
+            return get_string('examstatusbeingprocessed', 'mod_emarking');
+        case EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING :
+            return get_string('examstatuserrorprocessing', 'mod_emarking');
+        case EMARKING_DIGITIZED_ANSWER_PROCESSED :
+            return get_string('examstatusprocessed', 'mod_emarking');
+        default :
+            return get_string('statuserror', 'mod_emarking');
+    }
+}
+/**
  * Changes the order of the pages for a submission, according to
  * a new order
  *
