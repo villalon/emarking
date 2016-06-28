@@ -868,7 +868,7 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
     $totaldocumentsprocessed = 0;
     $totaldocumentsignored = 0;
     // Read full directory, then start processing.
-    $files = scandir($tempdir);
+    $files = scandir($tempdir, SCANDIR_SORT_ASCENDING);
     $doubleside = false;
     $pdffiles = array();
     foreach ($files as $fileintemp) {
@@ -986,6 +986,31 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm, progress_bar 
         $totaldocumentsignored);
 }
 /**
+ * Gets a list of digitized answers for an emarking activity
+ * @param unknown $emarking
+ * @param unknown $status
+ */
+function emarking_get_digitized_answer_files($emarking = NULL, $status = NULL) {
+    global $DB;
+    $statusfilter = '';
+    $params = array();
+    $emarkingfilter = '';
+    if($emarking) {
+        $emarkingfilter = 'D.emarking = ? AND';
+        $params[] = $emarking->id;
+    }
+    if($status) {
+        $statusfilter = ' AND D.status = ?';
+        $params[] = $status;
+    }
+    $sql = "SELECT D.id, F.id as fileid, D.emarking, F.pathnamehash as hash, F.filename, F.mimetype, F.filesize, D.timecreated, D.status FROM {files} F
+    INNER JOIN {emarking_digitized_answers} D ON ($emarkingfilter D.file = F.id AND D.id = F.itemid)
+    WHERE F.filearea = 'upload' $statusfilter
+    ORDER BY D.timecreated";
+    $digitizedanswersfiles = $DB->get_records_sql($sql, $params);
+    return $digitizedanswersfiles;
+}
+/**
  * Uploads a PDF file as a student's submission for a specific assignment
  *
  * @param object $emarking
@@ -1055,28 +1080,23 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
     $page = $DB->get_record('emarking_page',
             array(
                 'submission' => $submission->id,
-                'student' => $student->id,
                 'page' => $pagenumber));
     if ($page != null) {
         $page->file = $fileinfo->get_id();
         $page->fileanonymous = $fileinfoanonymous->get_id();
         $page->timemodified = time();
-        $page->teacher = $USER->id;
         $DB->update_record('emarking_page', $page);
     } else {
         $page = new stdClass();
-        $page->student = $student->id;
         $page->page = $pagenumber;
         $page->file = $fileinfo->get_id();
         $page->fileanonymous = $fileinfoanonymous->get_id();
         $page->submission = $submission->id;
         $page->timecreated = time();
         $page->timemodified = time();
-        $page->teacher = $USER->id;
         $page->id = $DB->insert_record('emarking_page', $page);
     }
     // Update submission info.
-    $submission->teacher = $page->teacher;
     $submission->timemodified = $page->timemodified;
     $DB->update_record('emarking_submission', $submission);
     return true;

@@ -3,7 +3,8 @@
 	COMMENT="XMLDB file for Moodle mod/emarking" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 	<TABLES>
-		<TABLE NAME="emarking" COMMENT="An eMarking activity in which an exam can be marked">
+		<TABLE NAME="emarking"
+			COMMENT="An eMarking activity in which an exam can be marked">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -62,7 +63,8 @@
 				<FIELD NAME="collaborativefeatures" TYPE="int" LENGTH="10"
 					NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Wall, chat, SOS" />
 				<FIELD NAME="justiceperception" TYPE="int" LENGTH="10"
-					NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Justice perception survey for students" />
+					NOTNULL="false" DEFAULT="0" SEQUENCE="false"
+					COMMENT="Justice perception survey for students" />
 				<FIELD NAME="agreementflexibility" TYPE="int" LENGTH="3"
 					NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="firststagedate" TYPE="int" LENGTH="10" NOTNULL="false"
@@ -85,7 +87,8 @@
 				<INDEX NAME="course" UNIQUE="false" FIELDS="course" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="emarking_submission" COMMENT="A submission is a set of pages submitted by a student as an exam">
+		<TABLE NAME="emarking_submission"
+			COMMENT="A submission is a set of pages submitted by a student as an exam">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -120,7 +123,8 @@
 					COMMENT="Index to speed up looking for submissions in an emarking activity" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="emarking_marker_criterion" COMMENT="A table that links a marker to a specific criterion">
+		<TABLE NAME="emarking_marker_criterion"
+			COMMENT="A table that links a marker to a specific criterion">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -172,8 +176,6 @@
 					SEQUENCE="true" />
 				<FIELD NAME="submission" TYPE="int" LENGTH="20" NOTNULL="false"
 					SEQUENCE="false" />
-				<FIELD NAME="student" TYPE="int" LENGTH="20" NOTNULL="false"
-					SEQUENCE="false" />
 				<FIELD NAME="file" TYPE="text" NOTNULL="false" SEQUENCE="false" />
 				<FIELD NAME="fileanonymous" TYPE="text" NOTNULL="false"
 					SEQUENCE="false" />
@@ -182,20 +184,6 @@
 				<FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true"
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="grade" TYPE="int" LENGTH="20" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="submissioncomment" TYPE="char" LENGTH="200"
-					NOTNULL="true" SEQUENCE="false" />
-				<FIELD NAME="format" TYPE="int" LENGTH="20" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="teacher" TYPE="int" LENGTH="20" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timemarked" TYPE="int" LENGTH="20" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="mailed" TYPE="int" LENGTH="1" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="draft" TYPE="int" LENGTH="10" NOTNULL="false"
 					DEFAULT="0" SEQUENCE="false" />
 			</FIELDS>
 			<KEYS>
@@ -296,7 +284,8 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_exams" COMMENT="Exams that will be printed through the emarking system">
+		<TABLE NAME="emarking_exams"
+			COMMENT="Exams that will be printed through the emarking system">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -451,7 +440,8 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_grade_history" COMMENT="This tables stores all the changes in grades for each draft">
+		<TABLE NAME="emarking_grade_history"
+			COMMENT="This tables stores all the changes in grades for each draft">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -557,7 +547,8 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="emarking_outcomes_criteria" COMMENT="Relationship between rubric criteria and learning outcomes">
+		<TABLE NAME="emarking_outcomes_criteria"
+			COMMENT="Relationship between rubric criteria and learning outcomes">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -578,7 +569,8 @@
 					FIELDS="emarking" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="emarking_scale_levels" COMMENT="Percentages by which the levels in a scale are chosen">
+		<TABLE NAME="emarking_scale_levels"
+			COMMENT="Percentages by which the levels in a scale are chosen">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
@@ -612,6 +604,30 @@
 			<INDEXES>
 				<INDEX NAME="category" UNIQUE="true" FIELDS="category" />
 			</INDEXES>
+		</TABLE>
+		<TABLE NAME="emarking_digitized_answers"
+			COMMENT="Each digitized answer represents a file containing digitized answers">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="true" />
+				<FIELD NAME="file" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="id of the file in mdl_files" />
+				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="emarking activity id" />
+				<FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="answers processing status" />
+				<FIELD NAME="totalpages" TYPE="int" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="total pages found in the file" />
+				<FIELD NAME="identifiedpages" TYPE="int" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="pages successfully identified by its qr" />
+				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="when the file was created" />
+				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="last time it was modified" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
 		</TABLE>
 	</TABLES>
 </XMLDB>

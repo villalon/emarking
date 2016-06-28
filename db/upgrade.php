@@ -1255,5 +1255,101 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2016051500, 'emarking');
     }
+    if ($oldversion < 2016062501) {
+    
+        // Define table emarking_digitized_answers to be created.
+        $table = new xmldb_table('emarking_digitized_answers');
+    
+        // Adding fields to table emarking_digitized_answers.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('file', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('emarking', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('totalpages', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('identifiedpages', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    
+        // Adding keys to table emarking_digitized_answers.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+        // Conditionally launch create table for emarking_digitized_answers.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016062501, 'emarking');
+    }
+    if ($oldversion < 2016062503) {
+    
+        // Define field student to be dropped from emarking_page.
+        $table = new xmldb_table('emarking_page');
+        $field = new xmldb_field('student');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+            $field = new xmldb_field('student');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+            $field = new xmldb_field('grade');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+            $field = new xmldb_field('submissioncomment');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+            $field = new xmldb_field('format');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+            $field = new xmldb_field('teacher');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+            $field = new xmldb_field('timemarked');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+            $field = new xmldb_field('mailed');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+                $field = new xmldb_field('draft');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016062503, 'emarking');
+    }
     return true;
 }

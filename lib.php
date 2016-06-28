@@ -62,7 +62,7 @@ define('EMARKING_STATUS_PUBLISHED', 20); // Feedback generated.
 define('EMARKING_STATUS_REGRADING', 30); // Student did not accept. asked for regrade.
 define('EMARKING_STATUS_REGRADING_RESPONDED', 35); // Regrades were processed.
 define('EMARKING_STATUS_ACCEPTED', 40); // Student accepted the submission.
-                                        // Regrade motives.
+// Regrade motives.
 define('EMARKING_REGRADE_MISASSIGNED_SCORE', 1);
 define('EMARKING_REGRADE_UNCLEAR_FEEDBACK', 2);
 define('EMARKING_REGRADE_STATEMENT_PROBLEM', 3);
@@ -74,6 +74,12 @@ define('EMARKING_ANSWERKEY_NONE', 0);
 define('EMARKING_ANSWERKEY_REQUESTED', 10);
 define('EMARKING_ANSWERKEY_REJECTED', 20);
 define('EMARKING_ANSWERKEY_ACCEPTED', 30);
+// Digitized answers status.
+define('EMARKING_DIGITIZED_ANSWER_MISSING', 0);
+define('EMARKING_DIGITIZED_ANSWER_UPLOADED', 10);
+define('EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED', 20);
+define('EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING', 30);
+define('EMARKING_DIGITIZED_ANSWER_PROCESSED', 40);
 // Moodle core API.
 /**
  * Returns the information on whether the module supports a feature

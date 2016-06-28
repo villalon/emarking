@@ -294,6 +294,8 @@ $string ['uploadinganswersheets'] = 'Subiendo respuestas digitalizadas';
 $string ['enabledigitizedzipfile'] = 'Habilitar respuestas en formato zip';
 $string ['enabledigitizedzipfile_help'] = 'Habilita subir respuestas digitalizadas previamente procesadas usando el software EMarking desktop';
 $string ['usedigitizedzipfile'] = 'Usar respuestas digitalizadas pre-procesadas';
+$string ['nodigitizedanswerfiles'] = 'No se han subido respuestas digitalizadas aún';
+$string ['digitizedanswersprocessing'] = 'Procesamiento de respuestas digitalizadas';
 // REPORTS.
 $string ['reports'] = 'Reportes';
 $string ['gradereport'] = 'Grades report';

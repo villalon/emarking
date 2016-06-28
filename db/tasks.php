@@ -39,4 +39,13 @@ $tasks = array(
         'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'));
+        'month' => '*'),
+    array(
+        'classname' => 'mod_emarking\task\process_digitized_answers',
+        'blocking' => 1,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*')    
+    );
