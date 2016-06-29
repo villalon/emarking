@@ -41,13 +41,13 @@ class process_digitized_answers extends \core\task\scheduled_task {
         // Setup de directorios temporales.
         $tempdir = emarking_get_temp_dir_path(random_string());
         emarking_initialize_directory($tempdir, true);
-        foreach($digitizedanswerfiles as $file) {
-            if(!$zipfile = emarking_get_path_from_hash($tempdir, $file->hash)) {
-                mtrace('Invalid file for processing ' . $file->id);
+        foreach($digitizedanswerfiles as $digitizedanswerfileile) {
+            if(!$zipfile = emarking_get_path_from_hash($tempdir, $digitizedanswerfile->hash)) {
+                mtrace('Invalid file for processing ' . $digitizedanswerfile->id);
                 continue;
             }
-            if(!$emarking = $DB->get_record('emarking', array('id' => $file->emarking))) {
-                mtrace('Invalid emarking activity ' . $file->emarking);
+            if(!$emarking = $DB->get_record('emarking', array('id' => $digitizedanswerfile->emarking))) {
+                mtrace('Invalid emarking activity ' . $digitizedanswerfile->emarking);
                 continue;
             }
             if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
@@ -59,26 +59,26 @@ class process_digitized_answers extends \core\task\scheduled_task {
                 continue;
             }
             $totalfiles++;
-            $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $file->filename ($file->id)";
-            if($file->mimetype === 'application/pdf') {
+            $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $digitizedanswerfile->filename ($digitizedanswerfile->id)";
+            if($digitizedanswerfile->mimetype === 'application/pdf') {
                 mtrace($msg . ' PDF processing not implemented yet');
                 continue;
             }
-            $file->status = EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED;
-            $DB->update_record('emarking_digitized_answers', $file);
+            $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED;
+            $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
             // Process documents and obtain results.
             list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
             emarking_upload_answers($emarking, $zipfile, $course,
-                $cm, NULL);
+                $cm, $digitizedanswerfile);
             if($result) {
-                $file->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
+                $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
             } else {
-                $file->status = EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING;
+                $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING;
             }
-            $file->totalpages = $totaldocumentsprocessed;
-            $file->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);
-            $msg .= emarking_get_string_for_status_digitized($file->status) . ' processed:' . $totaldocumentsprocessed . ' ignored:' . $totaldocumentsignored;
-            $DB->update_record('emarking_digitized_answers', $file);
+            $digitizedanswerfile->totalpages = $totaldocumentsprocessed;
+            $digitizedanswerfile->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);
+            $msg .= emarking_get_string_for_status_digitized($digitizedanswerfile->status) . ' processed:' . $totaldocumentsprocessed . ' ignored:' . $totaldocumentsignored;
+            $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
             mtrace($msg);
         }
         mtrace("A total of $totalfiles were processed.");
