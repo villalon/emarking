@@ -171,5 +171,12 @@ if (count($digitizedanswersfiles) == 0) {
     }
     echo html_writer::table($table);
 }
+// Show orphan pages button
+$orphanpages = emarking_get_digitized_answer_orphan_pages($context);
+$numorphanpages = count($orphanpages);
+if($numorphanpages > 0) {
+    $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array('id'=>$cm->id));
+    echo $OUTPUT->single_button($orphanpagesurl, 'There are '. $numorphanpages . ' orphan pages', 'GET');
+}
 $mform->display();
 echo $OUTPUT->footer();
