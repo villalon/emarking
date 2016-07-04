@@ -233,5 +233,4 @@ if ($issupervisor) {
 	}
 	echo html_writer::end_tag ( 'div' );
 }
-echo $OUTPUT->single_button ( $urlcourse, get_string ( "backcourse", "mod_emarking" ) );
 echo $OUTPUT->footer ();

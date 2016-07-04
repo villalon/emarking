@@ -45,7 +45,6 @@ require_login($course->id);
 if (isguestuser()) {
     die();
 }
-require_capability('mod/emarking:uploadexam', $context);
 $delete = optional_param('delete', 0, PARAM_INT);
 // Set navigation parameters.
 $PAGE->set_url($url);
@@ -65,6 +64,7 @@ if ($mform->is_cancelled()) {
     die();
 }
 if ($mform->get_data()) {
+    require_capability('mod/emarking:uploadexam', $context);
     // Save uploaded file in Moodle filesystem and check.
     $fs = get_file_storage();
     $fs->delete_area_files($context->id, 'mod_emarking', 'tmpupload');
@@ -122,8 +122,9 @@ if ($mform->get_data()) {
 }
 $deletedsuccessfull = false;
 if($delete) {
-    $filetodelete = $DB->get_record('emarking_digitized_answers', array('id'=>$delete));
-    if(!$filetodelete) {
+    require_capability('mod/emarking:uploadexam', $context);
+    $fileidtodelete = $DB->get_record('emarking_digitized_answers', array('id'=>$delete));
+    if(!$fileidtodelete) {
         print_error('Invalid id for digitized answer to be deleted');
     }
     $fs = get_file_storage();
@@ -140,7 +141,7 @@ if($deletedsuccessfull) {
     echo $OUTPUT->notification(get_string('transactionsuccessfull', 'mod_emarking'), 'notifysuccess');
 }
 if (count($digitizedanswersfiles) == 0) {
-    echo $OUTPUT->notification(get_string('nodigitizedanswerfiles', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->notification(get_string('nodigitizedanswerfiles', 'mod_emarking'), 'notifymessage');
 } else {
     $table = new html_table();
     $table->attributes['style'] = 'display:table;';
@@ -155,7 +156,8 @@ if (count($digitizedanswersfiles) == 0) {
     foreach($digitizedanswersfiles as $file) {
         $actions = array();
         $deleteurl = new moodle_url('/mod/emarking/print/uploadanswers.php', array('id'=>$cm->id, 'delete'=>$file->id));
-        if ($file->status == EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING || $file->status <= EMARKING_DIGITIZED_ANSWER_UPLOADED) {
+        if (($file->status == EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING || $file->status <= EMARKING_DIGITIZED_ANSWER_UPLOADED)
+            && has_capability('mod/emarking:uploadexam', $context)) {
             $actions[] = $OUTPUT->action_icon($deleteurl, new pix_icon('i/delete', 'delete', null, array(
                 'style' => 'width:1.5em;'
             )));
@@ -176,7 +178,9 @@ $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
 $numorphanpages = count($orphanpages);
 if($numorphanpages > 0) {
     $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array('id'=>$cm->id));
-    echo $OUTPUT->single_button($orphanpagesurl, 'There are '. $numorphanpages . ' orphan pages', 'GET');
+    echo $OUTPUT->single_button($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages), 'GET');
 }
-$mform->display();
+if(has_capability('mod/emarking:uploadexam', $context)) {
+    $mform->display();
+}
 echo $OUTPUT->footer();

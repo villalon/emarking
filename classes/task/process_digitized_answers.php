@@ -41,7 +41,7 @@ class process_digitized_answers extends \core\task\scheduled_task {
         // Setup de directorios temporales.
         $tempdir = emarking_get_temp_dir_path(random_string());
         emarking_initialize_directory($tempdir, true);
-        foreach($digitizedanswerfiles as $digitizedanswerfileile) {
+        foreach($digitizedanswerfiles as $digitizedanswerfile) {
             if(!$zipfile = emarking_get_path_from_hash($tempdir, $digitizedanswerfile->hash)) {
                 mtrace('Invalid file for processing ' . $digitizedanswerfile->id);
                 continue;

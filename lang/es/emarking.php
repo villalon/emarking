@@ -296,6 +296,12 @@ $string ['enabledigitizedzipfile_help'] = 'Habilita subir respuestas digitalizad
 $string ['usedigitizedzipfile'] = 'Usar respuestas digitalizadas pre-procesadas';
 $string ['nodigitizedanswerfiles'] = 'No se han subido respuestas digitalizadas aún';
 $string ['digitizedanswersprocessing'] = 'Procesamiento de respuestas digitalizadas';
+$string ['orphanpages'] = 'Páginas huérfanas';
+$string ['deleteselectedpages'] = 'Borrar páginas seleccionadas';
+$string ['thereareorphanpages'] = 'Hay {$a} páginas huérfanas';
+$string ['anonymousfile'] = 'Archivo anónimo';
+$string ['noorphanpages'] = 'No hay páginas huérfanas';
+$string ['rotatepage'] = 'Rotar página';
 // REPORTS.
 $string ['reports'] = 'Reportes';
 $string ['gradereport'] = 'Grades report';
@@ -721,7 +727,6 @@ $string ['gradehistogramtotal'] = 'Histograma de notas agregado';
 $string ['courseaproval'] = 'Aprobación de curso';
 $string ['range'] = 'Rango';
 $string ['marker'] = 'Corrector';
-
 // Events.
 $string ['eventemarkinggraded'] = 'Emarking';
 $string ['eventrotatepageswitched'] = 'Rotar pagina';

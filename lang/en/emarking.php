@@ -300,6 +300,12 @@ $string ['filerequiredzip_help'] = 'A zip file with the digitized answers is req
 $string ['fileisnotzip'] = 'File is not ZIP';
 $string ['nodigitizedanswerfiles'] = 'No digitized answers files have been uploaded yet';
 $string ['digitizedanswersprocessing'] = 'Digitized answers processing';
+$string ['orphanpages'] = 'Orphan pages';
+$string ['deleteselectedpages'] = 'Delete selected pages';
+$string ['thereareorphanpages'] = 'There are {$a} orphan pages';
+$string ['anonymousfile'] = 'Anonymous file';
+$string ['noorphanpages'] = 'There are no orphan pages';
+$string ['rotatepage'] = 'Rotate page';
 // REPORTS.
 $string ['gradereport'] = 'Grades report';
 $string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular EMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
@@ -715,7 +721,6 @@ $string ['marker'] = 'Marker';
 $string ['year'] = 'Year';
 // Events.
 $string ['eventemarkinggraded'] = 'Emarking';
-$string ['eventrotatepageswitched'] = 'Rotate page';
 $string ['eventaddcommentadded'] = 'Add coment';
 $string ['eventaddregradeadded'] = 'Add Regrade';
 $string ['eventdeletecommentdeleted'] = 'Delete comment';

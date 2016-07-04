@@ -650,7 +650,7 @@ $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
 $numorphanpages = count($orphanpages);
 if($numorphanpages > 0) {
     $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array('id'=>$cm->id));
-    echo $OUTPUT->single_button($orphanpagesurl, 'There are ' . $numorphanpages . ' orphan pages', 'GET');
+    echo $OUTPUT->single_button($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages), 'GET');
 }
 // If the user is a tutor or teacher we don't include justice perception.
 if ($usercangrade || ! $submission) {

@@ -662,18 +662,25 @@ function emarking_tabs($context, $cm, $emarking) {
     $issupervisor = has_capability("mod/emarking:supervisegrading", $context);
     $tabs = array();
     // Print tab.
-    $printtab = new tabobject("myexams", $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
-            get_string("print", 'mod_emarking'));
+    $printtab = new tabobject('printscan', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
+            $emarking->type == EMARKING_TYPE_PRINT_ONLY ? get_string("print", 'mod_emarking')
+                : get_string('type_print_scan', 'mod_emarking'));
+    // Print summary tab.
+    $printtab->subtree[] = new tabobject('myexams', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
+            get_string('exam', 'mod_emarking'));
     // Scan tab.
     $scantab = new tabobject("scan", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1",
-            get_string('scan', 'mod_emarking'));
+            get_string('exams', 'mod_emarking'));
     $scanlist = new tabobject("scanlist", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1",
-            get_string("exams", 'mod_emarking'));
+            get_string('view'));
     $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}",
             get_string('uploadanswers', 'mod_emarking'));
+    $orphanpages = new tabobject('orphanpages', $CFG->wwwroot . "/mod/emarking/print/orphanpages.php?id={$cm->id}",
+            get_string('orphanpages', 'mod_emarking'));
     $scantab->subtree [] = $scanlist;
-    if ($usercangrade && $issupervisor) {
-        $scantab->subtree [] = $uploadanswers;
+    if ($usercangrade && $issupervisor && $emarking->type != EMARKING_TYPE_PRINT_ONLY) {
+        $printtab->subtree [] = $uploadanswers;
+        $printtab->subtree [] = $orphanpages;
     }
     // Grade tab.
     $markingtab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}",
@@ -701,7 +708,7 @@ function emarking_tabs($context, $cm, $emarking) {
     }
     // Settings tab.
     $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}",
-            get_string("settings", 'mod_emarking'));
+            get_string('settings'));
     // Settings for marking.
     if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
         $settingstab->subtree [] = new tabobject("osmsettings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}",
@@ -743,15 +750,13 @@ function emarking_tabs($context, $cm, $emarking) {
         // Print tab goes always except for markers training.
         if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
                  $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-            if (has_capability('mod/emarking:uploadexam', $context)) {
+            if (has_capability('mod/emarking:addinstance', $context)) {
                 $tabs [] = $printtab;
             }
         }
         // Scan or enablescan tab.
         if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
             $tabs [] = $scantab;
-        } else if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING && $issupervisor) {
-            $markingtab->subtree [] = $uploadanswers;
         }
         // OSM tabs, either marking, reports and settings or enable osm.
         if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
@@ -1448,6 +1453,81 @@ function emarking_rotate_image($pageno, $submission, $context) {
             $imageinfo ['height']);
     }
     return false;
+}
+function emarking_rotate_image_file($fileid) {
+    // Now get the file from the Moodle storage.
+    $fs = get_file_storage();
+    if (! $file = $fs->get_file_by_id($fileid)) {
+        print_error('Invalid file to rotate');
+    }
+    // Si el archivo es una imagen.
+    if (!$imageinfo = $file->get_imageinfo()) {
+        print_error('File is not an image');
+    }
+        $tmppath = $file->copy_content_to_temp('emarking', 'rotate');
+        $image = imagecreatefrompng($tmppath);
+        $image = imagerotate($image, 180, 0);
+        if (! imagepng($image, $tmppath . '.png')) {
+            return false;
+        }
+        clearstatcache();
+        // Copy file from temp folder to Moodle's filesystem.
+        $filerecord = array(
+            'contextid' => $file->get_contextid(),
+            'component' => $file->get_component(),
+            'filearea' => 'tmp',
+            'itemid' => $file->get_itemid(),
+            'filepath' => $file->get_filepath(),
+            'filename' => $file->get_filename(),
+            'timecreated' => $file->get_timecreated(),
+            'timemodified' => time(),
+            'userid' => $file->get_userid(),
+            'author' => $file->get_author(),
+            'license' => $file->get_author());
+        $newfile = $fs->create_file_from_pathname($filerecord, $tmppath.'.png');
+        $file->replace_file_with($newfile);
+        $newfile->delete();
+        
+        return $tmppath . '.png';
+}
+        
+        
+function emarking_create_anonymous_page($file) {        
+        if (! $fileanonymous = $fs->get_file_by_id($file)) {
+            throw new Exception('File does not exist');
+        }
+        $size = getimagesize($tmppath . '.png');
+        $image = imagecreatefrompng($tmppath . '.png');
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $y2 = round($size [1] / 10, 0);
+        imagefilledrectangle($image, 0, 0, $size [0], $y2, $white);
+        if (! imagepng($image, $tmppath . '_a.png')) {
+            return false;
+        }
+        clearstatcache();
+        $filenameanonymous = $fileanonymous->get_filename();
+        $timecreatedanonymous = $fileanonymous->get_timecreated();
+        // Copy file from temp folder to Moodle's filesystem.
+        $filerecordanonymous = array(
+            'contextid' => $context->id,
+            'component' => 'mod_emarking',
+            'filearea' => 'pages',
+            'itemid' => $submission->emarking,
+            'filepath' => '/',
+            'filename' => $filenameanonymous,
+            'timecreated' => $timecreatedanonymous,
+            'timemodified' => time(),
+            'userid' => $student->id,
+            'author' => $student->firstname . ' ' . $student->lastname,
+            'license' => 'allrightsreserved');
+        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarking, '/', $filename)) {
+            $file->delete();
+        }
+        $fileinfo = $fs->create_file_from_pathname($filerecord, $tmppath . '.png');
+        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarking, '/', $filenameanonymous)) {
+            $fileanonymous->delete();
+        }
+        $fileinfoanonymous = $fs->create_file_from_pathname($filerecordanonymous, $tmppath . '_a.png'); 
 }
 /**
  * Validates that there is a rubric set for the emarking activity. If there

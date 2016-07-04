@@ -928,16 +928,17 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm) {
         $courseid = $parts[1];
         $pagenumber = $parts[2];
         // Now we process the files according to the emarking type.
-        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+        if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             if ($studentid === 'ERROR') {
                 $orphanpage = true;
             }
             if ($courseid != $course->id) {
                 $orphanpage = true;
             }
-            if (!$student = $DB->get_record('user', array(
+            $student = $DB->get_record('user', array(
                 'id' => $studentid
-            ))) {
+            ));
+            if (!$student) {
                 $orphanpage = true;
             } else {
                 if ($student->deleted) {
@@ -1051,8 +1052,26 @@ function emarking_get_digitized_answer_files($emarking = NULL, $status = NULL) {
 function emarking_get_digitized_answer_orphan_pages($context) {
     global $DB;
     $fs = get_file_storage();
-    $orphanpages = $fs->get_area_files($context->id, 'mod_emarking', 'orphanpages');
-    return $orphanpages;
+    $orphanpages = $fs->get_area_files($context->id, 'mod_emarking', 'orphanpages', FALSE, 'filename DESC', false);
+    $output = array();
+    foreach($orphanpages as $page) {
+        $filenameparts = explode('.',$page->get_filename());
+        if(count($filenameparts) != 2 || $filenameparts[1] !== 'png') {
+            continue;
+        }
+        $pagekey = $filenameparts[0];
+        $anonymousparts = explode('_', $filenameparts[0]);
+        if(count($anonymousparts) > 1 && $anonymousparts[1] === 'a') {
+            $pagekey = $anonymousparts[0];
+            if(isset($output[$pagekey])) {
+                $output[$pagekey]->anonymous = $page;
+            }
+        } else {
+            $output[$pagekey] = $page;
+        }
+    }
+    ksort($output);
+    return $output;
 }
 /**
  * Uploads a PDF file as a student's submission for a specific assignment

@@ -105,7 +105,7 @@ $records = $DB->get_records_sql($sql, array(
     "emarking" => $emarking->id,
     "emarkingid2" => $emarking->id));
 if (count($records) == 0) {
-    echo $OUTPUT->notification(get_string('noregraderequests', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->notification(get_string('noregraderequests', 'mod_emarking'), 'notifymessage');
     if ($filteruser) {
         echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array(
             "id" => $cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
