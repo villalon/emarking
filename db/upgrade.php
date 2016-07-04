@@ -1351,5 +1351,58 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2016062503, 'emarking');
     }
+    if ($oldversion < 2016062702) {
+    
+    	// Define field timecorrectionstarted to be added to emarking_draft.
+    	$table = new xmldb_table('emarking_draft');
+    	$field = new xmldb_field('timecorrectionstarted', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timemodified');
+    
+    	// Conditionally launch add field timecorrectionstarted.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	 
+    	// Define field timecorrectionended to be added to emarking_draft.
+    	$field = new xmldb_field('timecorrectionended', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timecorrectionstarted');
+    	 
+    	// Conditionally launch add field timecorrectionended.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	 
+    	// Define field timefirstpublished to be added to emarking_draft.
+    	$field = new xmldb_field('timefirstpublished', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timecorrectionended');
+    	 
+    	// Conditionally launch add field timefirstpublished.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	 
+    	// Define field timelastpublished to be added to emarking_draft.
+    	$field = new xmldb_field('timelastpublished', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timefirstpublished');
+    	 
+    	// Conditionally launch add field timelastpublished.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	 
+    	// Define field timeregradingstarted to be added to emarking_draft.
+    	$field = new xmldb_field('timeregradingstarted', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timelastpublished');
+    	 
+    	// Conditionally launch add field timeregradingstarted.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	 
+    	// Define field timeregradingended to be added to emarking_draft
+    	$field = new xmldb_field('timeregradingended', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timeregradingstarted');
+    	 
+    	// Conditionally launch add field timeregradingended.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016062702, 'emarking');
+    }
     return true;
 }
