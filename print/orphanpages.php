@@ -105,6 +105,16 @@ echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'orphanpages');
 .fixorphanpage {
     display: none;
     margin-top: 10px;
+    position: absolute;
+    background-color: #fafafa;
+    padding: 5px;
+    border: 1px solid #bbb;
+    color: black !important;
+    border-radius: 3px;
+    box-shadow: 2px 2px 2px 2px grey;
+}
+.fixorphanpage button {
+    float: right;
 }
 -->
 </style>
@@ -164,11 +174,20 @@ if ($numorphanpages == 0) {
                 new pix_icon('i/show', get_string('anonymousfile', 'mod_emarking')));
         }
         $actions[] = html_writer::div(
-                html_writer::tag('input', NULL, array('name'=>'student-'.$file->get_id(), 'type'=>'text', 'class'=>'studentname', 'tabindex'=>($shown * 2)))
+                get_string('student', 'grades')
+                . '<br/>'
+                . html_writer::tag('input', NULL, array('name'=>'student-'.$file->get_id(), 'type'=>'text', 'class'=>'studentname', 'tabindex'=>($shown * 2)))
+                . '<br/>'
+                . get_string('page', 'mod_emarking')
+                . '<br/>'
                 . html_writer::select($options, 'page-'.$file->get_id(), '', false, array('tabindex'=>($shown * 2 + 1)))
-                . html_writer::div('','',array('id'=>'content-'.$file->get_id())),
+                . '<br/>'
+                . html_writer::tag('button', get_string('cancel'), array('class'=>'btn', 'onclick'=>'return fixorphancancel('.$file->get_id().');'))                    
+                . html_writer::tag('button', get_string('submit'), array('class'=>'btn', 'onclick'=>'return fixorphanhide('.$file->get_id().');'))
+            ,
                 'fixorphanpage',
-                array('id'=>'fix-'.$file->get_id()));
+                array('id'=>'fix-'.$file->get_id()))
+        . html_writer::div('','',array('id'=>'content-'.$file->get_id()));
         $imgurl = moodle_url::make_pluginfile_url($context->id, 'mod_emarking', 'orphanpages', $emarking->id, '/', $file->get_filename());
         $imgurl .= '?r=' . random_string();
         $data = array(
@@ -201,25 +220,34 @@ var students = [
             	}
             	?>
             	];
-function fixorphan(fileid) {
+$('.studentname').each(function(index){
+	console.log('an input');
+	console.log(students);
+});
+$('.studentname').autocomplete({
+	source: students
+});
+require(['core/ajax'], function(ajax) {
+	var call = ajax.call([
+	                      { methodname: 'core_get_string', args: { component: 'mod_wiki', stringid: 'pluginname' }}]);
+    call.done(function(response) {
+        console.log('yay' + response);
+    }).fail(function(ex) {
+        console.log(ex);
+    });
+});
+function fixorphanhide(fileid) {
+	$('#fix-'+fileid).hide();
+	$('#content-'+fileid).text('Saving');
+	$.
+	return false;
+}
+function fixorphancancel(fileid) {
 	$('#fix-'+fileid).hide();
 	return false;
 }
 function fixorphanshow(fileid) {
-	$('.studentname').autocomplete({
-		source: students
-	});
-	$('#fix-'+fileid).dialog({
-		dialogClass: "no-close",
-		buttons: [
-		          {
-			          text: "OK",
-			          click: function() {
-				          $(this).dialog("close");
-			          }
-		          }
-		]
-	});
+	$('#fix-'+fileid).show();
 	return false;
 }
 $('#select_all').change(function() {
@@ -232,17 +260,6 @@ $('#select_all').change(function() {
         $('#select_all').prop('title','<?php echo get_string('selectall', 'mod_emarking') ?>');
 	}
 });
-function rotate(fileid) {
-	console.log(fileid);
-	$.getJSON('<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/a.php', {} )
-		.done(function(json) {
-			console.log(json);
-		})
-		.fail(function(jqxhr, textStatus, error) {
-		    var err = textStatus + ", " + error;
-		    console.log( "Request Failed: " + err );
-		});
-}
 </script>
 <?php
 echo $OUTPUT->footer();
