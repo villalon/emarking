@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * This page shows a list of exams sent for printing.
 * It can be reached from a block within a category or from an EMarking
@@ -21,17 +20,17 @@
 *
 * @package mod
 * @subpackage emarking
-* @copyright 2012-2015 Jorge Villalon <jorge.villalon@uai.cl>
+* @copyright 2016 Benjamin Espinosa (beespinosa94@gmail.com)
 * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->dirroot . "/mod/emarking/locallib.php");
-require_once($CFG->dirroot . "/mod/emarking/print/locallib.php");
+require_once(dirname(__FILE__) . '/locallib.php');
+require_once(dirname(__FILE__) . '/forms/cycle_form.php');
+//require_once('reports/locallib.php');
 global $DB, $USER, $CFG, $OUTPUT;
 // Course id, if the user comes from a course.
 $courseid = required_param("course", PARAM_INT);
-// If the user is downloading a print form.
-$downloadform = optional_param("downloadform", false, PARAM_BOOL);
 // First check that the user is logged in.
 require_login();
 if (isguestuser()) {
@@ -45,21 +44,18 @@ if (! $course = $DB->get_record("course", array(
 // Both contexts, from course and category, for permissions later.
 $context = context_course::instance($course->id);
 // URL for current page.
-$url = new moodle_url("/mod/emarking/print/exams.php", array(
+$url = new moodle_url("/mod/emarking/reports/cycle.php", array(
 		"course" => $course->id));
 // URL for adding a new print order.
-$params = array(
-		"course" => $course->id);
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_title(get_string("emarking", "mod_emarking"));
 $PAGE->set_pagelayout("incourse");
-$PAGE->navbar->add(get_string("process", "mod_emarking"));
-if (has_capability("mod/emarking:downloadexam", $context)) {
-	$PAGE->requires->js("/mod/emarking/js/printorders.js");
-}
-
+$PAGE->navbar->add(get_string("cycle", "mod_emarking"));
+$formparameters = array($USER->id);
 	echo $OUTPUT->header();
 	
+	$addform = new cycle_form(null, $formparameters);
+	$addform->display();
 	echo $OUTPUT->footer();
