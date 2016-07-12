@@ -754,5 +754,5 @@ $string ['agreement'] = 'Acuerdo';
 $string ['yourmarking'] = 'Tu corrección';
 $string['cycle'] = 'Ciclo';
 $string['course'] = 'Curso';
-$string['section'] = 'Seccion';
+$string['section'] = 'Sección';
 $string['filters'] = 'Filtros';
