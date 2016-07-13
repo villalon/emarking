@@ -743,3 +743,7 @@ $string ['marking_completed'] = 'Well done, just wait for the others markers for
 $string ['stage'] = 'Stage';
 $string ['agreement'] = 'Agreement';
 $string ['yourmarking'] = 'Your marking';
+$string['cycle'] = 'Cycle';
+$string['course'] = 'Course';
+$string['section'] = 'Section';
+$string['filters'] = 'Filters';
