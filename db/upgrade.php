@@ -1404,5 +1404,87 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2016062702, 'emarking');
     }
+
+    if ($oldversion < 2016071800) {
+
+        // Define table emarking_activities to be created.
+        $table = new xmldb_table('emarking_activities');
+
+        // Adding fields to table emarking_activities.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('type', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('rubric_id', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('oa', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('title', XMLDB_TYPE_CHAR, '200', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('comunicative_purpose', XMLDB_TYPE_CHAR, '300', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('genre', XMLDB_TYPE_CHAR, '250', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('audience', XMLDB_TYPE_CHAR, '200', null, null, null, null);
+        $table->add_field('estimated_time', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('video_url', XMLDB_TYPE_CHAR, '300', null, null, null, null);
+        $table->add_field('example', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('file', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table emarking_activities.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for emarking_activities.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016071800, 'emarking');
+    }
+       if ($oldversion < 2016071800) {
+
+        // Define table emarking_social to be created.
+        $table = new xmldb_table('emarking_social');
+
+        // Adding fields to table emarking_social.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('activityid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('data', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table emarking_social.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for emarking_social.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016071800, 'emarking');
+    }
+    if ($oldversion < 2016071801) {
+
+        // Define field activityid to be added to emarking.
+        $table = new xmldb_table('emarking');
+        $field = new xmldb_field('activityid', XMLDB_TYPE_INTEGER, '20', null, null, null, '0', 'digitizingnotified');
+
+        // Conditionally launch add field activityid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016071801, 'emarking');
+    }
+   if ($oldversion < 2016071801) {
+
+        // Define field userid to be added to emarking_activities.
+        $table = new xmldb_table('emarking_activities');
+        $field = new xmldb_field('userid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0', 'file');
+
+        // Conditionally launch add field userid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016071801, 'emarking');
+    }
+
     return true;
 }
