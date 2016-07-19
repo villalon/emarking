@@ -1405,7 +1405,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016062702, 'emarking');
     }
 
-    if ($oldversion < 2016071800) {
+    if ($oldversion < 2016071900) {
 
         // Define table emarking_activities to be created.
         $table = new xmldb_table('emarking_activities');
@@ -1434,9 +1434,9 @@ function xmldb_emarking_upgrade($oldversion) {
         }
 
         // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2016071800, 'emarking');
+        upgrade_mod_savepoint(true, 2016071900, 'emarking');
     }
-       if ($oldversion < 2016071800) {
+       if ($oldversion < 2016071901) {
 
         // Define table emarking_social to be created.
         $table = new xmldb_table('emarking_social');
@@ -1455,9 +1455,9 @@ function xmldb_emarking_upgrade($oldversion) {
         }
 
         // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2016071800, 'emarking');
+        upgrade_mod_savepoint(true, 2016071901, 'emarking');
     }
-    if ($oldversion < 2016071801) {
+    if ($oldversion < 2016071902) {
 
         // Define field activityid to be added to emarking.
         $table = new xmldb_table('emarking');
@@ -1469,9 +1469,9 @@ function xmldb_emarking_upgrade($oldversion) {
         }
 
         // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2016071801, 'emarking');
+        upgrade_mod_savepoint(true, 2016071902, 'emarking');
     }
-   if ($oldversion < 2016071801) {
+   if ($oldversion < 2016071903) {
 
         // Define field userid to be added to emarking_activities.
         $table = new xmldb_table('emarking_activities');
@@ -1483,7 +1483,7 @@ function xmldb_emarking_upgrade($oldversion) {
         }
 
         // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2016071801, 'emarking');
+        upgrade_mod_savepoint(true, 2016071903, 'emarking');
     }
 
     return true;
