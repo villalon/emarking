@@ -60,16 +60,11 @@ class process_digitized_answers extends \core\task\scheduled_task {
             }
             $totalfiles++;
             $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $digitizedanswerfile->filename ($digitizedanswerfile->id)";
-            if($digitizedanswerfile->mimetype === 'application/pdf') {
-                mtrace($msg . ' PDF processing not implemented yet');
-                continue;
-            }
             $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED;
             $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
             // Process documents and obtain results.
             list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
-            emarking_upload_answers($emarking, $zipfile, $course,
-                $cm, $digitizedanswerfile);
+                emarking_upload_answers($emarking, $zipfile, $course, $cm);
             if($result) {
                 $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
             } else {

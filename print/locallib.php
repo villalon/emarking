@@ -26,7 +26,6 @@ function emarking_get_temp_dir_path($postfix) {
     global $CFG;
     return $CFG->dataroot . "/temp/emarking/" . $postfix;
 }
-
 /**
  * Generates personalized exams
  *
@@ -871,7 +870,7 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
  * @copyright 2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function emarking_upload_answers($emarking, $fileid, $course, $cm) {
+function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     global $CFG, $DB;
     $context = context_module::instance($cm->id);
     $exam = $DB->get_record('emarking_exams', array(
@@ -879,7 +878,11 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm) {
     ));
     // Setup de directorios temporales.
     $tempdir = emarking_get_temp_dir_path($emarking->id);
-    if (!emarking_unzip($fileid, $tempdir . "/") || !$exam) {
+    emarking_initialize_directory($tempdir, true);
+    $extension = pathinfo($filepath, PATHINFO_EXTENSION);
+    $filename = pathinfo($filepath, PATHINFO_FILENAME);
+    if($extension === 'zip') {
+    if (!emarking_unzip($filepath, $tempdir . "/") || !$exam) {
         return array(
             false,
             get_string('errorprocessingextraction', 'mod_emarking'),
@@ -887,10 +890,32 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm) {
             0
         );
     }
+    } elseif ($extension === 'pdf') {
+        $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
+            . $CFG->wwwroot . '/ admin pepito.P0 ' . $filepath . ' ' . $tempdir . ' '
+            . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+        $lastline = shell_exec($command);
+        var_dump($command);
+        var_dump($lastline);
+        die("wtfe");
+        if($return_var != 0) {
+            $errormsg = $lastline;
+        return array(
+            false,
+            $errormsg,
+            0,
+            0
+        );
+        }
+    }
     $totaldocumentsprocessed = 0;
     $totaldocumentsignored = 0;
     // Read full directory, then start processing.
     $files = scandir($tempdir, SCANDIR_SORT_ASCENDING);
+    var_dump($command);
+    var_dump($tempdir);
+    var_dump($files);
+    die("wtf2");
     $doubleside = false;
     $pngfiles = array();
     foreach($files as $fileintemp) {
@@ -989,7 +1014,7 @@ function emarking_upload_answers($emarking, $fileid, $course, $cm) {
             $totaldocumentsignored++;
             continue;
         }
-        if (emarking_submit($emarking, $context, $tempdir, $file, $student, $pagenumber)) {
+        if (emarking_submit($emarking, $context, $tempdir, $file, $student, $pagenumber, NULL)) {
             $totaldocumentsprocessed++;
         } else {
             return array(
@@ -1073,6 +1098,53 @@ function emarking_get_digitized_answer_orphan_pages($context) {
     ksort($output);
     return $output;
 }
+function emarking_create_page_file_from_path_or_file($filename, $dirpath, $student, $context, $emarking, stored_file $storedfile = NULL, $pagenumber) {
+    global $USER;
+    // Verify arguments, either filepath or storedfile are required.
+    if((!$filename || !$dirpath) && !$storedfile) {
+        throw new Exception('Invalid arguments, either a file path or a storedfile must be provided.');
+    }
+    // Verify that image file exist.
+    if (($filename && $dirpath) && !file_exists($dirpath . "/" . $filename)) {
+        throw new Exception("Invalid path and/or filename $dirpath/$filename");
+    }
+    // Always verify student.
+    if (!$student) {
+        throw new Exception("Invalid student to submit page");
+    }
+    // Calculate definitive filename
+    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.png';
+    // Filesystem.
+    $fs = get_file_storage();
+    $userid = isset($student->firstname) ? $student->id : $USER->id;
+    $author = isset($student->firstname) ? $student->firstname . ' ' . $student->lastname : $USER->firstname . ' ' . $USER->lastname;
+    // Copy file from temp folder to Moodle's filesystem.
+    $filerecord = array(
+        'contextid' => $context->id,
+        'component' => 'mod_emarking',
+        'filearea' => 'pages',
+        'itemid' => $emarking->id,
+        'filepath' => '/',
+        'filename' => $newfilename,
+        'timecreated' => time(),
+        'timemodified' => time(),
+        'userid' => $userid,
+        'author' => $author,
+        'license' => 'allrightsreserved'
+    );
+    // If the file already exists we delete it.
+    if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $emarking->id, '/', $newfilename)) {
+        $previousfile = $fs->get_file($context->id, 'mod_emarking', 'pages', $emarking->id, '/', $newfilename);
+        $previousfile->delete();
+    }
+    // Info for the new file.
+    if(!$storedfile) {
+        $fileinfo = $fs->create_file_from_pathname($filerecord, $dirpath . '/' . $filename);
+    } else {
+        $fileinfo = $fs->create_file_from_storedfile($filerecord, $storedfile);
+    }
+    return $fileinfo;
+}
 /**
  * Uploads a PDF file as a student's submission for a specific assignment
  *
@@ -1089,55 +1161,27 @@ function emarking_get_digitized_answer_orphan_pages($context) {
  * @param unknown_type $merge            
  * @return boolean
  */
-function emarking_submit($emarking, $context, $path, $filename, $student, $pagenumber = 0) {
+function emarking_submit($emarking, $context, $path, $filename, $student, $pagenumber = 0, $storedfile = NULL) {
     global $DB, $USER, $CFG;
     // All libraries for grading.
-    require_once ("$CFG->dirroot/grade/grading/lib.php");
+    require_once ($CFG->dirroot . '/grade/grading/lib.php');
     require_once ($CFG->dirroot . '/grade/lib.php');
-    require_once ("$CFG->dirroot/grade/grading/form/rubric/lib.php");
-    // Calculate anonymous file name from original file name.
-    $filenameparts = explode(".", $filename);
-    $anonymousfilename = $filenameparts[0] . "_a." . $filenameparts[1];
-    // Verify that both image files (anonymous and original) exist.
-    if (!file_exists($path . "/" . $filename) || !file_exists($path . "/" . $anonymousfilename)) {
-        throw new Exception("Invalid path and/or filename $path $filename");
-    }
-    if (!$student) {
-        throw new Exception("Invalid student to submit page");
-    }
-    // Filesystem.
-    $fs = get_file_storage();
-    $userid = isset($student->firstname) ? $student->id : $USER->id;
-    $author = isset($student->firstname) ? $student->firstname . ' ' . $student->lastname : $USER->firstname . ' ' . $USER->lastname;
-    // Copy file from temp folder to Moodle's filesystem.
-    $filerecord = array(
-        'contextid' => $context->id,
-        'component' => 'mod_emarking',
-        'filearea' => 'pages',
-        'itemid' => $emarking->id,
-        'filepath' => '/',
-        'filename' => $filename,
-        'timecreated' => time(),
-        'timemodified' => time(),
-        'userid' => $userid,
-        'author' => $author,
-        'license' => 'allrightsreserved'
-    );
-    // If the file already exists we delete it.
-    if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $emarking->id, '/', $filename)) {
-        $previousfile = $fs->get_file($context->id, 'mod_emarking', 'pages', $emarking->id, '/', $filename);
-        $previousfile->delete();
-    }
+    require_once ($CFG->dirroot . '/grade/grading/form/rubric/lib.php');
     // Info for the new file.
-    $fileinfo = $fs->create_file_from_pathname($filerecord, $path . '/' . $filename);
+    $fileinfo = emarking_create_page_file_from_path_or_file($filename, $path, $student, $context, $emarking, $storedfile, $pagenumber);
+    // Calculate anonymous file name from original file name.
+    $anonymousfilename = emarking_get_anonymous_filename_or_storedfile($filename, $storedfile);
     // Now copying the anonymous version of the file.
-    $filerecord['filename'] = $anonymousfilename;
-    // Check if anoymous file exists and delete it.
-    if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $emarking->id, '/', $anonymousfilename)) {
-        $previousfile = $fs->get_file($context->id, 'mod_emarking', 'pages', $emarking->id, '/', $anonymousfilename);
-        $previousfile->delete();
+    if($storedfile) {
+        if($anonymousfilename) {
+            $fileinfoanonymous = emarking_create_page_file_from_path_or_file(NULL, NULL, $student, $context, $emarking, $storedfile, $pagenumber);
+        } else {
+            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile);
+        }
+    } else {
+        $fileinfoanonymous = emarking_create_page_file_from_path_or_file($anonymousfilename, $path, $student, $context, $emarking, NULL, $pagenumber);
     }
-    $fileinfoanonymous = $fs->create_file_from_pathname($filerecord, $path . '/' . $anonymousfilename);
+    // Gets or creates a submission for the student.
     $submission = emarking_get_or_create_submission($emarking, $student, $context);
     // Get the page from previous uploads. If exists update it, if not insert a new page.
     $page = $DB->get_record('emarking_page', array(
@@ -1164,7 +1208,32 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
     $DB->update_record('emarking_submission', $submission);
     return true;
 }
-
+function emarking_get_anonymous_filename_or_storedfile($filename, $storedfile) {
+    $fs = get_file_storage();
+    $anonymousfilename = emarking_get_anonymous_filename($filename);
+    if(!$storedfile) {
+        return $anonymousfilename;
+    }
+    $anonymousfile = $fs->get_file($context->id, 'mod_emarking', 'orphanpages', $emarking->id, '/', $anonymousfilename);
+    if ($anonymousfile) {
+        return $anonymousfile;
+    } else {
+        return false;
+    }
+}
+/**
+ * Obtains the anonymous filename for a specific file
+ * @param unknown $filename
+ */
+function emarking_get_anonymous_filename($filename) {
+    $filenameparts = explode(".", $filename);
+    if(count($filenameparts) > 1) {
+        $anonymousfilename = $filenameparts[0] . "_a." . $filenameparts[1];
+    } else {
+        $anonymousfilename = $filenameparts[0] . "_a.png";
+    }
+    return $anonymousfilename;
+}
 /**
  * Uploads a PDF file as a student's submission for a specific assignment
  *
@@ -1253,7 +1322,27 @@ function emarking_get_path_from_hash($tempdir, $hash, $prefix = '', $create = tr
     $file->copy_content_to($newfile);
     return $newfile;
 }
-
+/**
+ * Fixes an orphan page by assigning it a student and a page number within
+ * an EMarking activity.
+ * @param unknown $fileid
+ * @param unknown $student
+ * @param unknown $emarking
+ * @param unknown $context
+ * @throws Exception
+ * @return number
+ */
+function emarking_fix_page($fileid, $student, $emarking, $context, $pagenumber) {
+    global $CFG;
+    // Obtiene filesystem.
+    $fs = get_file_storage();
+    if(!$file = $fs->get_file_by_id($fileid)) {
+        throw new Exception('Invalid file id');
+    }
+    // Submit the file to pages.
+    emarking_submit($emarking, $context, NULL, NULL, $student, $pagenumber, $file);
+    return 1;
+}
 /**
  * Counts files in dir using an optional suffix
  *
@@ -2146,7 +2235,45 @@ function emarking_create_qr_from_string($qrstring) {
     QRcode::png($qrstring, $img);
     return $img;
 }
-
+function emarking_create_anonymous_page_from_storedfile(stored_file $file) {
+    if (!$file) {
+        throw new Exception('Stored file does not exist');
+    }
+    // Get file storage and copy file to temp folder.
+    $fs = get_file_storage();
+    $tmppath = $file->copy_content_to_temp('emarking', 'anonymous');
+    // Treat the file as an image, get its size and draw a white rectangle.
+    $size = getimagesize($tmppath);
+    $image = imagecreatefrompng($tmppath);
+    $white = imagecolorallocate($image, 255, 255, 255);
+    $y2 = round($size [1] / 10, 0);
+    imagefilledrectangle($image, 0, 0, $size [0], $y2, $white);
+    // Save the new image to replace the file.
+    if (!imagepng($image, $tmppath)) {
+        return false;
+    }
+    clearstatcache();
+    $filenameanonymous = emarking_get_anonymous_filename($file->get_filename());
+    // Copy file from temp folder to Moodle's filesystem.
+    $filerecordanonymous = array(
+        'contextid' => $file->get_contextid(),
+        'component' => 'mod_emarking',
+        'filearea' => 'pages',
+        'itemid' => $file->get_itemid(),
+        'filepath' => '/',
+        'filename' => $filenameanonymous,
+        'timecreated' => $file->get_timecreated(),
+        'timemodified' => time(),
+        'userid' => $file->get_userid(),
+        'author' => $file->get_author(),
+        'license' => 'allrightsreserved');
+    $previousfile = $fs->get_file($file->get_contextid(), 'mod_emarking', 'pages', $file->get_itemid(), '/', $filenameanonymous);
+    if ($previousfile) {
+        $previousfile->delete();
+    }
+    $fileinfo = $fs->create_file_from_pathname($filerecordanonymous, $tmppath);
+    return $fileinfo;
+}
 /**
  * Erraces all the content of a directory, then ir creates te if they don't exist.
  *

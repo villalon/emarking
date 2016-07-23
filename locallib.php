@@ -71,6 +71,16 @@ function emarking_get_cm_course_instance() {
     global $DB;
     // Course module id.
     $cmid = required_param('id', PARAM_INT);
+    return emarking_get_cm_course_instance_by_id($cmid);
+}
+/**
+ * Obtains course module ($cm), course, emarking and context
+ * objects from cm id in the URL
+ *
+ * @return multitype:stdClass context_module unknown mixed
+ */
+function emarking_get_cm_course_instance_by_id($cmid) {
+    global $DB;
     // Validate course module.
     if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
         print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
@@ -1489,45 +1499,6 @@ function emarking_rotate_image_file($fileid) {
         $newfile->delete();
         
         return $tmppath . '.png';
-}
-        
-        
-function emarking_create_anonymous_page($file) {        
-        if (! $fileanonymous = $fs->get_file_by_id($file)) {
-            throw new Exception('File does not exist');
-        }
-        $size = getimagesize($tmppath . '.png');
-        $image = imagecreatefrompng($tmppath . '.png');
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $y2 = round($size [1] / 10, 0);
-        imagefilledrectangle($image, 0, 0, $size [0], $y2, $white);
-        if (! imagepng($image, $tmppath . '_a.png')) {
-            return false;
-        }
-        clearstatcache();
-        $filenameanonymous = $fileanonymous->get_filename();
-        $timecreatedanonymous = $fileanonymous->get_timecreated();
-        // Copy file from temp folder to Moodle's filesystem.
-        $filerecordanonymous = array(
-            'contextid' => $context->id,
-            'component' => 'mod_emarking',
-            'filearea' => 'pages',
-            'itemid' => $submission->emarking,
-            'filepath' => '/',
-            'filename' => $filenameanonymous,
-            'timecreated' => $timecreatedanonymous,
-            'timemodified' => time(),
-            'userid' => $student->id,
-            'author' => $student->firstname . ' ' . $student->lastname,
-            'license' => 'allrightsreserved');
-        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarking, '/', $filename)) {
-            $file->delete();
-        }
-        $fileinfo = $fs->create_file_from_pathname($filerecord, $tmppath . '.png');
-        if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarking, '/', $filenameanonymous)) {
-            $fileanonymous->delete();
-        }
-        $fileinfoanonymous = $fs->create_file_from_pathname($filerecordanonymous, $tmppath . '_a.png'); 
 }
 /**
  * Validates that there is a rubric set for the emarking activity. If there
