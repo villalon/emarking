@@ -752,3 +752,7 @@ $string ['marking_completed'] = 'Bien hecho, ahora debes esperar a los demás co
 $string ['stage'] = 'Etapa';
 $string ['agreement'] = 'Acuerdo';
 $string ['yourmarking'] = 'Tu corrección';
+$string['cycle'] = 'Ciclo';
+$string['course'] = 'Curso';
+$string['section'] = 'Sección';
+$string['filters'] = 'Filtros';
