@@ -279,6 +279,8 @@ $string ['aofb'] = '{$a->identified} of {$a->total}';
 $string ['printserver'] = 'Print server IP number';
 $string ['printserver_help'] = 'Tells Moodle to print an E-Marking evaluation to a cups server (leave blank if there is no print server).';
 $string ['examgenerationinprogress'] = 'Exam generation in progress';
+$string ['examgenerationerrorprocessing'] = 'Error processing';
+$string ['examgenerationscheduled'] = 'Exam generation scheduled';
 $string ['personalizedexamsgeneration'] = 'Personalized exams generation';
 // EMARKING UPLOAD ANSWERS.
 $string ['confirmprocess'] = 'Confirm process';

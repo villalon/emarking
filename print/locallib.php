@@ -894,10 +894,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
         $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
             . $CFG->wwwroot . '/ admin pepito.P0 ' . $filepath . ' ' . $tempdir . ' '
             . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
-        $lastline = shell_exec($command);
-        var_dump($command);
-        var_dump($lastline);
-        die("wtfe");
+        $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;
         return array(
@@ -911,11 +908,8 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     $totaldocumentsprocessed = 0;
     $totaldocumentsignored = 0;
     // Read full directory, then start processing.
+    clearstatcache();
     $files = scandir($tempdir, SCANDIR_SORT_ASCENDING);
-    var_dump($command);
-    var_dump($tempdir);
-    var_dump($files);
-    die("wtf2");
     $doubleside = false;
     $pngfiles = array();
     foreach($files as $fileintemp) {
@@ -1114,6 +1108,10 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
     }
     // Calculate definitive filename
     $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.png';
+    // If is anonymous, the filename requires a _a
+    if (strtolower(substr($filename, -6)) === '_a.png') {
+        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '_a.png';
+    }
     // Filesystem.
     $fs = get_file_storage();
     $userid = isset($student->firstname) ? $student->id : $USER->id;
@@ -1181,6 +1179,10 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
     } else {
         $fileinfoanonymous = emarking_create_page_file_from_path_or_file($anonymousfilename, $path, $student, $context, $emarking, NULL, $pagenumber);
     }
+    var_dump($anonymousfilename);
+    var_dump($path);
+    var_dump($fileinfo->get_filename());
+    var_dump($fileinfoanonymous->get_filename());
     // Gets or creates a submission for the student.
     $submission = emarking_get_or_create_submission($emarking, $student, $context);
     // Get the page from previous uploads. If exists update it, if not insert a new page.
@@ -2363,7 +2365,8 @@ function emarking_clean_filename($filename, $slash = false) {
         'Ú',
         '(',
         ')',
-        ','
+        ',',
+        '&'
     );
     $replacefor = array(
         '-',
@@ -2379,6 +2382,7 @@ function emarking_clean_filename($filename, $slash = false) {
         'I',
         'O',
         'U',
+        '-',
         '-',
         '-',
         '-'

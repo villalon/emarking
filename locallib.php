@@ -673,7 +673,7 @@ function emarking_tabs($context, $cm, $emarking) {
     $tabs = array();
     // Print tab.
     $printtab = new tabobject('printscan', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
-            $emarking->type == EMARKING_TYPE_PRINT_ONLY ? get_string("print", 'mod_emarking')
+            $emarking->type == EMARKING_TYPE_PRINT_ONLY ? get_string('print', 'mod_emarking')
                 : get_string('type_print_scan', 'mod_emarking'));
     // Print summary tab.
     $printtab->subtree[] = new tabobject('myexams', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
