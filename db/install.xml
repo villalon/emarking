@@ -641,5 +641,39 @@
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
 			</KEYS>
 		</TABLE>
+		<TABLE NAME="emarking_activities" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="learningobjectives" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false" COMMENT="course and LO separated by comma ex: 6-15,6-16,6-25."/>
+        <FIELD NAME="comunicativepurpose" TYPE="char" LENGTH="250" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="genre" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="audience" TYPE="char" LENGTH="500" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="estimatedtime" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="in minutes"/>
+        <FIELD NAME="instructionstudents" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="instructions for students"/>
+        <FIELD NAME="teaching" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="teachingsuggestions" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="languageresources" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="rubricid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_social" COMMENT="contains all the social data of an activity incluiding post, likes, etc">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="activityid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="data" TYPE="binary" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
 	</TABLES>
 </XMLDB>
