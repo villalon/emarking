@@ -425,6 +425,11 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
         $regrade->comment = '';
         $regrade->motive = 0;
         $regrade->markercomment = '';
+        if($draft->timecorrectionstarted == null){
+        	$draft->timecorrectionstarted = time();
+        }
+        $draft->timecorrectionended = time();
+        $DB->update_record('emarking_draft',$draft);
     } else {
         $regrade->accepted = 1;
         $regrade->markercomment = $comment;
@@ -461,7 +466,8 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
             'regradeaccepted' => $regrade->accepted,
             'regrademotive' => $regrade->motive,
             'regradecomment' => $regrade->comment,
-            'regrademarkercomment' => $regrade->markercomment);
+            'regrademarkercomment' => $regrade->markercomment        		
+        );
     }
     return $output;
 }
@@ -521,13 +527,21 @@ function emarking_add_comment($submission, $draft) {
     $emarkingcomment->textformat = $format;
     // Insert it into the database.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
+    // Update draft correction time
+    if($draft->timecorrectionstarted == null){
+    	$draft->timecorrectionstarted = time();
+    }
+    $draft->timecorrectionended = time();
+	$DB->update_record('emarking_draft',$draft);
     // Send output info.
     $output = array(
         'error' => '',
         'id' => $commentid,
         'timemodified' => time(),
         'markerid' => $USER->id,
-        'markername' => $USER->firstname . " " . $USER->lastname);
+        'markername' => $USER->firstname . " " . $USER->lastname,
+    	'draftid' => $draft->id
+    );    
     return $output;
 }
 /**
@@ -1097,6 +1111,14 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         $comment->markerid = $userid;
     }
     $DB->update_record('emarking_comment', $comment);
+    if($regradeid == 0){
+    	// Update draft correction time
+    	if($draft->timecorrectionstarted == null){
+    		$draft->timecorrectionstarted = time();
+    	}
+    	$draft->timecorrectionended = time();
+    	$DB->update_record('emarking_draft',$draft);
+    }
     $diff = abs($previousbonus - $bonus);
     if ($comment->levelid > 0) {
         if ($diff > 0.01 || $previouslvlid != $levelid || $previouscomment !== $commentrawtext) {
@@ -1115,6 +1137,10 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         if ($remainingregrades == 0) {
             $draft->status = EMARKING_STATUS_REGRADING_RESPONDED;
             $draft->timemodified = time();
+            if($draft->timeregradingstarted == null){
+            	$draft->timeregradingstarted = time();
+            }
+            $draft->timeregradingended = time();
             $DB->update_record("emarking_draft", $draft);
         }
     }
