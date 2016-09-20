@@ -1278,7 +1278,6 @@ function emarking_markers_corrections($emarkingid){
 				if(strtotime($date) < strtotime($comment->date) || $datecount == $lenght) {
 						array_push($arraymarkers,$arraystacking);
 						$date = $comment->date;
-						echo $datecount;
 				}
 				$datecount++;
 			}
