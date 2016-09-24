@@ -38,6 +38,7 @@ class mod_emarking_observer {
         if (! emarking_unenrol_student($unenrolleduserid, $courseid)) {
             error_log("Error updating drafts from $unenrolleduserid in course $courseid");
         }
+        error_log(print_r($event->get_data(), true));
     }
     public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
         global $DB;

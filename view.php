@@ -45,6 +45,8 @@ $perpage = 100;
 $exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
 // Reassign peers in a peer review session.
 $reassignpeers = optional_param('reassignpeers', false, PARAM_BOOL);
+// Ignore enrolments and show all drafts.
+$ignoreenrolments = optional_param('enrolment', false, PARAM_BOOL);
 // We are in print & scan mode.
 $scan = $emarking->type == EMARKING_TYPE_PRINT_SCAN;
 // Get the associated exam.
@@ -244,7 +246,12 @@ for($i = 0; $i < count($enrolments); $i++) {
 $enrolmentsfilter = implode(",", $enrolments);
 $sqluser = ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) ? "es.student AS id," : "u.*,";
 $sqldraftsorusers = ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) ? "{emarking_submission} es
-INNER JOIN {emarking} e ON (e.id = ? AND es.emarking = e.id)" : "(
+INNER JOIN {emarking} e ON (e.id = ? AND es.emarking = e.id)" : $ignoreenrolments ? "(
+SELECT u.*, e.course as courseid
+FROM {user} u
+INNER JOIN {emarking_submission} es ON (es.student = u.id)
+INNER JOIN {emarking} e ON (es.emarking = e.id AND e.course = ?)
+GROUP BY u.id) as u" : "(
 SELECT u.*, e.courseid
 FROM {user_enrolments} ue
 INNER JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ? AND e.enrol IN ($enrolmentsfilter))
@@ -880,6 +887,10 @@ function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emar
 					'id' => $cm->id,
 					'exportcsv' => 'grades'));
 			echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+			$csvurl = new moodle_url('view.php', array(
+					'id' => $cm->id,
+					'enrolment' => 'true'));
+			echo $OUTPUT->single_button($csvurl, 'Ver todo', 'GET');
 		}
 	}
 	// Show export to Excel button if supervisor and there are students to export.
@@ -890,7 +901,7 @@ function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emar
 		echo $OUTPUT->single_button($csvurl, get_string('reassignpeers', 'mod_emarking'));
 	}
 	if($numdraftsgrading > 1) {
-	echo html_writer::tag("input", null, array("id"=>"searchInput", 'value'=>get_string("filter")));
+	   echo html_writer::tag("input", null, array("id"=>"searchInput", 'value'=>get_string("filter")));
 	}
 	echo html_writer::end_div();
 }
