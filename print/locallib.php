@@ -1492,8 +1492,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
         return false;
     }
     if (!$pages = $DB->get_records('emarking_page', array(
-        'submission' => $submission->id,
-        'student' => $student->id
+        'submission' => $submission->id
     ), 'page ASC')) {
         return false;
     }
