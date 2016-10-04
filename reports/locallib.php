@@ -1275,13 +1275,17 @@ function emarking_markers_corrections($emarkingid){
 				}
 				$arraystacking['date'] = $comment->date;
 				$arraystacking[$comment->name] = $arraystacking[$comment->name] + 1;
-				if(strtotime($date) < strtotime($comment->date) || $datecount == $lenght) {
+				if($datecount == $lenght){
+					unset($arraymarkers[count($arraymarkers)-1]);
+					array_push($arraymarkers,$arraystacking);
+				}
+				if(strtotime($date) < strtotime($comment->date) && $datecount !== $lenght) {
 						array_push($arraymarkers,$arraystacking);
 						$date = $comment->date;
 				}
 				$datecount++;
 			}
-			$arraymarkers = array_map('array_values', $arraymarkers);
+			$arraymarkers = array_values(array_map('array_values', $arraymarkers));
 			return $arraymarkers;
 		}
 	}
