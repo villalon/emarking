@@ -50,7 +50,7 @@ if(!$user = $DB->get_record('user', array('id'=>$submission->student))) {
 $pdffilename = 'response_' . $emarking->id . '_' . $draft->id . '.pdf';
 $fs = get_file_storage();
 $pdffile = $fs->get_file($context->id, 'mod_emarking', 'response', $draft->id, '/', $pdffilename);
-if($pdffile->get_timecreated() < $draft->timemodified) {
+if($pdffile && $pdffile->get_timecreated() < $draft->timemodified) {
     $pdffile = NULL;
 }
 if(!$pdffile && !emarking_create_response_pdf($draft, $user, $context, $cm->id)) {
