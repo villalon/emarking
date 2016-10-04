@@ -2365,7 +2365,8 @@ function emarking_clean_filename($filename, $slash = false) {
         '(',
         ')',
         ',',
-        '&'
+        '&',
+        '#'
     );
     $replacefor = array(
         '-',
@@ -2381,6 +2382,7 @@ function emarking_clean_filename($filename, $slash = false) {
         'I',
         'O',
         'U',
+        '-',
         '-',
         '-',
         '-',
