@@ -80,6 +80,10 @@ function emarking_regrade($emarking, $draft) {
     // Update the submission.
     $draft->timemodified = time();
     $draft->status = EMARKING_STATUS_REGRADING;
+    if($draft->timeregradingstarted == null){
+    	$draft->timeregradingstarted = time();
+    }
+    $draft->timeregradingended = time();
     $DB->update_record('emarking_draft', $draft);
     // Send the output.
     $output = array(
@@ -428,14 +432,18 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
         if($draft->timecorrectionstarted == null){
         	$draft->timecorrectionstarted = time();
         }
-        $draft->timecorrectionended = time();
-        $DB->update_record('emarking_draft',$draft);
+        $draft->timecorrectionended = time();        
     } else {
         $regrade->accepted = 1;
         $regrade->markercomment = $comment;
         $regrade->timemodified = time();
         $DB->update_record('emarking_regrade', $regrade);
+        if($draft->timeregradingstarted == null){
+        	$draft->timeregradingstarted = time();
+        }
+        $draft->timeregradingended = time();
     }
+    $DB->update_record('emarking_draft',$draft);
     // Send the output.
     if ($finalgrade === false) {
         $output = array(
@@ -1130,6 +1138,11 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         $regrade->timemodified = time();
         $regrade->accepted = $regradeaccepted;
         $DB->update_record('emarking_regrade', $regrade);
+        if($draft->timeregradingstarted == null){
+        	$draft->timeregradingstarted = time();
+        }
+        $draft->timeregradingended = time();
+        $DB->update_record("emarking_draft", $draft);
         $remainingregrades = $DB->count_records("emarking_regrade",
                 array(
                     "draft" => $draft->id,
@@ -1137,10 +1150,6 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         if ($remainingregrades == 0) {
             $draft->status = EMARKING_STATUS_REGRADING_RESPONDED;
             $draft->timemodified = time();
-            if($draft->timeregradingstarted == null){
-            	$draft->timeregradingstarted = time();
-            }
-            $draft->timeregradingended = time();
             $DB->update_record("emarking_draft", $draft);
         }
     }
