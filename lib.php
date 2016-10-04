@@ -792,6 +792,14 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
     require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
     require_login();
+    // send_file defaults.
+    $lifetime = null;
+    $filter=0;
+    $pathisstring=false;
+    $forcedownload=false;
+    $mimetype='';
+    $dontdie=false;
+    // end of send_file defaults.
     $filename = array_pop($args);
     $itemid = array_pop($args);
     $contextcategory = context_coursecat::instance($course->category);
@@ -839,6 +847,8 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
         if ($studentid != $USER->id && ! is_siteadmin($USER) && ! has_capability('mod/emarking:supervisegrading', $context)) {
             send_file_not_found();
         }
+        $forcedownload = true;
+        $mimetype = 'application/pdf';
     }
     if ($filearea === 'examstoprint') {
         if (! has_capability('mod/emarking:downloadexam', $contextcategory)) {
@@ -880,7 +890,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
         echo "File really not found";
         send_file_not_found();
     }
-    send_file($file, $filename);
+    send_file($file, $filename, $lifetime, $filter, $pathisstring, $forcedownload, $mimetype='', $dontdie);
 }
 // Navigation API.
 function mod_emarking_extend_navigation_category_settings(navigation_node $parentnode, context_coursecat $context) {
