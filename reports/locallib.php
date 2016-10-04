@@ -667,13 +667,14 @@ function emarking_time_progression($course, $fortable = null){
 	if ($emarkings = $DB->get_records_sql($sqlemarking,array($course))) {
 		$position=0;
 		if($fortable == 1){
-			$emarkingarray[0] =[get_string('emarkingname', 'mod_emarking'),get_string('dayssenttoprint', 'mod_emarking'),
+			$position=2;
+			$emarkingarray[0] = ['','','','','', get_string('daysstrong', 'mod_emarking'),'','','','',''];
+			$emarkingarray[1] = [get_string('emarkingnamestrong', 'mod_emarking'),get_string('dayssenttoprint', 'mod_emarking'),
 					get_string('printeddays', 'mod_emarking'),get_string('digitalizeddays', 'mod_emarking'),
 					get_string('daysincorrection', 'mod_emarking'),get_string('gradeddays', 'mod_emarking'),
 					get_string('publisheddays', 'mod_emarking'),get_string('daysinregrading', 'mod_emarking'),
 					get_string('regradeddays', 'mod_emarking'),get_string('finalpublicationdays', 'mod_emarking'),
 					get_string('totaldays', 'mod_emarking')];
-			$position++;
 		}
 			foreach($emarkings as $emarking){
 				$cmdst = get_coursemodule_from_instance('emarking', $emarking->id);
@@ -957,7 +958,8 @@ global $DB;
 			MIN(ed.timeregradingstarted) AS regradingstarted,
 			MAX(ed.timeregradingended) AS regraded,
 			MAX(ed.timelastpublished) AS lastpublished,
-			MIN(ed.status) as status,
+			MAX(ed.status) as maxstatus,
+			MIN(ed.status) as minstatus,
 			count(ed.id) as draftnums
 			FROM {emarking_exams} AS ee
             INNER JOIN {emarking} AS e ON (e.id = ee.emarking AND ee.id = ?)
@@ -988,44 +990,44 @@ global $DB;
 				$time = ($emarking->printdate + 2592000)*1000;
 			}
 		
-		}elseif(is_null($emarking->correctionstarted) || $emarking->status == EMARKING_STATUS_SUBMITTED){
+		}elseif(is_null($emarking->correctionstarted) || $emarking->maxstatus == EMARKING_STATUS_SUBMITTED){
 			$status = EMARKING_STATUS_SUBMITTED;
 			if(((time() - $emarking->digitalized)/86400)>30){
 				$time = ($emarking->digitalized + 2592000)*1000;
 			}
 		
-		}elseif($mark->graded == null && $emarking->status == EMARKING_STATUS_GRADING){
+		}elseif($mark->graded == null && $emarking->maxstatus == EMARKING_STATUS_GRADING){
 			$status = EMARKING_STATUS_GRADING;
 			
-		}elseif(is_null($emarking->firstpublished) && $mark->graded == $emarking->draftnums && $emarking->status == EMARKING_STATUS_GRADING){
+		}elseif(is_null($emarking->firstpublished) && $mark->graded == $emarking->draftnums && $emarking->maxstatus == EMARKING_STATUS_GRADING){
 			$status = EMARKING_STATUS_GRADED;
 			if(((time() - $emarking->corrected)/86400)>15){
 				$time = ($emarking->corrected + 1296000)*1000;
 			}
 		
-		}elseif(is_null($emarking->regradingstarted) && $emarking->status ==EMARKING_STATUS_PUBLISHED ){
+		}elseif(is_null($emarking->regradingstarted) && $emarking->maxstatus ==EMARKING_STATUS_PUBLISHED ){
 			$status = EMARKING_STATUS_PUBLISHED;
 			if(((time() - $emarking->firstpublished)/86400)>10){
 				$time = ($emarking->firstpublished + 864000)*1000;
 			}
 		
-		}elseif($emarking->status ==EMARKING_STATUS_REGRADING){
+		}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
 			$status = EMARKING_STATUS_REGRADING;
 			
 				
-		}elseif(($emarking->lastpublished < $emarking->regraded) && $emarking->status == EMARKING_STATUS_GRADING){
+		}elseif(($emarking->firstpublished < $emarking->regradingstarted) && $emarking->minstatus == EMARKING_STATUS_GRADING){
 			$status = EMARKING_STATUS_REGRADING_RESPONDED;
 			if(((time() - $emarking->regraded)/86400)>5){
 				$time = ($emarking->regraded + 432000)*1000;
 			}
 				
-		}elseif($emarking->status ==EMARKING_STATUS_PUBLISHED ){
+		}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
 			$status = EMARKING_STATUS_FINAL_PUBLISHED;
 			if(((time() - $emarking->lastpublished)/86400)>5){
 				$time = ($emarking->lastpublished + 432000)*1000;
 			}
 		}
-		
+		//echo "publi: $emarking->firstpublished regra: $emarking->regradingstarted maxstatus: $emarking->maxstatus minstatus: $emarking->minstatus";
 		$ganttarray = array();
 		switch ($status) {
 				
@@ -1178,7 +1180,7 @@ function emarking_area_chart($emarkingid){
 			}
 			$areachart = array(array('Date', 'Digitalized','Grading', 'Graded', 'Publicated','Regrading', 'Regraded', 'Repiblished'));
 
-			while($date <= $enddate && $date != null){
+			while($date < $enddate && $date != null){
 				foreach($draftsdata as $draftstatus){
 					if($draftstatus->correctionstarted == $date){
 						$currentdata[$draftstatus->draftid] = 'Grading';
@@ -1192,7 +1194,7 @@ function emarking_area_chart($emarkingid){
 					if($draftstatus->lastpublished == $date){
 						$currentdata[$draftstatus->draftid] = 'finalpublished';
 					}
-					if($draftstatus->regradingstarted == $date){
+					if($draftstatus->regradingstarted < $date){
 						$currentdata[$draftstatus->draftid] = 'regrading';
 					}
 					if($draftstatus->regraded == $date){
@@ -1275,13 +1277,17 @@ function emarking_markers_corrections($emarkingid){
 				}
 				$arraystacking['date'] = $comment->date;
 				$arraystacking[$comment->name] = $arraystacking[$comment->name] + 1;
-				if(strtotime($date) < strtotime($comment->date) || $datecount == $lenght) {
+				if($datecount == $lenght){
+					unset($arraymarkers[count($arraymarkers)-1]);
+					array_push($arraymarkers,$arraystacking);
+				}
+				if(strtotime($date) < strtotime($comment->date) && $datecount !== $lenght) {
 						array_push($arraymarkers,$arraystacking);
 						$date = $comment->date;
 				}
 				$datecount++;
 			}
-			$arraymarkers = array_map('array_values', $arraymarkers);
+			$arraymarkers = array_values(array_map('array_values', $arraymarkers));
 			return $arraymarkers;
 		}
 	}

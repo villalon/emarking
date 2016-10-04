@@ -131,7 +131,7 @@ if($currenttab == 0){
   	$summarychartdata= json_encode(emarking_time_progression($course->id),null);
   	
   	// Emarkings days data to table.
-  	echo emarking_table_creator(null,emarking_time_progression($course->id,1),null);
+  	echo html_writer::tag('div',emarking_table_creator(null,emarking_time_progression($course->id,1),null), array('id' => 'summarytable'));
   	
   	echo emarking_justice_perception($selectedcourse);
   	
