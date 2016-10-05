@@ -1572,7 +1572,6 @@ function emarking_time_progression_table($course){
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
 					
 					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
-					echo $totaltime;
 					
 					$timefinalpublished = floor(($time - $emarking->lastpublished)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->lastpublished)/ (60*60*24)) == 0){
