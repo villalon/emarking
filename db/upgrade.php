@@ -1460,7 +1460,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016082901, 'emarking');
     }
     
-    if ($oldversion < XXXXXXXXXX) {
+    if ($oldversion < 2016100500) {
     
     	// Rename field instructionstudents on table emarking_activities to NEWNAMEGOESHERE.
     	$table = new xmldb_table('emarking_activities');
@@ -1492,7 +1492,7 @@ function xmldb_emarking_upgrade($oldversion) {
         
         
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, XXXXXXXXXX, 'emarking');
+    	upgrade_mod_savepoint(true, 2016100500, 'emarking');
     }
     
     
