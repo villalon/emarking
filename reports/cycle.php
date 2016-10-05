@@ -124,24 +124,40 @@ $summarychartdata = json_encode([[0,0]]);
 // If you are in the summary tab.
 if($currenttab == 0){
 	
-
+	// Chart title
+	echo html_writer::tag('h4',get_string('ciclechart', 'emarking'),array('style' => 'width:100%;'));
+	
+	// Alert for the user
+	echo html_writer::start_tag('div', array('class' => 'alert alert-warning'));
+	echo get_string('ciclechartalert', 'emarking');
+	echo html_writer::end_tag('div');
   	
 	// Div for summart chart.
   	echo html_writer::tag('div','', array('id' => 'summarychart','style' => 'height: 600px;'));
-  	$summarychartdata= json_encode(emarking_time_progression($course->id),null);
   	
+  	//Table title
+  	echo html_writer::tag('h4',get_string('cicletable', 'emarking'),array('style' => 'width:100%;'));
+  	
+  	// Alert for the user
+  	echo html_writer::start_tag('div', array('class' => 'alert alert-warning'));
+  	echo get_string('cicletablealert', 'emarking');
+  	echo html_writer::end_tag('div');
   	// Emarkings days data to table.
-  	echo html_writer::tag('div',emarking_table_creator(null,emarking_time_progression($course->id,1),null), array('id' => 'summarytable'));
+  	echo html_writer::tag('div',emarking_table_creator(null,emarking_time_progression_table($course->id),null), array('id' => 'summarytable','style' => 'width: 100%, float:left;'));
   	
   	echo emarking_justice_perception($selectedcourse);
   	
 // If you are in a eMarking tab.  	
 }else{
-	
-	// Divs for EMarking chart tabs view.
-   	echo html_writer::div('','', array('id' => 'ganttchart'));
-   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 400px;'));
-   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 400px;'));
+	// Gantt chart title
+	echo html_writer::tag('h4',get_string('cicleganttchart', 'emarking'),array('style' => 'width:100%;'));
+   	echo html_writer::div('','', array('id' => 'ganttchart','style' => 'height: 40%;'));
+   	
+   	echo html_writer::tag('h4',get_string('ciclestackedstatuses', 'emarking'),array('style' => 'width:100%;'));
+   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 40%;'));
+   	
+   	echo html_writer::tag('h4',get_string('ciclemarkerscorrections', 'emarking'),array('style' => 'width:100%;'));
+   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 40%;'));
 }
 
 echo $OUTPUT->footer();
@@ -173,13 +189,12 @@ echo $OUTPUT->footer();
   		data.addColumn({type: 'string', role: 'annotation'});
 
   		// Loads the data
-  		data.addRows(<?php echo $summarychartdata;?>);
+  		data.addRows(<?php echo json_encode(emarking_time_progression($course->id),null);?>);
   		
   		var view = new google.visualization.DataView(data);
   		view.setColumns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   		
   		var options = {
-  			title: '<?php echo get_string("emarkingsummary", "mod_emarking");?>',
   		    chartArea: {width: '50%'},
   		    isStacked: true,
   		    bar: {groupWidth: "50%"},
@@ -229,7 +244,6 @@ echo $OUTPUT->footer();
 		data.addRows(dataarray);
 		
 		var options = {
-				height:400,
 			gantt: {
 				trackHeight: 30
 			}};
@@ -249,7 +263,6 @@ echo $OUTPUT->footer();
 		var data = google.visualization.arrayToDataTable(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
 
         var options = {
-        	title: 'Company Performance',
         	isStacked: true,
         	hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
         	vAxis: {minValue: 0}
@@ -268,7 +281,6 @@ echo $OUTPUT->footer();
 		var data = google.visualization.arrayToDataTable(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
 
 		var options = {
-			title: 'Company Performance',
 			isStacked: true,
 			hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
 			vAxis: {minValue: 0}
