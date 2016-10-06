@@ -195,7 +195,9 @@ echo $OUTPUT->footer();
   		view.setColumns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   		
   		var options = {
-  		    chartArea: {width: '50%'},
+  			legendFontSize:11,
+  			legend: { position: 'top', alignment: 'start ', maxLines: 3},
+  		    chartArea: {width: '60%'},
   		    isStacked: true,
   		    bar: {groupWidth: "50%"},
   		    hAxis: {
