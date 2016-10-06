@@ -827,7 +827,10 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
         $msgstatus = $d->status >= EMARKING_STATUS_SUBMITTED ? get_string('setasabsent', 'mod_emarking') : get_string(
                 'setassubmitted', 'mod_emarking');
         $actionsarray [] = $OUTPUT->action_link($deletesubmissionurl, $msgstatus);
-    }
+    $printversionurl = new moodle_url('/mod/emarking/marking/printversion.php',
+        array('id'=>$cm->id, 'did'=>$d->id));
+    $actionsarray [] = $OUTPUT->action_link($printversionurl, "PDF");
+             }
     $divclass = $usercangrade ? 'printactions' : 'useractions';
     $actionshtml = implode("&nbsp;|&nbsp;", $actionsarray);
     if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {

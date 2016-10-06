@@ -113,32 +113,28 @@ function emarking_finish_marking($emarking, $submission, $draft, $user, $context
     // General feedback to include in the marking.
     $generalfeedback = required_param('feedback', PARAM_RAW_TRIMMED);
     // Firstly create the response pdf.
-    if (emarking_create_response_pdf($draft, $user, $context, $cm->id)) {
-        // If the pdf was created successfully then update the final grade and feedback.
-        list($finalgrade, $previouslvlid, $previouscomment) = emarking_set_finalgrade(0, null, $submission, $draft, $emarking,
-                $context, $generalfeedback, false, $cm->id);
-        // It is only publish if there just one draft.
-        if ($DB->count_records('emarking_draft',
-                array(
-                    'emarkingid' => $submission->emarking,
-                    'submissionid' => $submission->id,
-                    'qualitycontrol' => 0)) == 1) {
-            emarking_publish_grade($draft);
-        }
-        $nextsubmission = emarking_get_next_submission($emarking, $draft, $context, $user, $issupervisor);
-        // Send the output.
-        $output = array(
-            'error' => '',
-            'message' => 'Feedback created successfully',
-            'finalgrade' => $finalgrade,
-            'previouslvlid' => $previouslvlid,
-            'previouscomment' => $previouscomment,
-            'nextsubmission' => $nextsubmission);
-    } else {
-        // Response couldn't be created.
-        $output = array(
-            'error' => 'Could not create response from eMarking.');
+    // If the pdf was created successfully then update the final grade and feedback.
+    list ($finalgrade, $previouslvlid, $previouscomment) =
+        emarking_set_finalgrade(0, null, $submission, $draft, $emarking,
+            $context, $generalfeedback, false, $cm->id);
+    // It is only publish if there just one draft.
+    if ($DB->count_records('emarking_draft', array(
+        'emarkingid' => $submission->emarking,
+        'submissionid' => $submission->id,
+        'qualitycontrol' => 0
+    )) == 1) {
+        emarking_publish_grade($draft);
     }
+    $nextsubmission = emarking_get_next_submission($emarking, $draft, $context, $user, $issupervisor);
+    // Send the output.
+    $output = array(
+        'error' => '',
+        'message' => 'Feedback created successfully',
+        'finalgrade' => $finalgrade,
+        'previouslvlid' => $previouslvlid,
+        'previouscomment' => $previouscomment,
+        'nextsubmission' => $nextsubmission
+    );
     return $output;
 }
 /**

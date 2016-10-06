@@ -1544,7 +1544,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
     $iconsize = 5;
     $tempdir = emarking_get_temp_dir_path($emarking->id);
     if (!file_exists($tempdir)) {
-        mkdir($tempdir);
+        emarking_initialize_directory($tempdir, true);
     }
     // Create new PDF document.
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -1606,8 +1606,8 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
         if (isset($commentsperpage[$page->page])) {
             foreach($commentsperpage[$page->page] as $comment) {
                 $content = $comment->rawtext;
-                $posx = (int) (((float) $comment->posx) * $dimensions['w']);
-                $posy = (int) (((float) $comment->posy) * $dimensions['h']);
+                $posx = (int) (((float) $comment->posx) * 210);
+                $posy = (int) (((float) $comment->posy) * 297);
                 if ($comment->textformat == 1) {
                     // Text annotation.
                     $pdf->Annotation($posx, $posy, 6, 6, $content, array(
@@ -1624,9 +1624,16 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
                             255
                         )
                     ));
+                    $pdf->Bookmark(get_string('comment', 'mod_emarking') . ' ' . $comment->id, 0, $posy);
                 } else 
                     if ($comment->textformat == 2) {
-                        $content = $comment->criteriondesc . ': ' . round($comment->score, 1) . '/' . round($comment->maxscore, 1) . "\n" . $comment->leveldesc . "\n" . get_string('comment', 'mod_emarking') . ': ' . $content;
+                        $feedback = strlen($comment->rawtext) > 0 ?
+                            "\n" . get_string('comment', 'mod_emarking') . ': ' .
+                            $comment->rawtext : '';
+                        $content = $comment->criteriondesc . ': ' .
+                            round($comment->score, 1) . '/' .
+                            round($comment->maxscore, 1) . "\n" .
+                            $comment->leveldesc . $feedback;
                         // Text annotation.
                         $pdf->Annotation($posx, $posy, 6, 6, $content, array(
                             'Subtype' => 'Text',
@@ -1642,6 +1649,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
                                 0
                             )
                         ));
+                        $pdf->Bookmark($comment->criteriondesc, 0, $posy);
                     } else 
                         if ($comment->textformat == 3) {
                             $pdf->Image($CFG->dirroot . "/mod/emarking/img/check.gif", $posx, $posy, $iconsize, $iconsize, '', '', '', false, 300, '', false, false, 0);
@@ -1651,63 +1659,6 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
                             }
             }
         }
-    }
-    // Print rubric.
-    if ($emarking->downloadrubricpdf) {
-        $cm = new StdClass();
-        $rubricdesc = $DB->get_recordset_sql("SELECT
-		d.name AS rubricname,
-		a.id AS criterionid,
-		a.description ,
-		b.definition,
-		b.id AS levelid,
-		b.score,
-		IFNULL(E.id,0) AS commentid,
-		IFNULL(E.pageno,0) AS commentpage,
-		E.rawtext AS commenttext,
-		E.markerid AS markerid,
-		IFNULL(E.textformat,2) AS commentformat,
-		IFNULL(E.bonus,0) AS bonus,
-		IFNULL(er.id,0) AS regradeid,
-		IFNULL(er.motive,0) AS motive,
-		er.comment AS regradecomment,
-		IFNULL(er.markercomment, '') AS regrademarkercomment,
-		IFNULL(er.accepted,0) AS regradeaccepted
-		FROM {course_modules} c
-		INNER JOIN {context} mc ON (c.id = :coursemodule AND c.id = mc.instanceid)
-		INNER JOIN {grading_areas} ar ON (mc.id = ar.contextid)
-		INNER JOIN {grading_definitions} d ON (ar.id = d.areaid)
-		INNER JOIN {gradingform_rubric_criteria} a ON (d.id = a.definitionid)
-		INNER JOIN {gradingform_rubric_levels} b ON (a.id = b.criterionid)
-		LEFT JOIN (
-		SELECT ec.*, d.id AS draftid
-		FROM {emarking_comment} ec
-		INNER JOIN {emarking_draft} d ON (d.id = :draft AND ec.draft = d.id)
-		) E ON (E.levelid = b.id)
-		LEFT JOIN {emarking_regrade} er ON (er.criterion = a.id AND er.draft = E.draftid)
-		ORDER BY a.sortorder ASC, b.score ASC", array(
-            'coursemodule' => $cmid,
-            'draft' => $draft->id
-        ));
-        $table = new html_table();
-        $data = array();
-        foreach($rubricdesc as $rd) {
-            if (!isset($data[$rd->criterionid])) {
-                $data[$rd->criterionid] = array(
-                    $rd->description,
-                    $rd->definition . " (" . round($rd->score, 2) . " ptos. )"
-                );
-            } else {
-                array_push($data[$rd->criterionid], $rd->definition . " (" . round($rd->score, 2) . " ptos. )");
-            }
-        }
-        $table->data = $data;
-        // Add extra page with rubric.
-        $pdf->AddPage();
-        $pdf->Write(0, 'Rúbrica', '', 0, 'L', true, 0, false, false, 0);
-        $pdf->SetFont('helvetica', '', 8);
-        $tbl = html_writer::table($table);
-        $pdf->writeHTML($tbl, true, false, false, false, '');
     }
     $pdffilename = 'response_' . $emarking->id . '_' . $draft->id . '.pdf';
     $pathname = $tempdir . '/' . $pdffilename;
@@ -1721,7 +1672,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
         'contextid' => $context->id,
         'component' => 'mod_emarking',
         'filearea' => 'response',
-        'itemid' => $student->id,
+        'itemid' => $draft->id,
         'filepath' => '/',
         'filename' => $pdffilename,
         'timecreated' => time(),
@@ -1731,8 +1682,8 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
         'license' => 'allrightsreserved'
     );
     // Si el archivo ya existía entonces lo borramos.
-    if ($fs->file_exists($context->id, 'mod_emarking', 'response', $student->id, '/', $pdffilename)) {
-        $previousfile = $fs->get_file($context->id, 'mod_emarking', 'response', $student->id, '/', $pdffilename);
+    if ($fs->file_exists($context->id, 'mod_emarking', 'response', $draft->id, '/', $pdffilename)) {
+        $previousfile = $fs->get_file($context->id, 'mod_emarking', 'response', $draft->id, '/', $pdffilename);
         $previousfile->delete();
     }
     $fileinfo = $fs->create_file_from_pathname($filerecord, $pathname);
