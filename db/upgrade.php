@@ -1460,6 +1460,41 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016082901, 'emarking');
     }
     
+    if ($oldversion < 2016100500) {
+    
+    	// Rename field instructionstudents on table emarking_activities to NEWNAMEGOESHERE.
+    	$table = new xmldb_table('emarking_activities');
+    	$field = new xmldb_field('instructionstudents', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'estimatedtime');
+   
+    	// Launch rename field instructionstudents.
+    	$dbman->rename_field($table, $field, 'instructions');
+    	
+   		$field = new xmldb_field('teachingsuggestions');
+
+        // Conditionally launch drop field teachingsuggestions.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+        $field = new xmldb_field('parent', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'rubricid');
+        
+        // Conditionally launch add field parent.
+        if (!$dbman->field_exists($table, $field)) {
+        	$dbman->add_field($table, $field);
+        }
+        
+        $field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '1', 'parent');
+        
+        // Conditionally launch add field status.
+        if (!$dbman->field_exists($table, $field)) {
+        	$dbman->add_field($table, $field);
+        }
+        
+        
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016100500, 'emarking');
+    }
+    
     
     return true;
 }
