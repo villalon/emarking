@@ -1,5 +1,5 @@
 <?php
-require_once (dirname ( dirname ( dirname ( __FILE__ ) ) ) . '/config.php');
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 //include simplehtml_form.php
 require_once('forms/create_activity.php');
  //Código para setear contexto, url, layout
@@ -8,7 +8,7 @@ global $PAGE,$USER, $CFG, $OUTPUT, $DB;
 $PAGE->set_pagelayout('embedded');
 require_login();
 $PAGE->set_context(context_system::instance());
-$url = new moodle_url($CFG->wwwroot.'/local/ciae/create.php');
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/create.php');
 $PAGE->set_url($url);
 echo $OUTPUT->header();
 
@@ -90,7 +90,7 @@ $record->rubricid 				= $fromform->rubricid;
 
 $insert = $DB->insert_record('emarking_activities', $record);
 
-$url = new moodle_url($CFG->wwwroot.'/local/ciae/activity.php', array('id' => $insert));
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $insert));
 redirect($url, 0);
   //In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {

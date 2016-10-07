@@ -1,5 +1,5 @@
 <?php 
-require_once (dirname ( dirname ( dirname ( __FILE__ ) ) ) . '/config.php');
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 
 /**
  * Function to create the table for rubrics
@@ -79,7 +79,7 @@ $rubric=$DB->get_records_sql($sql);
 function show_result($data){
 	GLOBAL $CFG;
 	
-	$activityUrl= new moodle_url($CFG->wwwroot.'/local/ciae/activity.php',array('id'=>$data->id));
+	$activityUrl= new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php',array('id'=>$data->id));
 	$oaComplete=explode("-",$data->learningobjectives);
 	$coursesOA="";
 	foreach($oaComplete as $oaPerCourse){

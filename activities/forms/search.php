@@ -1,7 +1,5 @@
 
 <?php
-require_once (dirname ( dirname ( dirname ( dirname( __FILE__ )) ) ) . '/config.php');
-require_once('generos.php');
 $options ='';
 foreach($generos as $genero){
 	$options .='<option value="'.$genero.'">'.$genero.'</option>';		

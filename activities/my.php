@@ -1,11 +1,11 @@
 <?php
-require_once (dirname ( dirname ( dirname ( __FILE__ ) ) ) . '/config.php');
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 GLOBAL $USER, $CFG;
 require_once ('locallib.php');
 require_login();
 
 $image=new moodle_url($CFG->wwwroot.'/user/pix.php/'.$USER->id.'/f1.jpg');
-$createActivity=new moodle_url($CFG->wwwroot.'/local/ciae/crear.php/');
+$createActivity=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/crear.php/');
 $userData=$DB->get_record('user',array('id'=>$USER->id));
 $countActivities=$DB->count_records_sql("select count(*) from {emarking_activities} where userid=?", array($USER->id));
 $countRubrics=$DB->count_records_sql("select count(*) from {grading_definitions} where usercreated=?", array($USER->id));

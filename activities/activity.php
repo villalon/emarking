@@ -1,14 +1,14 @@
 <?php
-require_once (dirname ( dirname ( dirname ( __FILE__ ) ) ) . '/config.php');
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) )). '/config.php');
 require_once ('generos.php');
 GLOBAL $USER, $CFG;
 $teacherroleid = 3;
 $logged = false;
 // Id of the exam to be deleted.
 $activityid = required_param('id', PARAM_INT);
-$forkingUrl = new moodle_url($CFG->wwwroot.'/local/ciae/forking.php', array('id' => $activityid));
-$editUrl = new moodle_url($CFG->wwwroot.'/local/ciae/edit.php', array('id' => $activityid));
-$pdfUrl = new moodle_url($CFG->wwwroot.'/local/ciae/pdfcreator.php', array('id' => $activityid));
+$forkingUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/forking.php', array('id' => $activityid));
+$editUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/edit.php', array('id' => $activityid));
+$pdfUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/pdfcreator.php', array('id' => $activityid));
 
 if (isloggedin ()) {
 	$logged = true;

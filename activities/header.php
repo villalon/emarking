@@ -1,11 +1,11 @@
 <?php 
-require_once (dirname ( dirname ( dirname ( __FILE__ ) ) ) . '/config.php');
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 global $PAGE,$USER, $CFG, $OUTPUT, $DB;
-$homeUrl=new moodle_url($CFG->wwwroot.'/local/ciae/index.php');
+$homeUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $logoutUrl=new moodle_url($CFG->wwwroot.'/login/logout.php',array('sesskey'=>$USER->sesskey));
-$searchUrl=new moodle_url($CFG->wwwroot.'/local/ciae/buscar.php');
-$createactivityUrl=new moodle_url($CFG->wwwroot.'/local/ciae/create.php');
-$myUrl=new moodle_url($CFG->wwwroot.'/local/ciae/my.php');
+$searchUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/buscar.php');
+$createactivityUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/create.php');
+$myUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/my.php');
 ?>
  <link rel="stylesheet" href="css/bootstrap.min.css">   
    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
