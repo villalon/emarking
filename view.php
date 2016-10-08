@@ -568,7 +568,7 @@ foreach ($drafts as $draft) {
     if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $data [] = $finalgrade;
     }
-    $data [] = $pctmarked . ($draft->answerkey ? '<br/>' . get_string('answerkey', 'mod_emarking') : '');
+    $data [] = $pctmarked . ($draft->answerkey ? $OUTPUT->pix_icon('i/badge', get_string('answerkey', 'mod_emarking')) : '');
     $data [] = $actions;
     $data [] = $selectdraft;
     $showpages->add_data($data, $draft->answerkey ? "alert-success" : "");

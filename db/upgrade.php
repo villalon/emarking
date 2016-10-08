@@ -1404,7 +1404,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2016062702, 'emarking');
     }
-    if ($oldversion < 2016082900) {
+    if ($oldversion < 2016100501) {
     // Define table emarking_activities to be created.
     $table = new xmldb_table('emarking_activities');
     
@@ -1434,10 +1434,6 @@ function xmldb_emarking_upgrade($oldversion) {
     	$dbman->create_table($table);
     }
     
-    // Emarking savepoint reached.
-    upgrade_mod_savepoint(true, 2016082900, 'emarking');
-    }
-    if ($oldversion < 2016082901) {
     
     	// Define table emarking_social to be created.
     	$table = new xmldb_table('emarking_social');
@@ -1455,12 +1451,6 @@ function xmldb_emarking_upgrade($oldversion) {
     	if (!$dbman->table_exists($table)) {
     		$dbman->create_table($table);
     	}
-    
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016082901, 'emarking');
-    }
-    
-    if ($oldversion < 2016100500) {
     
     	// Rename field instructionstudents on table emarking_activities to NEWNAMEGOESHERE.
     	$table = new xmldb_table('emarking_activities');
@@ -1492,7 +1482,7 @@ function xmldb_emarking_upgrade($oldversion) {
         
         
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016100500, 'emarking');
+    	upgrade_mod_savepoint(true, 2016100501, 'emarking');
     }
     
     
