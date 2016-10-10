@@ -1150,7 +1150,7 @@ function emarking_area_chart($emarkingid){
 		}
 	}
 }
-function emarking_markers_corrections($emarkingid){
+function emarking_markers_corrections($emarkingid, $ismarkers = null){
 	global $DB;
 	$markerssql = "SELECT  comment,u.id, CONCAT(u.firstname,' ',u.lastname) as name, correctiontime
 					FROM (SELECT c.id as comment, IF(r.id IS NULL,c.markerid,r.markerid) as marker, c.timecreated as correctiontime
@@ -1162,14 +1162,21 @@ function emarking_markers_corrections($emarkingid){
 					INNER JOIN {user} AS u ON (y.marker = u.id)
 					GROUP BY u.id";
 	if($markers = $DB->get_records_sql($markerssql, array($emarkingid))){
-		$arraymarkers = [['date']];
+		$arraymarkers = array();
 		$contador = 1;
 		$arraystacking = ['date'=>0];
 		foreach($markers as $marker){
-			$arraymarkers[0][$contador] = $marker->name;
 			$arraystacking[$marker->name] = 0;
+			$arraystacking[$contador] = 0;
 			$contador++;
 		}
+		if($ismarkers == 1){
+			foreach($markers as $marker){
+				$arraymarkers[] = $marker->name;
+			}
+			return $arraymarkers;
+		}
+		$markers = array_reverse($markers);
 		$commentssql = "SELECT  comment,CONCAT(u.firstname,' ',u.lastname) as name, FROM_UNIXTIME(correctiontime, '%Y-%m-%d') as date
 						FROM (SELECT c.id as comment, IF(r.id IS NULL,c.markerid,r.markerid) as marker, c.timecreated as correctiontime
 							  FROM {emarking} AS e
@@ -1183,25 +1190,35 @@ function emarking_markers_corrections($emarkingid){
 			$date = 0-0-0;
 			$lenght = count($comments);
 			$datecount = 1;
-
+			$arraylenght = count($markers) + 1;
 			foreach ($comments as $comment){
 				if($date == 0-0-0){
 					$arraystacking['date'] = strtotime ( '-1 day' , strtotime ( $comment->date  ) ) ;
 					$arraystacking['date'] = date ( 'Y-m-j' , $arraystacking['date'] );
-					array_push($arraymarkers, $arraystacking);
+					for($i = 1; $i < $arraylenght ; $i++){
+						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
+					}
+					array_push($arraymarkers,$arraystacking);
 				}
 				$arraystacking['date'] = $comment->date;
 				$arraystacking[$comment->name] = $arraystacking[$comment->name] + 1;
 				if($datecount == $lenght){
 					unset($arraymarkers[count($arraymarkers)-1]);
+					for($i = 1; $i < $arraylenght ; $i++){
+						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
+					}
 					array_push($arraymarkers,$arraystacking);
 				}
 				if(strtotime($date) < strtotime($comment->date) && $datecount !== $lenght) {
-						array_push($arraymarkers,$arraystacking);
-						$date = $comment->date;
+					for($i = 1; $i < $arraylenght ; $i++){
+						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
+					}
+					array_push($arraymarkers,$arraystacking);
+					$date = $comment->date;
 				}
 				$datecount++;
 			}
+			
 			$arraymarkers = array_values(array_map('array_values', $arraymarkers));
 			return $arraymarkers;
 		}
@@ -1599,4 +1616,28 @@ function emarking_time_progression_table($course){
 	}else{
 		return 0;
 	}
+}
+function emarking_draft_chart_tooltip($date, $objvalues){
+	global $DB;
+	$tooltip = get_string('date', 'mod_emarking').$date."/n".
+			   get_string('digitalized', 'mod_emarking').$objvalues->digitalized."/n".
+			   get_string('correcting', 'mod_emarking').$objvalues->correcting."/n".
+			   get_string('corrected', 'mod_emarking').$objvalues->corrected."/n".
+			   get_string('published', 'mod_emarking').$objvalues->published."/n".
+			   get_string('regrading', 'mod_emarking').$objvalues->regrading."/n".
+			   get_string('regraded', 'mod_emarking').$objvalues->regraded."/n".
+			   get_string('finalpublished', 'mod_emarking').$objvalues->finalpublished;
+	
+	return $tooltip;
+}
+function emarking_markers_chart_tooltip($markers, $corrections){
+	$corrections = array_values($corrections);
+	$lenght = count($corrections);
+	$tooltip = get_string('date', 'mod_emarking')." : ".$corrections[0]."<br>";
+	$countcorrections = 1;
+	foreach($markers as $marker){
+		$tooltip .= $marker->name." : ".$corrections[$countcorrections]."<br>";
+		$countcorrections = $countcorrections + 2;
+	}
+	return $tooltip;	
 }

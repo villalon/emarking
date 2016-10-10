@@ -279,10 +279,22 @@ echo $OUTPUT->footer();
     	google.charts.setOnLoadCallback(drawmarkersChart);
     }
 	function drawmarkersChart() {
- 
-		var data = google.visualization.arrayToDataTable(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
+
+		var markers = <?php echo  json_encode(emarking_markers_corrections($emarkingid, 1));?>;
+		var arraylength = markers.length;
+		
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Date');
+		for (var i = 0; i < arraylength; i++) {
+    		data.addColumn('number', markers[i]);
+    		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+    	}
+		
+
+		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
 
 		var options = {
+			tooltip: {isHtml: true},
 			isStacked: true,
 			hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
 			vAxis: {minValue: 0}
