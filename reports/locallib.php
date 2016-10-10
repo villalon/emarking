@@ -665,183 +665,183 @@ function emarking_time_progression($course, $fortable = null){
 	// Gets the information of the above query.
 	if ($emarkings = $DB->get_records_sql($sqlemarking,array($course, EMARKING_STATUS_ABSENT))) {
 		$position=0;
-			foreach($emarkings as $emarking){
-				$time = time();
+		foreach($emarkings as $emarking){
+			$time = time();
+			
+			if($emarking->printdate == 0){
+				$status = EMARKING_TO_PRINT;
+			
+			}elseif(is_null($emarking->digitalized) && $emarking->printdate !== 0){
+				$status = EMARKING_PRINTED;
+			
+			}elseif(is_null($emarking->correctionstarted) && $emarking->maxstatus == EMARKING_STATUS_SUBMITTED || $emarking->minstatus == EMARKING_STATUS_SUBMITTED){
+				$status = EMARKING_STATUS_SUBMITTED;
+			
+			}elseif(is_null($emarking->firstpublished) && $emarking->maxstatus == EMARKING_STATUS_GRADING){
+				$status = EMARKING_STATUS_GRADING;
 				
-				if($emarking->printdate == 0){
-					$status = EMARKING_TO_PRINT;
-				
-				}elseif(is_null($emarking->digitalized) && $emarking->printdate !== 0){
-					$status = EMARKING_PRINTED;
-				
-				}elseif(is_null($emarking->correctionstarted) && $emarking->maxstatus == EMARKING_STATUS_SUBMITTED || $emarking->minstatus == EMARKING_STATUS_SUBMITTED){
-					$status = EMARKING_STATUS_SUBMITTED;
-				
-				}elseif(is_null($emarking->firstpublished) && $emarking->maxstatus == EMARKING_STATUS_GRADING){
-					$status = EMARKING_STATUS_GRADING;
-					
-				}elseif(is_null($emarking->regradingstarted) && $emarking->maxstatus ==EMARKING_STATUS_PUBLISHED){
-					$status = EMARKING_STATUS_PUBLISHED;
-				
-				}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
-					$status = EMARKING_STATUS_REGRADING;
-				
-				}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
-					$status = EMARKING_STATUS_REGRADING_RESPONDED;
-				
-				}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
-					$status = EMARKING_STATUS_FINAL_PUBLISHED;
-				}
-				//echo "publi: $emarking->firstpublished regra: $emarking->regradingstarted maxstatus: $emarking->maxstatus minstatus: $emarking->minstatus status: $status";
-				switch ($status) {
-					
-					case EMARKING_TO_PRINT:
-						
-						$emarkingarray[$position]= array(
-							$emarking->name,
-							(round(($time - $emarking->printorder)/86400)),
-							0,0,0,0,0,0,0,0,0,
-							(round(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_PRINTED:
-						
-						if(((time() - $emarking->printdate)/86400)>30){
-							$time = ($emarking->printdate + 2592000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(round(($emarking->printdate - $emarking->printorder)/86400)),
-								(round(($time - $emarking->printdate)/86400)),
-								0,0,0,0,0,0,0,0,
-								(round(($time - $emarking->printorder)/86400))." Days"
-						);
-						
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_SUBMITTED:
-						
-						if(((time() - $emarking->digitalized)/86400)>30){
-							$time = ($emarking->digitalized + 2592000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(round(($emarking->printdate - $emarking->printorder)/86400,1)),
-								(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
-								(round(($time - $emarking->digitalized)/86400,1)),
-								0,0,0,0,0,0,0,
-								(round(($time - $emarking->printorder)/86400,1))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_GRADING:
-						
-						if(((time() - $emarking->corrected)/86400)>15){
-							$time = ($emarking->corrected + 1296000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(round(($emarking->printdate - $emarking->printorder)/86400,1)),
-								(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
-								(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
-								(round(($time - $emarking->correctionstarted)/86400,1)),
-								0,0,0,0,0,0,
-								(round(($time - $emarking->printorder)/86400,1))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_PUBLISHED:
-						
-						if(((time() - $emarking->firstpublished)/86400)>10){
-							$time = ($emarking->firstpublished + 864000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(round(($emarking->printdate - $emarking->printorder)/86400,1)),
-								(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
-								(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
-								(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
-								(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
-								(round(($time - $emarking->firstpublished)/86400,1)),
-								0,0,0,0,
-								(round(($time - $emarking->printorder)/86400,1))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_REGRADING:
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(round(($emarking->printdate - $emarking->printorder)/86400,1)),
-								(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
-								(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
-								(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
-								(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
-								(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
-								(round(($time - $emarking->regradingstarted)/86400,1)),
-								0,0,0,
-								(round(($time - $emarking->printorder)/86400,1))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_REGRADING_RESPONDED:
-						
-						if(((time() - $emarking->regraded)/86400)>5){
-							$time = ($emarking->regraded + 432000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(round(($emarking->printdate - $emarking->printorder)/86400,1)),
-								(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
-								(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
-								(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
-								(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
-								(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
-								(round(($emarking->regraded - $emarking->regradingstarted)/86400,1)),
-								(round(($time - $emarking->regraded)/86400,1)),
-								0,0,
-								(round(($time - $emarking->printorder)/86400,1))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_FINAL_PUBLISHED:
-						
-						if(((time() - $emarking->lastpublished)/86400)>5){
-							$time = ($emarking->lastpublished + 432000);
-						}
-						
-						$emarkingarray[$position]= array(
-						$emarking->name,
-						(round(($emarking->printdate - $emarking->printorder)/86400,1)),
-						(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
-						(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
-						(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
-						(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
-						(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
-						(round(($emarking->regraded - $emarking->regradingstarted)/86400,1)),
-						(round(($emarking->lastpublished - $emarking->regraded)/86400,1)),
-						(round(($time- $emarking->lastpublished)/86400,1)),
-						0,
-						(round(($time - $emarking->printorder)/86400,1))." Days"
-						);
-						$position++;
-						break;
-				}
-				$status = null;
+			}elseif(is_null($emarking->regradingstarted) && $emarking->maxstatus ==EMARKING_STATUS_PUBLISHED){
+				$status = EMARKING_STATUS_PUBLISHED;
+			
+			}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
+				$status = EMARKING_STATUS_REGRADING;
+			
+			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
+				$status = EMARKING_STATUS_REGRADING_RESPONDED;
+			
+			}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
+				$status = EMARKING_STATUS_FINAL_PUBLISHED;
 			}
-			return $emarkingarray;
+			//echo "publi: $emarking->firstpublished regra: $emarking->regradingstarted maxstatus: $emarking->maxstatus minstatus: $emarking->minstatus status: $status";
+			switch ($status) {
+				
+				case EMARKING_TO_PRINT:
+					
+					$emarkingarray[$position]= array(
+						$emarking->name,
+						(round(($time - $emarking->printorder)/86400)),
+						0,0,0,0,0,0,0,0,0,
+						(round(($time - $emarking->printorder)/86400))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_PRINTED:
+					
+					if(((time() - $emarking->printdate)/86400)>30){
+						$time = ($emarking->printdate + 2592000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400)),
+							(round(($time - $emarking->printdate)/86400)),
+							0,0,0,0,0,0,0,0,
+							(round(($time - $emarking->printorder)/86400))." Days"
+					);
+					
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_SUBMITTED:
+					
+					if(((time() - $emarking->digitalized)/86400)>30){
+						$time = ($emarking->digitalized + 2592000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($time - $emarking->digitalized)/86400,1)),
+							0,0,0,0,0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_GRADING:
+					
+					if(((time() - $emarking->corrected)/86400)>15){
+						$time = ($emarking->corrected + 1296000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($time - $emarking->correctionstarted)/86400,1)),
+							0,0,0,0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_PUBLISHED:
+					
+					if(((time() - $emarking->firstpublished)/86400)>10){
+						$time = ($emarking->firstpublished + 864000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+							(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+							(round(($time - $emarking->firstpublished)/86400,1)),
+							0,0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_REGRADING:
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+							(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+							(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
+							(round(($time - $emarking->regradingstarted)/86400,1)),
+							0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_REGRADING_RESPONDED:
+					
+					if(((time() - $emarking->regraded)/86400)>5){
+						$time = ($emarking->regraded + 432000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+							(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+							(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
+							(round(($emarking->regraded - $emarking->regradingstarted)/86400,1)),
+							(round(($time - $emarking->regraded)/86400,1)),
+							0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_FINAL_PUBLISHED:
+					
+					if(((time() - $emarking->lastpublished)/86400)>5){
+						$time = ($emarking->lastpublished + 432000);
+					}
+					
+					$emarkingarray[$position]= array(
+					$emarking->name,
+					(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+					(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+					(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+					(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+					(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+					(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
+					(round(($emarking->regraded - $emarking->regradingstarted)/86400,1)),
+					(round(($emarking->lastpublished - $emarking->regraded)/86400,1)),
+					(round(($time- $emarking->lastpublished)/86400,1)),
+					0,
+					(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+			}
+			$status = null;
+		}
+		return $emarkingarray;
 	}else{
 		return 0;
 	}
