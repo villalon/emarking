@@ -127,7 +127,13 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING
 	    SELECT COUNT(DISTINCT d.id) AS numdrafts
 		FROM {emarking_draft} AS d
 		INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)
-	    GROUP BY s.emarking";
+	       ";
+    echo "<hr>";
+    echo $sqlnumdrafts;
+    echo "<hr>";
+    echo $cm->instance;
+    echo "<hr>";
+    echo $USER->id;
     $numdrafts = $DB->count_records_sql($sqlnumdrafts,
             array(
                 "emarking" => $cm->instance,
@@ -657,7 +663,8 @@ $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
 $numorphanpages = count($orphanpages);
 if($numorphanpages > 0) {
     $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array('id'=>$cm->id));
-    echo $OUTPUT->single_button($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages), 'GET');
+    echo $OUTPUT->action_link($orphanpagesurl,
+        get_string('thereareorphanpages', 'mod_emarking', $numorphanpages));
 }
 // If the user is a tutor or teacher we don't include justice perception.
 if ($usercangrade || ! $submission) {

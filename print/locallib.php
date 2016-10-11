@@ -1179,10 +1179,9 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
     } else {
         $fileinfoanonymous = emarking_create_page_file_from_path_or_file($anonymousfilename, $path, $student, $context, $emarking, NULL, $pagenumber);
     }
-    var_dump($anonymousfilename);
-    var_dump($path);
-    var_dump($fileinfo->get_filename());
-    var_dump($fileinfoanonymous->get_filename());
+    if(!$fileinfo || !$fileinfoanonymous) {
+        return false;
+    }
     // Gets or creates a submission for the student.
     $submission = emarking_get_or_create_submission($emarking, $student, $context);
     // Get the page from previous uploads. If exists update it, if not insert a new page.
@@ -1342,7 +1341,10 @@ function emarking_fix_page($fileid, $student, $emarking, $context, $pagenumber) 
         throw new Exception('Invalid file id');
     }
     // Submit the file to pages.
-    emarking_submit($emarking, $context, NULL, NULL, $student, $pagenumber, $file);
+    if(emarking_submit($emarking, $context, NULL, NULL, $student, $pagenumber, $file)) {
+        $file->delete();
+        return 1;
+    }
     return 1;
 }
 /**
