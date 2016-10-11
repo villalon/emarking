@@ -686,7 +686,7 @@ function emarking_time_progression($course, $fortable = null){
 			}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
 				$status = EMARKING_STATUS_REGRADING;
 			
-			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
+			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING || $emarking->maxstatus == EMARKING_STATUS_REGRADING_RESPONDED){
 				$status = EMARKING_STATUS_REGRADING_RESPONDED;
 			
 			}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
@@ -941,7 +941,7 @@ global $DB;
 			$status = EMARKING_STATUS_REGRADING;
 			
 				
-		}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
+		}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING  || $emarking->maxstatus == EMARKING_STATUS_REGRADING_RESPONDED){
 			$status = EMARKING_STATUS_REGRADING_RESPONDED;
 			if(((time() - $emarking->regraded)/86400)>5){
 				$time = ($emarking->regraded + 432000)*1000;
@@ -1292,9 +1292,8 @@ function emarking_time_progression_table($course){
 	// Gets the information of the above query.
 	if ($emarkings = $DB->get_records_sql($sqlemarking,array($course, EMARKING_STATUS_ABSENT))) {
 		// Headers for the table
-		$emarkingarray[0] = ['','','','','', get_string('dayshoursstrong', 'mod_emarking'),'','','','',''];
-		$emarkingarray[1] = [get_string('emarkingnamestrong', 'mod_emarking'),get_string('senttoprint', 'mod_emarking'),
-				get_string('printed', 'mod_emarking'),get_string('digitalized', 'mod_emarking'),
+		$emarkingarray[0] = ['','','','', get_string('dayshoursstrong', 'mod_emarking'),'','','',''];
+		$emarkingarray[1] = [get_string('emarkingnamestrong', 'mod_emarking'),get_string('digitalized', 'mod_emarking'),
 				get_string('incorrection', 'mod_emarking'),get_string('graded', 'mod_emarking'),
 				get_string('published', 'mod_emarking'),get_string('inregrading', 'mod_emarking'),
 				get_string('regraded', 'mod_emarking'),get_string('finalpublication', 'mod_emarking'),
@@ -1371,7 +1370,7 @@ function emarking_time_progression_table($course){
 			}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
 				$status = EMARKING_STATUS_REGRADING;
 				
-			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
+			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING || $emarking->maxstatus == EMARKING_STATUS_REGRADING_RESPONDED){
 				$status = EMARKING_STATUS_REGRADING_RESPONDED;
 	
 			}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
@@ -1392,8 +1391,6 @@ function emarking_time_progression_table($course){
 
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$emptycounter,
 						$emptycounter,
 						$emptycounter,
 						$emptycounter,
@@ -1423,8 +1420,6 @@ function emarking_time_progression_table($course){
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$emptycounter,
 						$emptycounter,
 						$emptycounter,
@@ -1453,8 +1448,6 @@ function emarking_time_progression_table($course){
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$emptycounter,
 						$emptycounter,
@@ -1483,8 +1476,6 @@ function emarking_time_progression_table($course){
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$emptycounter,
@@ -1513,8 +1504,6 @@ function emarking_time_progression_table($course){
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$timecorrected,
@@ -1539,8 +1528,6 @@ function emarking_time_progression_table($course){
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$timecorrected,
@@ -1568,8 +1555,6 @@ function emarking_time_progression_table($course){
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$timecorrected,
@@ -1598,16 +1583,14 @@ function emarking_time_progression_table($course){
 					
 					$emarkingarray[$position]= array(
 					$emarking->name,
-					$timetoprint,
-						$timeprinted,
-						$timedigitalized,
-						$timecorrecting,
-						$timecorrected,
-						$timepublished,
-						$timeregrading,
-						$timeregraded,
-						$timefinalpublished,
-						$totaltime,
+					$timedigitalized,
+					$timecorrecting,
+					$timecorrected,
+					$timepublished,
+					$timeregrading,
+					$timeregraded,
+					$timefinalpublished,
+					$totaltime,
 					);
 					$position++;
 					break;
