@@ -1095,27 +1095,29 @@ function emarking_area_chart($emarkingid){
 			}
 			$areachart = array(array('Date', 'Digitalized','Grading', 'Graded', 'Publicated','Regrading', 'Regraded', 'Repiblished'));
 
-			while($date <= $enddate && $date != null){
-				foreach($draftsdata as $draftstatus){
-					if($draftstatus->correctionstarted == $date){
-						$currentdata[$draftstatus->draftid] = 'Grading';
+			while($date <= $enddate){
+				if($date != null){
+					foreach($draftsdata as $draftstatus){
+						if($draftstatus->correctionstarted == $date){
+							$currentdata[$draftstatus->draftid] = 'Grading';
+						}
+						elseif($draftstatus->correctionended == $date){
+							$currentdata[$draftstatus->draftid] = 'Graded';
+						}
+						elseif($draftstatus->firstpublished == $date){
+							$currentdata[$draftstatus->draftid] = 'Publicated';
+						}
+						elseif($draftstatus->lastpublished == $date){
+							$currentdata[$draftstatus->draftid] = 'finalpublished';
+						}
+						elseif($draftstatus->regradingstarted == $date){
+							$currentdata[$draftstatus->draftid] = 'regrading';
+						}
+						elseif($draftstatus->regraded == $date){
+							$currentdata[$draftstatus->draftid] = 'regraded';
+						}
+						
 					}
-					if($draftstatus->correctionended == $date){
-						$currentdata[$draftstatus->draftid] = 'Graded';
-					}
-					if($draftstatus->firstpublished == $date){
-						$currentdata[$draftstatus->draftid] = 'Publicated';
-					}
-					if($draftstatus->lastpublished == $date){
-						$currentdata[$draftstatus->draftid] = 'finalpublished';
-					}
-					if($draftstatus->regradingstarted == $date){
-						$currentdata[$draftstatus->draftid] = 'regrading';
-					}
-					if($draftstatus->regraded == $date){
-						$currentdata[$draftstatus->draftid] = 'regraded';
-					}
-					
 				}
 				
 				$datacount = [$date,0,0,0,0,0,0,0];
