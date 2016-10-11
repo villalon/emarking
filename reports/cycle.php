@@ -143,7 +143,7 @@ if($currenttab == 0){
   	echo get_string('cicletablealert', 'emarking');
   	echo html_writer::end_tag('div');
   	// Emarkings days data to table.
-  	echo html_writer::tag('div',emarking_table_creator(null,emarking_time_progression_table($course->id),array('20%','10%','10%','10%','10%','10%','10%','10%','10%')), array('id' => 'summarytable','style' => 'width: 100%, float:left;'));
+  	echo html_writer::tag('div',emarking_table_creator(null,emarking_time_progression_table($course->id),array('20%','10%','10%','10%','10%','10%','10%','10%','10%')), array('id' => 'emarking-progression-table','style' => 'width: 100%, float:left;'));
   	
   	echo emarking_justice_perception($selectedcourse);
   	
