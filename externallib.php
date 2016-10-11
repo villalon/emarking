@@ -80,7 +80,9 @@ class mod_emarking_external extends external_api {
             
             // finally fix the page
             $page->id = emarking_fix_page($page->fileid, $student, $emarking, $context, $page->pagenumber);
-            $newpages[] = array('id' => $page->id);
+            if($page->id > 0) {
+                $newpages[] = array('id' => $page->id);
+            }
         }
     
         $transaction->allow_commit();
