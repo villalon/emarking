@@ -181,7 +181,7 @@ list($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller)
 // see other users.
 $userfilter = 'WHERE 1=1 ';
 if (! $usercangrade) {
-    $userfilter .= 'AND u.id = ' . $USER->id;
+    $userfilter .= 'AND (u.id = ' . $USER->id . ' OR NM.answerkey = ' . EMARKING_ANSWERKEY_ACCEPTED . ')';
 } else if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING)
 		&& ! is_siteadmin($USER->id) && ! $issupervisor) {
     $userfilter .= 'AND um.id = ' . $USER->id;
@@ -782,10 +782,12 @@ function emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubr
     $bonusinfo = ($d->bonus > 0 ? '+' : '') . $bonusinfo;
     $gradevalue = round(floatval($d->grade), 2);
     $thisfinalgrade = '-';
-    if ((($usercangrade || $issupervisor) &&
-             (($d->status >= EMARKING_STATUS_GRADING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) ||
-             ($d->status >= EMARKING_STATUS_GRADING && $draft->id != $USER->id && $emarking->type == EMARKING_TYPE_PEER_REVIEW))) ||
-             ($d->status >= EMARKING_STATUS_PUBLISHED && $draft->id == $USER->id)) {
+    if (
+        (   ($usercangrade || $issupervisor) &&
+            (($d->status >= EMARKING_STATUS_GRADING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) ||
+             ($d->status >= EMARKING_STATUS_GRADING && $draft->id != $USER->id && $emarking->type == EMARKING_TYPE_PEER_REVIEW)))
+        ||
+             ($d->status >= EMARKING_STATUS_PUBLISHED && ($draft->id == $USER->id || $draft->answerkey))) {
         $thisfinalgrade = $gradevalue;
     } else if ($d->status <= EMARKING_STATUS_MISSING) {
         $thisfinalgrade = "";

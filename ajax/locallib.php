@@ -910,6 +910,11 @@ function emarking_set_answer_key($submission, $newstatus) {
     if($newstatus < EMARKING_ANSWERKEY_NONE || $newstatus > EMARKING_ANSWERKEY_ACCEPTED) {
         throw new Exception('Invalid status for answerkey');
     }
+    if($submission->answerkey != EMARKING_ANSWERKEY_NONE) {
+        $newstatus = EMARKING_ANSWERKEY_NONE;
+    } else {
+        $newstatus = EMARKING_ANSWERKEY_ACCEPTED;
+    }
     $submission->answerkey = $newstatus;
     $DB->update_record("emarking_submission", $submission);
     return $newstatus;
