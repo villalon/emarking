@@ -795,3 +795,5 @@ $string['cicletablealert'] = 'Si existe una diferencia entre el tiempo total y l
 $string['cicleganttchart'] = 'Carta gantt ciclo eMarking';
 $string['ciclestackedstatuses'] = 'Ciclo de drafts de EMarking';
 $string['ciclemarkerscorrections'] = 'Correcciones de correctores';
+$string['strongdate'] = '<strong>Fecha</strong>';
+$string['date'] = 'Fecha';

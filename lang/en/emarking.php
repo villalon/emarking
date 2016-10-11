@@ -790,4 +790,5 @@ $string['cicletablealert'] = 'If there is a diference between total time and the
 $string['cicleganttchart'] = 'Gantt cicle of the EMarking';
 $string['ciclestackedstatuses'] = 'Draft status cicle';
 $string['ciclemarkerscorrections'] = 'Markers corrections';
-$string['date'] = '<strong>Date</strong>';
+$string['strongdate'] = '<strong>Date</strong>';
+$string['date'] = 'Date';
