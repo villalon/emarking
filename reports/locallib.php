@@ -1074,9 +1074,9 @@ function emarking_area_chart($emarkingid){
 			return 0;
 		}
 		
-		
 		$enddate = date('Y-m-d', strtotime(str_replace('-','/', $enddate)));
 		$enddate =  date('Y-m-d', strtotime($enddate. ' + 1 days'));
+		
 		$draftsdatasql = "SELECT ed.id AS draftid,
 					FROM_UNIXTIME(ed.timecorrectionstarted, '%Y-%m-%d') AS correctionstarted,
 					FROM_UNIXTIME(ed.timecorrectionended, '%Y-%m-%d') AS correctionended,
@@ -1093,56 +1093,58 @@ function emarking_area_chart($emarkingid){
 			foreach($draftsdata as $draftdates){
 				$currentdata[$draftdates->draftid] = 'Digitalized';
 			}
-			$areachart = array(array('Date', 'Digitalized','Grading', 'Graded', 'Publicated','Regrading', 'Regraded', 'Repiblished'));
+			$areachart = array();
 
-			while($date <= $enddate){
+			while($date < $enddate){
 				if($date != null){
 					foreach($draftsdata as $draftstatus){
+						if($draftstatus->lastpublished == $date){
+							$currentdata[$draftstatus->draftid] = 'finalpublished';
+						}
+						if($draftstatus->regraded == $date){
+							$currentdata[$draftstatus->draftid] = 'regraded';
+						}
+						if($draftstatus->regradingstarted == $date){
+							$currentdata[$draftstatus->draftid] = 'regrading';
+						}
+						if($draftstatus->firstpublished == $date){
+							$currentdata[$draftstatus->draftid] = 'Publicated';
+						}
+						if($draftstatus->correctionended == $date){
+							$currentdata[$draftstatus->draftid] = 'Graded';
+						}
 						if($draftstatus->correctionstarted == $date){
 							$currentdata[$draftstatus->draftid] = 'Grading';
 						}
-						elseif($draftstatus->correctionended == $date){
-							$currentdata[$draftstatus->draftid] = 'Graded';
-						}
-						elseif($draftstatus->firstpublished == $date){
-							$currentdata[$draftstatus->draftid] = 'Publicated';
-						}
-						elseif($draftstatus->lastpublished == $date){
-							$currentdata[$draftstatus->draftid] = 'finalpublished';
-						}
-						elseif($draftstatus->regradingstarted == $date){
-							$currentdata[$draftstatus->draftid] = 'regrading';
-						}
-						elseif($draftstatus->regraded == $date){
-							$currentdata[$draftstatus->draftid] = 'regraded';
-						}
-						
 					}
 				}
 				
-				$datacount = [$date,0,0,0,0,0,0,0];
+				$datacount = [$date,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 				foreach($currentdata as $data){
 					if($data == 'Digitalized'){
 						$datacount[1] = $datacount[1] + 1;
 					}
 					if($data == 'Grading'){
-						$datacount[2] = $datacount[2] + 1;
-					}
-					if($data == 'Graded'){
 						$datacount[3] = $datacount[3] + 1;
 					}
-					if($data == 'Publicated'){
-						$datacount[4] = $datacount[4] + 1;
-					}
-					if($data == 'finalpublished'){
+					if($data == 'Graded'){
 						$datacount[5] = $datacount[5] + 1;
 					}
-					if($data == 'regrading'){
-						$datacount[6] = $datacount[6] + 1;
-					}
-					if($data == 'regraded'){
+					if($data == 'Publicated'){
 						$datacount[7] = $datacount[7] + 1;
 					}
+					if($data == 'finalpublished'){
+						$datacount[9] = $datacount[9] + 1;
+					}
+					if($data == 'regrading'){
+						$datacount[11] = $datacount[11] + 1;
+					}
+					if($data == 'regraded'){
+						$datacount[13] = $datacount[13] + 1;
+					}
+				}
+				for($i=2;$i<15;$i = $i + 2){
+				$datacount[$i] = emarking_area_chart_tooltip($datacount);
 				}
 				array_push($areachart,$datacount);
 				$datacount = array();
@@ -1602,23 +1604,22 @@ function emarking_time_progression_table($course){
 		return 0;
 	}
 }
-function emarking_draft_chart_tooltip($date, $objvalues){
-	global $DB;
-	$tooltip = get_string('date', 'mod_emarking').$date."/n".
-			   get_string('digitalized', 'mod_emarking').$objvalues->digitalized."/n".
-			   get_string('correcting', 'mod_emarking').$objvalues->correcting."/n".
-			   get_string('corrected', 'mod_emarking').$objvalues->corrected."/n".
-			   get_string('published', 'mod_emarking').$objvalues->published."/n".
-			   get_string('regrading', 'mod_emarking').$objvalues->regrading."/n".
-			   get_string('regraded', 'mod_emarking').$objvalues->regraded."/n".
-			   get_string('finalpublished', 'mod_emarking').$objvalues->finalpublished;
+function emarking_area_chart_tooltip($datacount){
+	$tooltip = get_string('strongdate', 'mod_emarking')." : <strong>".$datacount[0]."</strong><br>".
+			   get_string('digitalized', 'mod_emarking')." : ".$datacount[1]."<br>".
+			   get_string('incorrection', 'mod_emarking')." : ".$datacount[3]."<br>".
+			   get_string('graded', 'mod_emarking')." : ".$datacount[5]."<br>".
+			   get_string('published', 'mod_emarking')." : ".$datacount[7]."<br>".
+			   get_string('inregrading', 'mod_emarking')." : ".$datacount[9]."<br>".
+			   get_string('regraded', 'mod_emarking')." : ".$datacount[11]."<br>".
+			   get_string('finalpublication', 'mod_emarking')." : ".$datacount[13];
 	
 	return $tooltip;
 }
 function emarking_markers_chart_tooltip($markers, $corrections){
 	$corrections = array_values($corrections);
 	$lenght = count($corrections);
-	$tooltip = get_string('date', 'mod_emarking')." : ".$corrections[0]."<br>";
+	$tooltip = get_string('strongdate', 'mod_emarking')." : <strong>".$corrections[0]."</strong><br>";
 	$countcorrections = 1;
 	foreach($markers as $marker){
 		$tooltip .= $marker->name." : ".$corrections[$countcorrections]."<br>";

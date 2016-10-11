@@ -266,11 +266,31 @@ echo $OUTPUT->footer();
     
 	function drawareaChart() {
  
-		var data = google.visualization.arrayToDataTable(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
-
+		var data = new google.visualization.DataTable();
+		
+  		data.addColumn('string', '<?php echo get_string("date", "mod_emarking"); ?>');
+  		data.addColumn('number', '<?php echo get_string("digitalized", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("incorrection", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("graded", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("published", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("inregrading", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("regraded", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("finalpublication", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		
+  		data.addRows(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
+  		
         var options = {
+        	pointShape: 'star',
+        	pointSize: 4,
+        	tooltip: {isHtml: true},
         	isStacked: true,
-        	hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
         	vAxis: {minValue: 0}
         };
 
@@ -298,9 +318,10 @@ echo $OUTPUT->footer();
 		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
 
 		var options = {
+			pointSize: 4,
+			pointShape: 'star',
 			tooltip: {isHtml: true},
 			isStacked: true,
-			hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
 			vAxis: {minValue: 0}
 		};
 
