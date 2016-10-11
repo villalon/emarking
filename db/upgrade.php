@@ -1457,8 +1457,9 @@ function xmldb_emarking_upgrade($oldversion) {
     	$field = new xmldb_field('instructionstudents', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'estimatedtime');
    
     	// Launch rename field instructionstudents.
+    	if ($dbman->field_exists($table, $field)) { 
     	$dbman->rename_field($table, $field, 'instructions');
-    	
+    	}
    		$field = new xmldb_field('teachingsuggestions');
 
         // Conditionally launch drop field teachingsuggestions.
