@@ -143,7 +143,7 @@ if($currenttab == 0){
   	echo get_string('cicletablealert', 'emarking');
   	echo html_writer::end_tag('div');
   	// Emarkings days data to table.
-  	echo html_writer::tag('div',emarking_table_creator(null,emarking_time_progression_table($course->id),null), array('id' => 'summarytable','style' => 'width: 100%, float:left;'));
+  	echo html_writer::tag('div',emarking_table_creator(null,emarking_time_progression_table($course->id),array('20%','10%','10%','10%','10%','10%','10%','10%','10%')), array('id' => 'summarytable','style' => 'width: 100%, float:left;'));
   	
   	echo emarking_justice_perception($selectedcourse);
   	
@@ -195,7 +195,9 @@ echo $OUTPUT->footer();
   		view.setColumns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   		
   		var options = {
-  		    chartArea: {width: '50%'},
+  			legendFontSize:11,
+  			legend: { position: 'top', alignment: 'start ', maxLines: 3},
+  		    chartArea: {width: '60%'},
   		    isStacked: true,
   		    bar: {groupWidth: "50%"},
   		    hAxis: {
@@ -277,10 +279,22 @@ echo $OUTPUT->footer();
     	google.charts.setOnLoadCallback(drawmarkersChart);
     }
 	function drawmarkersChart() {
- 
-		var data = google.visualization.arrayToDataTable(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
+
+		var markers = <?php echo  json_encode(emarking_markers_corrections($emarkingid, 1));?>;
+		var arraylength = markers.length;
+		
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Date');
+		for (var i = 0; i < arraylength; i++) {
+    		data.addColumn('number', markers[i]);
+    		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+    	}
+		
+
+		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
 
 		var options = {
+			tooltip: {isHtml: true},
 			isStacked: true,
 			hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
 			vAxis: {minValue: 0}

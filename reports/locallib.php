@@ -665,183 +665,183 @@ function emarking_time_progression($course, $fortable = null){
 	// Gets the information of the above query.
 	if ($emarkings = $DB->get_records_sql($sqlemarking,array($course, EMARKING_STATUS_ABSENT))) {
 		$position=0;
-			foreach($emarkings as $emarking){
-				$time = time();
+		foreach($emarkings as $emarking){
+			$time = time();
+			
+			if($emarking->printdate == 0){
+				$status = EMARKING_TO_PRINT;
+			
+			}elseif(is_null($emarking->digitalized) && $emarking->printdate !== 0){
+				$status = EMARKING_PRINTED;
+			
+			}elseif(is_null($emarking->correctionstarted) && $emarking->maxstatus == EMARKING_STATUS_SUBMITTED || $emarking->minstatus == EMARKING_STATUS_SUBMITTED){
+				$status = EMARKING_STATUS_SUBMITTED;
+			
+			}elseif(is_null($emarking->firstpublished) && $emarking->maxstatus == EMARKING_STATUS_GRADING){
+				$status = EMARKING_STATUS_GRADING;
 				
-				if($emarking->printdate == 0){
-					$status = EMARKING_TO_PRINT;
-				
-				}elseif(is_null($emarking->digitalized) && $emarking->printdate !== 0){
-					$status = EMARKING_PRINTED;
-				
-				}elseif(is_null($emarking->correctionstarted) && $emarking->maxstatus == EMARKING_STATUS_SUBMITTED || $emarking->minstatus == EMARKING_STATUS_SUBMITTED){
-					$status = EMARKING_STATUS_SUBMITTED;
-				
-				}elseif(is_null($emarking->firstpublished) && $emarking->maxstatus == EMARKING_STATUS_GRADING){
-					$status = EMARKING_STATUS_GRADING;
-					
-				}elseif(is_null($emarking->regradingstarted) && $emarking->maxstatus ==EMARKING_STATUS_PUBLISHED){
-					$status = EMARKING_STATUS_PUBLISHED;
-				
-				}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
-					$status = EMARKING_STATUS_REGRADING;
-				
-				}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
-					$status = EMARKING_STATUS_REGRADING_RESPONDED;
-				
-				}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
-					$status = EMARKING_STATUS_FINAL_PUBLISHED;
-				}
-				//echo "publi: $emarking->firstpublished regra: $emarking->regradingstarted maxstatus: $emarking->maxstatus minstatus: $emarking->minstatus status: $status";
-				switch ($status) {
-					
-					case EMARKING_TO_PRINT:
-						
-						$emarkingarray[$position]= array(
-							$emarking->name,
-							(floor(($time - $emarking->printorder)/86400)),
-							0,0,0,0,0,0,0,0,0,
-							(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_PRINTED:
-						
-						if(((time() - $emarking->printdate)/86400)>30){
-							$time = ($emarking->printdate + 2592000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(floor(($emarking->printdate - $emarking->printorder)/86400)),
-								(floor(($time - $emarking->printdate)/86400)),
-								0,0,0,0,0,0,0,0,
-								(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_SUBMITTED:
-						
-						if(((time() - $emarking->digitalized)/86400)>30){
-							$time = ($emarking->digitalized + 2592000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(floor(($emarking->printdate - $emarking->printorder)/86400)),
-								(floor(($emarking->digitalized - $emarking->printdate)/86400)),
-								(floor(($time - $emarking->digitalized)/86400)),
-								0,0,0,0,0,0,0,
-								(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_GRADING:
-						
-						if(((time() - $emarking->corrected)/86400)>15){
-							$time = ($emarking->corrected + 1296000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(floor(($emarking->printdate - $emarking->printorder)/86400)),
-								(floor(($emarking->digitalized - $emarking->printdate)/86400)),
-								(floor(($emarking->correctionstarted - $emarking->digitalized)/86400)),
-								(floor(($time - $emarking->correctionstarted)/86400)),
-								0,0,0,0,0,0,
-								(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_PUBLISHED:
-						
-						if(((time() - $emarking->firstpublished)/86400)>10){
-							$time = ($emarking->firstpublished + 864000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(floor(($emarking->printdate - $emarking->printorder)/86400)),
-								(floor(($emarking->digitalized - $emarking->printdate)/86400)),
-								(floor(($emarking->correctionstarted - $emarking->digitalized)/86400)),
-								(floor(($emarking->corrected - $emarking->correctionstarted)/86400)),
-								(floor(($emarking->firstpublished - $emarking->corrected)/86400)),
-								(floor(($time - $emarking->firstpublished)/86400)),
-								0,0,0,0,
-								(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_REGRADING:
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(floor(($emarking->printdate - $emarking->printorder)/86400)),
-								(floor(($emarking->digitalized - $emarking->printdate)/86400)),
-								(floor(($emarking->correctionstarted - $emarking->digitalized)/86400)),
-								(floor(($emarking->corrected - $emarking->correctionstarted)/86400)),
-								(floor(($emarking->firstpublished - $emarking->corrected)/86400)),
-								(floor(($emarking->regradingstarted - $emarking->firstpublished)/86400)),
-								(floor(($time - $emarking->regradingstarted)/86400)),
-								0,0,0,
-								(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_REGRADING_RESPONDED:
-						
-						if(((time() - $emarking->regraded)/86400)>5){
-							$time = ($emarking->regraded + 432000);
-						}
-						
-						$emarkingarray[$position]= array(
-								$emarking->name,
-								(floor(($emarking->printdate - $emarking->printorder)/86400)),
-								(floor(($emarking->digitalized - $emarking->printdate)/86400)),
-								(floor(($emarking->correctionstarted - $emarking->digitalized)/86400)),
-								(floor(($emarking->corrected - $emarking->correctionstarted)/86400)),
-								(floor(($emarking->firstpublished - $emarking->corrected)/86400)),
-								(floor(($emarking->regradingstarted - $emarking->firstpublished)/86400)),
-								(floor(($emarking->regraded - $emarking->regradingstarted)/86400)),
-								(floor(($time - $emarking->regraded)/86400)),
-								0,0,
-								(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-						
-					case EMARKING_STATUS_FINAL_PUBLISHED:
-						
-						if(((time() - $emarking->lastpublished)/86400)>5){
-							$time = ($emarking->lastpublished + 432000);
-						}
-						
-						$emarkingarray[$position]= array(
-						$emarking->name,
-						(floor(($emarking->printdate - $emarking->printorder)/86400)),
-						(floor(($emarking->digitalized - $emarking->printdate)/86400)),
-						(floor(($emarking->correctionstarted - $emarking->digitalized)/86400)),
-						(floor(($emarking->corrected - $emarking->correctionstarted)/86400)),
-						(floor(($emarking->firstpublished - $emarking->corrected)/86400)),
-						(floor(($emarking->regradingstarted - $emarking->firstpublished)/86400)),
-						(floor(($emarking->regraded - $emarking->regradingstarted)/86400)),
-						(floor(($emarking->lastpublished - $emarking->regraded)/86400)),
-						(floor(($time- $emarking->lastpublished)/86400)),
-						0,
-						(floor(($time - $emarking->printorder)/86400))." Days"
-						);
-						$position++;
-						break;
-				}
-				$status = null;
+			}elseif(is_null($emarking->regradingstarted) && $emarking->maxstatus ==EMARKING_STATUS_PUBLISHED){
+				$status = EMARKING_STATUS_PUBLISHED;
+			
+			}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
+				$status = EMARKING_STATUS_REGRADING;
+			
+			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING || $emarking->maxstatus == EMARKING_STATUS_REGRADING_RESPONDED){
+				$status = EMARKING_STATUS_REGRADING_RESPONDED;
+			
+			}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
+				$status = EMARKING_STATUS_FINAL_PUBLISHED;
 			}
-			return $emarkingarray;
+			//echo "publi: $emarking->firstpublished regra: $emarking->regradingstarted maxstatus: $emarking->maxstatus minstatus: $emarking->minstatus status: $status";
+			switch ($status) {
+				
+				case EMARKING_TO_PRINT:
+					
+					$emarkingarray[$position]= array(
+						$emarking->name,
+						(round(($time - $emarking->printorder)/86400)),
+						0,0,0,0,0,0,0,0,0,
+						(round(($time - $emarking->printorder)/86400))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_PRINTED:
+					
+					if(((time() - $emarking->printdate)/86400)>30){
+						$time = ($emarking->printdate + 2592000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400)),
+							(round(($time - $emarking->printdate)/86400)),
+							0,0,0,0,0,0,0,0,
+							(round(($time - $emarking->printorder)/86400))." Days"
+					);
+					
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_SUBMITTED:
+					
+					if(((time() - $emarking->digitalized)/86400)>30){
+						$time = ($emarking->digitalized + 2592000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($time - $emarking->digitalized)/86400,1)),
+							0,0,0,0,0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_GRADING:
+					
+					if(((time() - $emarking->corrected)/86400)>15){
+						$time = ($emarking->corrected + 1296000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($time - $emarking->correctionstarted)/86400,1)),
+							0,0,0,0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_PUBLISHED:
+					
+					if(((time() - $emarking->firstpublished)/86400)>10){
+						$time = ($emarking->firstpublished + 864000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+							(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+							(round(($time - $emarking->firstpublished)/86400,1)),
+							0,0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_REGRADING:
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+							(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+							(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
+							(round(($time - $emarking->regradingstarted)/86400,1)),
+							0,0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_REGRADING_RESPONDED:
+					
+					if(((time() - $emarking->regraded)/86400)>5){
+						$time = ($emarking->regraded + 432000);
+					}
+					
+					$emarkingarray[$position]= array(
+							$emarking->name,
+							(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+							(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+							(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+							(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+							(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+							(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
+							(round(($emarking->regraded - $emarking->regradingstarted)/86400,1)),
+							(round(($time - $emarking->regraded)/86400,1)),
+							0,0,
+							(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+					
+				case EMARKING_STATUS_FINAL_PUBLISHED:
+					
+					if(((time() - $emarking->lastpublished)/86400)>5){
+						$time = ($emarking->lastpublished + 432000);
+					}
+					
+					$emarkingarray[$position]= array(
+					$emarking->name,
+					(round(($emarking->printdate - $emarking->printorder)/86400,1)),
+					(round(($emarking->digitalized - $emarking->printdate)/86400,1)),
+					(round(($emarking->correctionstarted - $emarking->digitalized)/86400,1)),
+					(round(($emarking->corrected - $emarking->correctionstarted)/86400,1)),
+					(round(($emarking->firstpublished - $emarking->corrected)/86400,1)),
+					(round(($emarking->regradingstarted - $emarking->firstpublished)/86400,1)),
+					(round(($emarking->regraded - $emarking->regradingstarted)/86400,1)),
+					(round(($emarking->lastpublished - $emarking->regraded)/86400,1)),
+					(round(($time- $emarking->lastpublished)/86400,1)),
+					0,
+					(round(($time - $emarking->printorder)/86400,1))." Days"
+					);
+					$position++;
+					break;
+			}
+			$status = null;
+		}
+		return $emarkingarray;
 	}else{
 		return 0;
 	}
@@ -849,10 +849,10 @@ function emarking_time_progression($course, $fortable = null){
 function emarking_cycle_tabs($selectedcourse, $selectedcategory, $course){
 	global $DB;
 
-	$getemarkingssql = 'SELECT ee.id AS id,
-				ee.name AS name
-				FROM {emarking_exams} AS ee
-				INNER JOIN {course} AS c ON (ee.course = c.id AND c.shortname = ?)';
+	$getemarkingssql = 'SELECT e.id AS id,
+				e.name AS name
+				FROM {emarking} AS e
+				INNER JOIN {course} AS c ON (e.course = c.id AND c.shortname = ?)';
 
 	$getemarkings = $DB->get_records_sql($getemarkingssql, array($selectedcourse));
 
@@ -941,7 +941,7 @@ global $DB;
 			$status = EMARKING_STATUS_REGRADING;
 			
 				
-		}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
+		}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING  || $emarking->maxstatus == EMARKING_STATUS_REGRADING_RESPONDED){
 			$status = EMARKING_STATUS_REGRADING_RESPONDED;
 			if(((time() - $emarking->regraded)/86400)>5){
 				$time = ($emarking->regraded + 432000)*1000;
@@ -1095,27 +1095,29 @@ function emarking_area_chart($emarkingid){
 			}
 			$areachart = array(array('Date', 'Digitalized','Grading', 'Graded', 'Publicated','Regrading', 'Regraded', 'Repiblished'));
 
-			while($date < $enddate && $date != null){
-				foreach($draftsdata as $draftstatus){
-					if($draftstatus->correctionstarted == $date){
-						$currentdata[$draftstatus->draftid] = 'Grading';
+			while($date <= $enddate){
+				if($date != null){
+					foreach($draftsdata as $draftstatus){
+						if($draftstatus->correctionstarted == $date){
+							$currentdata[$draftstatus->draftid] = 'Grading';
+						}
+						elseif($draftstatus->correctionended == $date){
+							$currentdata[$draftstatus->draftid] = 'Graded';
+						}
+						elseif($draftstatus->firstpublished == $date){
+							$currentdata[$draftstatus->draftid] = 'Publicated';
+						}
+						elseif($draftstatus->lastpublished == $date){
+							$currentdata[$draftstatus->draftid] = 'finalpublished';
+						}
+						elseif($draftstatus->regradingstarted == $date){
+							$currentdata[$draftstatus->draftid] = 'regrading';
+						}
+						elseif($draftstatus->regraded == $date){
+							$currentdata[$draftstatus->draftid] = 'regraded';
+						}
+						
 					}
-					if($draftstatus->correctionended == $date){
-						$currentdata[$draftstatus->draftid] = 'Graded';
-					}
-					if($draftstatus->firstpublished == $date){
-						$currentdata[$draftstatus->draftid] = 'Publicated';
-					}
-					if($draftstatus->lastpublished == $date){
-						$currentdata[$draftstatus->draftid] = 'finalpublished';
-					}
-					if($draftstatus->regradingstarted < $date){
-						$currentdata[$draftstatus->draftid] = 'regrading';
-					}
-					if($draftstatus->regraded == $date){
-						$currentdata[$draftstatus->draftid] = 'regraded';
-					}
-					
 				}
 				
 				$datacount = [$date,0,0,0,0,0,0,0];
@@ -1150,7 +1152,7 @@ function emarking_area_chart($emarkingid){
 		}
 	}
 }
-function emarking_markers_corrections($emarkingid){
+function emarking_markers_corrections($emarkingid, $ismarkers = null){
 	global $DB;
 	$markerssql = "SELECT  comment,u.id, CONCAT(u.firstname,' ',u.lastname) as name, correctiontime
 					FROM (SELECT c.id as comment, IF(r.id IS NULL,c.markerid,r.markerid) as marker, c.timecreated as correctiontime
@@ -1162,14 +1164,21 @@ function emarking_markers_corrections($emarkingid){
 					INNER JOIN {user} AS u ON (y.marker = u.id)
 					GROUP BY u.id";
 	if($markers = $DB->get_records_sql($markerssql, array($emarkingid))){
-		$arraymarkers = [['date']];
+		$arraymarkers = array();
 		$contador = 1;
 		$arraystacking = ['date'=>0];
 		foreach($markers as $marker){
-			$arraymarkers[0][$contador] = $marker->name;
 			$arraystacking[$marker->name] = 0;
+			$arraystacking[$contador] = 0;
 			$contador++;
 		}
+		if($ismarkers == 1){
+			foreach($markers as $marker){
+				$arraymarkers[] = $marker->name;
+			}
+			return $arraymarkers;
+		}
+		$markers = array_reverse($markers);
 		$commentssql = "SELECT  comment,CONCAT(u.firstname,' ',u.lastname) as name, FROM_UNIXTIME(correctiontime, '%Y-%m-%d') as date
 						FROM (SELECT c.id as comment, IF(r.id IS NULL,c.markerid,r.markerid) as marker, c.timecreated as correctiontime
 							  FROM {emarking} AS e
@@ -1183,25 +1192,35 @@ function emarking_markers_corrections($emarkingid){
 			$date = 0-0-0;
 			$lenght = count($comments);
 			$datecount = 1;
-
+			$arraylenght = count($markers) + 1;
 			foreach ($comments as $comment){
 				if($date == 0-0-0){
 					$arraystacking['date'] = strtotime ( '-1 day' , strtotime ( $comment->date  ) ) ;
 					$arraystacking['date'] = date ( 'Y-m-j' , $arraystacking['date'] );
-					array_push($arraymarkers, $arraystacking);
+					for($i = 1; $i < $arraylenght ; $i++){
+						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
+					}
+					array_push($arraymarkers,$arraystacking);
 				}
 				$arraystacking['date'] = $comment->date;
 				$arraystacking[$comment->name] = $arraystacking[$comment->name] + 1;
 				if($datecount == $lenght){
 					unset($arraymarkers[count($arraymarkers)-1]);
+					for($i = 1; $i < $arraylenght ; $i++){
+						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
+					}
 					array_push($arraymarkers,$arraystacking);
 				}
 				if(strtotime($date) < strtotime($comment->date) && $datecount !== $lenght) {
-						array_push($arraymarkers,$arraystacking);
-						$date = $comment->date;
+					for($i = 1; $i < $arraylenght ; $i++){
+						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
+					}
+					array_push($arraymarkers,$arraystacking);
+					$date = $comment->date;
 				}
 				$datecount++;
 			}
+			
 			$arraymarkers = array_values(array_map('array_values', $arraymarkers));
 			return $arraymarkers;
 		}
@@ -1273,9 +1292,8 @@ function emarking_time_progression_table($course){
 	// Gets the information of the above query.
 	if ($emarkings = $DB->get_records_sql($sqlemarking,array($course, EMARKING_STATUS_ABSENT))) {
 		// Headers for the table
-		$emarkingarray[0] = ['','','','','', get_string('dayshoursstrong', 'mod_emarking'),'','','','',''];
-		$emarkingarray[1] = [get_string('emarkingnamestrong', 'mod_emarking'),get_string('senttoprint', 'mod_emarking'),
-				get_string('printed', 'mod_emarking'),get_string('digitalized', 'mod_emarking'),
+		$emarkingarray[0] = ['','','','', get_string('dayshoursstrong', 'mod_emarking'),'','','',''];
+		$emarkingarray[1] = [get_string('emarkingnamestrong', 'mod_emarking'),get_string('digitalized', 'mod_emarking'),
 				get_string('incorrection', 'mod_emarking'),get_string('graded', 'mod_emarking'),
 				get_string('published', 'mod_emarking'),get_string('inregrading', 'mod_emarking'),
 				get_string('regraded', 'mod_emarking'),get_string('finalpublication', 'mod_emarking'),
@@ -1292,42 +1310,42 @@ function emarking_time_progression_table($course){
 			// Definition of the time between statuses
 			$timetoprint = floor(($emarking->printdate - $emarking->printorder)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->printdate - $emarking->printorder)/ (60*60*24)) == 0){
-				$timetoprint = floor((($emarking->printdate - $emarking->printorder) - $timetoprint * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timetoprint = round((($emarking->printdate - $emarking->printorder) - $timetoprint * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			$timeprinted = floor(($emarking->digitalized - $emarking->printdate)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->digitalized - $emarking->printdate)/ (60*60*24)) == 0){
-				$timeprinted = floor((($emarking->digitalized - $emarking->printdate) - $timeprinted * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timeprinted = round((($emarking->digitalized - $emarking->printdate) - $timeprinted * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			$timedigitalized = floor(($emarking->correctionstarted - $emarking->digitalized)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->correctionstarted - $emarking->digitalized)/ (60*60*24)) == 0){
-				$timedigitalized = floor((($emarking->correctionstarted - $emarking->digitalized) - $timedigitalized * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timedigitalized = round((($emarking->correctionstarted - $emarking->digitalized) - $timedigitalized * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			$timecorrecting = floor(($emarking->corrected - $emarking->correctionstarted)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->corrected - $emarking->correctionstarted)/ (60*60*24)) == 0){
-				$timecorrecting = floor((($emarking->corrected - $emarking->correctionstarted) - $timecorrecting * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timecorrecting = round((($emarking->corrected - $emarking->correctionstarted) - $timecorrecting * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			$timecorrected = floor(($emarking->firstpublished - $emarking->corrected)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->firstpublished - $emarking->corrected)/ (60*60*24)) == 0){
-				$timecorrected = floor((($emarking->firstpublished - $emarking->corrected) - $timecorrected * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timecorrected = round((($emarking->firstpublished - $emarking->corrected) - $timecorrected * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			$timepublished = floor(($emarking->regradingstarted - $emarking->firstpublished)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->regradingstarted - $emarking->firstpublished)/ (60*60*24)) == 0){
-				$timepublished = floor((($emarking->regradingstarted - $emarking->firstpublished) - $timepublished * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timepublished = round((($emarking->regradingstarted - $emarking->firstpublished) - $timepublished * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			$timeregrading = floor(($emarking->regraded - $emarking->regradingstarted)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->regraded - $emarking->regradingstarted)/ (60*60*24)) == 0){
-				$timeregrading = floor((($emarking->regraded - $emarking->regradingstarted) - $timeregrading * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timeregrading = round((($emarking->regraded - $emarking->regradingstarted) - $timeregrading * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			$timeregraded = floor(($emarking->lastpublished - $emarking->regraded)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 			if(floor(($emarking->lastpublished - $emarking->regraded)/ (60*60*24)) == 0){
-				$timeregraded = floor((($emarking->lastpublished - $emarking->regraded) - $timeregraded * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+				$timeregraded = round((($emarking->lastpublished - $emarking->regraded) - $timeregraded * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 			}
 			
 			// Saves time in a variable for easier convertion later
@@ -1352,7 +1370,7 @@ function emarking_time_progression_table($course){
 			}elseif($emarking->maxstatus ==EMARKING_STATUS_REGRADING){
 				$status = EMARKING_STATUS_REGRADING;
 				
-			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING){
+			}elseif($emarking->firstpublished < $emarking->regradingstarted && $emarking->minstatus == EMARKING_STATUS_GRADING || $emarking->maxstatus == EMARKING_STATUS_REGRADING_RESPONDED){
 				$status = EMARKING_STATUS_REGRADING_RESPONDED;
 	
 			}elseif($emarking->minstatus ==EMARKING_STATUS_PUBLISHED && $emarking->lastpublished > $emarking->regraded && $emarking->regraded !== null){
@@ -1364,17 +1382,15 @@ function emarking_time_progression_table($course){
 				case EMARKING_TO_PRINT:
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					$timetoprint = floor(($time - $emarking->printorder)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->printorder)/ (60*60*24)) == 0){
-						$timetoprint = floor((($time - $emarking->printorder) - $timetoprint * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timetoprint = round((($time - $emarking->printorder) - $timetoprint * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$emptycounter,
 						$emptycounter,
 						$emptycounter,
 						$emptycounter,
@@ -1395,17 +1411,15 @@ function emarking_time_progression_table($course){
 					
 					$timeprinted = floor(($time - $emarking->printdate)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->printdate)/ (60*60*24)) == 0){
-						$timeprinted = floor((($time - $emarking->printdate) - $timeprinted * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timeprinted = round((($time - $emarking->printdate) - $timeprinted * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$emptycounter,
 						$emptycounter,
 						$emptycounter,
@@ -1426,16 +1440,14 @@ function emarking_time_progression_table($course){
 					
 					$timedigitalized = floor(($time - $emarking->digitalized)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->digitalized)/ (60*60*24)) == 0){
-						$timedigitalized = floor((($time - $emarking->digitalized) - $timedigitalized * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timedigitalized = round((($time - $emarking->digitalized) - $timedigitalized * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$emptycounter,
 						$emptycounter,
@@ -1456,16 +1468,14 @@ function emarking_time_progression_table($course){
 					
 					$timecorrecting = floor(($time - $emarking->correctionstarted)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->correctionstarted)/ (60*60*24)) == 0){
-						$timecorrecting = floor((($time - $emarking->correctionstarted) - $timecorrecting * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timecorrecting = round((($time - $emarking->correctionstarted) - $timecorrecting * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$emptycounter,
@@ -1486,16 +1496,14 @@ function emarking_time_progression_table($course){
 					
 					$timepublished = floor(($time - $emarking->firstpublished)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->firstpublished)/ (60*60*24)) == 0){
-						$timepublished = floor((($time - $emarking->firstpublished) - $timepublished * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timepublished = round((($time - $emarking->firstpublished) - $timepublished * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$timecorrected,
@@ -1512,16 +1520,14 @@ function emarking_time_progression_table($course){
 					
 					$timeregrading = floor(($time - $emarking->regradingstarted)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->regradingstarted)/ (60*60*24)) == 0){
-						$timeregrading = floor((($time - $emarking->regradingstarted) - $timeregrading * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timeregrading = round((($time - $emarking->regradingstarted) - $timeregrading * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$timecorrected,
@@ -1541,16 +1547,14 @@ function emarking_time_progression_table($course){
 					}
 					$timeregraded = floor(($time - $emarking->regraded)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->regraded)/ (60*60*24)) == 0){
-						$timeregraded = floor((($time - $emarking->regraded) - $timeregraded * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timeregraded = round((($time - $emarking->regraded) - $timeregraded * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					$emarkingarray[$position]= array(
 						$emarking->name,
-						$timetoprint,
-						$timeprinted,
 						$timedigitalized,
 						$timecorrecting,
 						$timecorrected,
@@ -1570,26 +1574,23 @@ function emarking_time_progression_table($course){
 					}
 					
 					$totaltime = floor(($time - $emarking->printorder)/ (60*60*24)) .get_string('cicletabledays', 'mod_emarking');
-					
-					$totaltime = $totaltime . floor((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60)) .get_string('cicletablehours', 'mod_emarking');
+					$totaltime = $totaltime . round((($time - $emarking->printorder) - $totaltime * 60 * 60 * 24) / (60*60),1) .get_string('cicletablehours', 'mod_emarking');
 					
 					$timefinalpublished = floor(($time - $emarking->lastpublished)/ (60*60*24)).get_string('cicletabledays', 'mod_emarking');
 					if(floor(($time - $emarking->lastpublished)/ (60*60*24)) == 0){
-						$timefinalpublished = floor((($time - $emarking->lastpublished) - $timefinalpublished * 60 * 60 * 24) / (60*60)).get_string('cicletablehours', 'mod_emarking');
+						$timefinalpublished = round((($time - $emarking->lastpublished) - $timefinalpublished * 60 * 60 * 24) / (60*60),1).get_string('cicletablehours', 'mod_emarking');
 					}
 					
 					$emarkingarray[$position]= array(
 					$emarking->name,
-					$timetoprint,
-						$timeprinted,
-						$timedigitalized,
-						$timecorrecting,
-						$timecorrected,
-						$timepublished,
-						$timeregrading,
-						$timeregraded,
-						$timefinalpublished,
-						$totaltime,
+					$timedigitalized,
+					$timecorrecting,
+					$timecorrected,
+					$timepublished,
+					$timeregrading,
+					$timeregraded,
+					$timefinalpublished,
+					$totaltime,
 					);
 					$position++;
 					break;
@@ -1600,4 +1601,28 @@ function emarking_time_progression_table($course){
 	}else{
 		return 0;
 	}
+}
+function emarking_draft_chart_tooltip($date, $objvalues){
+	global $DB;
+	$tooltip = get_string('date', 'mod_emarking').$date."/n".
+			   get_string('digitalized', 'mod_emarking').$objvalues->digitalized."/n".
+			   get_string('correcting', 'mod_emarking').$objvalues->correcting."/n".
+			   get_string('corrected', 'mod_emarking').$objvalues->corrected."/n".
+			   get_string('published', 'mod_emarking').$objvalues->published."/n".
+			   get_string('regrading', 'mod_emarking').$objvalues->regrading."/n".
+			   get_string('regraded', 'mod_emarking').$objvalues->regraded."/n".
+			   get_string('finalpublished', 'mod_emarking').$objvalues->finalpublished;
+	
+	return $tooltip;
+}
+function emarking_markers_chart_tooltip($markers, $corrections){
+	$corrections = array_values($corrections);
+	$lenght = count($corrections);
+	$tooltip = get_string('date', 'mod_emarking')." : ".$corrections[0]."<br>";
+	$countcorrections = 1;
+	foreach($markers as $marker){
+		$tooltip .= $marker->name." : ".$corrections[$countcorrections]."<br>";
+		$countcorrections = $countcorrections + 2;
+	}
+	return $tooltip;	
 }
