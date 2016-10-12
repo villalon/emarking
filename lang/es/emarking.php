@@ -100,6 +100,7 @@ $string ['nodejspath'] = 'Ruta de NodeJS';
 $string ['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo protocolo, dirección ip y puerto. p.ej: http://127.0.0.1:9091';
 $string ['emarkinggraded'] = 'Corrección EMarking';
 $string ['answerkey'] = 'Pauta';
+$string ['showunenrolled'] = 'Mostrar no matriculados';
 // PERMISSIONS
 $string['emarking:activatedelphiprocess'] = 'Activar Delphi';
 $string['emarking:addinstance'] = 'Crear instancia de EMarking';
