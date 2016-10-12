@@ -895,14 +895,17 @@ function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emar
 	// Show export to Excel button if supervisor and there are students to export.
 	if ($issupervisor && $rubriccriteria) {
 		if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
+		    echo "<table><tr><td>";
 			$csvurl = new moodle_url('view.php', array(
 					'id' => $cm->id,
 					'exportcsv' => 'grades'));
 			echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+			echo "</td><td>";
 			$csvurl = new moodle_url('view.php', array(
 					'id' => $cm->id,
 					'enrolment' => 'true'));
-			echo $OUTPUT->single_button($csvurl, 'Ver todo', 'GET');
+			echo $OUTPUT->single_button($csvurl, get_string('showunenrolled', 'mod_emarking'), 'GET');
+		    echo "</td></tr><table>";
 		}
 	}
 	// Show export to Excel button if supervisor and there are students to export.

@@ -100,6 +100,7 @@ $string ['nodejspath'] = 'NodeJS path';
 $string ['nodejspath_help'] = 'The full Node JS path including protocol, ipaddress and port. e.g: http://127.0.0.1:9091';
 $string ['emarkinggraded'] = 'EMarking graded';
 $string ['answerkey'] = 'Answer key';
+$string ['showunenrolled'] = 'Show unenrolled';
 // PERMISSIONS
 $string['emarking:activatedelphiprocess'] = '';
 $string['emarking:addinstance'] = '';
