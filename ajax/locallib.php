@@ -80,6 +80,10 @@ function emarking_regrade($emarking, $draft) {
     // Update the submission.
     $draft->timemodified = time();
     $draft->status = EMARKING_STATUS_REGRADING;
+    if($draft->timeregradingstarted == null){
+    	$draft->timeregradingstarted = time();
+    }
+    $draft->timeregradingended = time();
     $DB->update_record('emarking_draft', $draft);
     // Send the output.
     $output = array(
@@ -109,32 +113,28 @@ function emarking_finish_marking($emarking, $submission, $draft, $user, $context
     // General feedback to include in the marking.
     $generalfeedback = required_param('feedback', PARAM_RAW_TRIMMED);
     // Firstly create the response pdf.
-    if (emarking_create_response_pdf($draft, $user, $context, $cm->id)) {
-        // If the pdf was created successfully then update the final grade and feedback.
-        list($finalgrade, $previouslvlid, $previouscomment) = emarking_set_finalgrade(0, null, $submission, $draft, $emarking,
-                $context, $generalfeedback, false, $cm->id);
-        // It is only publish if there just one draft.
-        if ($DB->count_records('emarking_draft',
-                array(
-                    'emarkingid' => $submission->emarking,
-                    'submissionid' => $submission->id,
-                    'qualitycontrol' => 0)) == 1) {
-            emarking_publish_grade($draft);
-        }
-        $nextsubmission = emarking_get_next_submission($emarking, $draft, $context, $user, $issupervisor);
-        // Send the output.
-        $output = array(
-            'error' => '',
-            'message' => 'Feedback created successfully',
-            'finalgrade' => $finalgrade,
-            'previouslvlid' => $previouslvlid,
-            'previouscomment' => $previouscomment,
-            'nextsubmission' => $nextsubmission);
-    } else {
-        // Response couldn't be created.
-        $output = array(
-            'error' => 'Could not create response from eMarking.');
+    // If the pdf was created successfully then update the final grade and feedback.
+    list ($finalgrade, $previouslvlid, $previouscomment) =
+        emarking_set_finalgrade(0, null, $submission, $draft, $emarking,
+            $context, $generalfeedback, false, $cm->id);
+    // It is only publish if there just one draft.
+    if ($DB->count_records('emarking_draft', array(
+        'emarkingid' => $submission->emarking,
+        'submissionid' => $submission->id,
+        'qualitycontrol' => 0
+    )) == 1) {
+        emarking_publish_grade($draft);
     }
+    $nextsubmission = emarking_get_next_submission($emarking, $draft, $context, $user, $issupervisor);
+    // Send the output.
+    $output = array(
+        'error' => '',
+        'message' => 'Feedback created successfully',
+        'finalgrade' => $finalgrade,
+        'previouslvlid' => $previouslvlid,
+        'previouscomment' => $previouscomment,
+        'nextsubmission' => $nextsubmission
+    );
     return $output;
 }
 /**
@@ -428,14 +428,18 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
         if($draft->timecorrectionstarted == null){
         	$draft->timecorrectionstarted = time();
         }
-        $draft->timecorrectionended = time();
-        $DB->update_record('emarking_draft',$draft);
+        $draft->timecorrectionended = time();        
     } else {
         $regrade->accepted = 1;
         $regrade->markercomment = $comment;
         $regrade->timemodified = time();
         $DB->update_record('emarking_regrade', $regrade);
+        if($draft->timeregradingstarted == null){
+        	$draft->timeregradingstarted = time();
+        }
+        $draft->timeregradingended = time();
     }
+    $DB->update_record('emarking_draft',$draft);
     // Send the output.
     if ($finalgrade === false) {
         $output = array(
@@ -914,6 +918,11 @@ function emarking_set_answer_key($submission, $newstatus) {
     if($newstatus < EMARKING_ANSWERKEY_NONE || $newstatus > EMARKING_ANSWERKEY_ACCEPTED) {
         throw new Exception('Invalid status for answerkey');
     }
+    if($submission->answerkey != EMARKING_ANSWERKEY_NONE) {
+        $newstatus = EMARKING_ANSWERKEY_NONE;
+    } else {
+        $newstatus = EMARKING_ANSWERKEY_ACCEPTED;
+    }
     $submission->answerkey = $newstatus;
     $DB->update_record("emarking_submission", $submission);
     return $newstatus;
@@ -1130,6 +1139,11 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         $regrade->timemodified = time();
         $regrade->accepted = $regradeaccepted;
         $DB->update_record('emarking_regrade', $regrade);
+        if($draft->timeregradingstarted == null){
+        	$draft->timeregradingstarted = time();
+        }
+        $draft->timeregradingended = time();
+        $DB->update_record("emarking_draft", $draft);
         $remainingregrades = $DB->count_records("emarking_regrade",
                 array(
                     "draft" => $draft->id,
@@ -1137,10 +1151,6 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         if ($remainingregrades == 0) {
             $draft->status = EMARKING_STATUS_REGRADING_RESPONDED;
             $draft->timemodified = time();
-            if($draft->timeregradingstarted == null){
-            	$draft->timeregradingstarted = time();
-            }
-            $draft->timeregradingended = time();
             $DB->update_record("emarking_draft", $draft);
         }
     }

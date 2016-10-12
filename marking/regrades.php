@@ -182,6 +182,9 @@ if ($mform->is_cancelled()) {
     $submission->status = EMARKING_STATUS_REGRADING;
     $DB->update_record('emarking_submission', $submission);
     $draft->status = EMARKING_STATUS_REGRADING;
+    if($draft->timeregradingstarted == null){
+    	$draft->timeregradingstarted = time();
+    }
     $DB->update_record('emarking_draft', $draft);
     $successmessage = get_string('saved', 'mod_emarking');
     echo $OUTPUT->notification($successmessage, 'notifysuccess');

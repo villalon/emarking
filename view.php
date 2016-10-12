@@ -127,7 +127,13 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING
 	    SELECT COUNT(DISTINCT d.id) AS numdrafts
 		FROM {emarking_draft} AS d
 		INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)
-	    GROUP BY s.emarking";
+	       ";
+    echo "<hr>";
+    echo $sqlnumdrafts;
+    echo "<hr>";
+    echo $cm->instance;
+    echo "<hr>";
+    echo $USER->id;
     $numdrafts = $DB->count_records_sql($sqlnumdrafts,
             array(
                 "emarking" => $cm->instance,
@@ -175,7 +181,7 @@ list($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller)
 // see other users.
 $userfilter = 'WHERE 1=1 ';
 if (! $usercangrade) {
-    $userfilter .= 'AND u.id = ' . $USER->id;
+    $userfilter .= 'AND (u.id = ' . $USER->id . ' OR NM.answerkey = ' . EMARKING_ANSWERKEY_ACCEPTED . ')';
 } else if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING)
 		&& ! is_siteadmin($USER->id) && ! $issupervisor) {
     $userfilter .= 'AND um.id = ' . $USER->id;
@@ -568,7 +574,7 @@ foreach ($drafts as $draft) {
     if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $data [] = $finalgrade;
     }
-    $data [] = $pctmarked . ($draft->answerkey ? '<br/>' . get_string('answerkey', 'mod_emarking') : '');
+    $data [] = $pctmarked . ($draft->answerkey ? $OUTPUT->pix_icon('i/badge', get_string('answerkey', 'mod_emarking')) : '');
     $data [] = $actions;
     $data [] = $selectdraft;
     $showpages->add_data($data, $draft->answerkey ? "alert-success" : "");
@@ -657,7 +663,8 @@ $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
 $numorphanpages = count($orphanpages);
 if($numorphanpages > 0) {
     $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array('id'=>$cm->id));
-    echo $OUTPUT->single_button($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages), 'GET');
+    echo $OUTPUT->action_link($orphanpagesurl,
+        get_string('thereareorphanpages', 'mod_emarking', $numorphanpages));
 }
 // If the user is a tutor or teacher we don't include justice perception.
 if ($usercangrade || ! $submission) {
@@ -775,10 +782,12 @@ function emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubr
     $bonusinfo = ($d->bonus > 0 ? '+' : '') . $bonusinfo;
     $gradevalue = round(floatval($d->grade), 2);
     $thisfinalgrade = '-';
-    if ((($usercangrade || $issupervisor) &&
-             (($d->status >= EMARKING_STATUS_GRADING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) ||
-             ($d->status >= EMARKING_STATUS_GRADING && $draft->id != $USER->id && $emarking->type == EMARKING_TYPE_PEER_REVIEW))) ||
-             ($d->status >= EMARKING_STATUS_PUBLISHED && $draft->id == $USER->id)) {
+    if (
+        (   ($usercangrade || $issupervisor) &&
+            (($d->status >= EMARKING_STATUS_GRADING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) ||
+             ($d->status >= EMARKING_STATUS_GRADING && $draft->id != $USER->id && $emarking->type == EMARKING_TYPE_PEER_REVIEW)))
+        ||
+             ($d->status >= EMARKING_STATUS_PUBLISHED && ($draft->id == $USER->id || $draft->answerkey))) {
         $thisfinalgrade = $gradevalue;
     } else if ($d->status <= EMARKING_STATUS_MISSING) {
         $thisfinalgrade = "";
@@ -827,7 +836,10 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
         $msgstatus = $d->status >= EMARKING_STATUS_SUBMITTED ? get_string('setasabsent', 'mod_emarking') : get_string(
                 'setassubmitted', 'mod_emarking');
         $actionsarray [] = $OUTPUT->action_link($deletesubmissionurl, $msgstatus);
-    }
+    $printversionurl = new moodle_url('/mod/emarking/marking/printversion.php',
+        array('id'=>$cm->id, 'did'=>$d->id));
+    $actionsarray [] = $OUTPUT->action_link($printversionurl, "PDF");
+             }
     $divclass = $usercangrade ? 'printactions' : 'useractions';
     $actionshtml = implode("&nbsp;|&nbsp;", $actionsarray);
     if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
@@ -883,14 +895,17 @@ function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emar
 	// Show export to Excel button if supervisor and there are students to export.
 	if ($issupervisor && $rubriccriteria) {
 		if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
+		    echo "<table><tr><td>";
 			$csvurl = new moodle_url('view.php', array(
 					'id' => $cm->id,
 					'exportcsv' => 'grades'));
 			echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+			echo "</td><td>";
 			$csvurl = new moodle_url('view.php', array(
 					'id' => $cm->id,
 					'enrolment' => 'true'));
-			echo $OUTPUT->single_button($csvurl, 'Ver todo', 'GET');
+			echo $OUTPUT->single_button($csvurl, get_string('showunenrolled', 'mod_emarking'), 'GET');
+		    echo "</td></tr><table>";
 		}
 	}
 	// Show export to Excel button if supervisor and there are students to export.
