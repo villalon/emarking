@@ -21,7 +21,7 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define('AJAX_SCRIPT', true);
+//define('AJAX_SCRIPT', true);
 define('NO_DEBUG_DISPLAY', true);
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->libdir . '/formslib.php');
@@ -34,12 +34,14 @@ require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
 require_once($CFG->dirroot . '/mod/emarking/ajax/locallib.php');
+require_once($CFG->dirroot . '/mod/emarking/lib/simple_html_dom.php');
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 // Required and optional params for ajax interaction in emarking.
 $ids = required_param('ids', PARAM_INT);
 $action = required_param('action', PARAM_ALPHA);
 $pageno = optional_param('pageno', 0, PARAM_INT);
 $testingmode = optional_param('testing', false, PARAM_BOOL);
+$keywords = optional_param('keywords', false, PARAM_TEXT);
 // If we are in testing mode then submission 1 is the only one admitted.
 if ($testingmode) {
     $username = required_param('username', PARAM_ALPHANUMEXT);
@@ -280,6 +282,14 @@ switch ($action) {
         $output = emarking_get_values_collaborative();
         emarking_json_array($output);
         break;
+    case 'merlot':
+    	$output = emarking_get_resources_merlot($keywords);
+    	emarking_json_array($output);
+    	break;    
+    case 'ocwmit' :
+    	$output = emarking_get_resources_ocwmit($keywords);
+    	emarking_json_array($output);
+    	break;
     case 'prevcomments' :
         $results = emarking_get_previous_comments($submission, $draft);
         emarking_json_resultset($results);

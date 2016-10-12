@@ -1148,3 +1148,50 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     $newgrade = $results->finalgrade;
     return $newgrade;
 }
+
+function emarking_get_resources_ocwmit($keywords){
+	$ocwMIT = "https://search.mit.edu/search?client=mit&&proxyreload=1&as_dt=i&oe=utf-8&btnG.x=4&btnG.y=10&filter=0&site=ocw&q=";
+	
+	$arraykeywords = explode(" ", $keywords);
+	for($i = 0; $i < count($arraykeywords); $i++){
+		if($i == (count($arraykeywords)-1) ){
+			$ocwMIT .= $arraykeywords[$i];
+		}else{
+			$ocwMIT .= $arraykeywords[$i]."%20";
+		}		
+	}
+	
+	$xml = simplexml_load_file($ocwMIT); //retrieve URL and parse XML content	
+	
+	$results = $xml->RES->R;
+	$output = array();
+	foreach ($results as $row){
+		$output [] = array("resource" => $row->S."_separador_".$row->U);
+	}
+	
+	return $output;
+}
+
+function emarking_get_resources_merlot($keywords){
+	$merloturl = "https://www.merlot.org/merlot/materials.htm?hasCollections=false&keywords=";
+	$extraparams = "&hasEtextReviews=false&isContentBuilder=false&filterOtherOpen=false&hasAssignments=false&hasAwards=false&filterSubjectsOpen=true&hasRatings=false&filterTypesOpen=false&filterMobileOpen=false&hasComments=false&hasCourses=false&isLeadershipLibrary=false&filterPartnerAffiliationsOpen=true&hasSercActivitySheets=false&hasEditorReviews=false&hasPeerReviews=false&sort.property=relevance&resort=overallRating&sortbutton=";
+
+	$arraykeywords = explode(" ", $keywords);
+	for($i = 0; $i < count($arraykeywords); $i++){
+		if($i == (count($arraykeywords)-1) ){
+			$merloturl .= $arraykeywords[$i];
+		}else{
+			$merloturl .= $arraykeywords[$i]."%20";
+		}
+	}
+
+	$merloturl .= $extraparams;
+
+	$page = file_get_html($merloturl);
+	$output = array();
+	foreach ($page->find("a.materialLink") as $result){
+		$output [] = array("resource" => $result->innertext."_separador_https://www.merlot.org".$result->href);
+	}
+
+	return $output;
+}
