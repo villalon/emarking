@@ -182,6 +182,7 @@ if ($action === 'ping') {
                 'coursemodule' => $cm->id,
                 'nodejspath' => $nodejspath,
                 'motives' => emarking_get_regrade_motives(),
+            	'keywords' => $emarking->keywords,
                 'version' => $plugin->version));
 }
 $url = new moodle_url('/mod/emarking/ajax/a.php', array(

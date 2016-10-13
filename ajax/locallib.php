@@ -366,6 +366,8 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     // Measures the correction window.
     $winwidth = required_param('windowswidth', PARAM_NUMBER);
     $winheight = required_param('windowsheight', PARAM_NUMBER);
+    // Feedback text.
+    $feedback = optional_param('feedback', 0, PARAM_RAW_TRIMMED);
     // Get the page for the comment.
     if (! $page = emarking_get_page_submission_by_pageno($submission, $pageno)) {
         emarking_json_error('Invalid page for submission');
@@ -409,6 +411,7 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     $emarkingcomment->criterionid = $rubricinfo->criterionid;
     $emarkingcomment->bonus = $bonus;
     $emarkingcomment->textformat = 2;
+    $emarkingcomment->feedback = $feedback;
     // Insert the record.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
     $raterid = $USER->id;
