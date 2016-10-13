@@ -793,3 +793,5 @@ $string['ciclestackedstatuses'] = 'Draft status cicle';
 $string['ciclemarkerscorrections'] = 'Markers corrections';
 $string['strongdate'] = '<strong>Date</strong>';
 $string['date'] = 'Date';
+$string['keywords'] = 'Keywords for Feedback';
+$string['keywords_help'] = 'The keywords are used for search educational material in Open Learning Repositories to help the creation of feedback at grade.';
