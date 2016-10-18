@@ -217,7 +217,7 @@ foreach($oaComplete as $oaPerCourse){
 	 <div id="menu2" class="tab-pane fade">
 	 <h3 style="text-align: left;">Evaluación</h3>
 	<h4 style="text-align: left;"><?php echo $rubricname?></h4>
-	<?php echo "<p>$description</p>" ?>
+	<?php echo $rubricdescription; ?>
 			<table class="table table-bordered">
  					<thead>
      					<tr>
