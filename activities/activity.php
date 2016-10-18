@@ -28,12 +28,13 @@ $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 $user_object = $DB->get_record('user', array('id'=>$activity->userid));
 
 $rubric=$DB->get_records_sql("SELECT grl.id,
+									 gd.description as des,
 									 grc.id as grcid,
 									 grl.score,
 									 grl.definition, 
 									 grc.description, 
 									 grc.sortorder, 
-									 gd.name
+									 gd.name as name
 							  FROM {gradingform_rubric_levels} as grl,
 	 							   {gradingform_rubric_criteria} as grc,
     							   {grading_definitions} as gd
@@ -45,6 +46,8 @@ $rubric=$DB->get_records_sql("SELECT grl.id,
 foreach ($rubric as $data) {
 	
 	$table[$data->description][$data->definition]=$data->score;
+	$rubricdescription=$data->des;
+	$rubricname=$data->name;
 }
 $col=0;
 foreach ($table as $calc) {
@@ -213,6 +216,8 @@ foreach($oaComplete as $oaPerCourse){
 
 	 <div id="menu2" class="tab-pane fade">
 	 <h3 style="text-align: left;">Evaluación</h3>
+	<h4 style="text-align: left;"><?php echo $rubricname?></h4>
+	<?php echo "<p>$description</p>" ?>
 			<table class="table table-bordered">
  					<thead>
      					<tr>
