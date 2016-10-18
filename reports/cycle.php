@@ -124,24 +124,44 @@ $summarychartdata = json_encode([[0,0]]);
 // If you are in the summary tab.
 if($currenttab == 0){
 	
-
+	// Chart title
+	echo html_writer::tag('h4',get_string('ciclechart', 'emarking'),array('style' => 'width:100%;'));
+	
+	// Alert for the user
+	echo html_writer::start_tag('div', array('class' => 'alert alert-warning'));
+	echo get_string('ciclechartalert', 'emarking');
+	echo html_writer::end_tag('div');
   	
 	// Div for summart chart.
   	echo html_writer::tag('div','', array('id' => 'summarychart','style' => 'height: 600px;'));
-  	$summarychartdata= json_encode(emarking_time_progression($course->id),null);
   	
+  	//Table title
+  	echo html_writer::tag('h4',get_string('cicletable', 'emarking'),array('style' => 'width:100%;'));
+  	
+  	// Alert for the user
+  	echo html_writer::start_tag('div', array('class' => 'alert alert-warning'));
+  	echo get_string('cicletablealert', 'emarking');
+  	echo html_writer::end_tag('div');
   	// Emarkings days data to table.
-  	echo emarking_table_creator(null,emarking_time_progression($course->id,1),null);
+  	
+  	$table = new html_table();
+  	$table->size = array('20%','10%','10%','10%','10%','10%','10%','10%','10%');
+  	$table->data = emarking_time_progression_table($course->id);
+  	echo html_writer::table($table);
   	
   	echo emarking_justice_perception($selectedcourse);
   	
 // If you are in a eMarking tab.  	
 }else{
-	
-	// Divs for EMarking chart tabs view.
-   	echo html_writer::div('','', array('id' => 'ganttchart'));
-   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 400px;'));
-   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 400px;'));
+	// Gantt chart title
+	echo html_writer::tag('h4',get_string('cicleganttchart', 'emarking'),array('style' => 'width:100%;'));
+   	echo html_writer::div('','', array('id' => 'ganttchart','style' => 'height: 40%;'));
+   	
+   	echo html_writer::tag('h4',get_string('ciclestackedstatuses', 'emarking'),array('style' => 'width:100%;'));
+   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 40%;'));
+   	
+   	echo html_writer::tag('h4',get_string('ciclemarkerscorrections', 'emarking'),array('style' => 'width:100%;'));
+   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 40%;'));
 }
 
 echo $OUTPUT->footer();
@@ -173,14 +193,15 @@ echo $OUTPUT->footer();
   		data.addColumn({type: 'string', role: 'annotation'});
 
   		// Loads the data
-  		data.addRows(<?php echo $summarychartdata;?>);
+  		data.addRows(<?php echo json_encode(emarking_time_progression($course->id),null);?>);
   		
   		var view = new google.visualization.DataView(data);
   		view.setColumns([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   		
   		var options = {
-  			title: '<?php echo get_string("emarkingsummary", "mod_emarking");?>',
-  		    chartArea: {width: '50%'},
+  			legendFontSize:11,
+  			legend: { position: 'top', alignment: 'start ', maxLines: 3},
+  		    chartArea: {width: '60%'},
   		    isStacked: true,
   		    bar: {groupWidth: "50%"},
   		    hAxis: {
@@ -229,7 +250,6 @@ echo $OUTPUT->footer();
 		data.addRows(dataarray);
 		
 		var options = {
-				height:400,
 			gantt: {
 				trackHeight: 30
 			}};
@@ -246,12 +266,31 @@ echo $OUTPUT->footer();
     
 	function drawareaChart() {
  
-		var data = google.visualization.arrayToDataTable(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
-
+		var data = new google.visualization.DataTable();
+		
+  		data.addColumn('string', '<?php echo get_string("date", "mod_emarking"); ?>');
+  		data.addColumn('number', '<?php echo get_string("digitalized", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("incorrection", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("graded", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("published", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("inregrading", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("regraded", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		data.addColumn('number', '<?php echo get_string("finalpublication", "mod_emarking"); ?>');
+  		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+  		
+  		data.addRows(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
+  		
         var options = {
-        	title: 'Company Performance',
+        	pointShape: 'star',
+        	pointSize: 4,
+        	tooltip: {isHtml: true},
         	isStacked: true,
-        	hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
         	vAxis: {minValue: 0}
         };
 
@@ -264,13 +303,25 @@ echo $OUTPUT->footer();
     	google.charts.setOnLoadCallback(drawmarkersChart);
     }
 	function drawmarkersChart() {
- 
-		var data = google.visualization.arrayToDataTable(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
+
+		var markers = <?php echo  json_encode(emarking_markers_corrections($emarkingid, 1));?>;
+		var arraylength = markers.length;
+		
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Date');
+		for (var i = 0; i < arraylength; i++) {
+    		data.addColumn('number', markers[i]);
+    		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+    	}
+		
+
+		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
 
 		var options = {
-			title: 'Company Performance',
+			pointSize: 4,
+			pointShape: 'star',
+			tooltip: {isHtml: true},
 			isStacked: true,
-			hAxis: {title: 'Year',  titleTextStyle: {color: '#333'}},
 			vAxis: {minValue: 0}
 		};
 

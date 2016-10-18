@@ -80,6 +80,10 @@ function emarking_regrade($emarking, $draft) {
     // Update the submission.
     $draft->timemodified = time();
     $draft->status = EMARKING_STATUS_REGRADING;
+    if($draft->timeregradingstarted == null){
+    	$draft->timeregradingstarted = time();
+    }
+    $draft->timeregradingended = time();
     $DB->update_record('emarking_draft', $draft);
     // Send the output.
     $output = array(
@@ -362,6 +366,8 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     // Measures the correction window.
     $winwidth = required_param('windowswidth', PARAM_NUMBER);
     $winheight = required_param('windowsheight', PARAM_NUMBER);
+    // Feedback text.
+    $feedback = optional_param('feedback', 0, PARAM_RAW_TRIMMED);
     // Get the page for the comment.
     if (! $page = emarking_get_page_submission_by_pageno($submission, $pageno)) {
         emarking_json_error('Invalid page for submission');
@@ -405,6 +411,7 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     $emarkingcomment->criterionid = $rubricinfo->criterionid;
     $emarkingcomment->bonus = $bonus;
     $emarkingcomment->textformat = 2;
+    $emarkingcomment->feedback = $feedback;
     // Insert the record.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
     $raterid = $USER->id;
@@ -424,14 +431,18 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
         if($draft->timecorrectionstarted == null){
         	$draft->timecorrectionstarted = time();
         }
-        $draft->timecorrectionended = time();
-        $DB->update_record('emarking_draft',$draft);
+        $draft->timecorrectionended = time();        
     } else {
         $regrade->accepted = 1;
         $regrade->markercomment = $comment;
         $regrade->timemodified = time();
         $DB->update_record('emarking_regrade', $regrade);
+        if($draft->timeregradingstarted == null){
+        	$draft->timeregradingstarted = time();
+        }
+        $draft->timeregradingended = time();
     }
+    $DB->update_record('emarking_draft',$draft);
     // Send the output.
     if ($finalgrade === false) {
         $output = array(
@@ -910,6 +921,11 @@ function emarking_set_answer_key($submission, $newstatus) {
     if($newstatus < EMARKING_ANSWERKEY_NONE || $newstatus > EMARKING_ANSWERKEY_ACCEPTED) {
         throw new Exception('Invalid status for answerkey');
     }
+    if($submission->answerkey != EMARKING_ANSWERKEY_NONE) {
+        $newstatus = EMARKING_ANSWERKEY_NONE;
+    } else {
+        $newstatus = EMARKING_ANSWERKEY_ACCEPTED;
+    }
     $submission->answerkey = $newstatus;
     $DB->update_record("emarking_submission", $submission);
     return $newstatus;
@@ -1126,6 +1142,11 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         $regrade->timemodified = time();
         $regrade->accepted = $regradeaccepted;
         $DB->update_record('emarking_regrade', $regrade);
+        if($draft->timeregradingstarted == null){
+        	$draft->timeregradingstarted = time();
+        }
+        $draft->timeregradingended = time();
+        $DB->update_record("emarking_draft", $draft);
         $remainingregrades = $DB->count_records("emarking_regrade",
                 array(
                     "draft" => $draft->id,
@@ -1133,14 +1154,57 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         if ($remainingregrades == 0) {
             $draft->status = EMARKING_STATUS_REGRADING_RESPONDED;
             $draft->timemodified = time();
-            if($draft->timeregradingstarted == null){
-            	$draft->timeregradingstarted = time();
-            }
-            $draft->timeregradingended = time();
             $DB->update_record("emarking_draft", $draft);
         }
     }
     $results = emarking_get_submission_grade($draft);
     $newgrade = $results->finalgrade;
     return $newgrade;
+}
+
+function emarking_get_resources_ocwmit($keywords){
+	$ocwMIT = "https://search.mit.edu/search?client=mit&&proxyreload=1&as_dt=i&oe=utf-8&btnG.x=4&btnG.y=10&filter=0&site=ocw&q=";
+	
+	$arraykeywords = explode(" ", $keywords);
+	for($i = 0; $i < count($arraykeywords); $i++){
+		if($i == (count($arraykeywords)-1) ){
+			$ocwMIT .= $arraykeywords[$i];
+		}else{
+			$ocwMIT .= $arraykeywords[$i]."%20";
+		}		
+	}
+	
+	$xml = simplexml_load_file($ocwMIT); //retrieve URL and parse XML content	
+	
+	$results = $xml->RES->R;
+	$output = array();
+	foreach ($results as $row){
+		$output [] = array("resource" => $row->S."_separador_".$row->U);
+	}
+	
+	return $output;
+}
+
+function emarking_get_resources_merlot($keywords){
+	$merloturl = "https://www.merlot.org/merlot/materials.htm?hasCollections=false&keywords=";
+	$extraparams = "&hasEtextReviews=false&isContentBuilder=false&filterOtherOpen=false&hasAssignments=false&hasAwards=false&filterSubjectsOpen=true&hasRatings=false&filterTypesOpen=false&filterMobileOpen=false&hasComments=false&hasCourses=false&isLeadershipLibrary=false&filterPartnerAffiliationsOpen=true&hasSercActivitySheets=false&hasEditorReviews=false&hasPeerReviews=false&sort.property=relevance&resort=overallRating&sortbutton=";
+
+	$arraykeywords = explode(" ", $keywords);
+	for($i = 0; $i < count($arraykeywords); $i++){
+		if($i == (count($arraykeywords)-1) ){
+			$merloturl .= $arraykeywords[$i];
+		}else{
+			$merloturl .= $arraykeywords[$i]."%20";
+		}
+	}
+
+	$merloturl .= $extraparams;
+
+	$page = file_get_html($merloturl);
+	$output = array();
+	foreach ($page->find("a.materialLink") as $result){
+		$output [] = array("resource" => $result->innertext."_separador_https://www.merlot.org".$result->href);
+	}
+
+	return $output;
 }

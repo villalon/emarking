@@ -109,8 +109,8 @@ if (count($records) == 0) {
     if ($filteruser) {
         echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array(
             "id" => $cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
-        echo $OUTPUT->footer();
     }
+    echo $OUTPUT->footer();
     die();
 }
 $table = new html_table();

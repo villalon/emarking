@@ -262,6 +262,15 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->setDefault('justiceperception', 0);
         $mform->setType('justiceperception', PARAM_INT);
         $mform->disabledIf('justiceperception', 'type', 'eq', '2');
+        // Feedback
+        $mform->addElement('text', 'keywords', get_string('keywords', 'mod_emarking'), 
+                array(
+                    'size' => '64'));
+        $mform->addHelpButton('keywords', 'keywords', 'mod_emarking');
+        $mform->setDefault('keywords', 'keyword1,keyword2,sentence1');
+        $mform->setType('keywords', PARAM_TEXT);
+        $mform->disabledIf('keywords', 'type', 'eq', '2');
+        
         $mform->addElement('checkbox', 'linkrubric', get_string('linkrubric', 'mod_emarking'));
         $mform->addHelpButton('linkrubric', 'linkrubric', 'mod_emarking');
         $mform->addElement('checkbox', 'collaborativefeatures', get_string('collaborativefeatures', 'mod_emarking'));
