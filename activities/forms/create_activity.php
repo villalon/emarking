@@ -183,15 +183,16 @@ class local_ciae_create_activity extends moodleform {
         //Paso 2 Instrucciones
         $mform->addElement('header', 'IA', 'Instrucciones para el estudiante', null);
         $mform->addElement('static', '', '','Cree las instrucciones que se entregarán a los estudiantes.');
-        $mform->addElement('editor', 'instructions', 'Instrucciones');
+         $editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES, 'noclean'=>true, 'context'=>$this->block->context);
+        $mform->addElement('editor', 'instructions', 'Instrucciones',null,$editoroptions);
         $mform->setType('instructions', PARAM_RAW);
 
         //Paso 3 Didáctica
         $mform->addElement('header', 'DI', 'Didáctica', null);
-        $mform->addElement('editor', 'teaching', 'Sugerencias');
+        $mform->addElement('editor', 'teaching', 'Sugerencias',null,$editoroptions);
         $mform->setType('teaching', PARAM_RAW);
         //$mform->setAdvanced('teachingsuggestions');
-        $mform->addElement('editor', 'languageresources', 'Recursos del Lenguaje');
+        $mform->addElement('editor', 'languageresources', 'Recursos del Lenguaje',null,$editoroptions);
         $mform->setType('languageresources', PARAM_RAW);
         //$mform->setAdvanced('languageresources');
 
