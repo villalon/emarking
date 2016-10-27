@@ -1,9 +1,10 @@
 <?php
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) )). '/config.php');
 require_once ('generos.php');
-GLOBAL $USER, $CFG;
+GLOBAL $USER, $CFG,$PAGE;
 $teacherroleid = 3;
 $logged = false;
+$PAGE->set_context(context_system::instance());
 // Id of the exam to be deleted.
 $activityid = required_param('id', PARAM_INT);
 $forkingUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/forking.php', array('id' => $activityid));

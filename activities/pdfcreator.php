@@ -17,6 +17,7 @@ $pdf->SetTitle('Perdidos en el cerro');
 $pdf->SetPrintHeader(false);
 $pdf->SetPrintFooter(false);
 $pdf->SetFont('helvetica', '', 11);
+$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 // set auto page breaks
 $pdf->SetAutoPageBreak(TRUE, 50);
 $pdf->SetTopMargin(40);
@@ -56,6 +57,13 @@ $html = '<h3>Hoja de respuesta</h3>
 
 //$pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
 $pdf->writeHTML($html, true, false, false, false, '');
+$pdf->AddPage();
+$toolcopy = ' my content <br>';
+$toolcopy .= '<img src="img/premio.jpg"  width="50" height="50">';
+$toolcopy .= '<br> other content';
+
+$pdf->writeHTML($toolcopy, true, 0, true, true);
+$pdf->Ln();
 // ---------------------------------------------------------
 // Close and output PDF document
 // This method has several options, check the source code documentation for more information.
