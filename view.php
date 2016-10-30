@@ -41,17 +41,7 @@ if (isguestuser()) {
 }
 if($emarking->parent > 0 && $emarking->copiedfromparent == 0) {
     $srcemarking = $DB->get_record('emarking', array('id'=>$emarking->parent));
-    $srcexam = $DB->get_record('emarking_exams', array('emarking'=>$emarking->parent));
-    if(!$srcemarking || !$srcexam) {
-        throw new Exception('Invalid emarking activity to import');
-    }
-    unset($srcexam->id);
-    $srcexam->id = $DB->insert_record('emarking_exams', $srcexam);
-    $examid = $srcexam->id;
-    emarking_match_rubrics($srcemarking, $emarking, true);
-    emarking_copy_submissions_drafts($srcemarking, $emarking);
-    $emarking->copiedfromparent = 1;
-    // $DB->update_record('emarking', $emarking);
+    emarking_copy_peer_review($srcemarking, $emarking);
     var_dump($emarking);
     die("ok");
 }

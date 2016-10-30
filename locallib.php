@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *
@@ -25,13 +25,14 @@
  */
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot . '/lib/coursecatlib.php');
-require_once($CFG->dirroot . '/mod/emarking/lib.php');
+require_once ($CFG->dirroot . '/lib/coursecatlib.php');
+require_once ($CFG->dirroot . '/mod/emarking/lib.php');
+
 /**
- * 
- * @param unknown $text
- * @param unknown $maxlength
- * @param unknown $id
+ *
+ * @param unknown $text            
+ * @param unknown $maxlength            
+ * @param unknown $id            
  * @return unknown|string
  */
 function emarking_get_text_view_more($text, $maxlength, $id) {
@@ -40,11 +41,11 @@ function emarking_get_text_view_more($text, $maxlength, $id) {
         return $text;
     }
     $short = substr($text, 0, $maxlength);
-    return $short . "... " . emarking_view_more(core_text::strtolower(get_string("viewmore", "mod_emarking")), $text, "regrade",
-            $id);
+    return $short . "... " . emarking_view_more(core_text::strtolower(get_string("viewmore", "mod_emarking")), $text, "regrade", $id);
 }
+
 /**
- * 
+ *
  * @return multitype:Ambigous <NULL, string> unknown string
  */
 function emarking_get_user_lang() {
@@ -53,14 +54,16 @@ function emarking_get_user_lang() {
     $parts = explode("_", $lang);
     $specific = null;
     if (count($parts) > 1) {
-        $specific = strtoupper($parts [1]);
-        $lang = $parts [0] . '_' . $specific;
+        $specific = strtoupper($parts[1]);
+        $lang = $parts[0] . '_' . $specific;
     }
     return array(
         $lang,
-        $parts [0],
-        $specific);
+        $parts[0],
+        $specific
+    );
 }
+
 /**
  * Obtains course module ($cm), course, emarking and context
  * objects from cm id in the URL
@@ -73,6 +76,7 @@ function emarking_get_cm_course_instance() {
     $cmid = required_param('id', PARAM_INT);
     return emarking_get_cm_course_instance_by_id($cmid);
 }
+
 /**
  * Obtains course module ($cm), course, emarking and context
  * objects from cm id in the URL
@@ -82,17 +86,19 @@ function emarking_get_cm_course_instance() {
 function emarking_get_cm_course_instance_by_id($cmid) {
     global $DB;
     // Validate course module.
-    if (! $cm = get_coursemodule_from_id('emarking', $cmid)) {
+    if (!$cm = get_coursemodule_from_id('emarking', $cmid)) {
         print_error(get_string('invalidcoursemodule', 'mod_emarking') . " id: $cmid");
     }
     // Validate eMarking activity //TODO: validar draft si está selccionado.
-    if (! $emarking = $DB->get_record('emarking', array(
-        'id' => $cm->instance))) {
+    if (!$emarking = $DB->get_record('emarking', array(
+        'id' => $cm->instance
+    ))) {
         print_error(get_string('invalidid', 'mod_emarking') . " id: $cm->id");
     }
     // Validate course.
-    if (! $course = $DB->get_record('course', array(
-        'id' => $emarking->course))) {
+    if (!$course = $DB->get_record('course', array(
+        'id' => $emarking->course
+    ))) {
         print_error(get_string('invalidcourseid', 'mod_emarking'));
     }
     $context = context_module::instance($cm->id);
@@ -100,10 +106,12 @@ function emarking_get_cm_course_instance_by_id($cmid) {
         $cm,
         $emarking,
         $course,
-        $context);
+        $context
+    );
 }
+
 /**
- * 
+ *
  * @return multitype:string
  */
 function emarking_get_regrade_motives_array() {
@@ -113,33 +121,36 @@ function emarking_get_regrade_motives_array() {
         EMARKING_REGRADE_ERROR_CARRIED_FORWARD,
         EMARKING_REGRADE_UNCLEAR_FEEDBACK,
         EMARKING_REGRADE_STATEMENT_PROBLEM,
-        EMARKING_REGRADE_OTHER);
+        EMARKING_REGRADE_OTHER
+    );
     return $output;
 }
+
 /**
  * Get regrade type in human readable string
  *
- * @param unknown $type
+ * @param unknown $type            
  * @return Ambigous <string, lang_string>|string
  */
 function emarking_get_regrade_type_string($type) {
     switch ($type) {
-        case EMARKING_REGRADE_MISASSIGNED_SCORE :
+        case EMARKING_REGRADE_MISASSIGNED_SCORE:
             return get_string('missasignedscore', 'mod_emarking');
-        case EMARKING_REGRADE_UNCLEAR_FEEDBACK :
+        case EMARKING_REGRADE_UNCLEAR_FEEDBACK:
             return get_string('unclearfeedback', 'mod_emarking');
-        case EMARKING_REGRADE_STATEMENT_PROBLEM :
+        case EMARKING_REGRADE_STATEMENT_PROBLEM:
             return get_string('statementproblem', 'mod_emarking');
-        case EMARKING_REGRADE_ERROR_CARRIED_FORWARD :
+        case EMARKING_REGRADE_ERROR_CARRIED_FORWARD:
             return get_string('errorcarriedforward', 'mod_emarking');
-        case EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER :
+        case EMARKING_REGRADE_CORRECT_ALTERNATIVE_ANSWER:
             return get_string('correctalternativeanswer', 'mod_emarking');
-        case EMARKING_REGRADE_OTHER :
+        case EMARKING_REGRADE_OTHER:
             return get_string('other', 'mod_emarking');
-        default :
+        default:
             return 'INVALID STATUS';
     }
 }
+
 /**
  * Returns a string indicating how long ago something happened
  *
@@ -152,6 +163,7 @@ function emarking_get_regrade_type_string($type) {
 function emarking_time_ago($time, $small = false) {
     return emarking_time_difference($time, time(), $small);
 }
+
 /**
  * Returns a string indicating how long ago something happened
  *
@@ -171,7 +183,8 @@ function emarking_time_difference($time1, $time2, $small = false) {
         86400 => get_string('day'),
         3600 => get_string('hour'),
         60 => get_string('minute'),
-        1 => get_string('second', 'mod_emarking'));
+        1 => get_string('second', 'mod_emarking')
+    );
     $tokensplural = array(
         31536000 => get_string('years'),
         2592000 => get_string('months'),
@@ -179,13 +192,14 @@ function emarking_time_difference($time1, $time2, $small = false) {
         86400 => get_string('days'),
         3600 => get_string('hours'),
         60 => get_string('minutes'),
-        1 => get_string('seconds', 'mod_emarking'));
-    foreach ($tokens as $unit => $text) {
+        1 => get_string('seconds', 'mod_emarking')
+    );
+    foreach($tokens as $unit => $text) {
         if ($time < $unit) {
             continue;
         }
         $numberofunits = floor($time / $unit);
-        $message = $numberofunits . ' ' . (($numberofunits > 1) ? $tokensplural [$unit] : $text);
+        $message = $numberofunits . ' ' . (($numberofunits > 1) ? $tokensplural[$unit] : $text);
         if ($ispast) {
             $message = core_text::strtolower(get_string('ago', 'core_message', $message));
         } else {
@@ -197,13 +211,14 @@ function emarking_time_difference($time1, $time2, $small = false) {
         return $message;
     }
 }
+
 /**
  * Copies the settings from a source emarking activity to a destination one
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
- * @param unknown $rubricoverride
- * @param unknown $markersoverride
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
+ * @param unknown $rubricoverride            
+ * @param unknown $markersoverride            
  */
 function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $markersoverride) {
     global $DB, $OUTPUT;
@@ -212,7 +227,7 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $ma
     try {
         emarking_copy_predefined_comments($emarkingsrc, $emarkingdst);
         emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems);
-        if($markersoverride) {
+        if ($markersoverride) {
             emarking_copy_markers($emarkingsrc, $emarkingdst, $criteriaitems);
         }
         emarking_copy_outcomes($emarkingsrc, $emarkingdst, $criteriaitems, $rubricoverride);
@@ -228,7 +243,7 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $ma
     $emarkingsrc->introformat = $emarkingdst->introformat;
     $emarkingsrc->timecreated = $emarkingdst->timecreated;
     $emarkingsrc->course = $emarkingdst->course;
-    if (! $DB->update_record('emarking', $emarkingsrc)) {
+    if (!$DB->update_record('emarking', $emarkingsrc)) {
         $DB->rollback_delegated_transaction($transaction, new moodle_exception("Could not update emarking destination"));
         return false;
     }
@@ -236,18 +251,81 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $ma
     echo $OUTPUT->box("Success!");
     return true;
 }
+
+function emarking_copy_peer_review($emarkingsrc, $emarkingdst) {
+    global $DB, $OUTPUT;
+    // This goes at the end as the emarking object is left unusable.
+    echo $OUTPUT->box("Copying emarking settings, submission, pages and rubric");
+    $transaction = $DB->start_delegated_transaction();
+    try {
+        emarking_copy_exam($emarkingsrc, $emarkingdst);
+        emarking_match_rubrics($emarkingsrc, $emarkingdst, true);
+        emarking_copy_predefined_comments($emarkingsrc, $emarkingdst);
+        emarking_copy_submissions_drafts($emarkingsrc, $emarkingdst);
+        emarking_assign_peers($emarkingdst);
+    } catch (moodle_exception $exception) {
+        $DB->rollback_delegated_transaction($transaction, $exception);
+        return false;
+    }
+    $emarkingdst->copiedfromparent = 1;
+    if (!$DB->update_record('emarking', $emarkingdst)) {
+        $DB->rollback_delegated_transaction($transaction, new moodle_exception("Could not update emarking destination"));
+        return false;
+    }
+    $DB->commit_delegated_transaction($transaction);
+    echo $OUTPUT->box("Success!");
+    return true;
+}
+function emarking_copy_exam($emarkingsrc, $emarkingdst) {
+    global $DB;
+    $cmdst = get_coursemodule_from_instance('emarking', $emarkingdst->id);
+    $contextdst = context_module::instance($cmdst->id);
+    $fs = get_file_storage();
+    if (!$examsrc = $DB->get_record('emarking_exams', array(
+        'emarking' => $emarkingsrc->id
+    ))) {
+        throw new Exception('Invalid exam from source');
+    }
+    unset($examsrc->id);
+    $examsrc->emarking = $emarkingdst->id;
+    $examdstid = $DB->insert_record('emarking_exams', $examsrc);
+    $examfile = $fs->get_file_by_id($examsrc->file);
+    $filerecord = array(
+        'component' => 'mod_emarking',
+        'filearea' => 'exams',
+        'contextid' => $contextdst->id,
+        'itemid' => $emarkingdst->id,
+        'filepath' => '/',
+        'filename' => $examfile->get_filename()
+    );
+    $newexam = $fs->create_file_from_storedfile($filerecord, $examfile);
+    $examsrc->file = $newexam->get_id();
+    $examsrc->id = $examdstid;
+    $DB->update_record('emarking_exams', $examsrc);    
+}
 /**
  * Copies the submissions and drafts from a source emarking activity to a destination one
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  */
 function emarking_copy_submissions_drafts($emarkingsrc, $emarkingdst) {
     global $DB, $OUTPUT;
-    $submissions = $DB->get_records('emarking_submission', array('emarking'=>$emarkingsrc->id));
+    $cmsrc = get_coursemodule_from_instance('emarking', $emarkingsrc->id);
+    $cmdst = get_coursemodule_from_instance('emarking', $emarkingdst->id);
+    $contextsrc = context_module::instance($cmsrc->id);
+    $contextdst = context_module::instance($cmdst->id);
+    $fs = get_file_storage();
+    $submissions = $DB->get_records('emarking_submission', array(
+        'emarking' => $emarkingsrc->id
+    ));
     foreach($submissions as $submission) {
-        $pages = $DB->get_records('emarking_page', array('submission'=>$submission->id));
-        $drafts = $DB->get_records('emarking_draft', array('submissionid'=>$submission->id));
+        $pages = $DB->get_records('emarking_page', array(
+            'submission' => $submission->id
+        ));
+        $drafts = $DB->get_records('emarking_draft', array(
+            'submissionid' => $submission->id
+        ));
         unset($submission->id);
         $submission->emarking = $emarkingdst->id;
         $submission->status = min(EMARKING_STATUS_SUBMITTED, $submission->status);
@@ -259,6 +337,29 @@ function emarking_copy_submissions_drafts($emarkingsrc, $emarkingdst) {
             unset($page->id);
             $page->submission = $submission->id;
             $page->id = $DB->insert_record('emarking_page', $page);
+            $pagefile = $fs->get_file_by_id($page->file);
+            $filerecord = array(
+                'component' => 'mod_emarking',
+                'filearea' => 'pages',
+                'contextid' => $contextdst->id,
+                'itemid' => $emarkingdst->id,
+                'filepath' => '/',
+                'filename' => $pagefile->get_filename()
+            );
+            $newpage = $fs->create_file_from_storedfile($filerecord, $pagefile);
+            $page->file = $newpage->get_id();
+            $pagefileanonymous = $fs->get_file_by_id($page->fileanonymous);
+            $filerecord = array(
+                'component' => 'mod_emarking',
+                'filearea' => 'pages',
+                'contextid' => $contextdst->id,
+                'itemid' => $emarkingdst->id,
+                'filepath' => '/',
+                'filename' => $pagefileanonymous->get_filename()
+            );
+            $newpageanonymous = $fs->create_file_from_storedfile($filerecord, $pagefileanonymous);
+            $page->fileanonymous = $newpageanonymous->get_id();
+            $DB->update_record('emarking_page', $page);
         }
         foreach($drafts as $draft) {
             unset($draft->id);
@@ -266,17 +367,19 @@ function emarking_copy_submissions_drafts($emarkingsrc, $emarkingdst) {
             $draft->status = EMARKING_STATUS_SUBMITTED;
             $draft->grade = $emarkingsrc->grademin;
             $draft->seenbystudent = 0;
+            $draft->emarkingid = $emarkingdst->id;
             $draft->id = $DB->insert_record('emarking_draft', $draft);
         }
     }
 }
+
 /**
  * Matches the rubrics from two emarking activities making sure it has the same
  * criteria (two criteria are equal if their description are equal).
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
- * @param unknown $context
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
+ * @param unknown $context            
  * @throws moodle_exception
  * @return multitype:unknown
  */
@@ -286,12 +389,10 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
     $cmdst = get_coursemodule_from_instance('emarking', $emarkingdst->id);
     $contextsrc = context_module::instance($cmsrc->id);
     $contextdst = context_module::instance($cmdst->id);
-    list($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = emarking_validate_rubric($contextsrc, false,
-            false);
-    list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst, false,
-            false);
+    list ($gradingmanagersrc, $gradingmethodsrc, $definitionsrc, $rubriccontrollersrc) = emarking_validate_rubric($contextsrc, false, false);
+    list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst, false, false);
     if ($copyrubric) {
-        if (! $rubriccontrollerdst) {
+        if (!$rubriccontrollerdst) {
             $method = $gradingmanagerdst->get_active_method();
             $rubriccontrollerdst = $gradingmanagerdst->get_controller($method);
         }
@@ -300,13 +401,12 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
         }
         $rubriccontrollerdst->update_definition($rubriccontrollersrc->get_definition_copy($rubriccontrollerdst));
         $DB->set_field('grading_definitions', 'timecopied', time(), array(
-            'id' => $definitionsrc->id));
-        list($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) =
-        	emarking_validate_rubric($contextdst, false, false);
+            'id' => $definitionsrc->id
+        ));
+        list ($gradingmanagerdst, $gradingmethoddst, $definitiondst, $rubriccontrollerdst) = emarking_validate_rubric($contextdst, false, false);
     }
-    if (! $definitionsrc || ! $definitiondst) {
-        throw new moodle_exception(
-                "Invalid rubrics for copying, destination emarking doesn't have a rubric and you didn't selected to copy it.");
+    if (!$definitionsrc || !$definitiondst) {
+        throw new moodle_exception("Invalid rubrics for copying, destination emarking doesn't have a rubric and you didn't selected to copy it.");
     }
     $criteriasrc = $definitionsrc->rubric_criteria;
     $criteriadst = $definitiondst->rubric_criteria;
@@ -314,10 +414,10 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
         throw new moodle_exception("Invalid rubric for copying, they don't have the same number of criteria");
     }
     $criteriaitems = array();
-    foreach ($criteriasrc as $criterionsrc) {
-        foreach ($criteriadst as $criteriondst) {
-            if ($criterionsrc ['description'] === $criteriondst ['description']) {
-                $criteriaitems [$criterionsrc ['id']] = $criteriondst ['id'];
+    foreach($criteriasrc as $criterionsrc) {
+        foreach($criteriadst as $criteriondst) {
+            if ($criterionsrc['description'] === $criteriondst['description']) {
+                $criteriaitems[$criterionsrc['id']] = $criteriondst['id'];
             }
         }
     }
@@ -326,24 +426,27 @@ function emarking_match_rubrics($emarkingsrc, $emarkingdst, $copyrubric = false)
     }
     return $criteriaitems;
 }
+
 /**
  * Copies the pages settings from a source emarking activity to a destination one
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  */
 function emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems) {
     global $DB, $OUTPUT;
     echo $OUTPUT->box("Copying pages settings");
     $DB->delete_records('emarking_page_criterion', array(
-        'emarking' => $emarkingdst->id));
+        'emarking' => $emarkingdst->id
+    ));
     $pagescriteria = $DB->get_records('emarking_page_criterion', array(
-        'emarking' => $emarkingsrc->id));
-    foreach ($pagescriteria as $pagecriterion) {
+        'emarking' => $emarkingsrc->id
+    ));
+    foreach($pagescriteria as $pagecriterion) {
         $newpagecriterion = new stdClass();
         $newpagecriterion->emarking = $emarkingdst->id;
         $newpagecriterion->page = $pagecriterion->page;
-        $newpagecriterion->criterion = $criteriaitems [$pagecriterion->criterion];
+        $newpagecriterion->criterion = $criteriaitems[$pagecriterion->criterion];
         $newpagecriterion->block = $pagecriterion->block;
         $newpagecriterion->timecreated = time();
         $newpagecriterion->timemodified = time();
@@ -351,31 +454,39 @@ function emarking_copy_pages($emarkingsrc, $emarkingdst, $criteriaitems) {
     }
     echo $OUTPUT->box("Success!");
 }
+
 /**
  * Copies the markers settings from a source emarking activity to a destination one
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  */
 function emarking_copy_markers($emarkingsrc, $emarkingdst, $criteriaitems) {
     global $DB, $OUTPUT;
     echo $OUTPUT->box("Copying markers settings");
     $DB->delete_records('emarking_marker_criterion', array(
-            'emarking' => $emarkingdst->id));
+        'emarking' => $emarkingdst->id
+    ));
     $markerscriteria = $DB->get_records('emarking_marker_criterion', array(
-            'emarking' => $emarkingsrc->id));
-    foreach ($markerscriteria as $markercriterion) {
+        'emarking' => $emarkingsrc->id
+    ));
+    foreach($markerscriteria as $markercriterion) {
         $context = context_course::instance($emarkingdst->course);
-        if(!has_capability('mod/emarking:grade', $context, $markercriterion->marker)) {
+        if (!has_capability('mod/emarking:grade', $context, $markercriterion->marker)) {
             $manual = enrol_get_plugin('manual');
-            $instance = $DB->get_record('enrol', array('courseid'=>$emarkingdst->course, 'enrol'=>'manual'));
-            $role = $DB->get_record('role', array('archetype'=>'teacher'));
+            $instance = $DB->get_record('enrol', array(
+                'courseid' => $emarkingdst->course,
+                'enrol' => 'manual'
+            ));
+            $role = $DB->get_record('role', array(
+                'archetype' => 'teacher'
+            ));
             $manual->enrol_user($instance, $markercriterion->marker, $role->id);
         }
         $newmarkercriterion = new stdClass();
         $newmarkercriterion->emarking = $emarkingdst->id;
         $newmarkercriterion->marker = $markercriterion->marker;
-        $newmarkercriterion->criterion = $criteriaitems [$markercriterion->criterion];
+        $newmarkercriterion->criterion = $criteriaitems[$markercriterion->criterion];
         $newmarkercriterion->block = $markercriterion->block;
         $newmarkercriterion->timecreated = time();
         $newmarkercriterion->timemodified = time();
@@ -383,97 +494,106 @@ function emarking_copy_markers($emarkingsrc, $emarkingdst, $criteriaitems) {
     }
     echo $OUTPUT->box("Success!");
 }
+
 /**
  * Copies the outcomes settings from a source emarking activity to a destination one
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
- * @param unknown $criteriaitems
- * @param unknown $override
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
+ * @param unknown $criteriaitems            
+ * @param unknown $override            
  * @throws moodle_exception
  */
 function emarking_copy_outcomes($emarkingsrc, $emarkingdst, $criteriaitems, $override) {
     global $DB, $OUTPUT;
-    if (! emarking_validate_outcomes($emarkingsrc, $emarkingdst)) {
-        if (! $override) {
-            throw new moodle_exception(
-                    "Outcomes in destination emarking do not fit the used in the source and no override was indicated");
+    if (!emarking_validate_outcomes($emarkingsrc, $emarkingdst)) {
+        if (!$override) {
+            throw new moodle_exception("Outcomes in destination emarking do not fit the used in the source and no override was indicated");
         } else {
-            if (! emarking_copy_course_outcomes($emarkingsrc, $emarkingdst)) {
+            if (!emarking_copy_course_outcomes($emarkingsrc, $emarkingdst)) {
                 throw new moodle_exception("Overriding outcomes failed, probably due to outcomes being used");
             }
         }
     }
     echo $OUTPUT->box("Copying outcomes");
     $DB->delete_records('emarking_outcomes_criteria', array(
-        'emarking' => $emarkingdst->id));
+        'emarking' => $emarkingdst->id
+    ));
     $outcomescriteria = $DB->get_records('emarking_outcomes_criteria', array(
-        'emarking' => $emarkingsrc->id));
-    foreach ($outcomescriteria as $outcomecriterionsrc) {
+        'emarking' => $emarkingsrc->id
+    ));
+    foreach($outcomescriteria as $outcomecriterionsrc) {
         $outcomecriterion = new stdClass();
         $outcomecriterion->emarking = $emarkingdst->id;
         $outcomecriterion->outcome = $outcomecriterionsrc->outcome;
-        $outcomecriterion->criterion = $criteriaitems [$outcomecriterionsrc->criterion];
+        $outcomecriterion->criterion = $criteriaitems[$outcomecriterionsrc->criterion];
         $outcomecriterion->timecreated = time();
         $DB->insert_record('emarking_outcomes_criteria', $outcomecriterion);
     }
     echo $OUTPUT->box("Success!");
 }
+
 /**
  * Validates that all outcomes required from the emarking source
  * activity are available in the destination course
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  * @return boolean
  */
 function emarking_validate_outcomes($emarkingsrc, $emarkingdst) {
     global $DB, $CFG;
-    require_once($CFG->libdir . "/grade/grade_outcome.php");
-    if (! $coursesrc = $DB->get_record('course', array(
-        'id' => $emarkingsrc->course))) {
+    require_once ($CFG->libdir . "/grade/grade_outcome.php");
+    if (!$coursesrc = $DB->get_record('course', array(
+        'id' => $emarkingsrc->course
+    ))) {
         return false;
     }
-    if (! $coursedst = $DB->get_record('course', array(
-        'id' => $emarkingdst->course))) {
+    if (!$coursedst = $DB->get_record('course', array(
+        'id' => $emarkingdst->course
+    ))) {
         return false;
     }
     $outcomessrc = grade_outcome::fetch_all_available($emarkingsrc->course);
     $outcomesdst = grade_outcome::fetch_all_available($emarkingdst->course);
     $destinationoutcomes = array();
-    foreach ($outcomesdst as $outcomedst) {
-        $destinationoutcomes [] = $outcomedst->id;
+    foreach($outcomesdst as $outcomedst) {
+        $destinationoutcomes[] = $outcomedst->id;
     }
-    foreach ($outcomessrc as $outcomesrc) {
-        if (! array_search($outcomesrc->id, $destinationoutcomes)) {
+    foreach($outcomessrc as $outcomesrc) {
+        if (!array_search($outcomesrc->id, $destinationoutcomes)) {
             return false;
         }
     }
     return true;
 }
+
 /**
  * Copies the outcomes (and associates to course if necessary) from
  * a source emarking activity to a destination one
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  * @return boolean
  */
 function emarking_copy_course_outcomes($emarkingsrc, $emarkingdst) {
     global $DB, $CFG;
-    require_once($CFG->libdir . "/gradelib.php");
-    require_once($CFG->libdir . "/grade/grade_outcome.php");
-    if (! $coursesrc = $DB->get_record('course', array(
-        'id' => $emarkingsrc->course))) {
+    require_once ($CFG->libdir . "/gradelib.php");
+    require_once ($CFG->libdir . "/grade/grade_outcome.php");
+    if (!$coursesrc = $DB->get_record('course', array(
+        'id' => $emarkingsrc->course
+    ))) {
         return false;
     }
-    if (! $coursedst = $DB->get_record('course', array(
-        'id' => $emarkingdst->course))) {
+    if (!$coursedst = $DB->get_record('course', array(
+        'id' => $emarkingdst->course
+    ))) {
         return false;
     }
     $params = array(
         $coursesrc->id,
-        $emarkingsrc->id);
+        $emarkingsrc->id
+    );
     $sql = "SELECT outcomeid, itemnumber
           FROM {grade_items}
          WHERE courseid=? AND outcomeid IS NOT NULL
@@ -481,12 +601,13 @@ function emarking_copy_course_outcomes($emarkingsrc, $emarkingdst) {
         AND itemtype = 'mod'";
     $tocopy = $DB->get_records_sql($sql, $params);
     $outcomesready = array();
-    foreach ($tocopy as $outcomeused) {
-        $outcomesready [] = $outcomeused->outcomeid;
+    foreach($tocopy as $outcomeused) {
+        $outcomesready[] = $outcomeused->outcomeid;
     }
     $params = array(
         $coursedst->id,
-        $emarkingdst->id);
+        $emarkingdst->id
+    );
     $sql = "SELECT outcomeid, itemnumber
           FROM {grade_items}
          WHERE courseid=? AND outcomeid IS NOT NULL
@@ -494,7 +615,7 @@ function emarking_copy_course_outcomes($emarkingsrc, $emarkingdst) {
         AND itemtype = 'mod'";
     $realused = $DB->get_records_sql($sql, $params);
     $maxitemnumber = 999;
-    foreach ($realused as $outcomeused) {
+    foreach($realused as $outcomeused) {
         if (array_search($outcomeused->outcomeid, $outcomesready)) {
             array_remove_by_value($outcomesready, $outcomeused->outcomeid);
         }
@@ -504,16 +625,17 @@ function emarking_copy_course_outcomes($emarkingsrc, $emarkingdst) {
     }
     $outcomesdst = grade_outcome::fetch_all_available($emarkingdst->course);
     $outcomesavailable = array();
-    foreach ($outcomesdst as $outcomedst) {
-        $outcomesavailable [] = $outcomedst->id;
+    foreach($outcomesdst as $outcomedst) {
+        $outcomesavailable[] = $outcomedst->id;
     }
     if ($maxitemnumber < 1000) {
         $maxitemnumber = 1000;
     }
-    foreach ($outcomesready as $outcometocopy) {
+    foreach($outcomesready as $outcometocopy) {
         $outcome = grade_outcome::fetch(array(
-            'id' => $outcometocopy));
-        if (! array_search($outcometocopy, $outcomesavailable)) {
+            'id' => $outcometocopy
+        ));
+        if (!array_search($outcometocopy, $outcomesavailable)) {
             $outcome->use_in($emarkingdst->course);
         }
         $outcomeitem = new grade_item();
@@ -527,86 +649,90 @@ function emarking_copy_course_outcomes($emarkingsrc, $emarkingdst) {
         $outcomeitem->gradetype = GRADE_TYPE_SCALE;
         $outcomeitem->scaleid = $outcome->scaleid;
         $outcomeitem->insert();
-        $maxitemnumber ++;
+        $maxitemnumber++;
     }
     return true;
 }
+
 /**
  * Returns a recordset of emarking objects which are in courses parallel
  * to a course parameter
  *
- * @param unknown $course
- * @param unknown $includeown
+ * @param unknown $course            
+ * @param unknown $includeown            
  * @return multitype:
  */
 function emarking_get_parallel_emarkings($course, $includeown) {
     global $DB;
     $parallelcourses = emarking_get_parallel_courses($course, $includeown);
-    if (! $parallelcourses) {
+    if (!$parallelcourses) {
         return false;
     }
     $parallelsids = array();
-    foreach ($parallelcourses as $parallelcourse) {
+    foreach($parallelcourses as $parallelcourse) {
         if ($parallelcourse->id == $course->id) {
             continue;
         }
-        foreach (get_coursemodules_in_course('emarking', $parallelcourse->id) as $cmdst) {
-            $parallelsids [] = $cmdst->instance;
+        foreach(get_coursemodules_in_course('emarking', $parallelcourse->id) as $cmdst) {
+            $parallelsids[] = $cmdst->instance;
         }
     }
     $parallelsids = implode(",", $parallelsids);
-    $parallelemarkings = $DB->get_records_sql(
-            "
+    $parallelemarkings = $DB->get_records_sql("
         SELECT e.*, c.id as courseid, c.shortname, c.fullname
         FROM {emarking} AS e
         INNER JOIN {course} AS c ON (e.course = c.id AND c.id <> ?)
         WHERE e.id IN ($parallelsids)
         ORDER BY c.fullname, e.name", array(
-                $course->id));
+        $course->id
+    ));
     return $parallelemarkings;
 }
+
 /**
  * Copies predefined comments from a source emarking activity to a destination one
  *
- * @param unknown $emarkingsrc
- * @param unknown $emarkingdst
+ * @param unknown $emarkingsrc            
+ * @param unknown $emarkingdst            
  */
 function emarking_copy_predefined_comments($emarkingsrc, $emarkingdst) {
     global $DB, $OUTPUT;
     echo $OUTPUT->box("Copying predefined comments");
     $predefinedsrc = $DB->get_records('emarking_predefined_comment', array(
-        'emarkingid' => $emarkingsrc->id));
-    if (! $predefinedsrc || count($predefinedsrc) == 0) {
+        'emarkingid' => $emarkingsrc->id
+    ));
+    if (!$predefinedsrc || count($predefinedsrc) == 0) {
         echo $OUTPUT->box("No comments to copy");
         return true;
     }
     $DB->delete_records('emarking_predefined_comment', array(
-        'emarkingid' => $emarkingdst->id));
-    foreach ($predefinedsrc as $comment) {
+        'emarkingid' => $emarkingdst->id
+    ));
+    foreach($predefinedsrc as $comment) {
         unset($comment->id);
         $comment->emarkingid = $emarkingdst->id;
         $DB->insert_record('emarking_predefined_comment', $comment);
     }
     echo $OUTPUT->box("Success!");
 }
+
 /**
  * Returns the HTML for a jquery dialog which will show the content
  *
- * @param string $title
- * @param string $content
- * @param string $prefix
- * @param int $id
+ * @param string $title            
+ * @param string $content            
+ * @param string $prefix            
+ * @param int $id            
  * @return string
  */
 function emarking_view_more($title, $content, $prefix, $id) {
     $output = "<div id='$prefix" . "-$id' style='display:none;'>";
     $output .= $content;
     $output .= "</div>";
-    $output .= "<a class='viewmore' style='' onclick='$(\"#$prefix" .
-             "-$id\").dialog({title:\"$title\",show: { effect: \"scale\", duration: 200 },modal:true,buttons:{" .
-             get_string("close", "mod_emarking") . ": function(){\$(this).dialog(\"close\");}}});'>" . $title . "</a>";
+    $output .= "<a class='viewmore' style='' onclick='$(\"#$prefix" . "-$id\").dialog({title:\"$title\",show: { effect: \"scale\", duration: 200 },modal:true,buttons:{" . get_string("close", "mod_emarking") . ": function(){\$(this).dialog(\"close\");}}});'>" . $title . "</a>";
     return $output;
 }
+
 /**
  * Gets the icon used the a submission status
  *
@@ -622,35 +748,35 @@ function emarking_get_draft_status_icon($status, $prefix = false, $pctmarked = 0
     global $OUTPUT;
     $html = '';
     switch ($status) {
-        case EMARKING_STATUS_MISSING :
+        case EMARKING_STATUS_MISSING:
             $html = $OUTPUT->pix_icon('i/warning', emarking_get_string_for_status($status));
             break;
-        case EMARKING_STATUS_ABSENT :
+        case EMARKING_STATUS_ABSENT:
             $html = $OUTPUT->pix_icon('t/block', emarking_get_string_for_status($status));
             break;
-        case EMARKING_STATUS_SUBMITTED :
+        case EMARKING_STATUS_SUBMITTED:
             $html = $OUTPUT->pix_icon('i/user', emarking_get_string_for_status($status));
             break;
-        case EMARKING_STATUS_GRADING :
+        case EMARKING_STATUS_GRADING:
             if ($pctmarked > 0) {
                 $html = $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status, $pctmarked));
             } else {
                 $html = $OUTPUT->pix_icon('i/grade_partiallycorrect', emarking_get_string_for_status($status));
             }
             break;
-        case EMARKING_STATUS_PUBLISHED :
+        case EMARKING_STATUS_PUBLISHED:
             $html = $OUTPUT->pix_icon('i/grade_correct', emarking_get_string_for_status($status));
             break;
-        case EMARKING_STATUS_REGRADING :
+        case EMARKING_STATUS_REGRADING:
             $html = $OUTPUT->pix_icon('i/flagged', emarking_get_string_for_status($status));
             break;
-        case EMARKING_STATUS_REGRADING_RESPONDED :
+        case EMARKING_STATUS_REGRADING_RESPONDED:
             $html = $OUTPUT->pix_icon('i/grade_correct', emarking_get_string_for_status($status));
             break;
-        case EMARKING_STATUS_ACCEPTED :
+        case EMARKING_STATUS_ACCEPTED:
             $html = $OUTPUT->pix_icon('t/locked', emarking_get_string_for_status($status));
             break;
-        default :
+        default:
             $html = $OUTPUT->pix_icon('t/block', emarking_get_string_for_status(EMARKING_STATUS_ABSENT));
             break;
     }
@@ -659,6 +785,7 @@ function emarking_get_draft_status_icon($status, $prefix = false, $pctmarked = 0
     }
     return $html;
 }
+
 /**
  * All possible statuses for an eMarking submission
  *
@@ -666,15 +793,16 @@ function emarking_get_draft_status_icon($status, $prefix = false, $pctmarked = 0
  */
 function emarking_get_statuses_as_array() {
     $statuses = array();
-    $statuses [] = EMARKING_STATUS_MISSING;
-    $statuses [] = EMARKING_STATUS_ABSENT;
-    $statuses [] = EMARKING_STATUS_SUBMITTED;
-    $statuses [] = EMARKING_STATUS_GRADING;
-    $statuses [] = EMARKING_STATUS_PUBLISHED;
-    $statuses [] = EMARKING_STATUS_REGRADING;
-    $statuses [] = EMARKING_STATUS_ACCEPTED;
+    $statuses[] = EMARKING_STATUS_MISSING;
+    $statuses[] = EMARKING_STATUS_ABSENT;
+    $statuses[] = EMARKING_STATUS_SUBMITTED;
+    $statuses[] = EMARKING_STATUS_GRADING;
+    $statuses[] = EMARKING_STATUS_PUBLISHED;
+    $statuses[] = EMARKING_STATUS_REGRADING;
+    $statuses[] = EMARKING_STATUS_ACCEPTED;
     return $statuses;
 }
+
 /**
  * Returns an associative array with regrade motives IDs and their
  * descriptions
@@ -683,14 +811,15 @@ function emarking_get_statuses_as_array() {
  */
 function emarking_get_regrade_motives() {
     $motives = array();
-    foreach (emarking_get_regrade_motives_array() as $m) {
+    foreach(emarking_get_regrade_motives_array() as $m) {
         $motive = new stdClass();
         $motive->id = $m;
         $motive->description = emarking_get_regrade_type_string($m);
-        $motives [] = $motive;
+        $motives[] = $motive;
     }
     return $motives;
 }
+
 /**
  * Creates an array with the navigation tabs for emarking
  *
@@ -706,126 +835,97 @@ function emarking_tabs($context, $cm, $emarking) {
     $issupervisor = has_capability("mod/emarking:supervisegrading", $context);
     $tabs = array();
     // Print tab.
-    $printtab = new tabobject('printscan', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
-            $emarking->type == EMARKING_TYPE_PRINT_ONLY ? get_string('print', 'mod_emarking')
-                : get_string('type_print_scan', 'mod_emarking'));
+    $printtab = new tabobject('printscan', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}", $emarking->type == EMARKING_TYPE_PRINT_ONLY ? get_string('print', 'mod_emarking') : get_string('type_print_scan', 'mod_emarking'));
     // Print summary tab.
-    $printtab->subtree[] = new tabobject('myexams', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}",
-            get_string('exam', 'mod_emarking'));
+    $printtab->subtree[] = new tabobject('myexams', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}", get_string('exam', 'mod_emarking'));
     // Scan tab.
-    $scantab = new tabobject("scan", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1",
-            get_string('exams', 'mod_emarking'));
-    $scanlist = new tabobject("scanlist", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1",
-            get_string('view'));
-    $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}",
-            get_string('uploadanswers', 'mod_emarking'));
-    $orphanpages = new tabobject('orphanpages', $CFG->wwwroot . "/mod/emarking/print/orphanpages.php?id={$cm->id}",
-            get_string('orphanpages', 'mod_emarking'));
-    $scantab->subtree [] = $scanlist;
+    $scantab = new tabobject("scan", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string('exams', 'mod_emarking'));
+    $scanlist = new tabobject("scanlist", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}&scan=1", get_string('view'));
+    $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
+    $orphanpages = new tabobject('orphanpages', $CFG->wwwroot . "/mod/emarking/print/orphanpages.php?id={$cm->id}", get_string('orphanpages', 'mod_emarking'));
+    $scantab->subtree[] = $scanlist;
     if ($usercangrade && $issupervisor && $emarking->type != EMARKING_TYPE_PRINT_ONLY) {
-        $printtab->subtree [] = $uploadanswers;
-        $printtab->subtree [] = $orphanpages;
+        $printtab->subtree[] = $uploadanswers;
+        $printtab->subtree[] = $orphanpages;
     }
     // Grade tab.
-    $markingtab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}",
-            get_string('onscreenmarking', 'mod_emarking'));
-    $markingtab->subtree [] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}",
-            get_string("marking", 'mod_emarking'));
-    if (! $usercangrade) {
+    $markingtab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('onscreenmarking', 'mod_emarking'));
+    $markingtab->subtree[] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
+    if (!$usercangrade) {
         if ($emarking->peervisibility) {
-            $markingtab->subtree [] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}",
-                    get_string("ranking", 'mod_emarking'));
-            $markingtab->subtree [] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}",
-                    get_string("reviewpeersfeedback", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("reviewpeersfeedback", 'mod_emarking'));
         }
         if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-            $markingtab->subtree [] = new tabobject("regrades",
-                    $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}",
-            get_string("regrades", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
         }
     } else {
         if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-            $markingtab->subtree [] = new tabobject("regrades",
-                    $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}",
-            get_string("regrades", 'mod_emarking'));
+            $markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
         }
     }
     // Settings tab.
-    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}",
-            get_string('settings'));
+    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string('settings'));
     // Settings for marking.
     if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-        $settingstab->subtree [] = new tabobject("osmsettings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}",
-                get_string("marking", 'mod_emarking'));
-        $settingstab->subtree [] = new tabobject("comment",
-                $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list",
-                get_string("predefinedcomments", 'mod_emarking'));
+        $settingstab->subtree[] = new tabobject("osmsettings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
+        $settingstab->subtree[] = new tabobject("comment", $CFG->wwwroot . "/mod/emarking/marking/predefinedcomments.php?id={$cm->id}&action=list", get_string("predefinedcomments", 'mod_emarking'));
         if (has_capability('mod/emarking:assignmarkers', $context)) {
-            $settingstab->subtree [] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}",
-                    get_string("markerspercriteria", 'mod_emarking'));
-            $settingstab->subtree [] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}",
-                    core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
-            $settingstab->subtree [] = new tabobject("outcomes", $CFG->wwwroot . "/mod/emarking/marking/outcomes.php?id={$cm->id}",
-                    core_text::strtotitle(get_string("outcomes", "grades")));
-            $settingstab->subtree [] = new tabobject("importrubric",
-                    $CFG->wwwroot . "/mod/emarking/marking/importrubric.php?id={$cm->id}&action=list",
-                    get_string("importrubric", 'mod_emarking'));
-            $settingstab->subtree [] = new tabobject("export", $CFG->wwwroot . "/mod/emarking/marking/export.php?id={$cm->id}",
-                    core_text::strtotitle(get_string("export", "mod_data")));
+            $settingstab->subtree[] = new tabobject("markers", $CFG->wwwroot . "/mod/emarking/marking/markers.php?id={$cm->id}", get_string("markerspercriteria", 'mod_emarking'));
+            $settingstab->subtree[] = new tabobject("pages", $CFG->wwwroot . "/mod/emarking/marking/pages.php?id={$cm->id}", core_text::strtotitle(get_string("pagespercriteria", 'mod_emarking')));
+            $settingstab->subtree[] = new tabobject("outcomes", $CFG->wwwroot . "/mod/emarking/marking/outcomes.php?id={$cm->id}", core_text::strtotitle(get_string("outcomes", "grades")));
+            $settingstab->subtree[] = new tabobject("importrubric", $CFG->wwwroot . "/mod/emarking/marking/importrubric.php?id={$cm->id}&action=list", get_string("importrubric", 'mod_emarking'));
+            $settingstab->subtree[] = new tabobject("export", $CFG->wwwroot . "/mod/emarking/marking/export.php?id={$cm->id}", core_text::strtotitle(get_string("export", "mod_data")));
         }
     }
     // Grade report tab.
-    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}",
-            get_string("reports", "mod_emarking"));
-    $gradereporttab->subtree [] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}",
-            get_string("marking", 'mod_emarking'));
-    $gradereporttab->subtree [] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}",
-            get_string("grades", "grades"));
-    $gradereporttab->subtree [] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}",
-            get_string("ranking", 'mod_emarking'));
+    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("reports", "mod_emarking"));
+    $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
+    $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}", get_string("grades", "grades"));
+    $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
     if ($emarking->justiceperception > EMARKING_JUSTICE_DISABLED) {
-        $gradereporttab->subtree [] = new tabobject("justicereport",
-                $CFG->wwwroot . "/mod/emarking/reports/justice.php?id={$cm->id}", get_string("justice", 'mod_emarking'));
+        $gradereporttab->subtree[] = new tabobject("justicereport", $CFG->wwwroot . "/mod/emarking/reports/justice.php?id={$cm->id}", get_string("justice", 'mod_emarking'));
     }
-    $gradereporttab->subtree [] = new tabobject("outcomesreport", $CFG->wwwroot . "/mod/emarking/reports/outcomes.php?id={$cm->id}",
-            get_string("outcomes", "grades"));
+    $gradereporttab->subtree[] = new tabobject("outcomesreport", $CFG->wwwroot . "/mod/emarking/reports/outcomes.php?id={$cm->id}", get_string("outcomes", "grades"));
     // Tabs sequence.
     if ($usercangrade) {
         // Print tab goes always except for markers training.
-        if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
-                 $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+        if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             if (has_capability('mod/emarking:addinstance', $context)) {
-                if(count($printtab->subtree) == 1) {
-                    $tabs [] = $printtab->subtree[0];
+                if (count($printtab->subtree) == 1) {
+                    $tabs[] = $printtab->subtree[0];
                 } else {
-                    $tabs [] = $printtab;
+                    $tabs[] = $printtab;
                 }
             }
         }
         // Scan or enablescan tab.
         if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
-            $tabs [] = $scantab;
+            $tabs[] = $scantab;
         }
         // OSM tabs, either marking, reports and settings or enable osm.
         if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-            $tabs [] = $markingtab;
-            $tabs [] = $gradereporttab;
-            if($issupervisor) {
-                $tabs [] = $settingstab;
+            $tabs[] = $markingtab;
+            $tabs[] = $gradereporttab;
+            if ($issupervisor) {
+                $tabs[] = $settingstab;
             }
         }
-    } else if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
-        // This case is for students (user can not grade).
-        $tabs = $scantab->subtree;
-    } else if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
-        // This case is for students (user can not grade).
-        $tabs = array();
-    } else {
-        // This case is for students (user can not grade).
-        $tabs = $markingtab->subtree;
-    }
+    } else 
+        if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+            // This case is for students (user can not grade).
+            $tabs = $scantab->subtree;
+        } else 
+            if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
+                // This case is for students (user can not grade).
+                $tabs = array();
+            } else {
+                // This case is for students (user can not grade).
+                $tabs = $markingtab->subtree;
+            }
     return $tabs;
 }
+
 /**
  * Navigation tabs for printing orders
  *
@@ -836,32 +936,31 @@ function emarking_tabs($context, $cm, $emarking) {
 function emarking_printoders_tabs($category) {
     $tabs = array();
     // Print orders.
-    $tabs [] = new tabobject("printorders",
-            new moodle_url("/mod/emarking/print/printorders.php",
-                    array(
-                        "category" => $category->id,
-                        "status" => 1)), get_string("printorders", 'mod_emarking'));
+    $tabs[] = new tabobject("printorders", new moodle_url("/mod/emarking/print/printorders.php", array(
+        "category" => $category->id,
+        "status" => 1
+    )), get_string("printorders", 'mod_emarking'));
     // Print orders history.
-    $tabs [] = new tabobject("printordershistory",
-            new moodle_url("/mod/emarking/print/printorders.php",
-                    array(
-                        "category" => $category->id,
-                        "status" => 2)), get_string("records", 'mod_emarking'));
+    $tabs[] = new tabobject("printordershistory", new moodle_url("/mod/emarking/print/printorders.php", array(
+        "category" => $category->id,
+        "status" => 2
+    )), get_string("records", 'mod_emarking'));
     // Statistics.
-    $statstab = new tabobject("statistics",
-            new moodle_url("/mod/emarking/reports/print.php", array(
-                "category" => $category->id)), get_string("reports", 'mod_emarking'));
+    $statstab = new tabobject("statistics", new moodle_url("/mod/emarking/reports/print.php", array(
+        "category" => $category->id
+    )), get_string("reports", 'mod_emarking'));
     // Print statistics.
-    $statstab->subtree [] = new tabobject("print",
-            new moodle_url("/mod/emarking/reports/print.php", array(
-                "category" => $category->id)), get_string("statistics", 'mod_emarking'));
+    $statstab->subtree[] = new tabobject("print", new moodle_url("/mod/emarking/reports/print.php", array(
+        "category" => $category->id
+    )), get_string("statistics", 'mod_emarking'));
     // Print statistics details.
-    $statstab->subtree [] = new tabobject("printdetails",
-            new moodle_url("/mod/emarking/reports/printdetails.php", array(
-                "category" => $category->id)), get_string("printdetails", 'mod_emarking'));
-    $tabs [] = $statstab;
+    $statstab->subtree[] = new tabobject("printdetails", new moodle_url("/mod/emarking/reports/printdetails.php", array(
+        "category" => $category->id
+    )), get_string("printdetails", 'mod_emarking'));
+    $tabs[] = $statstab;
     return $tabs;
 }
+
 /**
  * Verifies if there's a logo for the personalized header, and if there is one
  * it copies it to the module area
@@ -871,12 +970,12 @@ function emarking_verify_logo() {
     $syscontext = context_system::instance();
     // Copy any new logo to this instance.
     if ($files = $fs->get_area_files($syscontext->id, 'core', 'logo', 1, "filename", false)) {
-        foreach ($files as $file) {
+        foreach($files as $file) {
             $filename = $file->get_filename();
             if ($filename !== '.') {
                 $existingfiles = $fs->get_area_files($syscontext->id, 'mod_emarking', 'logo', 1, "filename", false);
                 $replace = false;
-                foreach ($existingfiles as $existingfile) {
+                foreach($existingfiles as $existingfile) {
                     if ($existingfile->get_timemodified() < $file->get_timemodified()) {
                         $existingfile->delete();
                         $replace = true;
@@ -894,6 +993,7 @@ function emarking_verify_logo() {
         }
     }
 }
+
 /**
  * Verifies if there's a logo for the personalized header, and if there is it copies it to the
  * module
@@ -902,7 +1002,7 @@ function emarking_get_logo_file($filedir) {
     $fs = get_file_storage();
     $syscontext = context_system::instance();
     if ($files = $fs->get_area_files($syscontext->id, 'mod_emarking', 'logo', 1, "filename", false)) {
-        foreach ($files as $file) {
+        foreach($files as $file) {
             $filename = $file->get_filename();
             if ($filename !== '.') {
                 $existingfile = $fs->get_file($syscontext->id, 'mod_emarking', 'logo', 1, '/', $file->get_filename());
@@ -914,6 +1014,7 @@ function emarking_get_logo_file($filedir) {
     }
     return false;
 }
+
 /**
  * Returns a human readable status for a draft
  *
@@ -925,27 +1026,27 @@ function emarking_get_logo_file($filedir) {
  */
 function emarking_get_string_for_status($status, $pctmarked = 0) {
     switch ($status) {
-        case EMARKING_STATUS_ACCEPTED :
+        case EMARKING_STATUS_ACCEPTED:
             return get_string('statusaccepted', 'mod_emarking');
-        case EMARKING_STATUS_ABSENT :
+        case EMARKING_STATUS_ABSENT:
             return get_string('statusabsent', 'mod_emarking');
-        case EMARKING_STATUS_GRADING :
-            return $pctmarked == 100 ? get_string('statusgradingfinished', 'mod_emarking') : get_string('statusgrading',
-                    'mod_emarking');
-        case EMARKING_STATUS_MISSING :
+        case EMARKING_STATUS_GRADING:
+            return $pctmarked == 100 ? get_string('statusgradingfinished', 'mod_emarking') : get_string('statusgrading', 'mod_emarking');
+        case EMARKING_STATUS_MISSING:
             return get_string('statusmissing', 'mod_emarking');
-        case EMARKING_STATUS_REGRADING :
+        case EMARKING_STATUS_REGRADING:
             return get_string('statusregrading', 'mod_emarking');
-        case EMARKING_STATUS_REGRADING_RESPONDED :
+        case EMARKING_STATUS_REGRADING_RESPONDED:
             return get_string('statusregradingresponded', 'mod_emarking');
-        case EMARKING_STATUS_PUBLISHED :
+        case EMARKING_STATUS_PUBLISHED:
             return get_string('statuspublished', 'mod_emarking');
-        case EMARKING_STATUS_SUBMITTED :
+        case EMARKING_STATUS_SUBMITTED:
             return get_string('statussubmitted', 'mod_emarking');
-        default :
+        default:
             return get_string('statuserror', 'mod_emarking');
     }
 }
+
 /**
  * Returns a human readable status for a digitized answers file
  *
@@ -955,20 +1056,21 @@ function emarking_get_string_for_status($status, $pctmarked = 0) {
  */
 function emarking_get_string_for_status_digitized($status) {
     switch ($status) {
-        case EMARKING_DIGITIZED_ANSWER_MISSING :
+        case EMARKING_DIGITIZED_ANSWER_MISSING:
             return get_string('statusmissing', 'mod_emarking');
-        case EMARKING_DIGITIZED_ANSWER_UPLOADED :
+        case EMARKING_DIGITIZED_ANSWER_UPLOADED:
             return get_string('examstatussent', 'mod_emarking');
-        case EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED :
+        case EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED:
             return get_string('examstatusbeingprocessed', 'mod_emarking');
-        case EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING :
+        case EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING:
             return get_string('examstatuserrorprocessing', 'mod_emarking');
-        case EMARKING_DIGITIZED_ANSWER_PROCESSED :
+        case EMARKING_DIGITIZED_ANSWER_PROCESSED:
             return get_string('examstatusprocessed', 'mod_emarking');
-        default :
+        default:
             return get_string('statuserror', 'mod_emarking');
     }
 }
+
 /**
  * Changes the order of the pages for a submission, according to
  * a new order
@@ -982,7 +1084,7 @@ function emarking_get_string_for_status_digitized($status) {
 function emarking_sort_submission_pages($submission, $neworder) {
     global $DB;
     // Verify that the new order is an array.
-    if (! is_array($neworder)) {
+    if (!is_array($neworder)) {
         return false;
     }
     // Verify that it contains the numbers from 0 to length -1.
@@ -990,16 +1092,17 @@ function emarking_sort_submission_pages($submission, $neworder) {
     asort($sortedbypage);
     $newindices = array();
     $i = 0;
-    foreach ($sortedbypage as $k => $v) {
+    foreach($sortedbypage as $k => $v) {
         if (intval($v) != $i) {
             return false;
         }
-        $i ++;
-        $newindices [intval($v) + 1] = $k + 1;
+        $i++;
+        $newindices[intval($v) + 1] = $k + 1;
     }
     // Get all the pages involved.
-    if (! $pages = $DB->get_records('emarking_page', array(
-        'submission' => $submission->id), 'page ASC')) {
+    if (!$pages = $DB->get_records('emarking_page', array(
+        'submission' => $submission->id
+    ), 'page ASC')) {
         return false;
     }
     // Get the total pages in the sumission.
@@ -1008,20 +1111,21 @@ function emarking_sort_submission_pages($submission, $neworder) {
     if ($numpages != count($neworder)) {
         return false;
     }
-        // Update each page according to the new sort order.
+    // Update each page according to the new sort order.
     $i = 0;
-    foreach ($pages as $page) {
-        $newindex = $newindices [$page->page];
+    foreach($pages as $page) {
+        $newindex = $newindices[$page->page];
         $page->page = $newindex;
         $DB->update_record('emarking_page', $page);
-        $i ++;
+        $i++;
     }
     return true;
 }
+
 /**
  * Get all students from a course, for printing.
  *
- * @param unknown_type $courseid
+ * @param unknown_type $courseid            
  */
 function emarking_get_students_for_printing($courseid) {
     global $DB;
@@ -1034,15 +1138,17 @@ function emarking_get_students_for_printing($courseid) {
                 GROUP BY u.id
 				ORDER BY lastname ASC';
     $params = array(
-        $courseid);
+        $courseid
+    );
     // Se toman los resultados del query dentro de una variable.
     $rs = $DB->get_recordset_sql($query, $params);
     return $rs;
 }
+
 /**
  * Get all students from a group, for printing.
  *
- * @param unknown_type $groupid,$courseid
+ * @param unknown_type $groupid,$courseid            
  */
 function emarking_get_students_of_groups($courseid, $groupid) {
     global $DB;
@@ -1057,48 +1163,54 @@ function emarking_get_students_of_groups($courseid, $groupid) {
     // Se toman los resultados del query dentro de una variable.
     $rs = $DB->get_recordset_sql($query, array(
         $courseid,
-        $groupid));
+        $groupid
+    ));
     return $rs;
 }
+
 /**
  * Get all groups from a course, for printing.
  *
- * @param unknown_type $courseid
+ * @param unknown_type $courseid            
  */
 function emarking_get_groups_for_printing($courseid) {
     global $DB;
     $query = 'select id from {groups} where courseid = ? ';
     // Se toman los resultados del query dentro de una variable.
     $rs = $DB->get_recordset_sql($query, array(
-        $courseid));
+        $courseid
+    ));
     return $rs;
 }
+
 /**
  * Returns two variables indicating if the user has permissions as
  * supervisor or if she can grade exams
- * 
- * @param unknown $emarking
- * @param unknown $context
+ *
+ * @param unknown $emarking            
+ * @param unknown $context            
  * @return array $issupervisor, $usercangrade
  */
 function emarking_get_grading_permissions($emarking, $context) {
-	// Check if user has an editingteacher role.
-	$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
-	$usercangrade = has_capability('mod/assign:grade', $context) ||
-	($emarking->type == EMARKING_TYPE_PEER_REVIEW
-			&& has_capability('mod/assign:submit', $context));
-	return array($issupervisor, $usercangrade);
+    // Check if user has an editingteacher role.
+    $issupervisor = has_capability('mod/emarking:supervisegrading', $context);
+    $usercangrade = has_capability('mod/assign:grade', $context) || ($emarking->type == EMARKING_TYPE_PEER_REVIEW && has_capability('mod/assign:submit', $context));
+    return array(
+        $issupervisor,
+        $usercangrade
+    );
 }
+
 /**
  * Sends email to course manager, teacher and non-editingteacher,
  * when a printing order has been created
  *
- * @param unknown $exam
- * @param unknown $course
- * @param unknown $postsubject
- * @param unknown $posttext
- * @param unknown $posthtml
- * @param unknown $fromuser
+ * @param unknown $exam            
+ * @param unknown $course            
+ * @param unknown $postsubject            
+ * @param unknown $posttext            
+ * @param unknown $posthtml            
+ * @param unknown $fromuser            
  */
 function emarking_send_notification($exam, $course, $postsubject, $posttext, $posthtml, $fromuser) {
     global $CFG;
@@ -1106,27 +1218,26 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
     $userstonotify = array();
     // Notify users that a new exam was sent. First, get all roles that have the capability in this context or higher.
     $roles = get_roles_with_cap_in_context($context, 'mod/emarking:receivenotification');
-    foreach ($roles [0] as $role) {
+    foreach($roles[0] as $role) {
         // Get all users with any of the needed roles in the course context.
-        foreach (get_role_users($role, $context, true, 'u.id, u.username', 'u.id, u.username', true) as $usertonotify) {
-            $userstonotify [$usertonotify->id] = $usertonotify;
+        foreach(get_role_users($role, $context, true, 'u.id, u.username', 'u.id, u.username', true) as $usertonotify) {
+            $userstonotify[$usertonotify->id] = $usertonotify;
         }
     }
-    $forbidden = $roles [1];
+    $forbidden = $roles[1];
     // Get the category context.
     $contextcategory = context_coursecat::instance($course->category);
     // Now get all users that has any of the roles needed, no checking if they have roles forbidden as it is only
     // a notification.
-    foreach ($userstonotify as $user) {
+    foreach($userstonotify as $user) {
         $thismessagehtml = $posthtml;
         // Downloading predominates over receiving notification.
         if (has_capability('mod/emarking:downloadexam', $contextcategory, $user)) {
-            $thismessagehtml .= '<p><a href="' . $CFG->wwwroot . '/mod/emarking/print/printorders.php?category=' .
-            $course->category . '">' . get_string('printorders', 'mod_emarking') . '</a></p>';
-        } else if (has_capability('mod/emarking:receivenotification', $context, $user)) {
-            $thismessagehtml .= '<p><a href="' . $CFG->wwwroot . '/mod/emarking/print/exams.php?course=' . $course->id . '">' .
-                     get_string('printorders', 'mod_emarking') . ' ' . $course->fullname . '</a></p>';
-        }
+            $thismessagehtml .= '<p><a href="' . $CFG->wwwroot . '/mod/emarking/print/printorders.php?category=' . $course->category . '">' . get_string('printorders', 'mod_emarking') . '</a></p>';
+        } else 
+            if (has_capability('mod/emarking:receivenotification', $context, $user)) {
+                $thismessagehtml .= '<p><a href="' . $CFG->wwwroot . '/mod/emarking/print/exams.php?course=' . $course->id . '">' . get_string('printorders', 'mod_emarking') . ' ' . $course->fullname . '</a></p>';
+            }
         $eventdata = new stdClass();
         $eventdata->component = 'mod_emarking';
         $eventdata->name = 'notification';
@@ -1141,6 +1252,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
         message_send($eventdata);
     }
 }
+
 /**
  * Returns all paralles to a course based on the regular expression
  * for parallels defined in settings to extract: academicperiod, campus,
@@ -1155,7 +1267,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
 function emarking_get_parallel_courses($course, $includeown = false) {
     global $CFG, $DB;
     // Parses the shortname.
-    list($academicperiod, $campus, $coursecode, $section, $term, $year) = emarking_parse_shortname($course->shortname);
+    list ($academicperiod, $campus, $coursecode, $section, $term, $year) = emarking_parse_shortname($course->shortname);
     $sqlown = $includeown ? "" : "AND id != $course->id";
     // If identified the parts run the query.
     if ($coursecode) {
@@ -1167,13 +1279,14 @@ function emarking_get_parallel_courses($course, $includeown = false) {
         return false;
     }
 }
+
 /**
  * Extracts academic information from shortname.
  * Assuming a regex
  * that includes academicperiod, campus, coursecode, section, term, year.
  * ([0-9]+)-([SV])-([0-9A-Z]+)-([0-9]+)-([12V])-([0-9]+).*
  *
- * @param String $shortname
+ * @param String $shortname            
  * @return multitype: array with each part
  */
 function emarking_parse_shortname($shortname) {
@@ -1186,12 +1299,12 @@ function emarking_parse_shortname($shortname) {
     $term = null;
     $year = null;
     if ($regex && preg_match_all('/' . $regex . '/', $shortname, $regs)) {
-        $academicperiod = $regs [1] [0];
-        $campus = $regs [2] [0];
-        $coursecode = $regs [3] [0];
-        $section = $regs [4] [0];
-        $term = $regs [5] [0];
-        $year = $regs [6] [0];
+        $academicperiod = $regs[1][0];
+        $campus = $regs[2][0];
+        $coursecode = $regs[3][0];
+        $section = $regs[4][0];
+        $term = $regs[5][0];
+        $year = $regs[6][0];
     }
     return array(
         $academicperiod,
@@ -1199,8 +1312,10 @@ function emarking_parse_shortname($shortname) {
         $coursecode,
         $section,
         $term,
-        $year);
+        $year
+    );
 }
+
 /**
  * Unzip the source_file in the destination dir
  *
@@ -1223,10 +1338,10 @@ function emarking_unzip($srcfile, $destdir = false, $createzipnamedir = true, $o
             if ($destdir === false) {
                 $destdir = substr($srcfile, 0, strrpos($srcfile, $splitter)) . "/";
             }
-                // Create the directories to the destination dir if they don't already exist.
+            // Create the directories to the destination dir if they don't already exist.
             emarking_create_dirs($destdir);
             // For every file in the zip-packet.
-            while ( $zipentry = zip_read($zip) ) {
+            while ($zipentry = zip_read($zip)) {
                 // Now we're going to create the directories in the destination directories.
                 // If the file is not in the root dir.
                 $poslastslash = strrpos(zip_entry_name($zipentry), "/");
@@ -1239,7 +1354,7 @@ function emarking_unzip($srcfile, $destdir = false, $createzipnamedir = true, $o
                     // The name of the file to save on the disk.
                     $filename = $destdir . zip_entry_name($zipentry);
                     // Check if the files should be overwritten or not.
-                    if ($overwrite === true || $overwrite === false && ! is_file($filename)) {
+                    if ($overwrite === true || $overwrite === false && !is_file($filename)) {
                         // Get the content of the zip entry.
                         $fstream = zip_entry_read($zipentry, zip_entry_filesize($zipentry));
                         file_put_contents($filename, $fstream);
@@ -1258,6 +1373,7 @@ function emarking_unzip($srcfile, $destdir = false, $createzipnamedir = true, $o
     }
     return true;
 }
+
 /**
  * This function creates recursive directories if it doesn't already exist
  *
@@ -1266,73 +1382,75 @@ function emarking_unzip($srcfile, $destdir = false, $createzipnamedir = true, $o
  * @return void
  */
 function emarking_create_dirs($path) {
-    if (! is_dir($path)) {
+    if (!is_dir($path)) {
         $directorypath = "";
         $directories = explode("/", $path);
         array_pop($directories);
-        foreach ($directories as $directory) {
+        foreach($directories as $directory) {
             $directorypath .= $directory . "/";
-            if (! is_dir($directorypath)) {
+            if (!is_dir($directorypath)) {
                 mkdir($directorypath);
                 chmod($directorypath, 0777);
             }
         }
     }
 }
+
 /**
  * Obtains the total score of a draft
  *
- * @param unknown $draft
- * @param unknown $controller
- * @param unknown $fillings
+ * @param unknown $draft            
+ * @param unknown $controller            
+ * @param unknown $fillings            
  * @return number
  */
 function emarking_get_totalscore($draft, $controller, $fillings) {
     global $DB;
     $curscore = 0;
-    foreach ($fillings ['criteria'] as $id => $record) {
-        $curscore += $controller->get_definition()->rubric_criteria [$id] ['levels'] [$record ['levelid']] ['score'];
+    foreach($fillings['criteria'] as $id => $record) {
+        $curscore += $controller->get_definition()->rubric_criteria[$id]['levels'][$record['levelid']]['score'];
     }
     $bonus = 0;
-    if ($bonusfromcomments = $DB->get_record_sql(
-            "
+    if ($bonusfromcomments = $DB->get_record_sql("
 			SELECT 1, IFNULL(SUM(ec.bonus),0) AS totalbonus
 			FROM {emarking_comment} ec
             INNER JOIN {gradingform_rubric_levels} b ON (b.id = ec.levelid)
 			WHERE ec.levelid > 0 AND ec.draft = :draft", array(
-                'draft' => $draft->id))) {
+        'draft' => $draft->id
+    ))) {
         $bonus = floatval($bonusfromcomments->totalbonus);
     }
     return $curscore + $bonus;
 }
+
 /**
  * Calculates the next submission to be graded when a marker is currently grading
  * a specific submission
  *
- * @param unknown $emarking
- * @param unknown $draft
- * @param unknown $context
- * @param unknown $student
- * @param unknown $issupervisor
+ * @param unknown $emarking            
+ * @param unknown $draft            
+ * @param unknown $context            
+ * @param unknown $student            
+ * @param unknown $issupervisor            
  * @return number
  */
 function emarking_get_next_submission($emarking, $draft, $context, $student, $issupervisor) {
     global $DB, $USER;
     $levelids = 0;
-    if ($criteria = $DB->get_records('emarking_marker_criterion',
-            array(
-                'emarking' => $emarking->id,
-                'marker' => $USER->id))) {
+    if ($criteria = $DB->get_records('emarking_marker_criterion', array(
+        'emarking' => $emarking->id,
+        'marker' => $USER->id
+    ))) {
         $criterionarray = array();
-        foreach ($criteria as $criterion) {
-            $criterionarray [] = $criterion->criterion;
+        foreach($criteria as $criterion) {
+            $criterionarray[] = $criterion->criterion;
         }
         $criteriaids = implode(",", $criterionarray);
         $levelssql = "SELECT * FROM {gradingform_rubric_levels} WHERE criterionid in ($criteriaids)";
         $levels = $DB->get_records_sql($levelssql);
         $levelsarray = array();
-        foreach ($levels as $level) {
-            $levelsarray [] = $level->id;
+        foreach($levels as $level) {
+            $levelsarray[] = $level->id;
         }
         $levelids = implode(",", $levelsarray);
     }
@@ -1340,15 +1458,14 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
     if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
         $sqlemarkingtype = "AND d.teacher = $USER->id";
     }
-    $sortsql = ($emarking->anonymous < 2 && ! $issupervisor) ? " d.sort ASC" : " u.lastname ASC";
+    $sortsql = ($emarking->anonymous < 2 && !$issupervisor) ? " d.sort ASC" : " u.lastname ASC";
     $criteriafilter = $levelids == 0 ? "" : " AND d.id NOT IN (SELECT d.id
 	FROM {emarking_draft} as d
 	INNER JOIN {emarking_submission} AS s ON (s.id = d.submissionid AND s.emarking = $emarking->id)
 	INNER JOIN {emarking_page} as p ON (d.status < 20 AND p.submission = s.id)
 	INNER JOIN {emarking_comment} as c ON (c.page = p.id AND c.draft = d.id AND c.levelid IN ($levelids))
 	GROUP BY d.id)";
-    $sortfilter = ($emarking->anonymous < EMARKING_ANON_NONE && ! $issupervisor) ?
-        " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
+    $sortfilter = ($emarking->anonymous < EMARKING_ANON_NONE && !$issupervisor) ? " AND d.sort > $draft->sort" : " AND u.lastname > '$student->lastname'";
     $basesql = "SELECT d.id, d.status, d.sort, COUNT(rg.id) as regrades
 			FROM {emarking_draft} AS d
             INNER JOIN {emarking_submission} AS s ON (d.submissionid = s.id $sqlemarkingtype)
@@ -1361,14 +1478,13 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
 	GROUP BY d.id
 	ORDER BY $sortsql";
     // Gets the next submission id, limits start from 0 and get a total of 1.
-    $nextsubmissions = $DB->get_records_sql($sql,
-            array(
-                'emarkingid' => $emarking->id,
-                'draftid' => $draft->id));
+    $nextsubmissions = $DB->get_records_sql($sql, array(
+        'emarkingid' => $emarking->id,
+        'draftid' => $draft->id
+    ));
     $id = 0;
-    foreach ($nextsubmissions as $nextsubmission) {
-        if ($nextsubmission->status < EMARKING_STATUS_PUBLISHED ||
-                 ($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
+    foreach($nextsubmissions as $nextsubmission) {
+        if ($nextsubmission->status < EMARKING_STATUS_PUBLISHED || ($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
             $id = $nextsubmission->id;
             break;
         }
@@ -1379,13 +1495,12 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
 		$criteriafilter
 		GROUP BY d.id
 		ORDER BY $sortsql";
-        $nextsubmissions = $DB->get_records_sql($sql,
-                array(
-                    'emarkingid' => $emarking->id,
-                    'draftid' => $draft->id));
-        foreach ($nextsubmissions as $nextsubmission) {
-            if ($nextsubmission->status < EMARKING_STATUS_PUBLISHED ||
-                     ($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
+        $nextsubmissions = $DB->get_records_sql($sql, array(
+            'emarkingid' => $emarking->id,
+            'draftid' => $draft->id
+        ));
+        foreach($nextsubmissions as $nextsubmission) {
+            if ($nextsubmission->status < EMARKING_STATUS_PUBLISHED || ($nextsubmission->status >= EMARKING_STATUS_PUBLISHED && $nextsubmission->regrades > 0)) {
                 $id = $nextsubmission->id;
                 break;
             }
@@ -1393,43 +1508,43 @@ function emarking_get_next_submission($emarking, $draft, $context, $student, $is
     }
     return $id;
 }
+
 /**
  * This function gets a page to display on the eMarking interface using the page number, user id and emarking id
  *
- * @param unknown $pageno
- * @param unknown $submission
- * @param string $anonymous
- * @param unknown $contextid
+ * @param unknown $pageno            
+ * @param unknown $submission            
+ * @param string $anonymous            
+ * @param unknown $contextid            
  * @return multitype:NULL number |multitype:unknown string NULL Ambigous <unknown, NULL>
  */
 function emarking_rotate_image($pageno, $submission, $context) {
     global $CFG, $DB;
     ini_set('memory_limit', '256M');
     // If the page does not exist return false.
-    if (! $page = $DB->get_record('emarking_page',
-            array(
-                'submission' => $submission->id,
-                'student' => $submission->student,
-                'page' => $pageno))) {
+    if (!$page = $DB->get_record('emarking_page', array(
+        'submission' => $submission->id,
+        'student' => $submission->student,
+        'page' => $pageno
+    ))) {
         return false;
     }
-    if (! $student = $DB->get_record('user', array(
-        'id' => $submission->student))) {
+    if (!$student = $DB->get_record('user', array(
+        'id' => $submission->student
+    ))) {
         return false;
     }
     // Now get the file from the Moodle storage.
     $fs = get_file_storage();
-    if (! $file = $fs->get_file_by_id($page->file)) {
-        print_error(
-                'Attempting to display image for non-existant submission ' . $context->id . "_" . $submission->emarkingid . "_" .
-                         $pagefilename);
+    if (!$file = $fs->get_file_by_id($page->file)) {
+        print_error('Attempting to display image for non-existant submission ' . $context->id . "_" . $submission->emarkingid . "_" . $pagefilename);
     }
     // Si el archivo es una imagen.
     if ($imageinfo = $file->get_imageinfo()) {
         $tmppath = $file->copy_content_to_temp('emarking', 'rotate');
         $image = imagecreatefrompng($tmppath);
         $image = imagerotate($image, 180, 0);
-        if (! imagepng($image, $tmppath . '.png')) {
+        if (!imagepng($image, $tmppath . '.png')) {
             return false;
         }
         clearstatcache();
@@ -1447,18 +1562,17 @@ function emarking_rotate_image($pageno, $submission, $context) {
             'timemodified' => time(),
             'userid' => $student->id,
             'author' => $student->firstname . ' ' . $student->lastname,
-            'license' => 'allrightsreserved');
-        if (! $fileanonymous = $fs->get_file_by_id($page->fileanonymous)) {
-            print_error(
-                    'Attempting to display image for non-existant submission ' . $context->id . "_" . $submission->emarkingid .
-                    "_" . $pagefilename);
+            'license' => 'allrightsreserved'
+        );
+        if (!$fileanonymous = $fs->get_file_by_id($page->fileanonymous)) {
+            print_error('Attempting to display image for non-existant submission ' . $context->id . "_" . $submission->emarkingid . "_" . $pagefilename);
         }
         $size = getimagesize($tmppath . '.png');
         $image = imagecreatefrompng($tmppath . '.png');
         $white = imagecolorallocate($image, 255, 255, 255);
-        $y2 = round($size [1] / 10, 0);
-        imagefilledrectangle($image, 0, 0, $size [0], $y2, $white);
-        if (! imagepng($image, $tmppath . '_a.png')) {
+        $y2 = round($size[1] / 10, 0);
+        imagefilledrectangle($image, 0, 0, $size[0], $y2, $white);
+        if (!imagepng($image, $tmppath . '_a.png')) {
             return false;
         }
         clearstatcache();
@@ -1476,7 +1590,8 @@ function emarking_rotate_image($pageno, $submission, $context) {
             'timemodified' => time(),
             'userid' => $student->id,
             'author' => $student->firstname . ' ' . $student->lastname,
-            'license' => 'allrightsreserved');
+            'license' => 'allrightsreserved'
+        );
         if ($fs->file_exists($context->id, 'mod_emarking', 'pages', $submission->emarking, '/', $filename)) {
             $file->delete();
         }
@@ -1488,73 +1603,76 @@ function emarking_rotate_image($pageno, $submission, $context) {
         $page->file = $fileinfo->get_id();
         $page->fileanonymous = $fileinfoanonymous->get_id();
         $DB->update_record('emarking_page', $page);
-        $imgurl = file_encode_url($CFG->wwwroot . '/pluginfile.php',
-                '/' . $context->id . '/mod_emarking/pages/' . $submission->emarking . '/' . $fileinfo->get_filename());
+        $imgurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarking . '/' . $fileinfo->get_filename());
         $imgurl .= "?r=" . random_string(15);
-        $imgurlanonymous = file_encode_url($CFG->wwwroot . '/pluginfile.php',
-                '/' . $context->id . '/mod_emarking/pages/' . $submission->emarking . '/' . $fileinfoanonymous->get_filename());
+        $imgurlanonymous = file_encode_url($CFG->wwwroot . '/pluginfile.php', '/' . $context->id . '/mod_emarking/pages/' . $submission->emarking . '/' . $fileinfoanonymous->get_filename());
         $imgurlanonymous .= "?r=" . random_string(15);
         return array(
             $imgurl,
             $imgurlanonymous,
-            $imageinfo ['width'],
-            $imageinfo ['height']);
+            $imageinfo['width'],
+            $imageinfo['height']
+        );
     }
     return false;
 }
+
 function emarking_rotate_image_file($fileid) {
     // Now get the file from the Moodle storage.
     $fs = get_file_storage();
-    if (! $file = $fs->get_file_by_id($fileid)) {
+    if (!$file = $fs->get_file_by_id($fileid)) {
         print_error('Invalid file to rotate');
     }
     // Si el archivo es una imagen.
     if (!$imageinfo = $file->get_imageinfo()) {
         print_error('File is not an image');
     }
-        $tmppath = $file->copy_content_to_temp('emarking', 'rotate');
-        $image = imagecreatefrompng($tmppath);
-        $image = imagerotate($image, 180, 0);
-        if (! imagepng($image, $tmppath . '.png')) {
-            return false;
-        }
-        clearstatcache();
-        // Copy file from temp folder to Moodle's filesystem.
-        $filerecord = array(
-            'contextid' => $file->get_contextid(),
-            'component' => $file->get_component(),
-            'filearea' => 'tmp',
-            'itemid' => $file->get_itemid(),
-            'filepath' => $file->get_filepath(),
-            'filename' => $file->get_filename(),
-            'timecreated' => $file->get_timecreated(),
-            'timemodified' => time(),
-            'userid' => $file->get_userid(),
-            'author' => $file->get_author(),
-            'license' => $file->get_author());
-        $newfile = $fs->create_file_from_pathname($filerecord, $tmppath.'.png');
-        $file->replace_file_with($newfile);
-        $newfile->delete();
-        
-        return $tmppath . '.png';
+    $tmppath = $file->copy_content_to_temp('emarking', 'rotate');
+    $image = imagecreatefrompng($tmppath);
+    $image = imagerotate($image, 180, 0);
+    if (!imagepng($image, $tmppath . '.png')) {
+        return false;
+    }
+    clearstatcache();
+    // Copy file from temp folder to Moodle's filesystem.
+    $filerecord = array(
+        'contextid' => $file->get_contextid(),
+        'component' => $file->get_component(),
+        'filearea' => 'tmp',
+        'itemid' => $file->get_itemid(),
+        'filepath' => $file->get_filepath(),
+        'filename' => $file->get_filename(),
+        'timecreated' => $file->get_timecreated(),
+        'timemodified' => time(),
+        'userid' => $file->get_userid(),
+        'author' => $file->get_author(),
+        'license' => $file->get_author()
+    );
+    $newfile = $fs->create_file_from_pathname($filerecord, $tmppath . '.png');
+    $file->replace_file_with($newfile);
+    $newfile->delete();
+    
+    return $tmppath . '.png';
 }
+
 /**
- * Validates that there is a rubric set for the emarking activity. If there
+ * Validates that there is a rubric set for the emarking activity.
+ * If there
  * isn't it shows a message and optionally buttons to create or import a rubric.
  * Optionally it will stop the page processing if no rubric is present.
- * 
+ *
  * @param context $context
  *            emarking context
  * @param boolean $die
  *            die if there is no rubric
  * @param boolean $showrubricbuttons
- * 			  show buttons to create and import rubric
+ *            show buttons to create and import rubric
  * @return multitype:unknown list($gradingmanager, $gradingmethod, $definition,
- * 								  $rubriccontroller)
+ *         $rubriccontroller)
  */
 function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
     global $OUTPUT, $CFG, $COURSE;
-    require_once($CFG->dirroot . '/grade/grading/lib.php');
+    require_once ($CFG->dirroot . '/grade/grading/lib.php');
     // Get rubric instance.
     $gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
     $gradingmethod = $gradingmanager->get_active_method();
@@ -1568,17 +1686,16 @@ function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
     $definition = $rubriccontroller->get_definition();
     $managerubricurl = $gradingmanager->get_management_url();
     $importrubricurl = new moodle_url("/mod/emarking/marking/importrubric.php", array(
-        "id" => $context->instanceid));
+        "id" => $context->instanceid
+    ));
     // Validate that activity has a rubric ready.
-    if ($gradingmethod !== 'rubric' || ! $definition || $definition == null) {
+    if ($gradingmethod !== 'rubric' || !$definition || $definition == null) {
         if ($showrubricbuttons) {
             echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
             if (has_capability("mod/emarking:addinstance", $context)) {
                 echo "<table>";
-                echo "<tr><td>" . $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'), "GET") .
-                         "</td>";
-                echo "<td>" . $OUTPUT->single_button($importrubricurl, get_string('importrubric', 'mod_emarking'), "GET") .
-                         "</td></tr>";
+                echo "<tr><td>" . $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'), "GET") . "</td>";
+                echo "<td>" . $OUTPUT->single_button($importrubricurl, get_string('importrubric', 'mod_emarking'), "GET") . "</td></tr>";
                 echo "</table>";
             }
         }
@@ -1599,12 +1716,14 @@ function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
         $gradingmanager,
         $gradingmethod,
         $definition,
-        $rubriccontroller);
+        $rubriccontroller
+    );
 }
+
 /**
  * Outputs a json string based on a json array
  *
- * @param unknown $jsonoutput
+ * @param unknown $jsonoutput            
  */
 function emarking_json_output($jsonoutput) {
     global $OUTPUT;
@@ -1620,115 +1739,127 @@ function emarking_json_output($jsonoutput) {
     echo $jsonoutput;
     die();
 }
+
 /**
  * Returns a json string for a resultset
  *
- * @param unknown $resultset
+ * @param unknown $resultset            
  */
 function emarking_json_resultset($resultset) {
     // Verify that parameters are OK. Resultset should not be null.
-    if (! is_array($resultset) && ! $resultset) {
+    if (!is_array($resultset) && !$resultset) {
         emarking_json_error('Invalid parameters for encoding json. Results are null.');
     }
     // First check if results contain data.
     if (is_array($resultset)) {
         $output = array(
             'error' => '',
-            'values' => array_values($resultset));
+            'values' => array_values($resultset)
+        );
         emarking_json_output(json_encode($output));
     } else {
         $output = array(
             'error' => '',
-            'values' => $resultset);
+            'values' => $resultset
+        );
         emarking_json_output(json_encode($resultset));
     }
 }
+
 /**
  * Returns a json array
  *
- * @param unknown $output
+ * @param unknown $output            
  */
 function emarking_json_array($output) {
     // Verify that parameter is OK. Output should not be null.
-    if (! $output) {
+    if (!$output) {
         emarking_json_error('Invalid parameters for encoding json. output is null.');
     }
     $output = array(
         'error' => '',
-        'values' => $output);
+        'values' => $output
+    );
     emarking_json_output(json_encode($output));
 }
+
 /**
  * Returns a json string for an error
  *
- * @param unknown $message
- * @param string $values
+ * @param unknown $message            
+ * @param string $values            
  */
 function emarking_json_error($message, $values = null) {
     $output = array(
         'error' => $message,
-        'values' => $values);
+        'values' => $values
+    );
     emarking_json_output(json_encode($output));
 }
+
 /**
  * This function return if the emarking activity accepts
  * regrade requests at the current time.
  *
- * @param unknown $emarking
+ * @param unknown $emarking            
  * @return boolean
  */
 function emarking_is_regrade_requests_allowed($emarking) {
     $requestswithindate = false;
-    if (! $emarking->regraderestrictdates) {
+    if (!$emarking->regraderestrictdates) {
         $requestswithindate = true;
-    } else if ($emarking->regradesopendate < time() && $emarking->regradesclosedate > time()) {
-        $requestswithindate = true;
-    }
+    } else 
+        if ($emarking->regradesopendate < time() && $emarking->regradesclosedate > time()) {
+            $requestswithindate = true;
+        }
     return $requestswithindate;
 }
+
 /**
  * Obtains all categories that are children to a specific one
  *
- * @param unknown $idcategory
+ * @param unknown $idcategory            
  * @return Ambigous <string, unknown>
  */
 function emarking_get_categories_childs($idcategory) {
     $coursecat = coursecat::get($idcategory);
     $ids = array();
-    $ids [] = $idcategory;
-    foreach ($coursecat->get_children() as $id => $childcategory) {
-        $ids [] = $id;
+    $ids[] = $idcategory;
+    foreach($coursecat->get_children() as $id => $childcategory) {
+        $ids[] = $id;
     }
     return $ids;
 }
+
 /**
  * When a user is unenrolled from a course, we set all her submissions
  * to ABSENT state, so they are not considered in reports and remain
  * hidden from the interfaces until the user is enroled again.
  *
- * @param unknown $userid
- * @param unknown $courseid
+ * @param unknown $userid            
+ * @param unknown $courseid            
  */
 function emarking_unenrol_student($userid, $courseid) {
     global $DB;
-    if (! $emarkingactivities = $DB->get_records('emarking', array(
-        'course' => $courseid))) {
+    if (!$emarkingactivities = $DB->get_records('emarking', array(
+        'course' => $courseid
+    ))) {
         // Nothing to do as there are no emarking activities in the course.
         return true;
     }
-    foreach ($emarkingactivities as $emarking) {
-        $submission = $DB->get_record('emarking_submission',
-                array(
-                    'emarking' => $emarking->id,
-                    'student' => $userid));
-        if (! $submission) {
+    foreach($emarkingactivities as $emarking) {
+        $submission = $DB->get_record('emarking_submission', array(
+            'emarking' => $emarking->id,
+            'student' => $userid
+        ));
+        if (!$submission) {
             // The student has no submissions in this emarking activity. Skip her.
             continue;
         }
         // As the submission exists, we update all drafts to ABSENT.
-        $DB->set_field('emarking_draft', 'status', EMARKING_STATUS_ABSENT,
-                array(
-                    'submissionid' => $submission->id));
+        $DB->set_field('emarking_draft', 'status', EMARKING_STATUS_ABSENT, array(
+            'submissionid' => $submission->id
+        ));
         $submission->status = EMARKING_STATUS_ABSENT;
         if ($DB->update_record('emarking_submission', $submission)) {
             error_log('Done!');
@@ -1738,45 +1869,40 @@ function emarking_unenrol_student($userid, $courseid) {
     }
     return true;
 }
+
 /**
  * Creates a draft status information in HTML format
  *
- * @param unknown $draftid
- * @param unknown $status
- * @param unknown $qc
- * @param unknown $criteriaids
- * @param unknown $criteriascores
- * @param unknown $comments
- * @param unknown $pctmarked
- * @param unknown $pctmarkeduser
- * @param unknown $regrades
- * @param unknown $pages
- * @param unknown $numcriteria
- * @param unknown $numcriteriauser
- * @param unknown $emarking
+ * @param unknown $draftid            
+ * @param unknown $status            
+ * @param unknown $qc            
+ * @param unknown $criteriaids            
+ * @param unknown $criteriascores            
+ * @param unknown $comments            
+ * @param unknown $pctmarked            
+ * @param unknown $pctmarkeduser            
+ * @param unknown $regrades            
+ * @param unknown $pages            
+ * @param unknown $numcriteria            
+ * @param unknown $numcriteriauser            
+ * @param unknown $emarking            
  * @return string
  */
 function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria) {
     global $OUTPUT;
-    if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
         $missingpagesmessage = '';
     } else {
-    // Add warning icon if there are missing pages in draft.
-    $totalpages = $exam->usebackside == 0 ? $exam->totalpages :
-    	$exam->totalpages * 2;
-    $missingpages = $totalpages > 0 && $totalpages > $d->pages &&
-    	$d->status > EMARKING_STATUS_MISSING;
-    $missingpagesmessage = $missingpages ?
-    		$OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'))
-    		: '';
+        // Add warning icon if there are missing pages in draft.
+        $totalpages = $exam->usebackside == 0 ? $exam->totalpages : $exam->totalpages * 2;
+        $missingpages = $totalpages > 0 && $totalpages > $d->pages && $d->status > EMARKING_STATUS_MISSING;
+        $missingpagesmessage = $missingpages ? $OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking')) : '';
     }
     // If the draft is published or the student was absent just show the icon.
-    if ($d->status <= EMARKING_STATUS_ABSENT || $d->status == EMARKING_STATUS_PUBLISHED ||
-             ($d->status == EMARKING_STATUS_GRADING && $d->pctmarked == 100)) {
+    if ($d->status <= EMARKING_STATUS_ABSENT || $d->status == EMARKING_STATUS_PUBLISHED || ($d->status == EMARKING_STATUS_GRADING && $d->pctmarked == 100)) {
         return emarking_get_draft_status_icon($d->status, $emarking->type != EMARKING_TYPE_MARKER_TRAINING, 100) . $missingpagesmessage;
     }
-    if (($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
-             ($d->status == EMARKING_STATUS_GRADING || $d->status == EMARKING_STATUS_SUBMITTED)) {
+    if (($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) && ($d->status == EMARKING_STATUS_GRADING || $d->status == EMARKING_STATUS_SUBMITTED)) {
         // Completion matrix.
         $matrix = '';
         $markedcriteria = explode(",", $d->criteriaids);
@@ -1784,13 +1910,12 @@ function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriause
         if (count($markedcriteria) > 0 && $numcriteria > 0) {
             $matrix = "<div id='sub-$d->id' style='display:none;'>
             <table width='100%'>";
-            $matrix .= "<tr><th>" . get_string('criterion', 'mod_emarking') . "</th><th style='text-align:center'>" .
-                     get_string('corrected', 'mod_emarking') . "</th></tr>";
-            foreach ($rubriccriteria->rubric_criteria as $criterion) {
-                $matrix .= "<tr><td>" . $criterion ['description'] . "</td><td style='text-align:center'>";
-                $key = array_search($criterion ['id'], $markedcriteria);
+            $matrix .= "<tr><th>" . get_string('criterion', 'mod_emarking') . "</th><th style='text-align:center'>" . get_string('corrected', 'mod_emarking') . "</th></tr>";
+            foreach($rubriccriteria->rubric_criteria as $criterion) {
+                $matrix .= "<tr><td>" . $criterion['description'] . "</td><td style='text-align:center'>";
+                $key = array_search($criterion['id'], $markedcriteria);
                 if ($key !== false) {
-                    $matrix .= $OUTPUT->pix_icon('i/completion-manual-y', round($markedcriteriascores [$key], 1) . "pts");
+                    $matrix .= $OUTPUT->pix_icon('i/completion-manual-y', round($markedcriteriascores[$key], 1) . "pts");
                 } else {
                     $matrix .= $OUTPUT->pix_icon('i/completion-manual-n', null);
                 }
@@ -1798,19 +1923,11 @@ function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriause
             }
             $matrix .= "</table></div>";
         }
-        $pct = round($d->pctmarked,0);
+        $pct = round($d->pctmarked, 0);
         $matrixlink = html_writer::start_div();
-        $matrixlink .= emarking_get_progress_circle(
-        		$d->pctmarked,
-        		'green',
-        		'onclick=\'$("#sub-'.$d->id.'").dialog({modal:true,buttons:{Ok: function(){$(this).dialog("close");}}});\'',
-        		get_string('marking_progress', 'mod_emarking')). $matrix;
-        if($numcriteriauser > 0) {
-        $matrixlink .= emarking_get_progress_circle(
-        		$d->pctmarkeduser,
-        		'orange',
-        		'',
-        		get_string('yourcontribution', 'mod_emarking'));
+        $matrixlink .= emarking_get_progress_circle($d->pctmarked, 'green', 'onclick=\'$("#sub-' . $d->id . '").dialog({modal:true,buttons:{Ok: function(){$(this).dialog("close");}}});\'', get_string('marking_progress', 'mod_emarking')) . $matrix;
+        if ($numcriteriauser > 0) {
+            $matrixlink .= emarking_get_progress_circle($d->pctmarkeduser, 'orange', '', get_string('yourcontribution', 'mod_emarking'));
         }
         $matrixlink .= html_writer::end_div();
         return $matrixlink . $missingpagesmessage;
@@ -1818,132 +1935,139 @@ function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriause
     if ($d->status == EMARKING_STATUS_REGRADING) {
         // Percentage of criteria already marked for this draft.
         $pctmarkedtitle = ($numcriteria - $d->comments) . " pending criteria";
-        $matrixlink = "" . ($numcriteriauser > 0 ? $d->pctmarkeduser . "% / " : '') . $d->pctmarked . "%" .
-                 ($d->regrades > 0 ? '<br/>' . $d->regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');
+        $matrixlink = "" . ($numcriteriauser > 0 ? $d->pctmarkeduser . "% / " : '') . $d->pctmarked . "%" . ($d->regrades > 0 ? '<br/>' . $d->regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');
     }
-    $statushtml = $d->qc == 0 ? emarking_get_draft_status_icon($d->status, $emarking->type != EMARKING_TYPE_MARKER_TRAINING) : $OUTPUT->pix_icon('i/completion-auto-y',
-            get_string("qualitycontrol", "mod_emarking"));
+    $statushtml = $d->qc == 0 ? emarking_get_draft_status_icon($d->status, $emarking->type != EMARKING_TYPE_MARKER_TRAINING) : $OUTPUT->pix_icon('i/completion-auto-y', get_string("qualitycontrol", "mod_emarking"));
     return $statushtml . $missingpagesmessage;
 }
+
 function emarking_get_category_cost($courseid) {
     global $DB, $CFG;
-    $course = $DB->get_record('course', array('id' => $courseid), 'id, category');
+    $course = $DB->get_record('course', array(
+        'id' => $courseid
+    ), 'id, category');
     $coursecategory = $course->category;
     $categorycost = null;
     $noinfloop = 0;
-    while ( $categorycost == null || $categorycost == 0 ) {
-        $categorycostparams = array($coursecategory);
+    while ($categorycost == null || $categorycost == 0) {
+        $categorycostparams = array(
+            $coursecategory
+        );
         $sqlcategorycost = "SELECT cc.id, cc.name as name, ccc.printingcost AS cost, cc.parent as parent
         			  FROM mdl_course_categories as cc
 			          LEFT JOIN mdl_emarking_category_cost AS ccc ON (cc.id = ccc.category)
         			  WHERE cc.id = ?";
         if ($categorycosts = $DB->get_records_sql($sqlcategorycost, $categorycostparams)) {
-            foreach ($categorycosts as $cost) {
-            	
+            foreach($categorycosts as $cost) {
+                
                 if ($cost->cost == null || $cost->cost == 0) {
                     $coursecategory = $cost->parent;
-                    $noinfloop ++;
-                }else{
-                	$categorycost = $cost->cost;
-                	return $categorycost;
-                }if ($cost->parent == 0) {
+                    $noinfloop++;
+                } else {
+                    $categorycost = $cost->cost;
+                    return $categorycost;
+                }
+                if ($cost->parent == 0) {
                     $categorycost = $CFG->emarking_defaultcost;
                     return $categorycost;
                 }
-              
             }
         }
     }
 }
+
 function emarking_get_progress_circle($progress, $color = '', $onclick = '', $title = '') {
-	$pct = round($progress, 0);
-	if($pct < 50) {
-	    $color = '';
-	} else if($pct < 80) {
-	    $color = 'orange';
-	} else {
-	    $color = 'green';
-	}
-	$matrixlink = '<div style="cursor:pointer;" class="c100 p'.$pct.' small '.$color.'" '.$onclick.' title="'.$title.'">
-                    <span>'.$pct.'%</span>
+    $pct = round($progress, 0);
+    if ($pct < 50) {
+        $color = '';
+    } else 
+        if ($pct < 80) {
+            $color = 'orange';
+        } else {
+            $color = 'green';
+        }
+    $matrixlink = '<div style="cursor:pointer;" class="c100 p' . $pct . ' small ' . $color . '" ' . $onclick . ' title="' . $title . '">
+                    <span>' . $pct . '%</span>
                     <div class="slice">
                         <div class="bar"></div>
                         <div class="fill"></div>
                     </div>
                 </div>';
-	return $matrixlink;
+    return $matrixlink;
 }
+
 /**
  * Shows the export buttons for the current page.
- * @param unknown $issupervisor
- * @param unknown $rubriccriteria
- * @param unknown $cm
- * @param unknown $emarking
- * @param unknown $numdraftsgrading
+ * 
+ * @param unknown $issupervisor            
+ * @param unknown $rubriccriteria            
+ * @param unknown $cm            
+ * @param unknown $emarking            
+ * @param unknown $numdraftsgrading            
  */
 function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading) {
     global $OUTPUT;
-        if($emarking->type == EMARKING_TYPE_MARKER_TRAINING ||
-            $emarking->type == EMARKING_TYPE_PEER_REVIEW ||
-            $emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {
-        } else {
-            echo $OUTPUT->heading(get_string('students'), 4);
-        }
-        echo html_writer::start_div('exportbuttons');
-        if ($numdraftsgrading > 1 && $emarking->type != EMARKING_TYPE_MARKER_TRAINING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
-            echo html_writer::tag("input", null, array(
-                "id" => "searchInput",
-                'value' => get_string("filter")
-            ));
-        }
-        // Show export to Excel button if supervisor and there are students to export.
-        echo "<table style='float:right;'><tr><td>";
-        if ($issupervisor && $rubriccriteria) {
-            if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-                $csvurl = new moodle_url('view.php', array(
-                    'id' => $cm->id,
-                    'exportcsv' => 'grades'
-                ));
-                echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
-                echo "</td><td>";
-                $csvurl = new moodle_url('view.php', array(
-                    'id' => $cm->id,
-                    'enrolment' => 'true'
-                ));
-                echo $OUTPUT->single_button($csvurl, get_string('showunenrolled', 'mod_emarking'), 'GET');
-                echo "</td><td>";
-            }
-        }
-        // Show export to Excel button if supervisor and there are students to export.
-        if ($issupervisor && $emarking->type == EMARKING_TYPE_PEER_REVIEW && $numdraftsgrading == 0) {
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW || $emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {} else {
+        echo $OUTPUT->heading(get_string('students'), 4);
+    }
+    echo html_writer::start_div('exportbuttons');
+    if ($numdraftsgrading > 1 && $emarking->type != EMARKING_TYPE_MARKER_TRAINING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
+        echo html_writer::tag("input", null, array(
+            "id" => "searchInput",
+            'value' => get_string("filter")
+        ));
+    }
+    // Show export to Excel button if supervisor and there are students to export.
+    echo "<table style='float:right;'><tr><td>";
+    if ($issupervisor && $rubriccriteria) {
+        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
             $csvurl = new moodle_url('view.php', array(
                 'id' => $cm->id,
-                'reassignpeers' => 'true'
+                'exportcsv' => 'grades'
             ));
-            echo $OUTPUT->single_button($csvurl, get_string('reassignpeers', 'mod_emarking'));
-                echo "</td><td>";
-        }
-        // Show export to Excel button if supervisor and there are students to export.
-        if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
-            $csvurl = new moodle_url('delphi.php', array(
+            echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+            echo "</td><td>";
+            $csvurl = new moodle_url('view.php', array(
                 'id' => $cm->id,
-                'exportcsv' => 'delphi'));
-            $csvurlagreement = new moodle_url('delphi.php',
-                array(
-                    'id' => $cm->id,
-                    'exportcsv' => 'agreement'));
-                echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
-                echo "</td><td>";
-                echo $OUTPUT->single_button($csvurlagreement, get_string('exportagreement', 'mod_emarking'));
+                'enrolment' => 'true'
+            ));
+            echo $OUTPUT->single_button($csvurl, get_string('showunenrolled', 'mod_emarking'), 'GET');
+            echo "</td><td>";
         }
-        echo "</td></tr></table>";
-        echo html_writer::end_div();
+    }
+    // Show export to Excel button if supervisor and there are students to export.
+    if ($issupervisor && $emarking->type == EMARKING_TYPE_PEER_REVIEW && $numdraftsgrading == 0) {
+        $csvurl = new moodle_url('view.php', array(
+            'id' => $cm->id,
+            'reassignpeers' => 'true'
+        ));
+        echo $OUTPUT->single_button($csvurl, get_string('reassignpeers', 'mod_emarking'));
+        echo "</td><td>";
+    }
+    // Show export to Excel button if supervisor and there are students to export.
+    if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+        $csvurl = new moodle_url('delphi.php', array(
+            'id' => $cm->id,
+            'exportcsv' => 'delphi'
+        ));
+        $csvurlagreement = new moodle_url('delphi.php', array(
+            'id' => $cm->id,
+            'exportcsv' => 'agreement'
+        ));
+        echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+        echo "</td><td>";
+        echo $OUTPUT->single_button($csvurlagreement, get_string('exportagreement', 'mod_emarking'));
+    }
+    echo "</td></tr></table>";
+    echo html_writer::end_div();
 }
+
 /**
  * Counts the number of drafts and drafts already grading for an EMarking
  * activity filtered by the user permissions.
- * @param unknown $emarking
- * @param unknown $issupervisor
+ * 
+ * @param unknown $emarking            
+ * @param unknown $issupervisor            
  * @return array numdrafts, numdraftsgrading
  */
 function emarking_get_drafts_per_status($emarking, $issupervisor) {
@@ -1964,7 +2088,7 @@ function emarking_get_drafts_per_status($emarking, $issupervisor) {
     if (!is_siteadmin($USER) && !$issupervisor) {
         if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
             $sqlisadmin = " AND d.teacher =:currentuser";
-        } else
+        } else 
             if ($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
                 $sqlisadmin = " AND (d.teacher =:currentuser OR s.student = $USER->id)";
             }
@@ -1978,12 +2102,17 @@ function emarking_get_drafts_per_status($emarking, $issupervisor) {
         "emarking" => $emarking->id,
         "currentuser" => $USER->id
     ));
-
-    return array($numdrafts, $numdraftsgrading);
+    
+    return array(
+        $numdrafts,
+        $numdraftsgrading
+    );
 }
+
 /**
  * Shows the list of markers with permissions on this activity.
- * @param unknown $context
+ * 
+ * @param unknown $context            
  */
 function emarking_markers_online($context) {
     global $OUTPUT;
@@ -1994,9 +2123,11 @@ function emarking_markers_online($context) {
     }
     echo html_writer::end_div();
 }
+
 /**
  * Shows a link to the orphan pages interface when there are orphan pages for this activity.
- * @param unknown $context
+ * 
+ * @param unknown $context            
  */
 function emarking_show_orphan_pages_link($context) {
     $orphanpages = emarking_get_digitized_answer_orphan_pages($context);

@@ -124,6 +124,12 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     if ($data->type == EMARKING_TYPE_MARKER_TRAINING || ! $mform) {
         return $id;
     }
+    if ($data->type == EMARKING_TYPE_PEER_REVIEW && isset($data->importemarking) && $data->importemarking > 0) {
+        $data->parent = $data->importemarking;
+        $data->copiedfromparent = 0;
+        $DB->update_record('emarking', $data);
+        return $id;
+    }
     foreach ($data as $k => $v) {
         $parts = explode('-', $k);
         if (count($parts) > 1 && $parts [0] === 'marker') {
@@ -139,16 +145,12 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     $examid = 0;
     // If there's no previous exam to associate, and we are creating a new
     // EMarking, we need the PDF file.
-    if ($data->exam == 0 && (!isset($data->importemarking) || $data->importemarking == 0)) {
+    if ($data->exam == 0) {
         $examfiles = emarking_validate_exam_files_from_draft();
         if(count($examfiles) == 0) {
             throw new Exception('Invalid PDF exam files');
         }
         $numpages = $examfiles[0]['numpages'];
-    } else if ($data->exam == 0 && isset($data->importemarking) && $data->importemarking > 0) {
-        $data->parent = $data->importemarking;
-        $data->copiedfromparent = 0;
-        $DB->update_record('emarking', $data);
     } else {
         $examid = $data->exam;
     }
