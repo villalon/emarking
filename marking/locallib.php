@@ -323,6 +323,10 @@ function emarking_publish_grade($draft) {
         $draft->status = EMARKING_STATUS_PUBLISHED;
     }
     $draft->timemodified = time();
+    if($draft->timefirstpublished == null){
+    	 $draft->timefirstpublished = time();
+    }
+    $draft->timelastpublished = time();
     $DB->update_record('emarking_draft', $draft);
     $submission->status = $draft->status;
     $submission->timemodified = $draft->timemodified;
@@ -330,6 +334,7 @@ function emarking_publish_grade($draft) {
     $submission->grade = $draft->grade;
     $submission->teacher = $draft->teacher;
     return $DB->update_record('emarking_submission', $submission);
+    
 }
 /**
  * Exports all grades and scores in an exam in Excel format

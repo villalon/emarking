@@ -67,6 +67,7 @@ if ($mform->get_data()) {
     $emarking->peervisibility = $mform->get_data()->peervisibility;
     $emarking->anonymous = $mform->get_data()->anonymous;
     $emarking->justiceperception = $mform->get_data()->justiceperception;
+    $emarking->keywords = $mform->get_data()->keywords;
     $emarking->linkrubric = isset($mform->get_data()->linkrubric) ? 1 : 0;
     $emarking->collaborativefeatures = isset($mform->get_data()->collaborativefeatures) ? 1 : 0;
     $emarking->custommarks = $mform->get_data()->custommarks;

@@ -36,24 +36,25 @@ class category_form extends moodleform {
 		$userid = $instance['0'];
 		$cid = $instance['1'];
 		
-		$teachercoursessql = "SELECT c.id AS course_id,
-				cc.name AS category_name,
-				c.shortname AS course_name,
+		$teachercoursessql = "SELECT c.id AS courseid,
+				cc.name AS categoryname,
+				c.shortname AS coursename,
 				CONCAT (u.firstname, ' ', u.lastname)AS name
-				FROM {user} u
-				INNER JOIN {role_assignments} ra ON (ra.userid = u.id AND u.id=?)
-				INNER JOIN {context} ct ON (ct.id = ra.contextid)
-				INNER JOIN {course} c ON (c.id = ct.instanceid)
-				INNER JOIN {course_categories} cc ON (cc.id = c.category)
-				INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname IN ('teacher', 'editingteacher', 'manager'))
-                GROUP BY course_id";
+				FROM {user} AS u
+				INNER JOIN {role_assignments} AS ra ON (ra.userid = u.id AND u.id=?)
+				INNER JOIN {context} AS ct ON (ct.id = ra.contextid)
+				INNER JOIN {course} AS c ON (c.id = ct.instanceid)
+				INNER JOIN {course_categories} AS cc ON (cc.id = c.category)
+				INNER JOIN {role} AS r ON (r.id = ra.roleid AND r.shortname IN ('teacher', 'editingteacher'))
+				INNER JOIN {emarking_exams} AS ee ON (ee.course = c.id)
+                GROUP BY courseid";
 		
 		$teachercourses = $DB->get_records_sql($teachercoursessql, array($USER->id));
 		
 		$categories = array('Seleccione');
 		foreach($teachercourses as $coursedata){
 			
-			$categories[$coursedata->category_name] = $coursedata->category_name;
+			$categories[$coursedata->categoryname] = $coursedata->categoryname;
  		}
 
 		$categories = array_unique($categories);
