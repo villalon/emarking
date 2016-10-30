@@ -85,6 +85,7 @@
 					NOTNULL="false" SEQUENCE="false" COMMENT="Emarking activity from where it was copied"/>
 				<FIELD NAME="copiedfromparent" TYPE="int" LENGTH="10"
 					NOTNULL="false" DEFAULT="0"  SEQUENCE="false" COMMENT="If the copy process from the parent finished"/>
+				<FIELD NAME="keywords" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="The keywords are use to create feedback."/>
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
@@ -237,6 +238,7 @@
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true"
 					DEFAULT="1" SEQUENCE="false" />
+				<FIELD NAME="feedback" TYPE="char" LENGTH="1000" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />

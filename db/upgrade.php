@@ -1486,7 +1486,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016100501, 'emarking');
     }
     
-    if ($oldversion < 2016103000) {
+    if ($oldversion < 2016103001) {
     
         // Define field answerkeyfile to be added to emarking.
         $table = new xmldb_table('emarking');
@@ -1513,8 +1513,25 @@ function xmldb_emarking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         
+            // Define field keywords to be added to emarking.
+            $field = new xmldb_field('keywords', XMLDB_TYPE_CHAR, '1000', null, null, null, null, 'digitizingnotified');
+        
+            // Conditionally launch add field keywords.
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        
+            // Define field feedback to be added to emarking_comment.
+            $table = new xmldb_table('emarking_comment');
+            $field = new xmldb_field('feedback', XMLDB_TYPE_CHAR, '1000', null, null, null, '0', 'status');
+        
+            // Conditionally launch add field feedback.
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        
         // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2016103000, 'emarking');
+        upgrade_mod_savepoint(true, 2016103001, 'emarking');
     }
     
     
