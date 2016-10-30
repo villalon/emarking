@@ -237,6 +237,40 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $ma
     return true;
 }
 /**
+ * Copies the submissions and drafts from a source emarking activity to a destination one
+ *
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ */
+function emarking_copy_submissions_drafts($emarkingsrc, $emarkingdst) {
+    global $DB, $OUTPUT;
+    $submissions = $DB->get_records('emarking_submission', array('emarking'=>$emarkingsrc->id));
+    foreach($submissions as $submission) {
+        $pages = $DB->get_records('emarking_page', array('submission'=>$submission->id));
+        $drafts = $DB->get_records('emarking_draft', array('submissionid'=>$submission->id));
+        unset($submission->id);
+        $submission->emarking = $emarkingdst->id;
+        $submission->status = min(EMARKING_STATUS_SUBMITTED, $submission->status);
+        $submission->grade = $emarkingsrc->grademin;
+        $submission->seenbystudent = 0;
+        $submission->answerkey = 0;
+        $submission->id = $DB->insert_record('emarking_submission', $submission);
+        foreach($pages as $page) {
+            unset($page->id);
+            $page->submission = $submission->id;
+            $page->id = $DB->insert_record('emarking_page', $page);
+        }
+        foreach($drafts as $draft) {
+            unset($draft->id);
+            $draft->submissionid = $submission->id;
+            $draft->status = EMARKING_STATUS_SUBMITTED;
+            $draft->grade = $emarkingsrc->grademin;
+            $draft->seenbystudent = 0;
+            $draft->id = $DB->insert_record('emarking_draft', $draft);
+        }
+    }
+}
+/**
  * Matches the rubrics from two emarking activities making sure it has the same
  * criteria (two criteria are equal if their description are equal).
  *
@@ -759,9 +793,13 @@ function emarking_tabs($context, $cm, $emarking) {
     if ($usercangrade) {
         // Print tab goes always except for markers training.
         if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
-                 $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
+                 $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             if (has_capability('mod/emarking:addinstance', $context)) {
-                $tabs [] = $printtab;
+                if(count($printtab->subtree) == 1) {
+                    $tabs [] = $printtab->subtree[0];
+                } else {
+                    $tabs [] = $printtab;
+                }
             }
         }
         // Scan or enablescan tab.
@@ -769,7 +807,7 @@ function emarking_tabs($context, $cm, $emarking) {
             $tabs [] = $scantab;
         }
         // OSM tabs, either marking, reports and settings or enable osm.
-        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
+        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             $tabs [] = $markingtab;
             $tabs [] = $gradereporttab;
             if($issupervisor) {
@@ -1720,6 +1758,9 @@ function emarking_unenrol_student($userid, $courseid) {
  */
 function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria) {
     global $OUTPUT;
+    if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+        $missingpagesmessage = '';
+    } else {
     // Add warning icon if there are missing pages in draft.
     $totalpages = $exam->usebackside == 0 ? $exam->totalpages :
     	$exam->totalpages * 2;
@@ -1728,10 +1769,11 @@ function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriause
     $missingpagesmessage = $missingpages ?
     		$OUTPUT->pix_icon('i/risk_xss', get_string('missingpages', 'mod_emarking'))
     		: '';
+    }
     // If the draft is published or the student was absent just show the icon.
     if ($d->status <= EMARKING_STATUS_ABSENT || $d->status == EMARKING_STATUS_PUBLISHED ||
              ($d->status == EMARKING_STATUS_GRADING && $d->pctmarked == 100)) {
-        return emarking_get_draft_status_icon($d->status, true, 100) . $missingpagesmessage;
+        return emarking_get_draft_status_icon($d->status, $emarking->type != EMARKING_TYPE_MARKER_TRAINING, 100) . $missingpagesmessage;
     }
     if (($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
              ($d->status == EMARKING_STATUS_GRADING || $d->status == EMARKING_STATUS_SUBMITTED)) {
@@ -1779,7 +1821,7 @@ function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriause
         $matrixlink = "" . ($numcriteriauser > 0 ? $d->pctmarkeduser . "% / " : '') . $d->pctmarked . "%" .
                  ($d->regrades > 0 ? '<br/>' . $d->regrades . ' ' . get_string('regradespending', 'mod_emarking') : '');
     }
-    $statushtml = $d->qc == 0 ? emarking_get_draft_status_icon($d->status, true) : $OUTPUT->pix_icon('i/completion-auto-y',
+    $statushtml = $d->qc == 0 ? emarking_get_draft_status_icon($d->status, $emarking->type != EMARKING_TYPE_MARKER_TRAINING) : $OUTPUT->pix_icon('i/completion-auto-y',
             get_string("qualitycontrol", "mod_emarking"));
     return $statushtml . $missingpagesmessage;
 }
@@ -1815,6 +1857,13 @@ function emarking_get_category_cost($courseid) {
 }
 function emarking_get_progress_circle($progress, $color = '', $onclick = '', $title = '') {
 	$pct = round($progress, 0);
+	if($pct < 50) {
+	    $color = '';
+	} else if($pct < 80) {
+	    $color = 'orange';
+	} else {
+	    $color = 'green';
+	}
 	$matrixlink = '<div style="cursor:pointer;" class="c100 p'.$pct.' small '.$color.'" '.$onclick.' title="'.$title.'">
                     <span>'.$pct.'%</span>
                     <div class="slice">
@@ -1823,4 +1872,139 @@ function emarking_get_progress_circle($progress, $color = '', $onclick = '', $ti
                     </div>
                 </div>';
 	return $matrixlink;
+}
+/**
+ * Shows the export buttons for the current page.
+ * @param unknown $issupervisor
+ * @param unknown $rubriccriteria
+ * @param unknown $cm
+ * @param unknown $emarking
+ * @param unknown $numdraftsgrading
+ */
+function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading) {
+    global $OUTPUT;
+        if($emarking->type == EMARKING_TYPE_MARKER_TRAINING ||
+            $emarking->type == EMARKING_TYPE_PEER_REVIEW ||
+            $emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {
+        } else {
+            echo $OUTPUT->heading(get_string('students'), 4);
+        }
+        echo html_writer::start_div('exportbuttons');
+        if ($numdraftsgrading > 1 && $emarking->type != EMARKING_TYPE_MARKER_TRAINING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
+            echo html_writer::tag("input", null, array(
+                "id" => "searchInput",
+                'value' => get_string("filter")
+            ));
+        }
+        // Show export to Excel button if supervisor and there are students to export.
+        echo "<table style='float:right;'><tr><td>";
+        if ($issupervisor && $rubriccriteria) {
+            if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
+                $csvurl = new moodle_url('view.php', array(
+                    'id' => $cm->id,
+                    'exportcsv' => 'grades'
+                ));
+                echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+                echo "</td><td>";
+                $csvurl = new moodle_url('view.php', array(
+                    'id' => $cm->id,
+                    'enrolment' => 'true'
+                ));
+                echo $OUTPUT->single_button($csvurl, get_string('showunenrolled', 'mod_emarking'), 'GET');
+                echo "</td><td>";
+            }
+        }
+        // Show export to Excel button if supervisor and there are students to export.
+        if ($issupervisor && $emarking->type == EMARKING_TYPE_PEER_REVIEW && $numdraftsgrading == 0) {
+            $csvurl = new moodle_url('view.php', array(
+                'id' => $cm->id,
+                'reassignpeers' => 'true'
+            ));
+            echo $OUTPUT->single_button($csvurl, get_string('reassignpeers', 'mod_emarking'));
+                echo "</td><td>";
+        }
+        // Show export to Excel button if supervisor and there are students to export.
+        if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+            $csvurl = new moodle_url('delphi.php', array(
+                'id' => $cm->id,
+                'exportcsv' => 'delphi'));
+            $csvurlagreement = new moodle_url('delphi.php',
+                array(
+                    'id' => $cm->id,
+                    'exportcsv' => 'agreement'));
+                echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+                echo "</td><td>";
+                echo $OUTPUT->single_button($csvurlagreement, get_string('exportagreement', 'mod_emarking'));
+        }
+        echo "</td></tr></table>";
+        echo html_writer::end_div();
+}
+/**
+ * Counts the number of drafts and drafts already grading for an EMarking
+ * activity filtered by the user permissions.
+ * @param unknown $emarking
+ * @param unknown $issupervisor
+ * @return array numdrafts, numdraftsgrading
+ */
+function emarking_get_drafts_per_status($emarking, $issupervisor) {
+    global $USER, $DB;
+    // We calculate the number of drafts in the activity and the number of those being graded.
+    $numdraftsgrading = 0;
+    // Check drafts being graded for reassigning peers.
+    $sqlnumdraftsgrading = "
+	    SELECT COUNT(DISTINCT d.id) AS numdrafts
+		FROM {emarking_draft} d
+		INNER JOIN {emarking_submission} s ON (s.emarking = :emarking AND d.submissionid = s.id)
+    	WHERE d.status >= " . EMARKING_STATUS_GRADING;
+    $numdraftsgrading = $DB->count_records_sql($sqlnumdraftsgrading, array(
+        "emarking" => $emarking->id
+    ));
+    $numdrafts = 0;
+    $sqlisadmin = "";
+    if (!is_siteadmin($USER) && !$issupervisor) {
+        if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+            $sqlisadmin = " AND d.teacher =:currentuser";
+        } else
+            if ($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+                $sqlisadmin = " AND (d.teacher =:currentuser OR s.student = $USER->id)";
+            }
+    }
+    $sqlnumdrafts = "
+    SELECT COUNT(DISTINCT d.id) AS numdrafts
+    FROM {emarking_draft} AS d
+    INNER JOIN {emarking_submission} AS s ON (s.emarking = :emarking AND d.submissionid = s.id $sqlisadmin)
+    ";
+    $numdrafts = $DB->count_records_sql($sqlnumdrafts, array(
+        "emarking" => $emarking->id,
+        "currentuser" => $USER->id
+    ));
+
+    return array($numdrafts, $numdraftsgrading);
+}
+/**
+ * Shows the list of markers with permissions on this activity.
+ * @param unknown $context
+ */
+function emarking_markers_online($context) {
+    global $OUTPUT;
+    $markers = get_enrolled_users($context, 'mod/emarking:grade', 0, '*');
+    echo html_writer::start_div('markers');
+    foreach($markers as $marker) {
+        echo $OUTPUT->user_picture($marker);
+    }
+    echo html_writer::end_div();
+}
+/**
+ * Shows a link to the orphan pages interface when there are orphan pages for this activity.
+ * @param unknown $context
+ */
+function emarking_show_orphan_pages_link($context) {
+    $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
+    $numorphanpages = count($orphanpages);
+    if ($numorphanpages > 0) {
+        $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array(
+            'id' => $cm->id
+        ));
+        echo $OUTPUT->action_link($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages));
+    }
 }

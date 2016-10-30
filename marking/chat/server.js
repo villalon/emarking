@@ -11,7 +11,7 @@ var moment = require('moment');
 
 // NodeJS configuration, this should be read from somewhere else probably.
 var port = 9091;
-var ipaddress = "127.0.0.1";
+var ipaddress = "0.0.0.0";
 
 console.log(logtime() + "Starting NodeJS for e-marking");
 

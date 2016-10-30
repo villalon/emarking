@@ -79,6 +79,12 @@
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="digitizingnotified" TYPE="int" LENGTH="10"
 					NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="answerkeyfile" TYPE="int" LENGTH="10"
+					NOTNULL="false" SEQUENCE="false" COMMENT="File of an answer key for guiding students and markers"/>
+				<FIELD NAME="parent" TYPE="int" LENGTH="10"
+					NOTNULL="false" SEQUENCE="false" COMMENT="Emarking activity from where it was copied"/>
+				<FIELD NAME="copiedfromparent" TYPE="int" LENGTH="10"
+					NOTNULL="false" DEFAULT="0"  SEQUENCE="false" COMMENT="If the copy process from the parent finished"/>
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />

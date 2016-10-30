@@ -118,6 +118,9 @@ input[type="text"] {
 	height: inherit;
 }
 
+.exportbuttons {
+	margin-top: 5px;
+}
 .exportbuttons .singlebutton {
 }
 
@@ -163,6 +166,10 @@ input[type="text"] {
 	background-color: transparent;
 }
 
+#page-mod-emarking-view .no-overflow {
+	width: 100%;
+}
+
 #page-mod-emarking-view .progress {
 	margin-bottom: 4px;
 	width: 100%;
@@ -196,8 +203,22 @@ input[type="text"] {
 	width: 100%;
 }
 
+.markers .userpicture, #emarking-main .userpicture, .markersprogress .userpicture,
+#page-mod-emarking-marking-agreement .userpicture {
+	margin-right:5px;
+	border-radius: 50%;
+}
+
 .exams_examname {
 	min-width: 150px;
+}
+
+.agreementtable {
+	width: 100%;
+}
+
+.agreementtable td {
+	vertical-align: top;
 }
 
 .actionscolumn {

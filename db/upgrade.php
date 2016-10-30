@@ -1486,6 +1486,37 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016100501, 'emarking');
     }
     
+    if ($oldversion < 2016103000) {
+    
+        // Define field answerkeyfile to be added to emarking.
+        $table = new xmldb_table('emarking');
+        $field = new xmldb_field('answerkeyfile', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'digitizingnotified');
+    
+        // Conditionally launch add field answerkeyfile.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Define field parent to be added to emarking.
+        $table = new xmldb_table('emarking');
+        $field = new xmldb_field('parent', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'answerkeyfile');
+
+        // Conditionally launch add field parent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        $field = new xmldb_field('copiedfromparent', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'parent');
+        
+        // Conditionally launch add field copiedfromparent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016103000, 'emarking');
+    }
+    
     
     return true;
 }

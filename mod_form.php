@@ -87,15 +87,11 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->addElement('header', 'print', get_string("print", "mod_emarking"));
         // EXAM PDF FILE(S) OR PREVIOUSLY SENT EXAM.
         // Check if there are any exams with no emarking activity associated.
-        if ($CFG->version > 2014111008) {
-            $this->standard_intro_elements(get_string('examinfo', 'mod_emarking'));
-        } else {
-            $this->add_intro_editor();
-        }
+        $this->standard_intro_elements(get_string('examinfo', 'mod_emarking'));
         $mform->addElement('hidden', 'exam', $exam ? $exam->id : 0);
         $mform->setType('exam', PARAM_INT);
         // If we are editing.
-        if (($exam && $exam->status < EMARKING_EXAM_SENT_TO_PRINT) || ! $this->_instance) {
+        if (! $this->_instance || ($exam && $exam->status < EMARKING_EXAM_SENT_TO_PRINT)) {
             $mform->addElement('filemanager', 'exam_files', $examfilename, null, 
                     array(
                         'subdirs' => 0,
@@ -116,7 +112,23 @@ class mod_emarking_mod_form extends moodleform_mod {
                         'defaulttime' => $examdate->getTimestamp(),
                         'optional' => false), $instance ['options']);
             $mform->addHelpButton('examdate', 'examdate', 'mod_emarking');
-        } else {
+            if(! $this->_instance) {
+            // IMPORT ANSWERS AND RUBRIC FROM ANOTHER EMARKING ACTIVITY.
+            $importoptions = $DB->get_records_select_menu('emarking',
+                'course = :course AND type IN (' . EMARKING_TYPE_ON_SCREEN_MARKING . ')',
+                array('course'=>$COURSE->id), 'name ASC', 'id, name');
+            if($importoptions) {
+                $importoptions[0] = get_string('donotimport', 'mod_emarking');
+                $mform->addElement('select', 'importemarking', get_string('importemarking', 'mod_emarking'), $importoptions);
+                $mform->addHelpButton('importemarking', 'importemarking', 'mod_emarking');
+                $mform->setType('importemarking', PARAM_INT);
+                $mform->setDefault('importemarking', 0);
+                $mform->disabledIf('exam_files', 'importemarking', 'neq', 0);
+            }
+            }
+        } else if($emarking && ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||
+            $emarking->type == EMARKING_TYPE_PRINT_ONLY ||
+            $emarking->type == EMARKING_TYPE_PRINT_SCAN)) {
             $mform->addElement('hidden', 'examdate', $exam->examdate);
             $mform->setType('examdate', PARAM_RAW);
             // Add message explaining why they can't change files or dates anymore.
@@ -266,6 +278,10 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->addHelpButton('linkrubric', 'linkrubric', 'mod_emarking');
         $mform->addElement('checkbox', 'collaborativefeatures', get_string('collaborativefeatures', 'mod_emarking'));
         $mform->addHelpButton('collaborativefeatures', 'collaborativefeatures', 'mod_emarking');
+        // Answer key
+        $mform->addElement('filepicker', 'answerkeyfile', get_string('answerkeyfile', 'mod_emarking'), null,
+            array('accepted_types' => array('.pdf')));
+        $mform->setAdvanced('answerkeyfile');
         // Custom marks.
         $mform->addElement('textarea', 'custommarks', get_string('specificmarks', 'mod_emarking'), 
                 array(
@@ -417,8 +433,8 @@ class mod_emarking_mod_form extends moodleform_mod {
             foreach ($markers as $marker) {
                 $defaultvalues ['marker-' . $marker->marker] = 1;
             }
-            $exam = $DB->get_record("emarking_exams", array(
-                "emarking" => $this->_instance));
+            if($exam = $DB->get_record("emarking_exams", array(
+                "emarking" => $this->_instance))) {
             $defaultvalues ["examdate"] = $exam->examdate;
             $defaultvalues ["printlist"] = $exam->printlist;
             $defaultvalues ["printdoublesided"] = $exam->usebackside;
@@ -428,6 +444,9 @@ class mod_emarking_mod_form extends moodleform_mod {
             $defaultvalues ["extraexams"] = $exam->extraexams;
             // If we are editing, we use the previous enrolments.
             $enrolincludes = explode(",", $exam->enrolments);
+            } else {
+                $enrolincludes = array();
+            }
         } else if (isset($CFG->emarking_enrolincludes)) {
             $enrolincludes = explode(",", $CFG->emarking_enrolincludes);
         } else {
@@ -465,15 +484,16 @@ class mod_emarking_mod_form extends moodleform_mod {
             }
             return $errors;
             
-        } else if ($data ['type'] == EMARKING_TYPE_PEER_REVIEW) {
+        }
+        if ($data ['type'] == EMARKING_TYPE_PEER_REVIEW) {
             // Get all users with permission to grade in emarking.
             $totalstudents = emarking_get_students_count_for_printing($COURSE->id);
             if ($totalstudents < 2) {
                 $errors ['type'] = get_string('notenoughstudenstforpeerreview', 'mod_emarking');
                 return $errors;
             }
-            return $errors;
-        } else if ($data ['type'] == EMARKING_TYPE_ON_SCREEN_MARKING || $data ['type'] == EMARKING_TYPE_PRINT_SCAN) {
+        }
+        if ($data ['type'] == EMARKING_TYPE_ON_SCREEN_MARKING || $data ['type'] == EMARKING_TYPE_PEER_REVIEW || $data ['type'] == EMARKING_TYPE_PRINT_SCAN) {
             // Get all users with permission to grade in emarking.
             if (! isset($data ['headerqr'])) {
                 $errors ['headerqr'] = get_string('headerqrrequired', 'mod_emarking');
@@ -599,7 +619,7 @@ class mod_emarking_mod_form extends moodleform_mod {
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else if(strUser == '4') {
             // Peer review.
-                    document.getElementById('id_print').style.display = 'none';
+                    document.getElementById('id_print').style.display = 'block';
 	                document.getElementById('id_scan').style.display = 'none';
                     document.getElementById('id_osm').style.display = 'block';
                     document.getElementById('fitem_id_peervisibility').style.display = 'none';
@@ -737,8 +757,61 @@ class mod_emarking_mod_form extends moodleform_mod {
     private function get_upload_files_errors($data) {
         global $USER, $COURSE;
         $errors = array();
+        $importemarking = isset($data['importemarking']) && $data['importemarking'] > 0;
+        if(!$this->_instance && $data['type'] == EMARKING_TYPE_PEER_REVIEW && $importemarking) {
+            return $errors;
+        }
         // We get the draftid from the form.
         $draftid = file_get_submitted_draft_itemid('exam_files');
+        $usercontext = context_user::instance($USER->id);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftid);
+        $tempdir = emarking_get_temp_dir_path($COURSE->id);
+        emarking_initialize_directory($tempdir, true);
+        $numpagesprevious = - 1;
+        $exampdfs = array();
+        foreach ($files as $uploadedfile) {
+            if($uploadedfile->is_directory()) {
+                continue;
+            }
+            if ($uploadedfile->get_mimetype() !== 'application/pdf') {
+                $errors ['exam_files'] = get_string('invalidfilenotpdf', 'mod_emarking') . '_' . $uploadedfile->get_mimetype() .  '_' . $uploadedfile->get_filename();
+                return $errors;
+            }
+            $filename = $uploadedfile->get_filename();
+            $filename = emarking_clean_filename($filename);
+            $newfilename = $tempdir . '/' . $filename;
+            $pdffile = emarking_get_path_from_hash($tempdir, $uploadedfile->get_pathnamehash());
+            // Executes pdftk burst to get all pages separated.
+            $numpages = emarking_pdf_count_pages($newfilename, $tempdir, false);
+            if (! is_numeric($numpages) || $numpages < 1) {
+                $errors ['exam_files'] = get_string('invalidpdfnopages', 'mod_emarking');
+                return $errors;
+            }
+            if ($numpagesprevious >= 0 && $numpagesprevious != $numpages) {
+                $errors ['exam_files'] = get_string('invalidpdfnumpagesforms', 'mod_emarking');
+                return $errors;
+            }
+            $exampdfs [] = array(
+                'pathname' => $pdffile,
+                'filename' => $filename);
+        }
+        if (count($exampdfs) == 0 && $data['exam'] == 0) {
+            $errors ['exam_files'] = get_string('filerequiredtosendnewprintorder', 'mod_emarking');
+            return $errors;
+        }
+        return $errors;
+    }
+    /**
+     * Validates the answer key file
+     * @param unknown $data
+     * @return multitype:Ambigous <string, lang_string> |multitype:string Ambigous <string, lang_string>
+     */
+    private function get_answerkey_file_errors($data) {
+        global $USER, $COURSE;
+        $errors = array();
+        // We get the draftid from the form.
+        $draftid = file_get_submitted_draft_itemid('answerkeyfile');
         $usercontext = context_user::instance($USER->id);
         $fs = get_file_storage();
         $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftid);

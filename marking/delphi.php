@@ -38,8 +38,7 @@ $exportcsv = optional_param('exportcsv', null, PARAM_ALPHA);
 $urlemarking = new moodle_url('/mod/emarking/marking/delphi.php', array(
     'id' => $cm->id));
 // Check if user has an editingteacher role.
-$issupervisor = has_capability('mod/emarking:supervisegrading', $context);
-$usercangrade = has_capability('mod/assign:grade', $context);
+list($issupervisor,$usercangrade) = emarking_get_grading_permissions($emarking, $context);
 // Download Excel if it is the case.
 if ($exportcsv && $usercangrade && $issupervisor) {
     if ($exportcsv === 'delphi') {
@@ -51,6 +50,8 @@ if ($exportcsv && $usercangrade && $issupervisor) {
 }
 // Get rubric instance.
 list($gradingmanager, $gradingmethod, $definition) = emarking_validate_rubric($context, true, false);
+// Get the number of drafts and drafts in grading status for this EMarking activity.
+list($numdrafts, $numdraftsgrading) = emarking_get_drafts_per_status($emarking, $issupervisor);
 // Page navigation and URL settings.
 $PAGE->set_url($urlemarking);
 $PAGE->set_context($context);
@@ -205,7 +206,7 @@ foreach ($dataexams as $sid => $d) {
         "id" => $cm->id,
         "exam" => $sid));
     $firststagetable->data [] = array(
-        $OUTPUT->action_link($examurl, get_string("exam", "mod_emarking") . " " . $sid . emarking_create_progress_graph($d)));
+        $OUTPUT->action_link($examurl, emarking_get_progress_circle($d, 'green') . '&nbsp;' . get_string("exam", "mod_emarking") . '&nbsp;' . $sid));
 }
 $secondstagetable = new html_table();
 $secondstagetable->data [] = array(
@@ -217,7 +218,7 @@ foreach ($datacriteria as $cid => $d) {
                 "criterion" => $cid));
     $secondstagetable->data [] = array(
         $OUTPUT->action_link($criterionurl,
-                $definition->rubric_criteria [$cid] ['description'] . " " . emarking_create_progress_graph($d)));
+                emarking_get_progress_circle($d, 'green') . '&nbsp;' . $definition->rubric_criteria [$cid] ['description']));
 }
 $thirdstagetable = new html_table();
 $thirdstagetable->data [] = array(
@@ -227,32 +228,21 @@ foreach ($datamarkers as $mid => $d) {
         "id" => $cm->id,
         "marker" => $mid));
     $thirdstagetable->data [] = array(
-        $OUTPUT->action_link($markerurl, $markersnames [$mid] . " " . emarking_create_progress_graph($d)));
+        emarking_get_progress_circle($d, 'green') . '&nbsp;' . $OUTPUT->action_link($markerurl, $markersnames [$mid]));
 }
 // Get the course module for the emarking, to build the emarking url.
 $urlagreement = new moodle_url('/mod/emarking/marking/agreement.php', array(
     'id' => $cm->id));
+// Heading and tabs if we are within a course module.
+echo $OUTPUT->heading($emarking->name);
 echo emarking_tabs_markers_training($context, $cm, $emarking, 100, $avgagreement);
-// Show export to Excel button if supervisor and there are students to export.
-if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
-    $csvurl = new moodle_url('delphi.php', array(
-        'id' => $cm->id,
-        'exportcsv' => 'delphi'));
-    $csvurlagreement = new moodle_url('delphi.php',
-            array(
-                'id' => $cm->id,
-                'exportcsv' => 'agreement'));
-    echo $OUTPUT->heading(get_string('exporttoexcel', 'mod_emarking'), 4);
-    echo html_writer::start_div('exportbuttons');
-    echo $OUTPUT->action_icon($csvurl, new pix_icon('i/grades', get_string('exportgrades', 'mod_emarking')));
-    echo $OUTPUT->action_icon($csvurlagreement, new pix_icon('i/report', get_string('exportagreement', 'mod_emarking')));
-    echo html_writer::end_div();
-}
+emarking_show_export_buttons($issupervisor, $definition, $cm, $emarking, $numdraftsgrading);
 echo $OUTPUT->heading(get_string('agreement', 'mod_emarking'), 4);
-$maintable = new html_table();
-$maintable->data [] = array(
-    html_writer::table($firststagetable),
-    html_writer::table($secondstagetable),
-    html_writer::table($thirdstagetable));
-echo html_writer::table($maintable);
+echo html_writer::start_tag('table', array('class'=>'agreementtable'));
+echo html_writer::start_tag('tr');
+echo html_writer::tag('td', html_writer::table($firststagetable));
+echo html_writer::tag('td', html_writer::table($secondstagetable));
+echo html_writer::tag('td', html_writer::table($thirdstagetable));
+echo html_writer::end_tag('tr');
+echo html_writer::end_tag('table');
 echo $OUTPUT->footer();
