@@ -305,7 +305,7 @@ function emarking_publish_grade($draft) {
         'id' => $submission->emarking))) {
         throw new Exception("Invalid emarking in submission");
     }
-    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING) {
+    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
         throw new Exception("Invalid emarking type for publishing");
     }
     if ($draft->status <= EMARKING_STATUS_ABSENT) {
@@ -797,7 +797,7 @@ function emarking_calculate_grades_users($emarking, $userid = 0) {
     if (! $cm = get_coursemodule_from_instance('emarking', $emarking->id)) {
         return;
     }
-    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING) {
+    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
         return;
     }
     $context = context_module::instance($cm->id);
@@ -1054,12 +1054,12 @@ function emarking_tabs_markers_training($context, $cm, $emarking, $generalprogre
         $firststagetable->data [] = array(
             get_string('delphi_stage_one', 'mod_emarking'),
             emarking_time_difference($emarking->firststagedate, time(), false),
-            emarking_create_progress_graph($generalprogress));
+            emarking_get_progress_circle($generalprogress));
     }
     $firststagetable->data [] = array(
         get_string('delphi_stage_two', 'mod_emarking'),
         emarking_time_difference($emarking->secondstagedate, time(), false),
-        emarking_create_progress_graph($delphiprogress));
+        emarking_get_progress_circle($delphiprogress));
     return html_writer::table($firststagetable);
 }
 /**
@@ -1078,4 +1078,71 @@ function emarking_create_progress_graph($progress) {
     $graphcont = html_writer::div($graph, 'graphcont');
     $rating = html_writer::div($graphcont, 'rating');
     return $rating;
+}
+function emarking_get_marking_progress_table($emarking, $markers, $context, $numcriteria, $numdrafts, $issupervisor) {
+    global $DB, $USER, $OUTPUT;
+    // Navigation tabs.
+    $chartstable = new html_table();
+    $chartstable->attributes['class'] = 'markersprogress generaltable';
+    $nummarkers = count($markers);
+    $mids = array();
+    foreach($markers as $m) {
+        $mids[] = $m->id;
+    }
+    $mids = implode(",", $mids);
+    $criteriaxdrafts = $numcriteria * $numdrafts;
+    if ($issupervisor || is_siteadmin()) {
+        $criteriaxdrafts = $criteriaxdrafts / $nummarkers;
+    }
+    $sqlnumcomments = "
+    SELECT
+    USERS.userid,
+    cc.totalcomments,
+    (cc.totalcomments / $criteriaxdrafts) * 100 AS percentage
+    FROM
+    (SELECT
+    u.id AS userid
+    FROM {user} u
+    WHERE u.id IN ($mids)) USERS
+    LEFT JOIN (
+    SELECT ed.teacher as markerid,
+    count(ec.id) AS totalcomments
+    FROM {emarking_comment} ec
+    INNER JOIN {emarking_draft} ed on (ec.draft=ed.id AND ed.emarkingid=?)
+    WHERE ec.criterionid > 0 AND ec.levelid > 0
+    GROUP BY ed.teacher)  AS cc
+    ON (USERS.userid=cc.markerid)
+    ORDER BY userid ASC";
+    if ($numcomments = $DB->get_records_sql($sqlnumcomments, array(
+        $emarking->id
+    ))) {
+        $markercount = 0;
+        $totalprogress = 0;
+        foreach($numcomments as $data) {
+            $markercount++;
+            $userprogress = "";
+            if ($USER->id == $data->userid) {
+                $userprogress = core_text::strtotitle(get_string('yourself'));
+                $userpercentage = $data->percentage;
+            } else {
+                $marker = $DB->get_record("user", array(
+                    "id" => $data->userid
+                ));
+                $userprogress = $OUTPUT->user_picture($marker, array(
+                    "size" => 35,
+                    "popup" => true
+                ));
+            }
+            $array[] = $userprogress . " " . floor($data->percentage) . "%";
+            $totalprogress += $data->totalcomments;
+        }
+        $chartstable->data[] = $array;
+        if (is_siteadmin($USER) || $issupervisor) {
+            $nummarkers = 1;
+        }
+        $generalprogress = ($numcriteria * $nummarkers * $numdrafts) > 0 ?
+        floor($totalprogress / ($numcriteria * $nummarkers * $numdrafts) * 100)
+        : 0;
+    }
+    return array($generalprogress, $chartstable);
 }

@@ -1486,34 +1486,52 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2016100501, 'emarking');
     }
     
-    if ($oldversion < 2016101201) {
+    if ($oldversion < 2016103001) {
     
-    	// Define field keywords to be added to emarking.
-    	$table = new xmldb_table('emarking');
-    	$field = new xmldb_field('keywords', XMLDB_TYPE_CHAR, '1000', null, null, null, null, 'digitizingnotified');
+        // Define field answerkeyfile to be added to emarking.
+        $table = new xmldb_table('emarking');
+        $field = new xmldb_field('answerkeyfile', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'digitizingnotified');
     
-    	// Conditionally launch add field keywords.
-    	if (!$dbman->field_exists($table, $field)) {
-    		$dbman->add_field($table, $field);
-    	}
+        // Conditionally launch add field answerkeyfile.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
     
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016101201, 'emarking');
-    }
-    
-    if ($oldversion < 2016101202) {
-    
-    	// Define field feedback to be added to emarking_comment.
-    	$table = new xmldb_table('emarking_comment');
-    	$field = new xmldb_field('feedback', XMLDB_TYPE_CHAR, '1000', null, null, null, '0', 'status');
-    
-    	// Conditionally launch add field feedback.
-    	if (!$dbman->field_exists($table, $field)) {
-    		$dbman->add_field($table, $field);
-    	}
-    
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016101202, 'emarking');
+        // Define field parent to be added to emarking.
+        $table = new xmldb_table('emarking');
+        $field = new xmldb_field('parent', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'answerkeyfile');
+
+        // Conditionally launch add field parent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        $field = new xmldb_field('copiedfromparent', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'parent');
+        
+        // Conditionally launch add field copiedfromparent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+            // Define field keywords to be added to emarking.
+            $field = new xmldb_field('keywords', XMLDB_TYPE_CHAR, '1000', null, null, null, null, 'digitizingnotified');
+        
+            // Conditionally launch add field keywords.
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        
+            // Define field feedback to be added to emarking_comment.
+            $table = new xmldb_table('emarking_comment');
+            $field = new xmldb_field('feedback', XMLDB_TYPE_CHAR, '1000', null, null, null, '0', 'status');
+        
+            // Conditionally launch add field feedback.
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016103001, 'emarking');
     }
     
     

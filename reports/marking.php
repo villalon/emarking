@@ -26,17 +26,17 @@ require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 global $DB, $USER;
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
+// First check that the user is logged in.
+require_login($course->id);
+if (isguestuser()) {
+    die();
+}
 // URLs for current page.
 $url = new moodle_url('/mod/emarking/reports/marking.php', array(
     'id' => $cm->id));
 // Validate the user has grading capabilities.
 if (! has_capability('mod/assign:grade', $context)) {
     print_error('No tiene permisos para ver reportes de notas');
-}
-// First check that the user is logged in.
-require_login($course->id);
-if (isguestuser()) {
-    die();
 }
 // Page settings (URL, breadcrumbs and title).
 $PAGE->set_context($context);

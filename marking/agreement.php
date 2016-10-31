@@ -60,11 +60,6 @@ if ($examid != 0) {
 if ($markerid == 0) {
     $markerid = $USER->id;
 }
-list($enrolledmarkers, $userismarker) = emarking_get_markers_in_training($emarking->id, $context, true);
-$markersnames = array();
-foreach ($enrolledmarkers as $enrolledmarker) {
-    $markersnames [$enrolledmarker->id] = $enrolledmarker->firstname . " " . $enrolledmarker->lastname;
-}
 // Page navigation and URL settings.
 $PAGE->set_url($urlemarking);
 $PAGE->set_context($context);
@@ -72,6 +67,13 @@ $PAGE->set_course($course);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
+list($enrolledmarkers, $userismarker) = emarking_get_markers_in_training($emarking->id, $context, true);
+$markersnames = array();
+$markerspictures = array();
+foreach ($enrolledmarkers as $enrolledmarker) {
+    $markersnames [$enrolledmarker->id] = $enrolledmarker->firstname . " " . $enrolledmarker->lastname;
+    $markerspictures [$enrolledmarker->id] = $OUTPUT->user_picture($enrolledmarker);
+}
 $sqldata = "
 SELECT
     submission,
@@ -211,7 +213,9 @@ foreach ($agreements as $agree) {
         // EMarking popup url.
         $popupurl = new moodle_url('/mod/emarking/marking/index.php', array(
             'id' => $drafts [$i]));
-        $popup .= $OUTPUT->action_link($popupurl, get_string("viewsubmission", "mod_emarking") . " " . $agree->submission,
+        $label = $issupervisor ? $markerspictures[$markerids[$i]]:
+            get_string("viewsubmission", "mod_emarking") . " " . $agree->submission;
+        $popup .= $OUTPUT->action_link($popupurl, $label,
                 new popup_action('click', $popupurl, 'emarking' . $agree->student,
                         array(
                             'menubar' => 'no',
@@ -219,7 +223,7 @@ foreach ($agreements as $agree) {
                             'status' => 'no',
                             'toolbar' => 'no',
                             'width' => 860,
-                            'height' => 600))) . "<br/>";
+                            'height' => 600)));
         if ($userismarker && $markerids [$i] == $USER->id) {
             $link = new moodle_url('/mod/emarking/marking/modify.php',
                     array(
@@ -257,6 +261,7 @@ $avgagreement = count($sum) == 0 ? 0 : $totalagreement / count($sum);
 $avgagreement = round($avgagreement * 100, 0);
 // Show header.
 echo $OUTPUT->header();
+echo $OUTPUT->heading($emarking->name);
 echo emarking_tabs_markers_training($context, $cm, $emarking, 100, $avgagreement);
 echo $OUTPUT->heading($text);
 echo html_writer::table($firststagetable);

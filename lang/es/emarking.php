@@ -21,6 +21,8 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// ANSWER KEYS
+$string ['answerkeyfile'] = 'Pauta';
 // EMARKING TYPES WORKFLOW.
 $string ['orsentexam'] = 'Asociar prueba impresa';
 $string ['orsentexam_help'] = 'Puede asociar una prueba que fue enviada a imprimir previamente.';
@@ -231,6 +233,10 @@ $string ['updatemark'] = 'Cambiar corrección';
 // PEER REVIEW.
 $string ['notenoughstudenstforpeerreview'] = 'No hay suficientes estudiantes para revisión entre pares';
 $string ['reassignpeers'] = 'Reasignar pares';
+$string ['markernotassigned'] = 'No asignado';
+$string ['importemarking'] = 'Importar EMarking';
+$string ['importemarking_help'] = 'Importar EMarking permite importar las respuestas de los estudiantes y la rúbrica desde otra actividad EMarking.';
+$string ['donotimport'] = 'No importar';
 // ANONYMOUS.
 $string ['studentanonymous_markervisible'] = 'Estudiante anónimo / Corrector visible';
 $string ['studentanonymous_markeranonymous'] = 'Estudiante anónimo / Corrector anónimo';
