@@ -257,6 +257,9 @@ switch ($action) {
         emarking_json_array(array(
             'newvalue' => $newvalue));
         break;
+    case 'getmoodleresources' :
+    	
+    	break;
     case 'getrubric' :
         $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         emarking_json_resultset($results);
