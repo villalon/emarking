@@ -11,17 +11,18 @@ var moment = require('moment');
 
 // NodeJS configuration, this should be read from somewhere else probably.
 var port = 9091;
-var ipaddress = "127.0.0.1";
+var ipaddress = "0.0.0.0";
 
-console.log(logtime() + "Starting NodeJS for e-marking");
+console.log(logtime() + "Starting NodeJS for EMarking");
 
 var app = require('http').createServer(handler);
 app.listen(port, ipaddress);
 var io = require('socket.io').listen(app);
 var fs = require('fs');
 var _ = require('underscore')._;
+var util = require('util');
 
-console.log(logtime() + "NodeJS for e-marking started on " + ipaddress + ":"
+console.log(logtime() + "NodeJS for EMarking started on " + ipaddress + ":"
 	+ port);
 
 // This function is used in createServer for http. Check if we can skip it.
@@ -64,7 +65,7 @@ io.sockets.on("connection", function(socket) {
 
 	// Get the list of all sockets currently in the room.
 	var users = [];
-	var clients_in_the_room = io.sockets.adapter.rooms[socket.room];
+	var clients_in_the_room = io.sockets.adapter.rooms[socket.room].sockets;
 
 	// Make a users list.
 	for (var clientId in clients_in_the_room) {

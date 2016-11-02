@@ -121,7 +121,13 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
     $id = $DB->insert_record('emarking', $data);
     $data->id = $id;
     emarking_grade_item_update($data);
-    if ($data->type == EMARKING_TYPE_MARKER_TRAINING || $data->type == EMARKING_TYPE_PEER_REVIEW || ! $mform) {
+    if ($data->type == EMARKING_TYPE_MARKER_TRAINING || ! $mform) {
+        return $id;
+    }
+    if ($data->type == EMARKING_TYPE_PEER_REVIEW && isset($data->importemarking) && $data->importemarking > 0) {
+        $data->parent = $data->importemarking;
+        $data->copiedfromparent = 0;
+        $DB->update_record('emarking', $data);
         return $id;
     }
     foreach ($data as $k => $v) {

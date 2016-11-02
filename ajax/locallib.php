@@ -1071,7 +1071,7 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     $userid = required_param('markerid', PARAM_INT);
     $commentid = required_param('cid', PARAM_INT);
     $commentrawtext = required_param('comment', PARAM_RAW_TRIMMED);
-    $bonus = optional_param('bonus', - 1, PARAM_FLOAT);
+    $bonus = optional_param('bonus', - 111111, PARAM_FLOAT);
     $levelid = optional_param('levelid', 0, PARAM_INT);
     $format = optional_param('format', 2, PARAM_INT);
     $regradeid = optional_param('regradeid', 0, PARAM_INT);
@@ -1095,7 +1095,7 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     $previousbonus = $comment->bonus;
     $previouslvlid = $comment->levelid;
     $previouscomment = $comment->rawtext;
-    if ($bonus < 0) {
+    if ($bonus < -111110) {
         $bonus = $previousbonus;
     }
     if ($commentrawtext === 'delphi') {
@@ -1207,4 +1207,32 @@ function emarking_get_resources_merlot($keywords){
 	}
 
 	return $output;
+}
+function emarking_get_chat_history() {
+    global $DB;
+
+    $room = required_param('room', PARAM_INT);
+    $source = required_param('source', PARAM_INT);
+
+    $sqlchathistory = " SELECT ec.*,  u.firstname, u.lastname, u.email
+			FROM {emarking_chat} as ec
+			INNER JOIN {user} as u on u.id=ec.userid
+		    WHERE ec.room=:room AND ec.source=:source
+		";
+    $params = array('room'=>$room, 'source'=>$source);
+    $results = $DB->get_records_sql($sqlchathistory, $params);
+
+    if(!$results) {
+        $results = array();
+    }else{
+
+
+        foreach ($results as $obj){
+            $obj->url=$CFG->wwwroot."/mod/emarking/marking/index.php";
+            $output[]=$obj;
+        }
+
+    }
+
+    return $results;
 }

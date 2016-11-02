@@ -129,8 +129,8 @@ if (($usercangrade && $draft->status >= EMARKING_STATUS_SUBMITTED && $draft->sta
     $readonly = false;
 }
 if (($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) &&
-         $draft->teacher != $USER->id) {
-    if ($issupervisor) {
+         ($draft->teacher != $USER->id || $ownsubmission)) {
+    if ($issupervisor || $ownsubmission) {
         $readonly = true;
     } else {
         $item = array(

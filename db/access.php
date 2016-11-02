@@ -90,11 +90,9 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_PROHIBIT)),
     'mod/emarking:downloadexam' => array(
-        // Capability type (write, read, etc.).
         'captype' => 'read',
-        // Context in which the capability can be set (course, category, etc.).
+        'riskbitmask' => RISK_MANAGETRUST | RISK_DATALOSS | RISK_PERSONAL,
         'contextlevel' => CONTEXT_SYSTEM,
-        // Default values for different roles (only teachers and managers can modify).
         'archetypes' => array(
             'student' => CAP_PROHIBIT,
             'teacher' => CAP_PROHIBIT,

@@ -21,6 +21,8 @@
  * @copyright 2012-2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// ANSWER KEYS
+$string ['answerkeyfile'] = 'Answer key file';
 // EMARKING TYPES WORKFLOW.
 $string ['orsentexam'] = 'Use previously sent exam';
 $string ['orsentexam_help'] = 'You can use the PDF from a previously sent exam.';
@@ -231,6 +233,10 @@ $string ['updatemark'] = 'Update mark';
 // PEER REVIEW.
 $string ['notenoughstudenstforpeerreview'] = 'Not enough students enrolled for a peer review session';
 $string ['reassignpeers'] = 'Reassign peers';
+$string ['markernotassigned'] = 'Not assigned';
+$string ['importemarking'] = 'Import EMarking';
+$string ['importemarking_help'] = 'Import EMarking allows the reuse of students\'s answers and rubric from another EMarking activity.';
+$string ['donotimport'] = 'Do not import';
 // ANONYMOUS.
 $string ['studentanonymous_markervisible'] = 'Student anonymous / Marker visible';
 $string ['studentanonymous_markeranonymous'] = 'Student anonymous / Marker anonymous';

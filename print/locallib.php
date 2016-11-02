@@ -716,7 +716,6 @@ function emarking_get_or_create_submission($emarking, $student, $context) {
         $draft->status = EMARKING_STATUS_SUBMITTED;
         if ($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             $draft->teacher = -1;
-            $draft->qualitycontrol = 1;
         }
         $draft->id = $DB->insert_record('emarking_draft', $draft);
         if ($emarking->qualitycontrol) {
@@ -976,7 +975,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
         } else 
             if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
                 $student = new stdClass();
-                $student->id = 0;
+                $student->id = $studentid;
             } else {
                 $student = new stdClass();
                 $student->id = $studentid;
