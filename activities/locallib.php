@@ -149,16 +149,9 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 	$data->timecreated = time();
 	$id = $DB->insert_record('emarking', $data);
 	$data->id = $id;
+	$course=$data->course;
 	emarking_grade_item_update($data);
-	if ($data->type == EMARKING_TYPE_MARKER_TRAINING || ! $mform) {
-		return $id;
-	}
-	if ($data->type == EMARKING_TYPE_PEER_REVIEW && isset($data->importemarking) && $data->importemarking > 0) {
-		$data->parent = $data->importemarking;
-		$data->copiedfromparent = 0;
-		$DB->update_record('emarking', $data);
-		return $id;
-	}
+	
 	foreach ($data as $k => $v) {
 		$parts = explode('-', $k);
 		if (count($parts) > 1 && $parts [0] === 'marker') {
@@ -170,7 +163,8 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 			$DB->insert_record('emarking_markers', $marker);
 		}
 	}
-	$context = context_course::instance($COURSE->id);
+	//entregar id del curso
+	$context = context_course::instance($data->course);
 	$examid = 0;
 	// If there's no previous exam to associate, and we are creating a new
 	// EMarking, we need the PDF file.
@@ -183,11 +177,11 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 	} else {
 		$examid = $data->exam;
 	}
-	$studentsnumber = emarking_get_students_count_for_printing($COURSE->id);
+	$studentsnumber = emarking_get_students_count_for_printing($data->course);
 	// A new exam object is created and its attributes filled from form data.
 	if ($examid == 0) {
 		$exam = new stdClass();
-		$exam->course = $COURSE->id;
+		$exam->course = $data->course;
 		$exam->courseshortname = $COURSE->shortname;
 		$exam->name = $mform->get_data()->name;
 		$exam->examdate = $mform->get_data()->examdate;
@@ -220,7 +214,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 		$exam->status = EMARKING_EXAM_UPLOADED;
 		// Calculate total pages for exam.
 		$exam->totalpages = $numpages;
-		$exam->printingcost = emarking_get_category_cost($COURSE->id);
+		$exam->printingcost = emarking_get_category_cost($data->course);
 		$exam->id = $DB->insert_record('emarking_exams', $exam);
 		$fs = get_file_storage();
 		foreach ($examfiles as $exampdf) {
@@ -240,39 +234,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 			$fs->delete_area_files($contextid, 'emarking', 'exams', $exam->id);
 			print_error(get_string('errorsavingpdf', 'mod_emarking'));
 		}
-		// If it is a multi-course submission, insert several exams.
-		if (! empty($mform->get_data()->multicourse)) {
-			$multicourse = $mform->get_data()->multicourse;
-			foreach ($multicourse as $key => $mcourse) {
-				if (! empty($key)) {
-					if ($thiscourse = $DB->get_record('course', array(
-							'shortname' => $key))) {
-							$studentsnumber = emarking_get_students_count_for_printing($thiscourse->id);
-							list($newemarkingid, $newcmid, $sectionid) = emarking_copy_to_cm($data, $thiscourse->id);
-							$newexam = $exam;
-							$newexam->id = null;
-							$newexam->totalstudents = $studentsnumber;
-							$newexam->course = $thiscourse->id;
-							$newexam->courseshortname = $thiscourse->shortname;
-							$newexam->emarking = $newemarkingid;
-							$newexam->id = $DB->insert_record('emarking_exams', $newexam);
-							$thiscontext = context_course::instance($thiscourse->id);
-							// Create file records for all new exams.
-							foreach ($examfiles as $exampdf) {
-								// Save the submitted file to check if it's a PDF.
-								$filerecord = array(
-										'component' => 'mod_emarking',
-										'filearea' => 'exams',
-										'contextid' => $thiscontext->id,
-										'itemid' => $newexam->id,
-										'filepath' => '/',
-										'filename' => $exampdf ['filename']);
-								$file = $fs->create_file_from_pathname($filerecord, $exampdf ['pathname']);
-							}
-					}
-				}
-			}
-		}
+		
 	} else {
 		$exam = $DB->get_record("emarking_exams", array(
 				"id" => $examid));
@@ -328,4 +290,33 @@ function emarking_copy_to_cm($originalemarking, $destinationcourse) {
 			$emarking->id,
 			$cmid,
 			$sectionid);
+}
+/**
+ * Creates or updates grade item for the give emarking instance
+ * Needed by grade_update_mod_grades() in lib/gradelib.php
+ *
+ * @param stdClass $emarking
+ *            instance object with extra cmidnumber and modname property
+ * @param null $grades
+ * @return int 0 if ok, error code otherwise
+ */
+function emarking_grade_item_update(stdClass $emarking, $grades = null) {
+	global $CFG;
+	require_once ($CFG->libdir . '/gradelib.php');
+	require_once ($CFG->dirroot . '/mod/emarking/marking/locallib.php');
+	if ($grades == null) {
+		emarking_calculate_grades_users($emarking);
+	}
+	$params = array();
+	$params ['itemname'] = clean_param($emarking->name, PARAM_NOTAGS);
+	$params ['gradetype'] = GRADE_TYPE_VALUE;
+	$params ['grademax'] = $emarking->grade;
+	$params ['grademin'] = $emarking->grademin;
+	if ($grades === 'reset') {
+		$params ['reset'] = true;
+		$grades = null;
+	}
+	$ret = grade_update('mod/emarking', $emarking->course, 'mod', 'emarking', $emarking->id, 0, $grades, $params);
+	emarking_publish_all_grades($emarking);
+	return $ret;
 }
