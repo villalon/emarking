@@ -2377,3 +2377,57 @@ function emarking_validate_ipv6_address($ipv6) {
         }
     return $flag;
 }
+/**
+ * 
+ */
+function emarking_process_digitized_answers() {
+    global $CFG, $DB;
+    require_once($CFG->dirroot . '/mod/emarking/lib.php');
+    require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+    require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
+    $digitizedanswerfiles = emarking_get_digitized_answer_files(NULL, EMARKING_DIGITIZED_ANSWER_UPLOADED);
+    if(count($digitizedanswerfiles) == 0) {
+        mtrace('No digitized answers files to process');
+        return;
+    }
+    $totalfiles = 0;
+    // Setup de directorios temporales.
+    $tempdir = emarking_get_temp_dir_path(random_string());
+    emarking_initialize_directory($tempdir, true);
+    foreach($digitizedanswerfiles as $digitizedanswerfile) {
+        if(!$zipfile = emarking_get_path_from_hash($tempdir, $digitizedanswerfile->hash)) {
+            mtrace('Invalid file for processing ' . $digitizedanswerfile->id);
+            continue;
+        }
+        if(!$emarking = $DB->get_record('emarking', array('id' => $digitizedanswerfile->emarking))) {
+            mtrace('Invalid emarking activity ' . $digitizedanswerfile->emarking);
+            continue;
+        }
+        if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
+            mtrace('Invalid course in emarking activity ' . $emarking->course);
+            continue;
+        }
+        if(!$cm = get_coursemodule_from_instance('emarking', $emarking->id)) {
+            mtrace('Invalid course module for emarking activity ' . $emarking->id);
+            continue;
+        }
+        $totalfiles++;
+        $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $digitizedanswerfile->filename ($digitizedanswerfile->id)";
+        $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED;
+        $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
+        // Process documents and obtain results.
+        list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
+        emarking_upload_answers($emarking, $zipfile, $course, $cm);
+        if($result) {
+            $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
+        } else {
+            $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING;
+        }
+        $digitizedanswerfile->totalpages = $totaldocumentsprocessed;
+        $digitizedanswerfile->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);
+        $msg .= emarking_get_string_for_status_digitized($digitizedanswerfile->status) . ' processed:' . $totaldocumentsprocessed . ' ignored:' . $totaldocumentsignored;
+        $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
+        mtrace($msg);
+    }
+    mtrace("A total of $totalfiles were processed.");
+}
