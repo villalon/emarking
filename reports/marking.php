@@ -102,7 +102,7 @@ if (! $markingstats) {
     echo $OUTPUT->footer();
     die();
 }
-$datatable = "['Status', 'Students'],
+$datatable = "['".get_string('status','mod_emarking')."', '".get_string('students')."'],
                 ['" .
          emarking_get_string_for_status(EMARKING_STATUS_ABSENT) . "',          $markingstats->missing],
                 ['" .
@@ -159,7 +159,10 @@ $markingstatspercriterion = $DB->get_records_sql(
                 ORDER BY a.sortorder
                 ", array(
             'cmid' => $cm->id));
-$datatablecriteria = "['Criterio', 'Corregido', 'Por recorregir', 'Por corregir'],";
+$datatablecriteria = "['".get_string('criterion', 'mod_emarking')."', '"
+    .get_string('corrected','mod_emarking')."', '"
+    .get_string('regradepending','mod_emarking')."', '"
+    .get_string('markpending','mod_emarking')."'],";
 foreach ($markingstatspercriterion as $statpercriterion) {
     $description = trim(preg_replace('/\s\s+/', ' ', $statpercriterion->description));
     $description = preg_replace("/\r?\n/", "\\n", addslashes($description));
@@ -182,13 +185,13 @@ $markingstatstotalcontribution = $DB->get_records_sql(
                 GROUP BY ec.markerid
                 ", array(
             'emarkingid' => $emarking->id));
-$datatabletotalcontribution = "['Status', 'Comments'],";
+$datatabletotalcontribution = "['".get_string('status','mod_emarking')."', '".get_string('mark','mod_emarking')."'],";
 $totalcomments = 0;
 foreach ($markingstatstotalcontribution as $contribution) {
     $datatabletotalcontribution .= "['$contribution->markername',   $contribution->comments],";
     $totalcomments += $contribution->comments;
 }
-$datatabletotalcontribution .= "['Por corregir', " . ($totalsubmissions * $numcriteria - $totalcomments) . "],";
+$datatabletotalcontribution .= "['".get_string('markpending','mod_emarking')."', " . ($totalsubmissions * $numcriteria - $totalcomments) . "],";
 $markingstatspermarker = $DB->get_recordset_sql(
         "
                 SELECT
@@ -232,7 +235,7 @@ $markingstatspermarker = $DB->get_recordset_sql(
             'emarkingid' => $emarking->id));
 $datamarkersavailable = false;
 $datatablemarkers = "";
-$datatablecontribution = "['".get_string('marker', 'mod_emarking')."', 'Corregido', 'Por recorregir', 'Por corregir'],";
+$datatablecontribution = "['".get_string('marker', 'mod_emarking')."', '".get_string('corrected','mod_emarking')."', '".get_string('regradepending','mod_emarking')."', '".get_string('markpending','mod_emarking')."'],";
 foreach ($markingstatspermarker as $permarker) {
     $description = trim(preg_replace('/\s\s+/', ' ', $permarker->description));
     $datatablemarkers .= "['$permarker->markername $description',
@@ -340,7 +343,7 @@ if ($datamarkersavailable) {
                                 <?php echo $datatablecontribution; ?>
                         ]);
                 var options = {
-                        title: 'Avance por ayudante',
+                        title: '<?php echo get_string('marking_progress','mod_emarking'); ?>',
                     legend: { position: 'top', maxLines: 3 },
                     bar: { groupWidth: '75%' },
                     isStacked: true,

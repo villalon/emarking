@@ -1121,18 +1121,19 @@ function emarking_get_marking_progress_table($emarking, $markers, $context, $num
         foreach($numcomments as $data) {
             $markercount++;
             $userprogress = "";
-            if ($USER->id == $data->userid) {
-                $userprogress = core_text::strtotitle(get_string('yourself'));
-                $userpercentage = $data->percentage;
-            } else {
                 $marker = $DB->get_record("user", array(
                     "id" => $data->userid
                 ));
+                $class = 'userpicture';
+                $diff = round((time()-$marker->lastaccess) / 60, 0);
+                if($diff < 20) {
+                    $class .= ' online';
+                }
                 $userprogress = $OUTPUT->user_picture($marker, array(
-                    "size" => 35,
-                    "popup" => true
+                    'size' => 35,
+                    'popup' => true,
+                    'class' => $class
                 ));
-            }
             $array[] = $userprogress . " " . floor($data->percentage) . "%";
             $totalprogress += $data->totalcomments;
         }

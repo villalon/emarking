@@ -153,7 +153,7 @@ foreach ($markercriteria as $d) {
                     "class" => "rowactions"));
     }
     $data [] = array(
-        $d->description,
+        htmlspecialchars($d->description),
         $outcomeshtml);
 }
 $table = new html_table();
