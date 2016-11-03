@@ -37,3 +37,25 @@ $exam->answerkeyfile = "";
 $exam->parent = "";
 $exam->copiedfromparent = 0;
 $exam->keywords = "keyword1,keyword2,sentence1";
+
+$fs = get_file_storage();
+
+// Prepare file record object
+$fileinfo = array(
+		'component' => 'mod_mymodule',     // usually = table name
+		'filearea' => 'myarea',     // usually = table name
+		'itemid' => 0,               // usually = ID of row in table
+		'contextid' => $context->id, // ID of context
+		'filepath' => '/',           // any path beginning and ending in /
+		'filename' => 'myfile.txt'); // any filename
+
+// Get file
+$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+		$fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+
+// Read contents
+if ($file) {
+	$contents = $file->get_content();
+} else {
+	// file doesn't exist - do something
+}

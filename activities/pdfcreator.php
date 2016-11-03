@@ -67,8 +67,32 @@ $pdf->Ln();
 // ---------------------------------------------------------
 // Close and output PDF document
 // This method has several options, check the source code documentation for more information.
-$pdf->Output('example_001.pdf', 'I');
+$pdfstring=$pdf->Output('', 'S');
 
 //============================================================+
 // END OF FILE
 //============================================================+
+
+$fs = get_file_storage();
+
+// Prepare file record object
+$fileinfo = array(
+		'component' => 'mod_emarking',     // usually = table name
+		'filearea' => 'exams',     // usually = table name
+		'itemid' => 1,               // usually = ID of row in table
+		'contextid' => 1, // ID of context
+		'filepath' => '/',           // any path beginning and ending in /
+		'filename' => 'myfiles.pdf'); // any filename
+
+// Get file
+$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+		$fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+
+// Read contents
+if ($file) {
+	$contents = $file->get_content();
+} else {
+	// file doesn't exist - do something
+	$file = $fs->create_file_from_string($fileinfo, $pdfstring);
+}
+

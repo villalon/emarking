@@ -164,7 +164,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 		}
 	}
 	//entregar id del curso
-	$context = context_course::instance($data->course);
+	$context = context_course::instance($course);
 	$examid = 0;
 	// If there's no previous exam to associate, and we are creating a new
 	// EMarking, we need the PDF file.
@@ -177,11 +177,11 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 	} else {
 		$examid = $data->exam;
 	}
-	$studentsnumber = emarking_get_students_count_for_printing($data->course);
+	$studentsnumber = emarking_get_students_count_for_printing($course);
 	// A new exam object is created and its attributes filled from form data.
 	if ($examid == 0) {
 		$exam = new stdClass();
-		$exam->course = $data->course;
+		$exam->course = $course;
 		$exam->courseshortname = $COURSE->shortname;
 		$exam->name = $mform->get_data()->name;
 		$exam->examdate = $mform->get_data()->examdate;
@@ -214,7 +214,7 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 		$exam->status = EMARKING_EXAM_UPLOADED;
 		// Calculate total pages for exam.
 		$exam->totalpages = $numpages;
-		$exam->printingcost = emarking_get_category_cost($data->course);
+		$exam->printingcost = emarking_get_category_cost($course);
 		$exam->id = $DB->insert_record('emarking_exams', $exam);
 		$fs = get_file_storage();
 		foreach ($examfiles as $exampdf) {
