@@ -808,7 +808,6 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     // end of send_file defaults.
     $filename = array_pop($args);
     $itemid = array_pop($args);
-    $contextcategory = context_coursecat::instance($course->category);
     $contextcourse = context_course::instance($course->id);
     // Security! We always protect the exams filearea.
     if ($filearea === 'exams') {
@@ -857,7 +856,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
         $mimetype = 'application/pdf';
     }
     if ($filearea === 'examstoprint') {
-        if (! has_capability('mod/emarking:downloadexam', $contextcategory)) {
+        if (! has_capability('mod/emarking:downloadexam', $contextcourse)) {
             // Add to Moodle log so some auditing can be done.
             \mod_emarking\event\invalidaccessdownload_attempted::create_from_exam($exam, $contextcourse)->trigger();
             send_file_not_found();
