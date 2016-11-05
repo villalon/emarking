@@ -45,6 +45,7 @@ require_login($course->id);
 if (isguestuser()) {
     die();
 }
+require_capability('mod/emarking:uploadexam', $context);
 $action = optional_param('action', 'view', PARAM_ALPHA);
 $digitizedanswerid = optional_param('did', 0, PARAM_INT);
 $usercanmanageanswersfiles = has_capability('mod/emarking:uploadexam', $context) || is_siteadmin();
@@ -66,7 +67,6 @@ if ($mform->is_cancelled()) {
     die();
 }
 if ($mform->get_data()) {
-    require_capability('mod/emarking:uploadexam', $context);
     // Save uploaded file in Moodle filesystem and check.
     $fs = get_file_storage();
     $fs->delete_area_files($context->id, 'mod_emarking', 'tmpupload');
@@ -124,7 +124,6 @@ if ($mform->get_data()) {
 }
 $deletedsuccessfull = false;
 if($action === 'delete') {
-    require_capability('mod/emarking:uploadexam', $context);
     if(!$DB->record_exists('emarking_digitized_answers', array('id'=>$digitizedanswerid))) {
         print_error('Invalid id for digitized answer to be deleted');
     }
@@ -135,9 +134,6 @@ if($action === 'delete') {
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 } elseif($action === 'process') {
-    if(!is_siteadmin()) {
-        print_error('Invalid access');
-    }
     if(! $digitizedanswer = $DB->get_record('emarking_digitized_answers',
             array('id'=>$digitizedanswerid))) {
         print_error('Invalid id for digitized answer to process');
