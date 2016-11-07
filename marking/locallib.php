@@ -1147,3 +1147,14 @@ function emarking_get_marking_progress_table($emarking, $markers, $context, $num
     }
     return array($generalprogress, $chartstable);
 }
+function emarking_get_page_image_info($submission, $pageno) {
+    global $DB;
+    if(!$page = $DB->get_record_sql('SELECT id, file FROM {emarking_page} WHERE submission = :submission AND page = :page',
+        array('submission'=>$submission->id, 'page'=>$pageno))) {
+            return false;
+        }
+    $fs = get_file_storage();
+    $image = $fs->get_file_by_id($page->file);
+    $imageinfo = $image->get_imageinfo();
+    return $imageinfo;
+}

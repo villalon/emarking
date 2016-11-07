@@ -23,6 +23,7 @@
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
 global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 // Required and optional params for ajax interaction in emarking.
 $draftid = required_param('id', PARAM_INT);
@@ -66,6 +67,10 @@ $module = new stdClass();
 list($lang, $langshort, $langspecific) = emarking_get_user_lang();
 $langhtml = '<meta name="gwt:property" content="locale=' . $lang . '">';
 $emarkingdir = $CFG->wwwroot . '/mod/emarking/marking/emarkingweb';
+$imagewidth=0;
+if($imageinfo = emarking_get_page_image_info($submission, 1)) {
+    $imagewidth = $imageinfo['width'];
+}
 header('Content-Type: text/html; charset=utf-8');
 ?>
 <!doctype html>
@@ -100,6 +105,7 @@ header('Content-Type: text/html; charset=utf-8');
 <!--                                           -->
 <body style="padding-top: 0px;">
 	<div id="emarking"
+		imagewidth="<?php echo $imagewidth; ?>"
 		moodleurl="<?php echo $CFG->wwwroot ?>/mod/emarking/ajax/a.php"></div>
 </body>
 </html>
