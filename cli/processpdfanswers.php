@@ -57,22 +57,22 @@ if ($unrecognized) {
 }
 
 if ($options ['help']) {
-    $help = "Generates all PDFs pending for printing.
+    $help = "Processes PDF files with answers.
 
 Options:
 -h, --help            Print out this help
 -c, --category        Print out this only exams from course in this category
             
 Example:
-\$sudo -u www-data /usr/bin/php admin/cli/generatefilestoprint.php --category 2
+\$sudo -u www-data /usr/bin/php admin/cli/processpdfanswers.php --category 2
 "; // TODO: localize - to be translated later when everything is finished
     
     echo $help;
     die();
 }
 
-cli_heading('EMarking processing PDF file'); // TODO: localize
+cli_heading('EMarking processing PDF answers file'); // TODO: localize
 
-emarking_generate_personalized_exams($category);
+emarking_process_digitized_answers();
 
 exit(0); // 0 means success

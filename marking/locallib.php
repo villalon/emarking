@@ -1121,18 +1121,19 @@ function emarking_get_marking_progress_table($emarking, $markers, $context, $num
         foreach($numcomments as $data) {
             $markercount++;
             $userprogress = "";
-            if ($USER->id == $data->userid) {
-                $userprogress = core_text::strtotitle(get_string('yourself'));
-                $userpercentage = $data->percentage;
-            } else {
                 $marker = $DB->get_record("user", array(
                     "id" => $data->userid
                 ));
+                $class = 'userpicture';
+                $diff = round((time()-$marker->lastaccess) / 60, 0);
+                if($diff < 20) {
+                    $class .= ' online';
+                }
                 $userprogress = $OUTPUT->user_picture($marker, array(
-                    "size" => 35,
-                    "popup" => true
+                    'size' => 35,
+                    'popup' => true,
+                    'class' => $class
                 ));
-            }
             $array[] = $userprogress . " " . floor($data->percentage) . "%";
             $totalprogress += $data->totalcomments;
         }
@@ -1145,4 +1146,15 @@ function emarking_get_marking_progress_table($emarking, $markers, $context, $num
         : 0;
     }
     return array($generalprogress, $chartstable);
+}
+function emarking_get_page_image_info($submission, $pageno) {
+    global $DB;
+    if(!$page = $DB->get_record_sql('SELECT id, file FROM {emarking_page} WHERE submission = :submission AND page = :page',
+        array('submission'=>$submission->id, 'page'=>$pageno))) {
+            return false;
+        }
+    $fs = get_file_storage();
+    $image = $fs->get_file_by_id($page->file);
+    $imageinfo = $image->get_imageinfo();
+    return $imageinfo;
 }

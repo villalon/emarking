@@ -39,11 +39,16 @@ require_login($course->id);
 if (isguestuser()) {
     die();
 }
+// Get the course module for the emarking, to build the emarking url.
+$urlemarking = new moodle_url('/mod/emarking/view.php', array(
+    'id' => $cm->id
+));
+// If it was an import.
 if($emarking->parent > 0 && $emarking->copiedfromparent == 0) {
     $srcemarking = $DB->get_record('emarking', array('id'=>$emarking->parent));
     emarking_copy_peer_review($srcemarking, $emarking);
-    var_dump($emarking);
-    die("ok");
+    redirect($urlemarking);
+    die();
 }
 // Table parameters for sorting and pagination.
 // Page to show (when paginating).
@@ -75,10 +80,6 @@ if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
     )));
     die();
 }
-// Get the course module for the emarking, to build the emarking url.
-$urlemarking = new moodle_url('/mod/emarking/view.php', array(
-    'id' => $cm->id
-));
 // Obtain user permissions for grading and supervising.
 list ($issupervisor, $usercangrade) = emarking_get_grading_permissions($emarking, $context);
 // Supervisors and site administrators can see everything always.
@@ -149,8 +150,10 @@ if ($reassignpeers && $usercangrade && $issupervisor && $numdraftsgrading == 0) 
 }
 // Get rubric instance.
 list ($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller) =
-    emarking_validate_rubric($context, $emarkingisstudentmarking || $emarking->type == EMARKING_TYPE_PEER_REVIEW, // Die if no rubric.
-    !$scan); // Show rubric creation button.
+    emarking_validate_rubric(
+        $context,
+        ($emarkingisstudentmarking && !$scan) || $emarking->type == EMARKING_TYPE_PEER_REVIEW, // Die if no rubric.
+        !$scan); // Show rubric creation button.
 // User filter checking capabilities. If user can not grade, then she can not.
 // see other users.
 $userfilter = 'WHERE 1=1 ';
@@ -204,7 +207,9 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo emarking_tabs_markers_training($context, $cm, $emarking, $generalprogress, 0);
 }
 // Show export buttons when grades are available
-emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+if($usercangrade) {
+    emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+}
 if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);
     echo html_writer::table($chartstable);
@@ -584,7 +589,7 @@ $submission = $DB->get_record('emarking_submission', array(
     'emarking' => $emarking->id,
     'student' => $USER->id
 ));
-emarking_show_orphan_pages_link($context);
+emarking_show_orphan_pages_link($context, $cm);
 // If the user is a tutor or teacher we don't include justice perception.
 if ($usercangrade || !$submission) {
     echo $OUTPUT->footer();

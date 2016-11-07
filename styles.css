@@ -23,12 +23,31 @@
 	min-width: 150px;
 }
 
+.tablemodify {
+	width: 90%;
+}
+
+.tablemodify td {
+	vertical-align: top;
+	padding: 5px;
+	border-right: 5px solid #fff;
+}
+
 .charttitle {
 	text-align: center;
 }
 
 .isanswerkey {
 	background-color: #0f0;
+}
+
+.fixorphanpage {
+	left: 50%;
+    top: 30%;
+}
+
+.online {
+    border: solid 3px #30ff30;
 }
 
 #page-mod-emarking-marking-importrubric .lastrow {
@@ -241,6 +260,7 @@ input[type="text"] {
 
 .downloademarking {
 	cursor: pointer;
+	float: right;
 }
 
 .newprintorder input {
@@ -305,7 +325,6 @@ clear {
 	width: 20px;
 	border: 2px solid #000;
 	background-color: #ffffff;
-	border-color: #48D063;
 	text-align: center;
 	font-size: 10pt;
 }
@@ -323,10 +342,7 @@ clear {
 }
 
 .agreement-modify-level, .agreement-modify-level-selected {
-	border: 1px solid #000;
-	border-color: #48D063;
-	background-color: #ffffff;
-	height: 105px;
+	background-color: #eee;
 	vertical-align: bottom;
 	max-width: 105px;
 	width: 105px;

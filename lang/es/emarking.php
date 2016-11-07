@@ -734,6 +734,7 @@ $string ['gradehistogramtotal'] = 'Histograma de notas agregado';
 $string ['courseaproval'] = 'Aprobación de curso';
 $string ['range'] = 'Rango';
 $string ['marker'] = 'Corrector';
+$string ['mark'] = 'Corrección';
 // Events.
 $string ['eventemarkinggraded'] = 'Emarking';
 $string ['eventrotatepageswitched'] = 'Rotar pagina';
@@ -787,6 +788,8 @@ $string['graded'] = 'Corregido';
 $string['published'] = 'Publicado';
 $string['inregrading'] = 'En recorrección';
 $string['regraded'] = 'Recorregido';
+$string ['regradepending'] = 'Por recorregir';
+$string ['markpending'] = 'Por corregir';
 $string['finalpublication'] = 'publicación final';
 $string['total'] = 'total';
 $string['searchcourses'] = 'Buscar cursos';
