@@ -871,6 +871,7 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
  */
 function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     global $CFG, $DB;
+    require_once $CFG->dirroot . '/mod/emarking/lib/qrextractor/config.php';
     $context = context_module::instance($cm->id);
     $exam = $DB->get_record('emarking_exams', array(
         'emarking' => $emarking->id
@@ -891,7 +892,8 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     }
     } elseif ($extension === 'pdf') {
         $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
-            . $CFG->wwwroot . '/ admin pepito.P0 ' . $filepath . ' ' . $tempdir . ' '
+            . $CFG->wwwroot . '/ ' . $CFG->emarking_qr_user . ' '
+            . $CFG->emarking_qr_password . ' ' . $filepath . ' ' . $tempdir . ' '
             . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
