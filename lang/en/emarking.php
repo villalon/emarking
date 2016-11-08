@@ -103,6 +103,8 @@ $string ['nodejspath_help'] = 'The full Node JS path including protocol, ipaddre
 $string ['emarkinggraded'] = 'EMarking graded';
 $string ['answerkey'] = 'Answer key';
 $string ['showunenrolled'] = 'Show unenrolled';
+$string ['emarking_enabledtypes'] = 'Enabled types';
+$string ['emarking_enabledtypes_help'] = 'Selected types will be the only ones allowed on new EMarking activities';
 // PERMISSIONS
 $string['emarking:activatedelphiprocess'] = '';
 $string['emarking:addinstance'] = '';

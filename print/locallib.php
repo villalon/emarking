@@ -895,6 +895,9 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
             . $CFG->wwwroot . '/ ' . $CFG->emarking_qr_user . ' '
             . $CFG->emarking_qr_password . ' ' . $filepath . ' ' . $tempdir . ' '
             . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+        if(isset($CFG->debug) && $CFG->debug >= 32767) {
+            mtrace($command);
+        }
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;

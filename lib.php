@@ -104,6 +104,31 @@ function emarking_supports($feature) {
     }
 }
 /**
+ * Returns the available EMarking types in this server
+ * @param string $enabled filter by only those that are enabled
+ * @return string[]
+ */
+function emarking_types_array($enabled = false) {
+    global $CFG;
+    $types = array();
+    $allowed = explode(',',$CFG->emarking_enabledtypes);
+    // All available types
+    $types [EMARKING_TYPE_PRINT_ONLY] = get_string('type_print_only', 'mod_emarking');
+    $types [EMARKING_TYPE_PRINT_SCAN] = get_string('type_print_scan', 'mod_emarking');
+    $types [EMARKING_TYPE_ON_SCREEN_MARKING] = get_string('type_normal', 'mod_emarking');
+    $types [EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
+    $types [EMARKING_TYPE_PEER_REVIEW] = get_string('type_peer_review', 'mod_emarking');
+    $types [EMARKING_TYPE_STUDENT_TRAINING] = get_string('type_student_training', 'mod_emarking');
+    if($enabled) {
+    foreach($types as $typekey => $typename) {
+        if(array_search($typekey, $allowed) === FALSE) {
+            unset($types[$typekey]);
+        }
+    }
+    }
+    return $types;
+}
+/**
  * Saves a new instance of the emarking into the database
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function

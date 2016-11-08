@@ -103,6 +103,8 @@ $string ['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo pro
 $string ['emarkinggraded'] = 'Corrección EMarking';
 $string ['answerkey'] = 'Pauta';
 $string ['showunenrolled'] = 'Mostrar no matriculados';
+$string ['emarking_enabledtypes'] = 'Tipos habilitados';
+$string ['emarking_enabledtypes_help'] = 'Solo actividades de los tipos seleccionados se podrán crear en los cursos.';
 // PERMISSIONS
 $string['emarking:activatedelphiprocess'] = 'Activar Delphi';
 $string['emarking:addinstance'] = 'Crear instancia de EMarking';
