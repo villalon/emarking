@@ -4,7 +4,7 @@ require_once("$CFG->libdir/pdflib.php");
 GLOBAL $USER;
 
 $activityid = required_param('id', PARAM_INT);
-$action = required_param('action', PARAM_TEXT);
+
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 $user_object = $DB->get_record('user', array('id'=>$activity->userid));
 $usercontext=context_user::instance($USER->id);
@@ -29,60 +29,7 @@ $pdf->SetTopMargin(40);
 $pdf->AddPage();
 
 $pdf->writeHTML($activity->instructions, true, false, false, false, '');
-$pdf->AddPage();
 
-$html = '<h3>Hoja de escritura</h3>
-<table cellpadding="7" cellspacing="1" border="1">
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-<tr><td></td></tr>
-</table>';
+$pdf->Output($activity->title.'.pdf', 'I');
 
-//$pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
-$pdf->writeHTML($html, true, false, false, false, '');
-
-
-if($action == 'download'){
-	$pdf->Output($activity->title.'.pdf', 'I');
-}
-elseif($action == 'create'){
-$pdfstring=$pdf->Output('', 'S');
-$fs = get_file_storage();
-
-// Prepare file record object
-$fileinfo = array(
-		'component' => 'user',     // usually = table name
-		'filearea' => 'draft',     // usually = table name
-		'itemid' => 2,               // usually = ID of row in table
-		'contextid' => $usercontext->id, // ID of context
-		'filepath' => '/',           // any path beginning and ending in /
-		'filename' => $activity->title.'.pdf'); // any filename
-
-// Get file
-$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-		$fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-
-// Read contents
-if ($file) {
-	$contents = $file->get_content();
-} else {
-	// file doesn't exist - do something
-	$file = $fs->create_file_from_string($fileinfo, $pdfstring);
-}
-}
+	
