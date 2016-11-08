@@ -1079,7 +1079,7 @@ function emarking_get_digitized_answer_orphan_pages($context) {
     $output = array();
     foreach($orphanpages as $page) {
         $filenameparts = explode('.',$page->get_filename());
-        if(count($filenameparts) != 2 || ($filenameparts[1] !== 'png' || $filenameparts[1] !== 'jpg')) {
+        if(count($filenameparts) != 2 || ($filenameparts[1] !== 'png' && $filenameparts[1] !== 'jpg')) {
             continue;
         }
         $pagekey = $filenameparts[0];

@@ -199,11 +199,7 @@ if (count($digitizedanswersfiles) == 0) {
 }
 // Show orphan pages button
 $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
-$numorphanpages = count($orphanpages);
-if($numorphanpages > 0) {
-    $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array('id'=>$cm->id));
-    echo $OUTPUT->single_button($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages), 'GET');
-}
+emarking_show_orphan_pages_link($context, $cm);
 if(has_capability('mod/emarking:uploadexam', $context)) {
     $mform->display();
 }
