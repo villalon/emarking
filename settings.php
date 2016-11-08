@@ -24,10 +24,17 @@
  */
 defined('MOODLE_INTERNAL') || die();
 global $PAGE, $CFG;
+require_once $CFG->dirroot . '/mod/emarking/lib.php';
 // Basic settings.
 $settings->add(
         new admin_setting_heading('emarking_basicsettings', get_string('printsettings', 'mod_emarking'),
                 get_string('printsettings_help', 'mod_emarking')));
+// Enabled EMarking types
+$types = emarking_types_array();
+$settings->add(
+        new admin_setting_configmultiselect('emarking_enabledtypes',
+                get_string('emarking_enabledtypes', 'mod_emarking'),
+                get_string('emarking_enabledtypes_help', 'mod_emarking'), array_keys($types), $types));
 // Minimum days allowed before sending an exam to print.
 $choices = array();
 for ($i = 0; $i < 100; $i ++) {

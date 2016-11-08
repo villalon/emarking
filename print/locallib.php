@@ -895,6 +895,9 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
             . $CFG->wwwroot . '/ ' . $CFG->emarking_qr_user . ' '
             . $CFG->emarking_qr_password . ' ' . $filepath . ' ' . $tempdir . ' '
             . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+        if(isset($CFG->debug) && $CFG->debug >= 32767) {
+            mtrace($command);
+        }
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;
@@ -914,9 +917,9 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     $doubleside = false;
     $pngfiles = array();
     foreach($files as $fileintemp) {
-        if (!is_dir($fileintemp) && strtolower(substr($fileintemp, -4, 4)) === ".png") {
+        if (!is_dir($fileintemp) && strtolower(substr($fileintemp, -4, 4)) === ".jpg") {
             $pngfiles[] = $fileintemp;
-            if (strtolower(substr($fileintemp, -5, 5)) === "b.png") {
+            if (strtolower(substr($fileintemp, -5, 5)) === "b.jpg") {
                 $doubleside = true;
             }
         }
@@ -1076,7 +1079,7 @@ function emarking_get_digitized_answer_orphan_pages($context) {
     $output = array();
     foreach($orphanpages as $page) {
         $filenameparts = explode('.',$page->get_filename());
-        if(count($filenameparts) != 2 || $filenameparts[1] !== 'png') {
+        if(count($filenameparts) != 2 || ($filenameparts[1] !== 'png' && $filenameparts[1] !== 'jpg')) {
             continue;
         }
         $pagekey = $filenameparts[0];
@@ -1108,10 +1111,10 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
         throw new Exception("Invalid student to submit page");
     }
     // Calculate definitive filename
-    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.png';
+    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.jpg';
     // If is anonymous, the filename requires a _a
-    if (strtolower(substr($filename, -6)) === '_a.png') {
-        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '_a.png';
+    if (strtolower(substr($filename, -6)) === '_a.jpg') {
+        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '_a.jpg';
     }
     // Filesystem.
     $fs = get_file_storage();
@@ -1232,7 +1235,7 @@ function emarking_get_anonymous_filename($filename) {
     if(count($filenameparts) > 1) {
         $anonymousfilename = $filenameparts[0] . "_a." . $filenameparts[1];
     } else {
-        $anonymousfilename = $filenameparts[0] . "_a.png";
+        $anonymousfilename = $filenameparts[0] . "_a.jpg";
     }
     return $anonymousfilename;
 }

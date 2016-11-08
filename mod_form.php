@@ -77,7 +77,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->addHelpButton('type', 'markingtype', 'mod_emarking');
         $mform->setType('type', PARAM_INT);
         // EXAM NAME.
-        $mform->addElement('text', 'name', get_string("examname", "mod_emarking"), array(
+        $mform->addElement('text', 'name', get_string('name'), array(
             'size' => '64'));
         $mform->setType('name', PARAM_CLEAN);
         $mform->addRule('name', null, 'required', null, 'client');
@@ -669,14 +669,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         echo $this->extrascript;
     }
     private function get_types_available($emarking) {
-        $types = array();
-        // All available types
-        $types [EMARKING_TYPE_PRINT_ONLY] = get_string('type_print_only', 'mod_emarking');
-        $types [EMARKING_TYPE_PRINT_SCAN] = get_string('type_print_scan', 'mod_emarking');
-        $types [EMARKING_TYPE_ON_SCREEN_MARKING] = get_string('type_normal', 'mod_emarking');
-        $types [EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
-        $types [EMARKING_TYPE_PEER_REVIEW] = get_string('type_peer_review', 'mod_emarking');
-        $types [EMARKING_TYPE_STUDENT_TRAINING] = get_string('type_student_training', 'mod_emarking');
+        $types = emarking_types_array(true);
         // If emarking is null then return an empty all values
         if (! $emarking) {
             unset($types [EMARKING_TYPE_STUDENT_TRAINING]);

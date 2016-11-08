@@ -1534,6 +1534,36 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016103001, 'emarking');
     }
     
+    if ($oldversion < 2016110801) {
+    
+        // Define field student to be dropped from emarking_draft.
+        $table = new xmldb_table('emarking_draft');
+        $field = new xmldb_field('student');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016110801, 'emarking');
+    }
+    
+    if ($oldversion < 2016110802) {
+    
+        // Rename field groupid on table emarking_draft to NEWNAMEGOESHERE.
+        $table = new xmldb_table('emarking_draft');
+        $field = new xmldb_field('groupid', XMLDB_TYPE_CHAR, '255', null, null, null, 'NULL');
+        
+        // Launch change of type for field groupid.
+        $dbman->change_field_type($table, $field);
+        
+        // Launch rename field groupid.
+        $dbman->rename_field($table, $field, 'group');
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016110802, 'emarking');
+    }
     
     return true;
 }

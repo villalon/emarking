@@ -1144,30 +1144,6 @@ function emarking_get_students_for_printing($courseid) {
     $rs = $DB->get_recordset_sql($query, $params);
     return $rs;
 }
-
-/**
- * Get all students from a group, for printing.
- *
- * @param unknown_type $groupid,$courseid            
- */
-function emarking_get_students_of_groups($courseid, $groupid) {
-    global $DB;
-    $query = 'SELECT u.id, u.idnumber, u.firstname, u.lastname, e.enrol
-				FROM {user_enrolments} ue
-				JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
-				JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
-				JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
-				JOIN {user} u ON (ue.userid = u.id)
-				JOIN {groups_members} gm ON (gm.userid = u.id AND gm.groupid = ?)
-				ORDER BY lastname ASC';
-    // Se toman los resultados del query dentro de una variable.
-    $rs = $DB->get_recordset_sql($query, array(
-        $courseid,
-        $groupid
-    ));
-    return $rs;
-}
-
 /**
  * Get all groups from a course, for printing.
  *
