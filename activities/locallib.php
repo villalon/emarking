@@ -347,9 +347,9 @@ function emarking_copy_to_cm($originalemarking, $destinationcourse,$itemid) {
 	}
 	$sectionid = course_add_cm_to_section ( $mod->course, $cmid, 0 );
 	return array (
-			$emarking->id,
-			$cmid,
-			$sectionid 
+			'id'=>$emarking->id,
+			'cmid'=>$cmid,
+			'sectionid'=>$sectionid 
 	);
 }
 /**
