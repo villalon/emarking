@@ -241,8 +241,8 @@ function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mf
 	}
 	
 	
-	//$studentsnumber = emarking_get_students_count_for_printing ( $course );
-	$studentsnumber=2;
+	$studentsnumber = emarking_get_students_count_for_printing ( $course );
+	
 	// A new exam object is created and its attributes filled from form data.
 	if ($examid == 0) {
 		$exam = new stdClass ();
@@ -694,4 +694,36 @@ function emarking_get_category_cost($courseid) {
 			}
 		}
 	}
+}
+/**
+ + * Get students count from a course, for printing.
+ + *
+ + * @param unknown_type $courseid
+ + */
+function emarking_get_students_count_for_printing($courseid, $exam = null) {
+		global $DB;
+		$sqlenrolments = "";
+		if ($exam != null) {
+				$parts = explode(',', $exam->enrolments);
+				if (count($parts) > 0) {
+						$enrolments = array();
+						foreach($parts as $part) {
+								$enrolments[] = "'$part'";
+							}
+							$sqlenrolments = implode(',', $enrolments);
+							$sqlenrolments = " AND e.enrol IN ($sqlenrolments)";
+						}
+					}
+					$query = "SELECT count(u.id) as total
+					FROM {user_enrolments} ue
+					JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ? $sqlenrolments)
+					JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
+					JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
+					JOIN {user} u ON (ue.userid = u.id)
+					GROUP BY e.courseid";
+					// Se toman los resultados del query dentro de una variable.
+					$rs = $DB->get_record_sql($query, array(
+									$courseid
+							));
+					return isset($rs->total) ? $rs->total : null;
 }

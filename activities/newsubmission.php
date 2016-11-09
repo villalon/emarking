@@ -24,7 +24,7 @@ $emarking->grademin = 1.0;
 $emarking->keywords = "keyword1,keyword2,sentence1";
 $emarking->exam=0;
 //var_dump($activity);
-$data=emarking_copy_to_cm($emarking,2,$itemid);
+$data=emarking_copy_to_cm($emarking,$courseid,$itemid);
 //var_dump($data);
 $contextmodule = context_module::instance($data['cmid']);
 

@@ -833,7 +833,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     // end of send_file defaults.
     $filename = array_pop($args);
     $itemid = array_pop($args);
-
+    $contextcourse = context_course::instance($course->id);
     if($filearea!='instructions'){
     $contextcategory = context_coursecat::instance($course->category);
 
