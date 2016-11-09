@@ -7,7 +7,8 @@ global $PAGE,$USER, $CFG, $OUTPUT, $DB;
 
 $PAGE->set_pagelayout('embedded');
 require_login();
-$PAGE->set_context(context_system::instance());
+$context=context_system::instance();
+$PAGE->set_context($context);
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/create.php');
 $PAGE->set_url($url);
 echo $OUTPUT->header();
@@ -15,6 +16,7 @@ echo $OUTPUT->header();
 //Instantiate simplehtml_form 
 $mform = new local_ciae_create_activity();
  
+
 //Form processing and displaying is done here
 if ($mform->is_cancelled()) {
     //Handle form cancel operation, if cancel button is present on form
@@ -72,6 +74,36 @@ if(isset($fromform->C3)){
 }
 $oaCode=$OAC1.$OAC2.$OAC3;
 
+$fs = get_file_storage();
+file_save_draft_area_files($fromform->instructions ['itemid'], $context->id, 'mod_emarking', 'instructions', $fromform->instructions ['itemid']);
+$files = $fs->get_area_files(
+		$context->id,
+		'mod_emarking', 'instructions',
+		$fromform->instructions ['itemid'],
+		'itemid, filepath, filename',
+		false);
+$usercontext = context_user::instance($USER->id);
+
+$urlAntigua='/draftfile.php/'.$usercontext->id.'/user/draft/'.$fromform->instructions ['itemid'] .'/';
+$text=$fromform->instructions['text'];
+
+
+
+//$url = moodle_url::make_pluginfile_url($files->contextid, $files->component, $files->filearea, null, null, $files->filename);
+
+
+
+foreach($files as $file){
+	
+$url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $fromform->instructions ['itemid'] , $file->get_filepath(), $file->get_filename());
+$urlnueva='/pluginfile.php/1/mod_emarking/'.$file->get_filearea().'/'.$fromform->instructions ['itemid'].'/';
+$text=str_replace($urlAntigua,$urlnueva,$text);
+
+}
+//var_dump($fromform->instructions['text']);
+
+
+
 $record = new stdClass();
 $record->title 					= $fromform->title;
 $record->description         	= $fromform->description;
@@ -80,7 +112,7 @@ $record->comunicativepurpose    = $fromform->comunicativepurpose;
 $record->genre 					= $generos[$genero];
 $record->audience         		= $fromform->audience;
 $record->estimatedtime 	    	= $fromform->estimatedtime;
-$record->instructions			= $fromform->instructions['text'];
+$record->instructions			= $text;
 $record->teaching   			= $fromform->teaching['text'];
 $record->languageresources 		= $fromform->languageresources['text'];
 $record->timecreated			= time();
@@ -98,7 +130,20 @@ redirect($url, 0);
   // or on the first display of the form.
  
   //Set default data (if any)
-
+	if (empty($instructions->id)) {
+		$instructions = new object();
+		$instructions->id = 0;
+	}
+	
+	$draftid_editor = file_get_submitted_draft_itemid('instructions');
+	
+	 file_prepare_draft_area($draftid_editor, $context->id, 'mod_emarking', 'instructions',
+			$instructions->id, null);
+	
+	$instructions->instructions = array('text'=>'asd', 'format'=>$instructions->format, 'itemid'=>$draftid_editor);
+	
+	
+	$mform->set_data($instructions);
   //displays the form
   $mform->display();
 }

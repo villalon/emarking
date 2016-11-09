@@ -12,11 +12,11 @@ GLOBAL $USER;
 
 if($forked =$DB->get_record('emarking_activities',array('userid'=>$USER->id,'parent'=>$activityid))){
 	
-	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/fork.php', array('id' => $forked->id));
+	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $forked->id));
 	redirect($forkUrl, 0);
 }
 else{
 	$insert = $DB->insert_record('emarking_activities', $record);
-	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/fork.php', array('id' => $insert));
+	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $insert));
 	redirect($forkUrl, 0);
 }
