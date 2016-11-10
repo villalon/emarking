@@ -52,8 +52,8 @@
 		<div class="row">
 		<h3></h3>
 		<h2>Editar actividad</h2>
-		<div class="col-md-2"></div>
-		<div class="col-md-7">
+		<div class="col-md-1"></div>
+		<div class="col-md-9">
 		<?php include 'editar.php'; ?>
 		</div>			
 	</div>
