@@ -1145,6 +1145,9 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
     } else {
         $fileinfo = $fs->create_file_from_storedfile($filerecord, $storedfile);
     }
+    if($fileinfo==NULL) {
+        throw new Exception('Could not create file');
+    }
     return $fileinfo;
 }
 /**
@@ -1178,13 +1181,13 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
         if($anonymousfilename) {
             $fileinfoanonymous = emarking_create_page_file_from_path_or_file(NULL, NULL, $student, $context, $emarking, $storedfile, $pagenumber);
         } else {
-            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile);
+            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile, $student);
         }
     } else {
         $fileinfoanonymous = emarking_create_page_file_from_path_or_file($anonymousfilename, $path, $student, $context, $emarking, NULL, $pagenumber);
     }
     if(!$fileinfo || !$fileinfoanonymous) {
-        return false;
+        throw new Exception('Could not create file or anonymous');
     }
     // Gets or creates a submission for the student.
     $submission = emarking_get_or_create_submission($emarking, $student, $context);
@@ -1348,6 +1351,8 @@ function emarking_fix_page($fileid, $student, $emarking, $context, $pagenumber) 
     if(emarking_submit($emarking, $context, NULL, NULL, $student, $pagenumber, $file)) {
         $file->delete();
         return 1;
+    } else {
+        throw new Exception('Failed to submit');
     }
     return 1;
 }
@@ -2193,7 +2198,7 @@ function emarking_create_qr_from_string($qrstring) {
     QRcode::png($qrstring, $img);
     return $img;
 }
-function emarking_create_anonymous_page_from_storedfile(stored_file $file) {
+function emarking_create_anonymous_page_from_storedfile(stored_file $file, $student) {
     if (!$file) {
         throw new Exception('Stored file does not exist');
     }
@@ -2201,14 +2206,32 @@ function emarking_create_anonymous_page_from_storedfile(stored_file $file) {
     $fs = get_file_storage();
     $tmppath = $file->copy_content_to_temp('emarking', 'anonymous');
     // Treat the file as an image, get its size and draw a white rectangle.
-    $size = getimagesize($tmppath);
-    $image = imagecreatefrompng($tmppath);
+    $size = getimagesize($tmppath, $info);
+    $imagemime = exif_imagetype($tmppath);
+    if($imagemime == IMAGETYPE_PNG) {
+        $image = imagecreatefrompng($tmppath);
+    } elseif($imagemime == IMAGETYPE_JPEG) {
+        $image = imagecreatefromjpeg($tmppath);
+    } else {
+        throw new Exception('Unsupported file type for pages');
+    }
+    if(!$image) {
+        throw new Exception('Could not read image from ' . $info[0] . ' ' . $tmppath);
+    }
     $white = imagecolorallocate($image, 255, 255, 255);
     $y2 = round($size [1] / 10, 0);
     imagefilledrectangle($image, 0, 0, $size [0], $y2, $white);
     // Save the new image to replace the file.
-    if (!imagepng($image, $tmppath)) {
-        return false;
+    if($imagemime == IMAGETYPE_PNG) {
+        if (!imagepng($image, $tmppath)) {
+            throw new Exception('Could not save image as PNG to ' . $tmppath);
+        }
+    } elseif($imagemime == IMAGETYPE_JPEG) {
+        if (!imagejpeg($image, $tmppath,100)) {
+            throw new Exception('Could not save image as JPEG to ' . $tmppath);
+        }
+    } else {
+        throw new Exception('Unsupported file type for saving page');
     }
     clearstatcache();
     $filenameanonymous = emarking_get_anonymous_filename($file->get_filename());
@@ -2222,14 +2245,17 @@ function emarking_create_anonymous_page_from_storedfile(stored_file $file) {
         'filename' => $filenameanonymous,
         'timecreated' => $file->get_timecreated(),
         'timemodified' => time(),
-        'userid' => $file->get_userid(),
-        'author' => $file->get_author(),
+        'userid' => $student->id,
+        'author' => $student->firstname . ' ' . $student->lastname,
         'license' => 'allrightsreserved');
     $previousfile = $fs->get_file($file->get_contextid(), 'mod_emarking', 'pages', $file->get_itemid(), '/', $filenameanonymous);
     if ($previousfile) {
         $previousfile->delete();
     }
     $fileinfo = $fs->create_file_from_pathname($filerecordanonymous, $tmppath);
+    if(!$fileinfo) {
+        throw new Exception('Could not create anonymous version of a stored file');
+    }
     return $fileinfo;
 }
 /**
