@@ -224,6 +224,15 @@ function emarking_get_comments_page($pageno, $draftid, $winwidth, $winheight) {
         'pageno' => $pageno,
         'draft' => $draftid);
     $results = $DB->get_records_sql($sqlcomments, $params);
+    // Added feedback for each comment for each page.
+    if(count($results) > 0){
+    	foreach($results as $result){
+	    	if($feedback = $DB->get_records('emarking_feedback', array('commentid' => $result->id))){
+	    		$feedbackresult = array_values($feedback);
+	    		$result->feedback = $feedbackresult;
+	    	}
+    	}
+    }
     $results = array_values($results);
     return $results;
 }

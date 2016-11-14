@@ -1534,6 +1534,75 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016103001, 'emarking');
     }
     
+    if ($oldversion < 2016103101) {
+    
+    	// Define field feedback to be dropped from emarking_comment.
+    	$table = new xmldb_table('emarking_comment');
+    	$field = new xmldb_field('feedback');
+    
+    	// Conditionally launch drop field feedback.
+    	if ($dbman->field_exists($table, $field)) {
+    		$dbman->drop_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016103101, 'emarking');
+    }
+    
+    if ($oldversion < 2016103102) {
+    
+    	// Define table emarking_feedback to be created.
+    	$table = new xmldb_table('emarking_feedback');
+    
+    	// Adding fields to table emarking_feedback.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('commentid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('oer', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('name', XMLDB_TYPE_CHAR, '1000', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('link', XMLDB_TYPE_CHAR, '1333', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('timemodified', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+    	$table->add_field('click', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+    
+    	// Adding keys to table emarking_feedback.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    	$table->add_key('commentid', XMLDB_KEY_FOREIGN_UNIQUE, array('commentid'), 'emarking_comment', array('id'));
+    
+    	// Conditionally launch create table for emarking_feedback.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016103102, 'emarking');
+    }
+    
+    if ($oldversion < 2016103103) {
+    
+    	// Define key commentid (foreign) to be dropped form emarking_feedback.
+    	$table = new xmldb_table('emarking_feedback');
+    	$key = new xmldb_key('commentid', XMLDB_KEY_FOREIGN, array('commentid'), 'emarking_comment', array('id'));
+    
+    	// Launch drop key commentid.
+    	$dbman->drop_key($table, $key);
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016103103, 'emarking');
+    }
+    
+    if ($oldversion < 2016103104) {
+    
+    	// Define key commentid (foreign) to be added to emarking_feedback.
+    	$table = new xmldb_table('emarking_feedback');
+    	$key = new xmldb_key('commentid', XMLDB_KEY_FOREIGN, array('commentid'), 'emarking_comment', array('id'));
+    
+    	// Launch add key commentid.
+    	$dbman->add_key($table, $key);
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016103104, 'emarking');
+    }
+    
     
     return true;
 }

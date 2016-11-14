@@ -259,6 +259,9 @@ function emarking_delete_mark($submission, $draft, $emarking, $context) {
     // Delete the comment.
     $DB->delete_records('emarking_comment', array(
         'id' => $comment->id));
+    // Delete the feedback
+    $DB->delete_records('emarking_feedback', array(
+    		'commentid' =>$comment->id));
     // Update the final grade for the submission.
     list($finalgrade, $previouslvlid, $previouscomment) = emarking_set_finalgrade($rubriclevel, '', $submission, $draft, $emarking,
             $context, null, true);
@@ -376,8 +379,7 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     $rubricinfo = emarking_get_rubricinfo_by_level($rubriclevel);
     $removeid = 0;
     // Get the maximum score for the criterion in which we are adding a mark.
-    $maxscorerecord = $DB->get_record_sql(
-            "
+    $maxscorerecord = $DB->get_record_sql("
 		SELECT MAX(score) AS maxscore
 		FROM {gradingform_rubric_levels}
 		WHERE criterionid = ?
@@ -389,6 +391,8 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     foreach ($previouscomments as $prevcomment) {
         $DB->delete_records('emarking_comment', array(
             'id' => $prevcomment->id));
+        $DB->delete_records('emarking_feedback', array(
+        		'commentid' => $prevcomment->id));
         $removeid = $prevcomment->id;
     }
     // Transformation pixels screen to percentages.
@@ -411,9 +415,25 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     $emarkingcomment->criterionid = $rubricinfo->criterionid;
     $emarkingcomment->bonus = $bonus;
     $emarkingcomment->textformat = 2;
-    $emarkingcomment->feedback = $feedback;
     // Insert the record.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
+    if($feedback){    	
+    	//TODO: validar que el split por @@separador@@ contenga 3 objetos de lo contrario el insert fallara
+    	$insertfeedback = array();
+    	$arrayfeedback = explode("__separador__", $feedback);
+    	//var_dump($arrayfeedback);
+    	for($count = 0; $count < count($arrayfeedback); $count++){
+    		$fields = explode("@@separador@@", $arrayfeedback[$count]);
+    		$row = new stdClass();
+    		$row->commentid = $commentid;
+    		$row->oer = $fields[0];
+    		$row->name = $fields[1];
+    		$row->link = $fields[2];
+    		$row->timecreated = time();
+    		$insertfeedback[] = $row;
+    	}
+    	$DB->insert_records('emarking_feedback', $insertfeedback);
+    }
     $raterid = $USER->id;
     // Update the final grade.
     list($finalgrade, $previouslevel, $previouscomment) = emarking_set_finalgrade($rubriclevel, $comment, $submission, $draft,
@@ -1077,6 +1097,7 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
     $regradeid = optional_param('regradeid', 0, PARAM_INT);
     $regrademarkercomment = optional_param('regrademarkercomment', null, PARAM_RAW_TRIMMED);
     $regradeaccepted = optional_param('regradeaccepted', 0, PARAM_INT);
+    $feedback = optional_param('feedback', 0, PARAM_RAW_TRIMMED);
     $posx = required_param('posx', PARAM_INT);
     $posy = required_param('posy', PARAM_INT);
     // Measures the correction window.
@@ -1123,6 +1144,26 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         $comment->markerid = $userid;
     }
     $DB->update_record('emarking_comment', $comment);
+    if($feedback){
+    	// Delete previous feedback
+    	 $DB->delete_records('emarking_feedback', array(
+        		'commentid' => $commentid));  	
+    	// Inserte current feedback
+    	$insertfeedback = array();
+    	$arrayfeedback = explode("__separador__", $feedback);
+    	//TODO: validar que el split por @@separador@@ contenga 3 objetos de lo contrario el insert fallara
+    	for($count = 0; $count < count($arrayfeedback); $count++){
+    		$fields = explode("@@separador@@", $arrayfeedback[$count]);
+    		$row = new stdClass();
+    		$row->commentid = $commentid;
+    		$row->oer = $fields[0];
+    		$row->name = $fields[1];
+    		$row->link = $fields[2];
+    		$row->timecreated = time();
+    		$insertfeedback[] = $row;
+    	}
+    	$DB->insert_records('emarking_feedback', $insertfeedback);
+    }
     if($regradeid == 0){
     	// Update draft correction time
     	if($draft->timecorrectionstarted == null){
@@ -1203,7 +1244,10 @@ function emarking_get_resources_merlot($keywords){
 	$page = file_get_html($merloturl);
 	$output = array();
 	foreach ($page->find("a.materialLink") as $result){
-		$output [] = array("resource" => $result->innertext."_separador_https://www.merlot.org".$result->href);
+		// $parts[0] = /merlot/viewMaterial.htm?id=424478
+		// $parts[1] = trash to reconstructed the url
+		$parts = explode("&", $result->href);
+		$output [] = array("resource" => $result->innertext."_separador_https://www.merlot.org".$parts[0]);
 	}
 
 	return $output;
