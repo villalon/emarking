@@ -871,6 +871,7 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
  */
 function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     global $CFG, $DB;
+    require_once $CFG->dirroot . '/mod/emarking/lib/qrextractor/config.php';
     $context = context_module::instance($cm->id);
     $exam = $DB->get_record('emarking_exams', array(
         'emarking' => $emarking->id
@@ -891,8 +892,12 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     }
     } elseif ($extension === 'pdf') {
         $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
-            . $CFG->wwwroot . '/ admin pepito.P0 ' . $filepath . ' ' . $tempdir . ' '
+            . $CFG->wwwroot . '/ ' . $CFG->emarking_qr_user . ' '
+            . $CFG->emarking_qr_password . ' ' . $filepath . ' ' . $tempdir . ' '
             . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+        if(isset($CFG->debug) && $CFG->debug >= 32767) {
+            mtrace($command);
+        }
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;
@@ -912,9 +917,9 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     $doubleside = false;
     $pngfiles = array();
     foreach($files as $fileintemp) {
-        if (!is_dir($fileintemp) && strtolower(substr($fileintemp, -4, 4)) === ".png") {
+        if (!is_dir($fileintemp) && strtolower(substr($fileintemp, -4, 4)) === ".jpg") {
             $pngfiles[] = $fileintemp;
-            if (strtolower(substr($fileintemp, -5, 5)) === "b.png") {
+            if (strtolower(substr($fileintemp, -5, 5)) === "b.jpg") {
                 $doubleside = true;
             }
         }
@@ -1074,7 +1079,7 @@ function emarking_get_digitized_answer_orphan_pages($context) {
     $output = array();
     foreach($orphanpages as $page) {
         $filenameparts = explode('.',$page->get_filename());
-        if(count($filenameparts) != 2 || $filenameparts[1] !== 'png') {
+        if(count($filenameparts) != 2 || ($filenameparts[1] !== 'png' && $filenameparts[1] !== 'jpg')) {
             continue;
         }
         $pagekey = $filenameparts[0];
@@ -1106,10 +1111,10 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
         throw new Exception("Invalid student to submit page");
     }
     // Calculate definitive filename
-    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.png';
+    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.jpg';
     // If is anonymous, the filename requires a _a
-    if (strtolower(substr($filename, -6)) === '_a.png') {
-        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '_a.png';
+    if (strtolower(substr($filename, -6)) === '_a.jpg') {
+        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '_a.jpg';
     }
     // Filesystem.
     $fs = get_file_storage();
@@ -1139,6 +1144,9 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
         $fileinfo = $fs->create_file_from_pathname($filerecord, $dirpath . '/' . $filename);
     } else {
         $fileinfo = $fs->create_file_from_storedfile($filerecord, $storedfile);
+    }
+    if($fileinfo==NULL) {
+        throw new Exception('Could not create file');
     }
     return $fileinfo;
 }
@@ -1173,13 +1181,13 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
         if($anonymousfilename) {
             $fileinfoanonymous = emarking_create_page_file_from_path_or_file(NULL, NULL, $student, $context, $emarking, $storedfile, $pagenumber);
         } else {
-            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile);
+            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile, $student);
         }
     } else {
         $fileinfoanonymous = emarking_create_page_file_from_path_or_file($anonymousfilename, $path, $student, $context, $emarking, NULL, $pagenumber);
     }
     if(!$fileinfo || !$fileinfoanonymous) {
-        return false;
+        throw new Exception('Could not create file or anonymous');
     }
     // Gets or creates a submission for the student.
     $submission = emarking_get_or_create_submission($emarking, $student, $context);
@@ -1230,7 +1238,7 @@ function emarking_get_anonymous_filename($filename) {
     if(count($filenameparts) > 1) {
         $anonymousfilename = $filenameparts[0] . "_a." . $filenameparts[1];
     } else {
-        $anonymousfilename = $filenameparts[0] . "_a.png";
+        $anonymousfilename = $filenameparts[0] . "_a.jpg";
     }
     return $anonymousfilename;
 }
@@ -1343,6 +1351,8 @@ function emarking_fix_page($fileid, $student, $emarking, $context, $pagenumber) 
     if(emarking_submit($emarking, $context, NULL, NULL, $student, $pagenumber, $file)) {
         $file->delete();
         return 1;
+    } else {
+        throw new Exception('Failed to submit');
     }
     return 1;
 }
@@ -2188,7 +2198,7 @@ function emarking_create_qr_from_string($qrstring) {
     QRcode::png($qrstring, $img);
     return $img;
 }
-function emarking_create_anonymous_page_from_storedfile(stored_file $file) {
+function emarking_create_anonymous_page_from_storedfile(stored_file $file, $student) {
     if (!$file) {
         throw new Exception('Stored file does not exist');
     }
@@ -2196,14 +2206,32 @@ function emarking_create_anonymous_page_from_storedfile(stored_file $file) {
     $fs = get_file_storage();
     $tmppath = $file->copy_content_to_temp('emarking', 'anonymous');
     // Treat the file as an image, get its size and draw a white rectangle.
-    $size = getimagesize($tmppath);
-    $image = imagecreatefrompng($tmppath);
+    $size = getimagesize($tmppath, $info);
+    $imagemime = exif_imagetype($tmppath);
+    if($imagemime == IMAGETYPE_PNG) {
+        $image = imagecreatefrompng($tmppath);
+    } elseif($imagemime == IMAGETYPE_JPEG) {
+        $image = imagecreatefromjpeg($tmppath);
+    } else {
+        throw new Exception('Unsupported file type for pages');
+    }
+    if(!$image) {
+        throw new Exception('Could not read image from ' . $info[0] . ' ' . $tmppath);
+    }
     $white = imagecolorallocate($image, 255, 255, 255);
     $y2 = round($size [1] / 10, 0);
     imagefilledrectangle($image, 0, 0, $size [0], $y2, $white);
     // Save the new image to replace the file.
-    if (!imagepng($image, $tmppath)) {
-        return false;
+    if($imagemime == IMAGETYPE_PNG) {
+        if (!imagepng($image, $tmppath)) {
+            throw new Exception('Could not save image as PNG to ' . $tmppath);
+        }
+    } elseif($imagemime == IMAGETYPE_JPEG) {
+        if (!imagejpeg($image, $tmppath,100)) {
+            throw new Exception('Could not save image as JPEG to ' . $tmppath);
+        }
+    } else {
+        throw new Exception('Unsupported file type for saving page');
     }
     clearstatcache();
     $filenameanonymous = emarking_get_anonymous_filename($file->get_filename());
@@ -2217,14 +2245,17 @@ function emarking_create_anonymous_page_from_storedfile(stored_file $file) {
         'filename' => $filenameanonymous,
         'timecreated' => $file->get_timecreated(),
         'timemodified' => time(),
-        'userid' => $file->get_userid(),
-        'author' => $file->get_author(),
+        'userid' => $student->id,
+        'author' => $student->firstname . ' ' . $student->lastname,
         'license' => 'allrightsreserved');
     $previousfile = $fs->get_file($file->get_contextid(), 'mod_emarking', 'pages', $file->get_itemid(), '/', $filenameanonymous);
     if ($previousfile) {
         $previousfile->delete();
     }
     $fileinfo = $fs->create_file_from_pathname($filerecordanonymous, $tmppath);
+    if(!$fileinfo) {
+        throw new Exception('Could not create anonymous version of a stored file');
+    }
     return $fileinfo;
 }
 /**
@@ -2376,4 +2407,58 @@ function emarking_validate_ipv6_address($ipv6) {
             }
         }
     return $flag;
+}
+/**
+ * 
+ */
+function emarking_process_digitized_answers() {
+    global $CFG, $DB;
+    require_once($CFG->dirroot . '/mod/emarking/lib.php');
+    require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+    require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
+    $digitizedanswerfiles = emarking_get_digitized_answer_files(NULL, EMARKING_DIGITIZED_ANSWER_UPLOADED);
+    if(count($digitizedanswerfiles) == 0) {
+        mtrace('No digitized answers files to process');
+        return;
+    }
+    $totalfiles = 0;
+    // Setup de directorios temporales.
+    $tempdir = emarking_get_temp_dir_path(random_string());
+    emarking_initialize_directory($tempdir, true);
+    foreach($digitizedanswerfiles as $digitizedanswerfile) {
+        if(!$zipfile = emarking_get_path_from_hash($tempdir, $digitizedanswerfile->hash)) {
+            mtrace('Invalid file for processing ' . $digitizedanswerfile->id);
+            continue;
+        }
+        if(!$emarking = $DB->get_record('emarking', array('id' => $digitizedanswerfile->emarking))) {
+            mtrace('Invalid emarking activity ' . $digitizedanswerfile->emarking);
+            continue;
+        }
+        if(!$course = $DB->get_record('course', array('id'=>$emarking->course))) {
+            mtrace('Invalid course in emarking activity ' . $emarking->course);
+            continue;
+        }
+        if(!$cm = get_coursemodule_from_instance('emarking', $emarking->id)) {
+            mtrace('Invalid course module for emarking activity ' . $emarking->id);
+            continue;
+        }
+        $totalfiles++;
+        $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $digitizedanswerfile->filename ($digitizedanswerfile->id)";
+        $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED;
+        $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
+        // Process documents and obtain results.
+        list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
+        emarking_upload_answers($emarking, $zipfile, $course, $cm);
+        if($result) {
+            $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
+        } else {
+            $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING;
+        }
+        $digitizedanswerfile->totalpages = $totaldocumentsprocessed;
+        $digitizedanswerfile->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);
+        $msg .= emarking_get_string_for_status_digitized($digitizedanswerfile->status) . ' processed:' . $totaldocumentsprocessed . ' ignored:' . $totaldocumentsignored;
+        $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
+        mtrace($msg);
+    }
+    mtrace("A total of $totalfiles were processed.");
 }

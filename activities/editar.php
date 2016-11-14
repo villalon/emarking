@@ -6,7 +6,7 @@ require ('generos.php');
 
  //Código para setear contexto, url, layout
 global $PAGE,$USER, $OUTPUT, $DB;
-$forkid = required_param('id', PARAM_INT);
+$activityid = required_param('id', PARAM_INT);
 
 $PAGE->set_pagelayout('embedded');
 require_login();
@@ -15,8 +15,8 @@ $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/edit.php');
 $PAGE->set_url($url);
 	echo $OUTPUT->header();
 	
-$fork=$DB->get_record('emarking_activities',array('id'=>$forkid));
-if($fork->userid != $USER->id){
+$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
+if($activity->userid != $USER->id){
 		print_error('No tienes permiso para editar esta actividad.');
 	
 }
@@ -31,40 +31,40 @@ if ($mform->is_cancelled()) {
 } else if ($fromform = $mform->get_data()) {
 	
 
-	if($fork->instructions != $fromform->instructions['text'] || 
-	   $fork->teaching !=	$fromform->teaching['text'] ||
-	   $fork->languageresources	!= $fromform->languageresources['text'] ||
-	   $fork->rubricid != $fromform->rubricid){
+	if($activity->instructions != $fromform->instructions['text'] || 
+	   $activity->teaching !=	$fromform->teaching['text'] ||
+	   $activity->languageresources	!= $fromform->languageresources['text'] ||
+	   $activity->rubricid != $fromform->rubricid){
 		
-	$fork->instructions				= $fromform->instructions['text'];
-	$fork->teaching   				= $fromform->teaching['text'];
-	$fork->languageresources 		= $fromform->languageresources['text'];
-	$fork->timemodified				= time();
-	$fork->rubricid 				= $fromform->rubricid;
+	$activity->instructions				= $fromform->instructions['text'];
+	$activity->teaching   				= $fromform->teaching['text'];
+	$activity->languageresources 		= $fromform->languageresources['text'];
+	$activity->timemodified				= time();
+	$activity->rubricid 				= $fromform->rubricid;
 	
-	$DB->update_record('emarking_activities', $fork);
+	$DB->update_record('emarking_activities', $activity);
 	}
 		
-	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/fork.php', array('id' => $forkid));
+	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 	redirect($url, 0);
   //In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
 	
-	$fork=$DB->get_record('emarking_activities',array('id'=>$forkid));
-	$keyofgenre = array_search($fork->genre, $generos) + 1;
+	$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
+	$keyofgenre = array_search($activity->genre, $generos) + 1;
 	$formData = new stdClass();
 	
- 	$formData->instructions['text']			= $fork->instructions;
-	$formData->teaching['text']  			= $fork->teaching;
- 	$formData->languageresources['text'] 	= $fork->languageresources;
- 	$formData->rubricid 					= $fork->rubricid;
- 	$formData->title 						= $fork->title;
- 	$formData->description 					= $fork->description;
- 	$formData->comunicativepurpose 			= $fork->comunicativepurpose;
+ 	$formData->instructions['text']			= $activity->instructions;
+	$formData->teaching['text']  			= $activity->teaching;
+ 	$formData->languageresources['text'] 	= $activity->languageresources;
+ 	$formData->rubricid 					= $activity->rubricid;
+ 	$formData->title 						= $activity->title;
+ 	$formData->description 					= $activity->description;
+ 	$formData->comunicativepurpose 			= $activity->comunicativepurpose;
  	$formData->genre 						= $keyofgenre;
- 	$formData->audience 					= $fork->audience;
- 	$formData->estimatedtime 				= $fork->estimatedtime;
- 	$formData->id 							= $forkid;
+ 	$formData->audience 					= $activity->audience;
+ 	$formData->estimatedtime 				= $activity->estimatedtime;
+ 	$formData->id 							= $activityid;
  	$mform->set_data($formData);
  
   $mform->display();

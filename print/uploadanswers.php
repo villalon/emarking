@@ -45,6 +45,7 @@ require_login($course->id);
 if (isguestuser()) {
     die();
 }
+require_capability('mod/emarking:uploadexam', $context);
 $action = optional_param('action', 'view', PARAM_ALPHA);
 $digitizedanswerid = optional_param('did', 0, PARAM_INT);
 $usercanmanageanswersfiles = has_capability('mod/emarking:uploadexam', $context) || is_siteadmin();
@@ -66,7 +67,6 @@ if ($mform->is_cancelled()) {
     die();
 }
 if ($mform->get_data()) {
-    require_capability('mod/emarking:uploadexam', $context);
     // Save uploaded file in Moodle filesystem and check.
     $fs = get_file_storage();
     $fs->delete_area_files($context->id, 'mod_emarking', 'tmpupload');
@@ -124,7 +124,6 @@ if ($mform->get_data()) {
 }
 $deletedsuccessfull = false;
 if($action === 'delete') {
-    require_capability('mod/emarking:uploadexam', $context);
     if(!$DB->record_exists('emarking_digitized_answers', array('id'=>$digitizedanswerid))) {
         print_error('Invalid id for digitized answer to be deleted');
     }
@@ -135,9 +134,6 @@ if($action === 'delete') {
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 } elseif($action === 'process') {
-    if(!is_siteadmin()) {
-        print_error('Invalid access');
-    }
     if(! $digitizedanswer = $DB->get_record('emarking_digitized_answers',
             array('id'=>$digitizedanswerid))) {
         print_error('Invalid id for digitized answer to process');
@@ -172,27 +168,19 @@ if (count($digitizedanswersfiles) == 0) {
             array('id'=>$cm->id, 'action' => 'delete', 'did'=>$file->id));
         $processurl = new moodle_url('/mod/emarking/print/uploadanswers.php',
             array('id'=>$cm->id, 'action' => 'process', 'did'=>$file->id));
-        $changetouploadedurl = new moodle_url('/mod/emarking/print/uploadanswers.php',
-            array('id'=>$cm->id, 'action' => 'changetouploaded', 'did'=>$file->id));
         if (($file->status == EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING || $file->status <= EMARKING_DIGITIZED_ANSWER_UPLOADED)
             && $usercanmanageanswersfiles) {
             $actions[] = $OUTPUT->action_icon($deleteurl, new pix_icon('i/delete', 'delete', null, array(
                 'style' => 'width:1.5em;'
             )));
         }
-        elseif ($file->status != EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED
+        if ($file->status != EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED
             && $usercanmanageanswersfiles) {
             $actions[] = $OUTPUT->action_icon($processurl, new pix_icon('i/reload', 'reload', null, array(
                 'style' => 'width:1.5em;'
             )));
         }
-        elseif (($file->status == EMARKING_DIGITIZED_ANSWER_PROCESSED || $file->status == EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING)
-            && $usercanmanageanswersfiles) {
-            $actions[] = $OUTPUT->action_icon($changetouploadedurl, new pix_icon('i/scheduled', 'scheduled', null, array(
-                'style' => 'width:1.5em;'
-            )));
-        }
-        elseif ($file->status == EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED
+        if ($file->status == EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED
             && is_siteadmin()) {
             $actions[] = $OUTPUT->action_icon($processurl, new pix_icon('i/reload', 'reload', null, array(
                 'style' => 'width:1.5em;'
@@ -211,11 +199,7 @@ if (count($digitizedanswersfiles) == 0) {
 }
 // Show orphan pages button
 $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
-$numorphanpages = count($orphanpages);
-if($numorphanpages > 0) {
-    $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array('id'=>$cm->id));
-    echo $OUTPUT->single_button($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages), 'GET');
-}
+emarking_show_orphan_pages_link($context, $cm);
 if(has_capability('mod/emarking:uploadexam', $context)) {
     $mform->display();
 }

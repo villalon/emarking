@@ -1,14 +1,20 @@
 <?php
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) )). '/config.php');
 require_once ('generos.php');
-GLOBAL $USER, $CFG;
+GLOBAL $USER, $CFG,$PAGE;
 $teacherroleid = 3;
 $logged = false;
+$PAGE->set_context(context_system::instance());
 // Id of the exam to be deleted.
 $activityid = required_param('id', PARAM_INT);
+$check = optional_param('create',0,PARAM_INT);
 $forkingUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/forking.php', array('id' => $activityid));
 $editUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/edit.php', array('id' => $activityid));
 $pdfUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/pdfcreator.php', array('id' => $activityid));
+if(isset($check)&& $check==1){
+	$message = "eMarking creado exitosamente.";
+	echo "<script type='text/javascript'>alert('$message');</script>";
+}
 
 if (isloggedin ()) {
 	$logged = true;
@@ -28,12 +34,13 @@ $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 $user_object = $DB->get_record('user', array('id'=>$activity->userid));
 
 $rubric=$DB->get_records_sql("SELECT grl.id,
+									 gd.description as des,
 									 grc.id as grcid,
 									 grl.score,
 									 grl.definition, 
 									 grc.description, 
 									 grc.sortorder, 
-									 gd.name
+									 gd.name as name
 							  FROM {gradingform_rubric_levels} as grl,
 	 							   {gradingform_rubric_criteria} as grc,
     							   {grading_definitions} as gd
@@ -45,6 +52,8 @@ $rubric=$DB->get_records_sql("SELECT grl.id,
 foreach ($rubric as $data) {
 	
 	$table[$data->description][$data->definition]=$data->score;
+	$rubricdescription=$data->des;
+	$rubricname=$data->name;
 }
 $col=0;
 foreach ($table as $calc) {
@@ -132,6 +141,31 @@ foreach($oaComplete as $oaPerCourse){
   				<?php
   				if($activity->userid == $USER->id){
   					echo '<a href="'.$editUrl.'" class="btn btn-primary" role="button">Editar Actividad</a>';
+  					?>
+  					
+  					<form role="form" action="newsubmission.php">
+								<br>
+								<br>
+								<select class="form-control" name="course">
+									<option>Seleccione el curso</option>
+ 									 <?php
+										foreach ( $asteachercourses as $key => $asteachercourse ) {
+										echo '<option value="' . $key . '"> ' . $asteachercourse . ' </option>';
+										}?>
+  								</select>
+  								<input type="hidden" value="<?php echo $activityid; ?>" name="id" >
+								
+								
+								<br>
+			<?php
+			if ($countcourses > 0) {
+				?>
+  				<button type="submit" class="btn btn-info" style="font-size: 18px;">Utilizar Actividad</button>
+  			<?php }else { ?>
+  				<button type="submit" class="btn btn-info" disabled="disabled">Utilizar	Actividad</button>
+ 			<?php }?>
+						</form>
+						<?php 
   				}else{
   					echo '<a href="'.$forkingUrl.'" class="btn btn-primary" role="button">Utilizar Actividad</a>';
   				}
@@ -213,6 +247,8 @@ foreach($oaComplete as $oaPerCourse){
 
 	 <div id="menu2" class="tab-pane fade">
 	 <h3 style="text-align: left;">Evaluación</h3>
+	<h4 style="text-align: left;"><?php echo $rubricname?></h4>
+	<?php echo $rubricdescription; ?>
 			<table class="table table-bordered">
  					<thead>
      					<tr>

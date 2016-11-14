@@ -146,7 +146,7 @@ if ($userismarker || $markerid != $USER->id) {
     $head [] = $markercolumn;
 }
 $head [] = get_string("agreement", "mod_emarking");
-$head [] = get_string("status", "mod_emarking");
+$head [] = get_string("actions", "mod_emarking");
 $firststagetable->head = $head;
 $sum = array();
 foreach ($agreements as $agree) {
@@ -232,7 +232,7 @@ foreach ($agreements as $agree) {
                         'cid' => $commentids [$i],
                         'emarkingid' => $emarking->id,
                         'lid' => $agreedlevel [$agree->criterionid] ["level"]));
-            $popuplink = $OUTPUT->action_link($link, get_string("annotatesubmission", "mod_emarking"),
+            $popuplink = $OUTPUT->action_link($link, get_string("regrade", "mod_emarking"),
                     new popup_action('click', $link, '',
                             array(
                                 'menubar' => 'no',

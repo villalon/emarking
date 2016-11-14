@@ -39,11 +39,16 @@ require_login($course->id);
 if (isguestuser()) {
     die();
 }
+// Get the course module for the emarking, to build the emarking url.
+$urlemarking = new moodle_url('/mod/emarking/view.php', array(
+    'id' => $cm->id
+));
+// If it was an import.
 if($emarking->parent > 0 && $emarking->copiedfromparent == 0) {
     $srcemarking = $DB->get_record('emarking', array('id'=>$emarking->parent));
     emarking_copy_peer_review($srcemarking, $emarking);
-    var_dump($emarking);
-    die("ok");
+    redirect($urlemarking);
+    die();
 }
 // Table parameters for sorting and pagination.
 // Page to show (when paginating).
@@ -75,10 +80,6 @@ if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
     )));
     die();
 }
-// Get the course module for the emarking, to build the emarking url.
-$urlemarking = new moodle_url('/mod/emarking/view.php', array(
-    'id' => $cm->id
-));
 // Obtain user permissions for grading and supervising.
 list ($issupervisor, $usercangrade) = emarking_get_grading_permissions($emarking, $context);
 // Supervisors and site administrators can see everything always.
@@ -149,8 +150,17 @@ if ($reassignpeers && $usercangrade && $issupervisor && $numdraftsgrading == 0) 
 }
 // Get rubric instance.
 list ($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller) =
-    emarking_validate_rubric($context, $emarkingisstudentmarking || $emarking->type == EMARKING_TYPE_PEER_REVIEW, // Die if no rubric.
-    !$scan); // Show rubric creation button.
+    emarking_validate_rubric(
+        $context,
+        ($emarkingisstudentmarking && !$scan) || $emarking->type == EMARKING_TYPE_PEER_REVIEW, // Die if no rubric.
+        !$scan); // Show rubric creation button.
+// If there are no students enrolled in the course, then no .
+$students = get_enrolled_users($context, 'mod/emarking:submit');
+if(count($students) == 0) {
+    echo $OUTPUT->notification(get_string('nostudent', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->footer();
+    die();
+}
 // User filter checking capabilities. If user can not grade, then she can not.
 // see other users.
 $userfilter = 'WHERE 1=1 ';
@@ -204,7 +214,9 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo emarking_tabs_markers_training($context, $cm, $emarking, $generalprogress, 0);
 }
 // Show export buttons when grades are available
-emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+if($usercangrade) {
+    emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+}
 if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);
     echo html_writer::table($chartstable);
@@ -228,21 +240,6 @@ $numcriteriauser = $DB->count_records_sql("
     $emarking->id,
     $USER->id
 ));
-// Check if activity is configured with separate groups to filter users.
-if ($cm->groupmode == SEPARATEGROUPS && $emarkingisstudentmarking &&
-    $usercangrade && !is_siteadmin($USER) && !$issupervisor) {
-    $userfilter .= "
-		AND u.id in (
-			SELECT userid
-			FROM {groups_members}
-			WHERE groupid in (
-				SELECT groupid
-				FROM {groups_members} gm
-				INNER JOIN {groups} g on (gm.groupid = g.id)
-				WHERE gm.userid = $USER->id AND g.courseid = e.courseid
-							)
-					)";
-}
 $enrolments = explode(',', $exam ? $exam->enrolments : $CFG->emarking_enrolincludes);
 for($i = 0; $i < count($enrolments); $i++) {
     $enrolments[$i] = "'" . $enrolments[$i] . "'";
@@ -271,7 +268,7 @@ SELECT
 $sqluser
 IFNULL(NM.submissionid,0) as submission,
 NM.answerkey,
-GROUP_CONCAT(IFNULL(NM.groupid,0) SEPARATOR '#') as groupid,
+GROUP_CONCAT(IFNULL(NM.groups,0) SEPARATOR '#') as groups,
 GROUP_CONCAT(IFNULL(NM.draftid,0) SEPARATOR '#') as draft,
 GROUP_CONCAT(IFNULL(NM.status,0) SEPARATOR '#') as status,
 GROUP_CONCAT(IFNULL(NM.pages,0) SEPARATOR '#') as pages,
@@ -308,7 +305,7 @@ SELECT s.student,
 s.answerkey,
 d.id as draftid,
 d.submissionid as submissionid,
-d.groupid as groupid,
+d.group as groups,
 d.status,
 d.timemodified,
 d.grade,
@@ -584,7 +581,9 @@ $submission = $DB->get_record('emarking_submission', array(
     'emarking' => $emarking->id,
     'student' => $USER->id
 ));
-emarking_show_orphan_pages_link($context);
+if($usercanpublishgrades) {
+    emarking_show_orphan_pages_link($context, $cm);
+}
 // If the user is a tutor or teacher we don't include justice perception.
 if ($usercangrade || !$submission) {
     echo $OUTPUT->footer();

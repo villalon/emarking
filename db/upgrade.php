@@ -1534,7 +1534,38 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016103001, 'emarking');
     }
     
-    if ($oldversion < 2016103101) {
+    if ($oldversion < 2016110801) {
+    
+        // Define field student to be dropped from emarking_draft.
+        $table = new xmldb_table('emarking_draft');
+        $field = new xmldb_field('student');
+    
+        // Conditionally launch drop field student.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016110801, 'emarking');
+    }
+    
+    if ($oldversion < 2016110802) {
+    
+        // Rename field groupid on table emarking_draft to NEWNAMEGOESHERE.
+        $table = new xmldb_table('emarking_draft');
+        $field = new xmldb_field('groupid', XMLDB_TYPE_CHAR, '255', null, null, null, 'NULL');
+        
+        // Launch change of type for field groupid.
+        $dbman->change_field_type($table, $field);
+        
+        // Launch rename field groupid.
+        $dbman->rename_field($table, $field, 'group');
+    
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2016110802, 'emarking');
+    }
+	
+    if ($oldversion < 2016111401) {
     
     	// Define field feedback to be dropped from emarking_comment.
     	$table = new xmldb_table('emarking_comment');
@@ -1546,10 +1577,10 @@ function xmldb_emarking_upgrade($oldversion) {
     	}
     
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016103101, 'emarking');
+    	upgrade_mod_savepoint(true, 2016111401, 'emarking');
     }
     
-    if ($oldversion < 2016103102) {
+    if ($oldversion < 2016111402) {
     
     	// Define table emarking_feedback to be created.
     	$table = new xmldb_table('emarking_feedback');
@@ -1574,10 +1605,10 @@ function xmldb_emarking_upgrade($oldversion) {
     	}
     
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016103102, 'emarking');
+    	upgrade_mod_savepoint(true, 2016111402, 'emarking');
     }
     
-    if ($oldversion < 2016103103) {
+    if ($oldversion < 2016111403) {
     
     	// Define key commentid (foreign) to be dropped form emarking_feedback.
     	$table = new xmldb_table('emarking_feedback');
@@ -1587,10 +1618,10 @@ function xmldb_emarking_upgrade($oldversion) {
     	$dbman->drop_key($table, $key);
     
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016103103, 'emarking');
+    	upgrade_mod_savepoint(true, 2016111403, 'emarking');
     }
     
-    if ($oldversion < 2016103104) {
+    if ($oldversion < 2016111404) {
     
     	// Define key commentid (foreign) to be added to emarking_feedback.
     	$table = new xmldb_table('emarking_feedback');
@@ -1600,9 +1631,8 @@ function xmldb_emarking_upgrade($oldversion) {
     	$dbman->add_key($table, $key);
     
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2016103104, 'emarking');
+    	upgrade_mod_savepoint(true, 2016111404, 'emarking');
     }
-    
     
     return true;
 }

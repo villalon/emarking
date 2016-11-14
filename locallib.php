@@ -1144,30 +1144,6 @@ function emarking_get_students_for_printing($courseid) {
     $rs = $DB->get_recordset_sql($query, $params);
     return $rs;
 }
-
-/**
- * Get all students from a group, for printing.
- *
- * @param unknown_type $groupid,$courseid            
- */
-function emarking_get_students_of_groups($courseid, $groupid) {
-    global $DB;
-    $query = 'SELECT u.id, u.idnumber, u.firstname, u.lastname, e.enrol
-				FROM {user_enrolments} ue
-				JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
-				JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
-				JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
-				JOIN {user} u ON (ue.userid = u.id)
-				JOIN {groups_members} gm ON (gm.userid = u.id AND gm.groupid = ?)
-				ORDER BY lastname ASC';
-    // Se toman los resultados del query dentro de una variable.
-    $rs = $DB->get_recordset_sql($query, array(
-        $courseid,
-        $groupid
-    ));
-    return $rs;
-}
-
 /**
  * Get all groups from a course, for printing.
  *
@@ -2046,11 +2022,11 @@ function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emar
     }
     // Show export to Excel button if supervisor and there are students to export.
     if ($issupervisor && $emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
-        $csvurl = new moodle_url('delphi.php', array(
+        $csvurl = new moodle_url('/mod/emarking/marking/delphi.php', array(
             'id' => $cm->id,
             'exportcsv' => 'delphi'
         ));
-        $csvurlagreement = new moodle_url('delphi.php', array(
+        $csvurlagreement = new moodle_url('/mod/emarking/marking/delphi.php', array(
             'id' => $cm->id,
             'exportcsv' => 'agreement'
         ));
@@ -2119,7 +2095,12 @@ function emarking_markers_online($context) {
     $markers = get_enrolled_users($context, 'mod/emarking:grade', 0, '*');
     echo html_writer::start_div('markers');
     foreach($markers as $marker) {
-        echo $OUTPUT->user_picture($marker);
+        $diff = round((time() - $marker->lastaccess) / 60, 0);
+        $class = 'userpicture';
+        if($diff < 5) {
+            $class .= ' online';
+        }
+        echo $OUTPUT->user_picture($marker, array('class'=>$class));
     }
     echo html_writer::end_div();
 }
@@ -2129,7 +2110,8 @@ function emarking_markers_online($context) {
  * 
  * @param unknown $context            
  */
-function emarking_show_orphan_pages_link($context) {
+function emarking_show_orphan_pages_link($context, $cm) {
+    global $OUTPUT;
     $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
     $numorphanpages = count($orphanpages);
     if ($numorphanpages > 0) {

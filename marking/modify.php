@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+require_once($CFG->dirroot . '/mod/emarking/marking/locallib.php');
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 // Check that user is logued in the course.
@@ -52,28 +54,36 @@ if (! $levels = $DB->get_records('gradingform_rubric_levels', array(
     'criterionid' => $criterionid))) {
     print_error("Invalid comment id");
 }
-$PAGE->requires->jquery();
 $PAGE->set_url('/mod/emarking/marking/modify.php');
 $PAGE->set_pagelayout('popup');
 $PAGE->set_context($context);
+$PAGE->set_cm($cm);
+$PAGE->set_course($course);
+$PAGE->requires->jquery();
 echo $OUTPUT->header();
 echo "<style>#page-mod-emarking-marking-modify #page-header {display:none;}</style>";
 echo $OUTPUT->heading(
         get_string("updatemark", "mod_emarking") . ": $criterion->description " . get_string("exam", "mod_emarking") . " " .
                  $comment->draft);
-$html = "<table style='margin-left: auto; margin-right: auto;'><tr>";
+$html = "<table style='margin-left: auto; margin-right: auto;' class='tablemodify'><tr>";
 foreach ($levels as $level) {
     $class = $level->id == $agreementlevelid ? "agreement-modify-level-selected" : "agreement-modify-level";
     $checked = $level->id == $comment->levelid ? "checked" : "";
-    $html .= '<td class="' . $class . '">' . $level->definition . '<br/>' . '<div><input type="radio" ' . $checked .
-             ' name="score" idlevel=' . $level->id . '>' . floor($level->score) . ' puntos</div></td>';
+    $html .= '<td class="' . $class . '">' . $level->definition . '</td>';
+}
+$html .= '</tr><tr>';
+foreach ($levels as $level) {
+    $class = $level->id == $agreementlevelid ? "agreement-modify-level-selected" : "agreement-modify-level";
+    $checked = $level->id == $comment->levelid ? "checked" : "";
+    $html .= '<td class="' . $class . '">' . '<input type="radio" ' . $checked .
+             ' name="score" idlevel=' . $level->id . '>' . floor($level->score) . ' '.get_string("points", "grades").'</td>';
 }
 $html .= '</tr></table><br/>';
 echo $html;
 $ajaxurl = $CFG->wwwroot .
-         "/mod/emarking/ajax/a.php?action=updcomment&ids=$comment->draft&cid=$comment->id&comment=delphi&" +
-         "posx=$comment->posx&posy=$comment->posy";
-$savebutton = "<input type='submit' style='margin-left:auto;' value='Save' id='addregrade' url=" . $ajaxurl . ">";
+         "/mod/emarking/ajax/a.php?action=updcomment&ids=$comment->draft&cid=$comment->id&comment=delphi&" .
+         "posx=$comment->posx&posy=$comment->posy&markerid=$USER->id";
+$savebutton = "<input type='submit' style='margin-left:auto;' value='Save' id='addregrade' url=" . $ajaxurl . " class='form-submit'>";
 $closebutton = "<input type='submit' style='margin-left:auto;' value='Cancel' id='cancel' onClick='window.close()'>";
 echo $OUTPUT->box($savebutton . "&nbsp;&nbsp;&nbsp;" . $closebutton, null, null, array(
     "style" => "text-align:center;"));
@@ -85,14 +95,21 @@ $(document).ready(function(){
 		var radiobutton = $("input[name='score']:checked");
 		var idlevel = radiobutton.attr("idlevel");
 		var ajaxurl = $("#addregrade").attr("url") + "&levelid=" + idlevel;
+		console.log(ajaxurl);
 		$.ajax({
-    		type:"JSON",
+    		type:"JSONP",
         	url:ajaxurl,
         	data:{},
         	success:function(result) {
             	window.close();
          	},
-            error:function(exception) {window.close();console.log(exception)}
+            error:function(exception) {
+            	var response = JSON.parse(exception.responseText);
+            	if(response.error == "") {
+                	window.close();
+            	}
+                console.log(exception);
+            }
 		});
 		$("#addregrade").prop('value', 'Saving');
 		$("#addregrade").attr('disabled', 'disabled');

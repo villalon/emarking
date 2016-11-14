@@ -77,12 +77,6 @@ if (! $exam = $DB->get_record ( "emarking_exams", $params )) {
 	) ) );
 	die ( "" );
 }
-if (has_capability ( "mod/emarking:downloadexam", $context )) {
-	$buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string ( 'exam', 'mod_emarking' ) . ' ' . core_text::strtolower ( get_string ( 'examstatusbeingprocessed', 'mod_emarking' ) ) : get_string ( 'downloadexam', 'mod_emarking' );
-	$disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
-	$downloadexambutton = "<input type='button' class='downloademarking' examid ='$exam->id' value='" . $buttontext . "' $disabled>";
-	echo $downloadexambutton;
-}
 list ( $canbedeleted, $multicourse ) = emarking_exam_get_parallels ( $exam );
 // Create a new html table.
 $examstable = new html_table ();
@@ -215,6 +209,12 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 </script>
 <?php
 }
+if (has_capability ( "mod/emarking:downloadexam", $context )) {
+    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string ( 'exam', 'mod_emarking' ) . ' ' . core_text::strtolower ( get_string ( 'examstatusbeingprocessed', 'mod_emarking' ) ) : get_string ( 'downloadexam', 'mod_emarking' );
+    $disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
+    $downloadexambutton = "<input type='button' class='downloademarking' examid ='$exam->id' value='" . $buttontext . "' $disabled>";
+    echo $downloadexambutton;
+}
 if ($issupervisor) {
 	// Active types tab.
 	$urlscan = new moodle_url ( "/mod/emarking/print/enablefeatures.php", array (
@@ -227,9 +227,9 @@ if ($issupervisor) {
 	) );
 	echo html_writer::start_tag ( 'div' );
 	if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
-		echo $OUTPUT->single_button ( $urlscan, get_string ( "enablescan", "mod_emarking" ) );
+		echo $OUTPUT->single_button ( $urlscan, get_string ( "enablescan", "mod_emarking" ), 'GET', array('class'=>'form-submit') );
 	} else if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
-		echo $OUTPUT->single_button ( $urlosm, get_string ( "enableosm", "mod_emarking" ) );
+		echo $OUTPUT->single_button ( $urlosm, get_string ( "enableosm", "mod_emarking" ), 'GET', array('class'=>'form-submit') );
 	}
 	echo html_writer::end_tag ( 'div' );
 }
