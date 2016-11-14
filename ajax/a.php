@@ -21,7 +21,7 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-//define('AJAX_SCRIPT', true);
+define('AJAX_SCRIPT', true);
 define('NO_DEBUG_DISPLAY', true);
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->libdir . '/formslib.php');
@@ -257,6 +257,9 @@ switch ($action) {
         emarking_json_array(array(
             'newvalue' => $newvalue));
         break;
+    case 'getmoodleresources' :
+    	
+    	break;
     case 'getrubric' :
         $results = emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $issupervisor);
         emarking_json_resultset($results);
