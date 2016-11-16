@@ -1549,22 +1549,6 @@ function xmldb_emarking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016110801, 'emarking');
     }
     
-    if ($oldversion < 2016110802) {
-    
-        // Rename field groupid on table emarking_draft to NEWNAMEGOESHERE.
-        $table = new xmldb_table('emarking_draft');
-        $field = new xmldb_field('groupid', XMLDB_TYPE_CHAR, '255', null, null, null, 'NULL');
-        
-        // Launch change of type for field groupid.
-        $dbman->change_field_type($table, $field);
-        
-        // Launch rename field groupid.
-        $dbman->rename_field($table, $field, 'group');
-    
-        // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2016110802, 'emarking');
-    }
-	
     if ($oldversion < 2016111401) {
     
     	// Define field feedback to be dropped from emarking_comment.

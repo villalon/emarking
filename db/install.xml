@@ -423,7 +423,7 @@
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="student" TYPE="int" LENGTH="10" NOTNULL="false"
 					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="group" TYPE="char" LENGTH="255" NOTNULL="false"
+				<FIELD NAME="groupid" TYPE="char" LENGTH="255" NOTNULL="false"
 					DEFAULT="NULL" SEQUENCE="false" />
 				<FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="false"
 					DEFAULT="0" SEQUENCE="false" />

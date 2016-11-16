@@ -251,7 +251,12 @@ function emarking_copy_settings($emarkingsrc, $emarkingdst, $rubricoverride, $ma
     echo $OUTPUT->box("Success!");
     return true;
 }
-
+/**
+ * 
+ * @param unknown $emarkingsrc
+ * @param unknown $emarkingdst
+ * @return boolean
+ */
 function emarking_copy_peer_review($emarkingsrc, $emarkingdst) {
     global $DB, $OUTPUT;
     // This goes at the end as the emarking object is left unusable.
@@ -364,7 +369,7 @@ function emarking_copy_submissions_drafts($emarkingsrc, $emarkingdst) {
         foreach($drafts as $draft) {
             unset($draft->id);
             $draft->submissionid = $submission->id;
-            $draft->status = EMARKING_STATUS_SUBMITTED;
+            $draft->status = min(EMARKING_STATUS_SUBMITTED, $draft->status);
             $draft->grade = $emarkingsrc->grademin;
             $draft->seenbystudent = 0;
             $draft->emarkingid = $emarkingdst->id;
