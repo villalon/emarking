@@ -621,7 +621,6 @@ function emarking_add_action_collaborativebutton() {
         $id = array(
             $id);
         emarking_json_resultset($id);
-        break;
     }
     $output = $id;
 }
@@ -740,7 +739,6 @@ function emarking_get_values_collaborative() {
     if (! $collaborativevalues || $collaborativevalues == null) {
         $collaborativevalues = array();
         emarking_json_resultset($collaborativevalues);
-        break;
     } else {
         foreach ($collaborativevalues as $obj) {
             $output [] = $obj;
