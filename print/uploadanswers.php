@@ -168,6 +168,17 @@ if (count($digitizedanswersfiles) == 0) {
             array('id'=>$cm->id, 'action' => 'delete', 'did'=>$file->id));
         $processurl = new moodle_url('/mod/emarking/print/uploadanswers.php',
             array('id'=>$cm->id, 'action' => 'process', 'did'=>$file->id));
+        if(has_capability('mod/emarking:uploadexam', $context)) {
+            $downloadurl = moodle_url::make_pluginfile_url($context->id, 'mod_emarking', 'upload', $file->itemid, '/', $file->filename, true);
+            $actions[] = $OUTPUT->action_icon(
+                $downloadurl, new pix_icon(
+                    'i/down',
+                    'download',
+                    null,
+                    array(
+                        'style' => 'width:1.5em;'
+                )));
+        }
         if (($file->status == EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING || $file->status <= EMARKING_DIGITIZED_ANSWER_UPLOADED)
             && $usercanmanageanswersfiles) {
             $actions[] = $OUTPUT->action_icon($deleteurl, new pix_icon('i/delete', 'delete', null, array(

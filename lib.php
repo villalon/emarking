@@ -835,8 +835,13 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     $itemid = array_pop($args);
     $contextcourse = context_course::instance($course->id);
     if($filearea!='instructions'){
-    $contextcategory = context_coursecat::instance($course->category);
-
+        $contextcategory = context_coursecat::instance($course->category);
+    }
+    // Downloading digitized answers requires uploadexam permission on activity.
+    if ($filearea === 'upload') {
+        if(!has_capability('mod/emarking:uploadexam', $context)) {
+            send_file_not_found();
+        }
     }
     // Security! We always protect the exams filearea.
     if ($filearea === 'exams') {
