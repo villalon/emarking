@@ -892,9 +892,9 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     }
     } elseif ($extension === 'pdf') {
         $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
-            . $CFG->wwwroot . '/ ' . $CFG->emarking_qr_user . ' '
-            . $CFG->emarking_qr_password . ' ' . $filepath . ' ' . $tempdir . ' '
-            . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+            . '--url ' . $CFG->wwwroot . '/ --user ' . $CFG->emarking_qr_user . ' --pwd '
+            . $CFG->emarking_qr_password . ' --pdf ' . $filepath . ' --tmp ' . $tempdir . ' '
+            . $CFG->dirroot;
         if(isset($CFG->debug) && $CFG->debug >= 32767) {
             mtrace($command);
         }
