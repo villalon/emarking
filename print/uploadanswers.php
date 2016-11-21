@@ -93,6 +93,7 @@ if ($mform->get_data()) {
         $digitizedanswer->emarking = $emarking->id;
         $digitizedanswer->status = EMARKING_DIGITIZED_ANSWER_UPLOADED;
         $digitizedanswer->totalpages = 0;
+        $digitizedanswer->doubleside = isset($mform->get_data()->doubleside) ? 1 : 0;
         $digitizedanswer->identifiedpages = 0;
         $digitizedanswer->timecreated = time();
         $digitizedanswer->timemodified = time();
@@ -197,10 +198,11 @@ if (count($digitizedanswersfiles) == 0) {
                 'style' => 'width:1.5em;'
             )));
         }
+        $mimetype = $file->mimetype;
         $table->data[] = array(
             $file->filename,
-            display_size($file->filesize),
-            $file->mimetype,
+            display_size($file->filesize) . ($file->doubleside ? '&nbsp;' . $OUTPUT->pix_icon('t/copy', get_string('doubleside', 'mod_emarking')) : ''),
+            $mimetype,
             emarking_time_ago($file->timecreated),
             emarking_get_string_for_status_digitized($file->status),
             implode(' ', $actions)

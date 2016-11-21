@@ -60,6 +60,10 @@ class mod_emarking_upload_form extends moodleform {
         $mform->setType('assignment_file', PARAM_FILE);
         $mform->addHelpButton('assignment_file', 'filerequiredpdf', 'mod_emarking');
         $mform->addRule('assignment_file', get_string('filerequiredpdf', 'mod_emarking'), 'required');
+        // Scanned file is double sided.
+        $mform->addElement('checkbox', 'doubleside', get_string('doubleside', 'mod_emarking'));
+        $mform->setType('doubleside', PARAM_BOOL);
+        $mform->setDefault('doubleside', false);
         // Header.
         $mform->addElement('static', 'qrprocessing_help', '', $OUTPUT->heading(get_string('usedigitizedzipfile', 'mod_emarking'), 4));
         $mform->setAdvanced('qrprocessing_help');

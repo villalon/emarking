@@ -869,7 +869,7 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
  * @copyright 2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function emarking_upload_answers($emarking, $filepath, $course, $cm) {
+function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside) {
     global $CFG, $DB;
     require_once $CFG->dirroot . '/mod/emarking/lib/qrextractor/config.php';
     $context = context_module::instance($cm->id);
@@ -893,9 +893,13 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm) {
     } elseif ($extension === 'pdf') {
         $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
             . '--url ' . $CFG->wwwroot . '/ --user ' . $CFG->emarking_qr_user . ' --pwd '
-            . $CFG->emarking_qr_password . ' --pdf ' . $filepath . ' --tmp ' . $tempdir . ' '
-            . $CFG->dirroot;
+            . $CFG->emarking_qr_password . ' --pdf ' . $filepath . ' --tmp ' . $tempdir . ' --log4j '
+            . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+        if($doubleside) {
+            $command .= ' -doubleside';
+        }
         if(isset($CFG->debug) && $CFG->debug >= 32767) {
+            $command .= ' -debug';
             mtrace($command);
         }
         $lastline = exec($command, $output, $return_var);
@@ -1059,7 +1063,7 @@ function emarking_get_digitized_answer_files($emarking = NULL, $status = NULL) {
         $statusfilter = ' AND D.status = ?';
         $params[] = $status;
     }
-    $sql = "SELECT D.id, F.id as fileid, D.emarking, F.pathnamehash as hash, F.filename, F.itemid, F.mimetype, F.filesize, D.timecreated, D.status FROM {files} F
+    $sql = "SELECT D.id, F.id as fileid, D.emarking, F.pathnamehash as hash, F.filename, F.itemid, F.mimetype, F.filesize, D.timecreated, D.status, D.doubleside FROM {files} F
     INNER JOIN {emarking_digitized_answers} D ON ($emarkingfilter D.file = F.id AND D.id = F.itemid)
     WHERE F.filearea = 'upload' $statusfilter
     ORDER BY D.timecreated";
@@ -2443,12 +2447,12 @@ function emarking_process_digitized_answers() {
             continue;
         }
         $totalfiles++;
-        $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $digitizedanswerfile->filename ($digitizedanswerfile->id)";
+        $msg = "[$totalfiles] : $course->fullname ($course->id) : $emarking->name ($emarking->id) : $digitizedanswerfile->filename ($digitizedanswerfile->id) ";
         $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED;
         $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
         // Process documents and obtain results.
         list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
-        emarking_upload_answers($emarking, $zipfile, $course, $cm);
+        emarking_upload_answers($emarking, $zipfile, $course, $cm, $digitizedanswerfile->doubleside);
         if($result) {
             $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
         } else {
@@ -2456,7 +2460,7 @@ function emarking_process_digitized_answers() {
         }
         $digitizedanswerfile->totalpages = $totaldocumentsprocessed;
         $digitizedanswerfile->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);
-        $msg .= emarking_get_string_for_status_digitized($digitizedanswerfile->status) . ' processed:' . $totaldocumentsprocessed . ' ignored:' . $totaldocumentsignored;
+        $msg .= emarking_get_string_for_status_digitized($digitizedanswerfile->status) . ' identified:' . $totaldocumentsprocessed . ' ignored:' . $totaldocumentsignored;
         $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
         mtrace($msg);
     }
