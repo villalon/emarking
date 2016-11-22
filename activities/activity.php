@@ -141,6 +141,7 @@ foreach($oaComplete as $oaPerCourse){
   				<?php
   				if($activity->userid == $USER->id){
   					echo '<a href="'.$editUrl.'" class="btn btn-primary" role="button">Editar Actividad</a>';
+  					
   					?>
   					
   					<form role="form" action="newsubmission.php">
@@ -153,6 +154,7 @@ foreach($oaComplete as $oaPerCourse){
 										echo '<option value="' . $key . '"> ' . $asteachercourse . ' </option>';
 										}?>
   								</select>
+  								<label><input type="checkbox" name="askMarking" value=1>Corrección experta</label>
   								<input type="hidden" value="<?php echo $activityid; ?>" name="id" >
 								
 								

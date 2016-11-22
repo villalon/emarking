@@ -186,7 +186,7 @@ $itemid=rand(1,32767);
 	 		'license' => 'allrightsreserved'
 	 );
 	 // Si el archivo ya existía entonces lo borramos.
-	 if ($fs->file_exists($usercontext->id, 'mod_emarking', 'user', 4, '/', $pdffilename)) {
+	 if ($fs->file_exists($usercontext->id, 'mod_emarking', 'user', $itemid, '/', $pdffilename)) {
 	 	$contents = $file->get_content();
 	 }
 	 $fileinfo = $fs->create_file_from_pathname($filerecord, $pathname);
@@ -205,7 +205,7 @@ return $itemid;
  * @param mod_emarking_mod_form $mform        	
  * @return int The id of the newly inserted emarking record
  */
-function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mform = null) {
+function emarking_add_instance(stdClass $data,$itemid) {
 	global $DB, $CFG, $COURSE, $USER;
 	$data->timecreated = time ();
 	$id = $DB->insert_record ( 'emarking', $data );
@@ -248,7 +248,7 @@ function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mf
 		$exam = new stdClass ();
 		$exam->course = $course;
 		$exam->courseshortname = $COURSE->shortname;
-		$exam->name = "a";
+		$exam->name = $data->name;
 		$exam->examdate = time();
 		$exam->emarking = $id;
 		$exam->headerqr = 1;
@@ -270,7 +270,7 @@ function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mf
 		$exam->printdate = 0;
 		$exam->status = 10;
 		// Calculate total pages for exam.
-		$exam->totalpages = 2;
+		$exam->totalpages = $numpages;
 		$exam->printingcost = emarking_get_category_cost ( $course );
 		$exam->id = $DB->insert_record ( 'emarking_exams', $exam );
 		$fs = get_file_storage ();

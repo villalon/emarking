@@ -3,13 +3,14 @@
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 
 require_once("locallib.php");
+require_once($CFG->dirroot.'/enrol/manual/locallib.php');
+require_once($CFG->dirroot.'/lib/accesslib.php');
 GLOBAL $USER;
-
 $activityid = required_param('id', PARAM_INT);
 $courseid = required_param('course', PARAM_INT);
+$askMarking = optional_param('askMarking',0, PARAM_INT);
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-
-//$action = required_param('action', PARAM_TEXT);
+require_login($course);
 $itemid=get_pdf_activity($activity);
 
 $emarking = new stdClass();
@@ -27,6 +28,8 @@ $emarking->exam=0;
 $data=emarking_copy_to_cm($emarking,$courseid,$itemid);
 //var_dump($data);
 $contextmodule = context_module::instance($data['cmid']);
+$coursecontext = context_course::instance($courseid, MUST_EXIST);
+
 
 $gradingArea = new stdClass();
 $gradingArea->contextid=$contextmodule->id;
@@ -63,6 +66,41 @@ foreach ($rubricCriterias as $rubricCriteria){
 	}
 	
 }
-
+if($askMarking==1){
+	
+	$canenrol = has_capability('enrol/manual:enrol', $coursecontext);
+	$canunenrol = has_capability('enrol/manual:unenrol', $coursecontext);
+	if (!$canenrol and !$canunenrol) {
+		$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid,'create'=>1));
+		redirect($forkUrl, 0);
+	}
+	$instance = $DB->get_record('enrol', array('id'=>1, 'enrol'=>'manual'), '*', MUST_EXIST);
+	var_dump($instance);
+	$roleid = $instance->roleid;
+	var_dump($roleid);
+	$course = $DB->get_record('course', array('id'=>$instance->courseid), '*', MUST_EXIST);
+	$timestart = $course->startdate;
+	$roles = get_assignable_roles($coursecontext);
+	if (!$enrol_manual = enrol_get_plugin('manual')) {
+		throw new coding_exception('Can not instantiate enrol_manual');
+	}
+	$instancename = $enrol_manual->get_instance_name($instance);
+	
+	$enrol_manual->enrol_user($instance, 3, $roleid, $timestart, 0);
+	 	$ra = new stdClass();
+    	$ra->roleid       = 5;
+    	$ra->contextid    = $coursecontext->id;
+   		$ra->userid       = 3;
+    	$ra->component    = '';
+    	$ra->itemid       = 0;
+    	$ra->timemodified = 0;
+    	$ra->modifierid   = empty($USER->id) ? 0 : $USER->id;
+    	$ra->sortorder    = 0;
+    	$ra->id = $DB->insert_record('role_assignments', $ra);
+    	 
+	
+}
+/*
 $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid,'create'=>1));
 redirect($forkUrl, 0);
+*/

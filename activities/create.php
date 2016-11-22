@@ -52,8 +52,8 @@
 		<div class="row">
 		<h3></h3>
 		<h2>Crear una actividad</h2>
-		<div class="col-md-1"></div>
-		<div class="col-md-9">
+		
+		<div class="col-md-10">
 		<?php include 'crear.php'; ?>
 		</div>			
 	</div>
