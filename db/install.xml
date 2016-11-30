@@ -646,6 +646,8 @@
 					SEQUENCE="false" COMMENT="when the file was created" />
 				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" COMMENT="last time it was modified" />
+				<FIELD NAME="doubleside" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="if it was scanned by two sides" />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
