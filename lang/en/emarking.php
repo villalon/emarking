@@ -41,6 +41,17 @@ $string ['printsettings_help'] = 'Help for print settings';
 $string ['markingtypemandatory'] = 'You must select a marking type';
 $string ['emarkingviewed'] = 'Feedback viewed';
 $string ['updateemarkingtype'] = 'You are about to {$a->message} in {$a->name}. There are no risks in doing so, you can change this later in settings at any time.';
+// EMARKING UPLOAD TYPES.
+$string ['uploadtype_file'] = 'File';
+$string ['uploadtype_html'] = 'Inline text (accepts HTML)';
+$string ['uploadtype_qr'] = 'Scanned QR code';
+$string ['uploadtype_text'] = 'Inline text (without HTML)';
+$string ['uploadtype'] = 'Submission type';
+$string ['uploadtype_help'] = 'The type of submission students will perform.';
+$string ['enableduploadtypes'] = 'Submission upload types enabled';
+$string ['enableduploadtypes_help'] = 'The submission types that will be enabled for this server.';
+$string ['uploadsubmission'] = 'Upload submission';
+$string ['uploadsubmission_help'] = 'You must upload the PDF file of your evaluation (assignment or exam)';
 // REGRADES.
 $string ['justification'] = 'Justification';
 $string ['justification_help'] = 'You must justify your regrade request';
@@ -103,8 +114,8 @@ $string ['nodejspath_help'] = 'The full Node JS path including protocol, ipaddre
 $string ['emarkinggraded'] = 'EMarking graded';
 $string ['answerkey'] = 'Answer key';
 $string ['showunenrolled'] = 'Show unenrolled';
-$string ['emarking_enabledtypes'] = 'Enabled types';
-$string ['emarking_enabledtypes_help'] = 'Selected types will be the only ones allowed on new EMarking activities';
+$string ['enabledtypes'] = 'Enabled types';
+$string ['enabledtypes_help'] = 'Selected types will be the only ones allowed on new EMarking activities';
 // PERMISSIONS
 $string['emarking:addinstance'] = 'Add instance';
 $string['emarking:assignmarkers'] = 'Assign markers';
@@ -241,7 +252,7 @@ $string ['updatemark'] = 'Update mark';
 $string ['notenoughstudenstforpeerreview'] = 'Not enough students enrolled for a peer review session';
 $string ['reassignpeers'] = 'Reassign peers';
 $string ['markernotassigned'] = 'Not assigned';
-$string ['importemarking'] = 'Import EMarking';
+$string ['importemarking'] = 'Import answers & rubric';
 $string ['importemarking_help'] = 'Import EMarking allows the reuse of students\'s answers and rubric from another EMarking activity.';
 $string ['donotimport'] = 'Do not import';
 // ANONYMOUS.

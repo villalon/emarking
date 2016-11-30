@@ -90,7 +90,7 @@ header('Content-Type: text/html; charset=utf-8');
 <!--                                           -->
 <!-- Any title is fine                         -->
 <!--                                           -->
-<title>EMarking</title>
+<title>Emarking</title>
 <!--                                           -->
 <!-- This script loads your compiled module.   -->
 <!-- If you add any GWT meta tags, they must   -->

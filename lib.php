@@ -36,6 +36,11 @@ define('EMARKING_TYPE_MARKER_TRAINING', 2);
 define('EMARKING_TYPE_STUDENT_TRAINING', 3);
 define('EMARKING_TYPE_PEER_REVIEW', 4);
 define('EMARKING_TYPE_PRINT_SCAN', 5);
+// Emarking upload type
+define('EMARKING_UPLOAD_QR', 10);
+define('EMARKING_UPLOAD_FILE', 20);
+define('EMARKING_UPLOAD_TEXT', 30);
+define('EMARKING_UPLOAD_HTML', 40);
 // Print orders status.
 define('EMARKING_EXAM_UPLOADED', 10);
 define('EMARKING_EXAM_ERROR_PROCESSING', 12);
@@ -108,23 +113,46 @@ function emarking_supports($feature) {
  * @param string $enabled filter by only those that are enabled
  * @return string[]
  */
-function emarking_types_array($enabled = false) {
+function emarking_types_array($filterenabled = false) {
     global $CFG;
     $types = array();
-    $allowed = explode(',',$CFG->emarking_enabledtypes);
+    $allowed = explode(',', $CFG->emarking_enabledtypes);
     // All available types
-    $types [EMARKING_TYPE_PRINT_ONLY] = get_string('type_print_only', 'mod_emarking');
-    $types [EMARKING_TYPE_PRINT_SCAN] = get_string('type_print_scan', 'mod_emarking');
-    $types [EMARKING_TYPE_ON_SCREEN_MARKING] = get_string('type_normal', 'mod_emarking');
-    $types [EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
-    $types [EMARKING_TYPE_PEER_REVIEW] = get_string('type_peer_review', 'mod_emarking');
-    $types [EMARKING_TYPE_STUDENT_TRAINING] = get_string('type_student_training', 'mod_emarking');
-    if($enabled) {
-    foreach($types as $typekey => $typename) {
-        if(array_search($typekey, $allowed) === FALSE) {
-            unset($types[$typekey]);
+    $types[EMARKING_TYPE_PRINT_ONLY] = get_string('type_print_only', 'mod_emarking');
+    $types[EMARKING_TYPE_PRINT_SCAN] = get_string('type_print_scan', 'mod_emarking');
+    $types[EMARKING_TYPE_ON_SCREEN_MARKING] = get_string('type_normal', 'mod_emarking');
+    $types[EMARKING_TYPE_MARKER_TRAINING] = get_string('type_markers_training', 'mod_emarking');
+    $types[EMARKING_TYPE_PEER_REVIEW] = get_string('type_peer_review', 'mod_emarking');
+    $types[EMARKING_TYPE_STUDENT_TRAINING] = get_string('type_student_training', 'mod_emarking');
+    if ($filterenabled) {
+        foreach($types as $typekey => $typename) {
+            if (array_search($typekey, $allowed) === FALSE) {
+                unset($types[$typekey]);
+            }
         }
     }
+    return $types;
+}
+/**
+ * Returns the available EMarking ipload types in this server
+ * @param string $enabled filter by only those that are enabled
+ * @return string[]
+ */
+function emarking_uploadtypes_array($filterenabled = false) {
+    global $CFG;
+    $types = array();
+    $allowed = explode(',', $CFG->emarking_enableduploadtypes);
+    // All available types
+    $types[EMARKING_UPLOAD_QR] = get_string('uploadtype_qr', 'mod_emarking');
+    $types[EMARKING_UPLOAD_HTML] = get_string('uploadtype_html', 'mod_emarking');
+    $types[EMARKING_UPLOAD_TEXT] = get_string('uploadtype_text', 'mod_emarking');
+    $types[EMARKING_UPLOAD_FILE] = get_string('uploadtype_file', 'mod_emarking');
+    if ($filterenabled) {
+        foreach($types as $typekey => $typename) {
+            if (array_search($typekey, $allowed) === FALSE) {
+                unset($types[$typekey]);
+            }
+        }
     }
     return $types;
 }
