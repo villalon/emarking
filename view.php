@@ -764,7 +764,9 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
         ));
         $actionsarray[] = $OUTPUT->action_link($printversionurl, "PDF");
     }
-    if(has_capability('mod/emarking:submit', $context) && ($owndraft || $issupervisor)) {
+    if($emarking->uploadtype == EMARKING_UPLOAD_FILE &&
+            has_capability('mod/emarking:submit', $context) &&
+            ($owndraft || $issupervisor)) {
         $uploadanswerurl = new moodle_url('/mod/emarking/marking/uploadsubmission.php', array(
             'id' => $cm->id,
             'sid' => $draft->id

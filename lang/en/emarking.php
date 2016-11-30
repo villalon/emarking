@@ -52,6 +52,7 @@ $string ['enableduploadtypes'] = 'Submission upload types enabled';
 $string ['enableduploadtypes_help'] = 'The submission types that will be enabled for this server.';
 $string ['uploadsubmission'] = 'Upload submission';
 $string ['uploadsubmission_help'] = 'You must upload the PDF file of your evaluation (assignment or exam)';
+$string ['ignorecourse'] = 'Ignore course';
 // REGRADES.
 $string ['justification'] = 'Justification';
 $string ['justification_help'] = 'You must justify your regrade request';

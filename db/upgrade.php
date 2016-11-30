@@ -1629,7 +1629,7 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2016112700, 'emarking');
     }
-    if ($oldversion < 2016112900) {
+    if ($oldversion < 2016112901) {
         // Define field filetoprint to be added to emarking_exams.
         $table = new xmldb_table('emarking_digitized_answers');
         $field = new xmldb_field('doubleside', XMLDB_TYPE_INTEGER, '10', null, null, null, null, null);
@@ -1637,8 +1637,13 @@ function xmldb_emarking_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
+        $field = new xmldb_field('ignorecourse', XMLDB_TYPE_INTEGER, '10', null, null, null, null, null);
+        // Conditionally launch add field filetoprint.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
         // Emarking savepoint reached.
-        upgrade_mod_savepoint(true, 2016112900, 'emarking');
+        upgrade_mod_savepoint(true, 2016112901, 'emarking');
     }
     return true;
 }

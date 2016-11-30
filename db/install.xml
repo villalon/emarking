@@ -648,6 +648,8 @@
 					SEQUENCE="false" COMMENT="last time it was modified" />
 				<FIELD NAME="doubleside" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" COMMENT="if it was scanned by two sides" />
+				<FIELD NAME="ignorecourse" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="import answers if the student is enrolled, not verifying course" />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />

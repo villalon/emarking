@@ -52,6 +52,7 @@ $string ['enableduploadtypes'] = 'Tipos de entrega habilitados';
 $string ['enableduploadtypes_help'] = 'Los tipos de entrega habilitados en este servidor.';
 $string ['uploadsubmission'] = 'Subir archivo';
 $string ['uploadsubmission_help'] = 'Debes subir el archivo PDF de tu evaluación (tarea o examen)';
+$string ['ignorecourse'] = 'Ignorar curso';
 // REGRADES.
 $string ['justification'] = 'Justificación';
 $string ['justification_help'] = 'Usted debe justificar su solicitud de recorrección';
