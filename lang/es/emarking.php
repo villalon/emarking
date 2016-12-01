@@ -40,7 +40,19 @@ $string ['printsettings'] = 'Configuración de impresión';
 $string ['printsettings_help'] = 'Help for print settings';
 $string ['markingtypemandatory'] = 'Debe seleccionar un tipo de corrección';
 $string ['emarkingviewed'] = 'Ver prueba';
-$string['updateemarkingtype'] = 'Usted va a {$a->message} en {$a->name}. No hay riesgos en hacer esto, usted puede cambiarlo después en los ajustes de la actividad en cualquier momento.';
+$string ['updateemarkingtype'] = 'Usted va a {$a->message} en {$a->name}. No hay riesgos en hacer esto, usted puede cambiarlo después en los ajustes de la actividad en cualquier momento.';
+// EMARKING UPLOAD TYPES.
+$string ['uploadtype_file'] = 'Estudiante sube PDF';
+$string ['uploadtype_html'] = 'Texto en línea (acepta HTML)';
+$string ['uploadtype_qr'] = 'Páginas digitalizadas con código QR';
+$string ['uploadtype_text'] = 'Texto en línea (sin HTML)';
+$string ['uploadtype'] = 'Tipo de entrega';
+$string ['uploadtype_help'] = 'Define cómo entregarán sus pruebas los estudiantes.';
+$string ['enableduploadtypes'] = 'Tipos de entrega habilitados';
+$string ['enableduploadtypes_help'] = 'Los tipos de entrega habilitados en este servidor.';
+$string ['uploadsubmission'] = 'Subir archivo';
+$string ['uploadsubmission_help'] = 'Debes subir el archivo PDF de tu evaluación (tarea o examen)';
+$string ['ignorecourse'] = 'Ignorar curso';
 // REGRADES.
 $string ['justification'] = 'Justificación';
 $string ['justification_help'] = 'Usted debe justificar su solicitud de recorrección';
@@ -103,8 +115,8 @@ $string ['nodejspath_help'] = 'Ruta completa del servidor Node JS incluyendo pro
 $string ['emarkinggraded'] = 'Corrección EMarking';
 $string ['answerkey'] = 'Pauta';
 $string ['showunenrolled'] = 'Mostrar no matriculados';
-$string ['emarking_enabledtypes'] = 'Tipos habilitados';
-$string ['emarking_enabledtypes_help'] = 'Solo actividades de los tipos seleccionados se podrán crear en los cursos.';
+$string ['enabledtypes'] = 'Tipos habilitados';
+$string ['enabledtypes_help'] = 'Solo actividades de los tipos seleccionados se podrán crear en los cursos.';
 // PERMISSIONS
 $string['emarking:addinstance'] = 'Crear instancia de EMarking';
 $string['emarking:assignmarkers'] = 'Asignar correctores';
@@ -241,7 +253,7 @@ $string ['updatemark'] = 'Cambiar corrección';
 $string ['notenoughstudenstforpeerreview'] = 'No hay suficientes estudiantes para revisión entre pares';
 $string ['reassignpeers'] = 'Reasignar pares';
 $string ['markernotassigned'] = 'No asignado';
-$string ['importemarking'] = 'Importar EMarking';
+$string ['importemarking'] = 'Importar respuestas y rúbrica';
 $string ['importemarking_help'] = 'Importar EMarking permite importar las respuestas de los estudiantes y la rúbrica desde otra actividad EMarking.';
 $string ['donotimport'] = 'No importar';
 // ANONYMOUS.

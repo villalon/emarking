@@ -849,7 +849,8 @@ function emarking_tabs($context, $cm, $emarking) {
     $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
     $orphanpages = new tabobject('orphanpages', $CFG->wwwroot . "/mod/emarking/print/orphanpages.php?id={$cm->id}", get_string('orphanpages', 'mod_emarking'));
     $scantab->subtree[] = $scanlist;
-    if ($usercangrade && $issupervisor && $emarking->type != EMARKING_TYPE_PRINT_ONLY) {
+    if ($usercangrade && $issupervisor && $emarking->type != EMARKING_TYPE_PRINT_ONLY
+         && $emarking->uploadtype == EMARKING_UPLOAD_QR) {
         $printtab->subtree[] = $uploadanswers;
         $printtab->subtree[] = $orphanpages;
     }
