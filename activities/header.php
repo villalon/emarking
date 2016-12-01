@@ -6,6 +6,9 @@ $logoutUrl=new moodle_url($CFG->wwwroot.'/login/logout.php',array('sesskey'=>$US
 $searchUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/buscar.php');
 $createactivityUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/create.php');
 $myUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/my.php');
+$coursesUrl=new moodle_url($CFG->wwwroot.'/my');
+
+
 ?>
  <link rel="stylesheet" href="css/bootstrap.min.css">   
    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -74,6 +77,7 @@ $myUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/my.php');
                                         <p class="text-left small"><a href="<?php echo $myUrl; ?>">Mi perfil</a></p>
                                         <p class="text-left small"><a href="my.php">Mis actividades</a></p>
                                         <p class="text-left small"><a href="<?php echo $createactivityUrl; ?>">Crear Actividad</a></p>
+                                        <p class="text-left small"><a href="<?php echo $coursesUrl; ?>">Mis cursos</a></p>
                                         
                                     </div>
                                 </div>
