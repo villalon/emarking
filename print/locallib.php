@@ -921,9 +921,9 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
     $doubleside = false;
     $pngfiles = array();
     foreach($files as $fileintemp) {
-        if (!is_dir($fileintemp) && strtolower(substr($fileintemp, -4, 4)) === ".jpg") {
+        if (!is_dir($fileintemp) && (strtolower(substr($fileintemp, -4, 4)) === ".jpg" || strtolower(substr($fileintemp, -4, 4)) === ".png")) {
             $pngfiles[] = $fileintemp;
-            if (strtolower(substr($fileintemp, -5, 5)) === "b.jpg") {
+            if (strtolower(substr($fileintemp, -5, 5)) === "b.jpg" || strtolower(substr($fileintemp, -5, 5)) === "b.png") {
                 $doubleside = true;
             }
         }
@@ -1114,11 +1114,14 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
     if (!$student) {
         throw new Exception("Invalid student to submit page");
     }
+    $ispng = strtolower(substr($filename, -4)) === '.png';
+    $extension = $ispng ? '.png' : '.jpg';
+    $extensionanonymous = $ispng ? '_a.png' : '_a.jpg';
     // Calculate definitive filename
-    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.jpg';
+    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . $extension;
     // If is anonymous, the filename requires a _a
-    if (strtolower(substr($filename, -6)) === '_a.jpg') {
-        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '_a.jpg';
+    if (strtolower(substr($filename, -6)) === $extensionanonymous) {
+        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . $extensionanonymous;
     }
     // Filesystem.
     $fs = get_file_storage();
@@ -2457,6 +2460,7 @@ function emarking_process_digitized_answers() {
             $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
         } else {
             $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING;
+            $msg .= $errors;
         }
         $digitizedanswerfile->totalpages = $totaldocumentsprocessed;
         $digitizedanswerfile->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);
