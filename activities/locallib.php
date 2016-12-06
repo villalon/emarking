@@ -219,6 +219,7 @@ return array (
 function emarking_create_activity_instance(stdClass $data,$destinationcourse,$itemid,$numpages,$filedata) {
 	global $DB, $CFG, $COURSE, $USER;
 	require_once ($CFG->dirroot . "/course/lib.php");
+	
 	require_once ($CFG->dirroot . "/mod/emarking/lib.php");
 	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 	
@@ -306,7 +307,6 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 	$defaultexam->enrolments = $exam->enrolments;
 	setcookie ( "emarking_exam_defaults", json_encode ( $defaultexam ), time () + 3600 * 24 * 365 * 10, '/' );
 	
-	$emarking->id= $id;
 	$mod = new stdClass ();
 	$mod->course = $destinationcourse;
 	$mod->module = $emarkingmod->id;

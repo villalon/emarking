@@ -1,7 +1,7 @@
 <?php
 
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
-
+require_once($CFG->dirroot.'/mod/emarking/lib.php');
 require_once("locallib.php");
 require_once($CFG->dirroot.'/enrol/manual/locallib.php');
 require_once($CFG->dirroot.'/lib/accesslib.php');
@@ -10,7 +10,7 @@ $activityid = required_param('id', PARAM_INT);
 $courseid = required_param('course', PARAM_INT);
 $askMarking = optional_param('askMarking',0, PARAM_INT);
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-require_login($course);
+require_login($courseid);
 $pdf=get_pdf_activity($activity);
 $itemid=$pdf['itemid'];
 $numpages=$pdf['numpages'];
@@ -27,6 +27,7 @@ $emarking->grade = 7.0;
 $emarking->grademin = 1.0;
 $emarking->keywords = "keyword1,keyword2,sentence1";
 $emarking->exam=0;
+$emarking->uploadtype=EMARKING_UPLOAD_QR;
 //var_dump($activity);
 $data=emarking_create_activity_instance($emarking,$courseid,$itemid,$numpages,$filedata);
 //var_dump($data);
