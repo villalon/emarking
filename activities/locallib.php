@@ -247,7 +247,7 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 	$studentsnumber = emarking_get_students_count_for_printing ( $course );
 	
 	// A new exam object is created and its attributes filled from form data.
-	
+	 
 		$exam = new stdClass ();
 		$exam->course = $course;
 		$exam->courseshortname = $COURSE->shortname;
@@ -260,15 +260,12 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 		$exam->extrasheets = 0;
 		$exam->extraexams = 0;
 		$exam->usebackside = 0;
-		if ($examid == 0) {
-			$exam->timecreated = time ();
-		}
-		$exam->timemodified = time ();
+		$exam->timecreated = time ();
+		$exam->timemodified = 0;
 		$exam->requestedby = $USER->id;
 		$exam->totalstudents = $studentsnumber;
 		$exam->comment = "comment";
 		// Get the enrolments as a comma separated values.
-	
 		$exam->enrolments = "manual";
 		$exam->printdate = 0;
 		$exam->status = 10;
