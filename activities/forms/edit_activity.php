@@ -53,6 +53,7 @@ class local_ciae_edit_activity extends moodleform {
 
         $mform = $this->_form; // Don't forget the underscore! 
         // Paso 1 Información básica
+        
         $mform->addElement('header', 'db', 'Información Básica', null);
         //Título
         $mform->addElement('text', 'title','Título'); 
@@ -95,7 +96,7 @@ class local_ciae_edit_activity extends moodleform {
 		//display them into one row
         $mform->addGroup($oacheckboxarray, 'CODC1');
        
-        $mform->addElement('hidden', 'id');
+        $mform->addElement('hidden', 'activityid');
         $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'oacount', 1,array('id'=>'oacount'));
         $mform->setType('oacount', PARAM_INT);

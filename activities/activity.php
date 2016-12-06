@@ -9,7 +9,7 @@ $PAGE->set_context(context_system::instance());
 $activityid = required_param('id', PARAM_INT);
 $check = optional_param('create',0,PARAM_INT);
 $forkingUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/forking.php', array('id' => $activityid));
-$editUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/edit.php', array('id' => $activityid));
+$editUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/edit.php', array('activityid' => $activityid));
 $pdfUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/pdfcreator.php', array('id' => $activityid));
 if(isset($check)&& $check==1){
 	$message = "eMarking creado exitosamente.";

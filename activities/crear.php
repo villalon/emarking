@@ -89,7 +89,7 @@ $text=$fromform->instructions['text'];
 
 
 
-//$url = moodle_url::make_pluginfile_url($files->contextid, $files->component, $files->filearea, null, null, $files->filename);
+$url = moodle_url::make_pluginfile_url($files->contextid, $files->component, $files->filearea, null, null, $files->filename);
 
 
 

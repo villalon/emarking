@@ -135,6 +135,7 @@ function get_pdf_activity($activity) {
 	
 	GLOBAL $USER,$CFG, $DB;
 	require_once ($CFG->libdir . '/pdflib.php');
+	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 	$tempdir = emarking_get_temp_dir_path($activity->id);
 	if (!file_exists($tempdir)) {
 		emarking_initialize_directory($tempdir, true);
@@ -170,8 +171,9 @@ $pdffilename=$activity->title.'.pdf';
 	if (@file_exists($pathname)) {
 		unlink($pathname);
 	}
+	$numpages = $pdf->getNumPages();
 	 $pdf->Output($pathname, 'F');
-
+	
 $itemid=rand(1,32767);
 	 $filerecord = array(
 	 		'contextid' => $usercontext->id,
@@ -190,61 +192,62 @@ $itemid=rand(1,32767);
 	 	$contents = $file->get_content();
 	 }
 	 $fileinfo = $fs->create_file_from_pathname($filerecord, $pathname);
-return $itemid;
+
+	 $filedata [] = array(
+	 		'pathname' => $pathname,
+	 		'filename' => $pdffilename
+	 );
+	 
+return array (
+		'itemid'=>$itemid,
+		'numpages'=>$numpages,
+		'filedata'=>$filedata
+			);
    
 }
 /**
- * Saves a new instance of the emarking into the database
- * Given an object containing all the necessary data,
- * (defined by the form in mod_form.php) this function
- * will create a new instance and return the id number
- * of the new instance.
+ * Creates a new instance of emarking, with the data obteined in 
+ * the bank of activities.
  *
- * @param object $emarking
- *        	An object from the form in mod_form.php
- * @param mod_emarking_mod_form $mform        	
- * @return int The id of the newly inserted emarking record
+ * @param object data
+ *        	An object from data of the new instance emarking
+ * @param inst $destinationcourse
+ * 			The course where the instance will be create        	
+ * @return int $itemid
+ * 			The id of the pdf for emarking
  */
-function emarking_add_instance(stdClass $data,$itemid) {
+function emarking_create_activity_instance(stdClass $data,$destinationcourse,$itemid,$numpages,$filedata) {
 	global $DB, $CFG, $COURSE, $USER;
+	require_once ($CFG->dirroot . "/course/lib.php");
+	require_once ($CFG->dirroot . "/mod/emarking/lib.php");
+	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
+	
+	$emarkingmod = $DB->get_record ( 'modules', array (
+			'name' => 'emarking'
+	) );
+
+	$data->id = null;
+	$data->course = $destinationcourse;
+	
 	$data->timecreated = time ();
 	$id = $DB->insert_record ( 'emarking', $data );
 	$data->id = $id;
 	$course = $data->course;
 	emarking_grade_item_update ( $data );
 	
-	foreach ( $data as $k => $v ) {
-		$parts = explode ( '-', $k );
-		if (count ( $parts ) > 1 && $parts [0] === 'marker') {
-			$markerid = intval ( $parts [1] );
-			$marker = new stdClass ();
-			$marker->emarking = $id;
-			$marker->marker = $markerid;
-			$marker->qualitycontrol = 1;
-			$DB->insert_record ( 'emarking_markers', $marker );
-		}
-	}
+
 	// entregar id del curso
 	$context = context_course::instance ( $course );
-	$examid = 0;
+	
+	$examfiles = $filedata;
+
 	// If there's no previous exam to associate, and we are creating a new
 	// EMarking, we need the PDF file.
-	
-	if ($data->exam == 0) {
-		$examfiles = emarking_validate_exam_files_from_draft ($itemid);
-		if (count ( $examfiles ) == 0) {
-			throw new Exception ( 'Invalid PDF exam files' );
-		}
-		$numpages = $examfiles [0] ['numpages'];
-	} else {
-		$examid = $data->exam;
-	}
-	
 	
 	$studentsnumber = emarking_get_students_count_for_printing ( $course );
 	
 	// A new exam object is created and its attributes filled from form data.
-	if ($examid == 0) {
+	
 		$exam = new stdClass ();
 		$exam->course = $course;
 		$exam->courseshortname = $COURSE->shortname;
@@ -271,10 +274,11 @@ function emarking_add_instance(stdClass $data,$itemid) {
 		$exam->status = 10;
 		// Calculate total pages for exam.
 		$exam->totalpages = $numpages;
-		$exam->printingcost = emarking_get_category_cost ( $course );
+		$exam->printingcost = 0;
 		$exam->id = $DB->insert_record ( 'emarking_exams', $exam );
 		$fs = get_file_storage ();
 		foreach ( $examfiles as $exampdf ) {
+			
 			// Save the submitted file to check if it's a PDF.
 			$filerecord = array (
 					'component' => 'mod_emarking',
@@ -292,14 +296,7 @@ function emarking_add_instance(stdClass $data,$itemid) {
 			$fs->delete_area_files ( $contextid, 'emarking', 'exams', $exam->id );
 			print_error ( get_string ( 'errorsavingpdf', 'mod_emarking' ) );
 		}
-	} else {
-		$exam = $DB->get_record ( "emarking_exams", array (
-				"id" => $examid 
-		) );
-		$exam->emarking = $id;
-		$exam->timemodified = time ();
-		$DB->update_record ( 'emarking_exams', $exam );
-	}
+	
 	$headerqr = 1;
 	setcookie ( "emarking_headerqr", $headerqr, time () + 3600 * 24 * 365 * 10, '/' );
 	$defaultexam = new stdClass ();
@@ -311,32 +308,12 @@ function emarking_add_instance(stdClass $data,$itemid) {
 	$defaultexam->usebackside = $exam->usebackside;
 	$defaultexam->enrolments = $exam->enrolments;
 	setcookie ( "emarking_exam_defaults", json_encode ( $defaultexam ), time () + 3600 * 24 * 365 * 10, '/' );
-	return $id;
-}
-/**
- * Creates a copy of the emarking in the database.
- *
- * @param unknown $originalemarking        	
- * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
- */
-function emarking_copy_to_cm($originalemarking, $destinationcourse,$itemid) {
-	global $CFG, $DB;
-	require_once ($CFG->dirroot . "/course/lib.php");
 	
-	
-	$emarkingmod = $DB->get_record ( 'modules', array (
-			'name' => 'emarking' 
-	) );
-	$emarking = new stdClass ();
-	$emarking = $originalemarking;
-	$emarking->id = null;
-	$emarking->course = $destinationcourse;
-	$emarking->id = emarking_add_instance ( $emarking,$itemid );
-	// Add coursemodule.
+	$emarking->id= $id;
 	$mod = new stdClass ();
 	$mod->course = $destinationcourse;
 	$mod->module = $emarkingmod->id;
-	$mod->instance = $emarking->id;
+	$mod->instance = $data->id;
 	$mod->section = 0;
 	$mod->visible = 0; // Hide the forum.
 	$mod->visibleold = 0; // Hide the forum.
@@ -347,9 +324,9 @@ function emarking_copy_to_cm($originalemarking, $destinationcourse,$itemid) {
 	}
 	$sectionid = course_add_cm_to_section ( $mod->course, $cmid, 0 );
 	return array (
-			'id'=>$emarking->id,
+			'id'=>$data->id,
 			'cmid'=>$cmid,
-			'sectionid'=>$sectionid 
+			'sectionid'=>$sectionid
 	);
 }
 
