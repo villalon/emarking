@@ -27,8 +27,8 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once(dirname(__FILE__) . '/locallib.php');
-require_once(dirname(__FILE__) . '/forms/category_form.php');
-require_once(dirname(__FILE__) . '/forms/courses_form.php');
+//require_once(dirname(__FILE__) . '/forms/category_form.php');
+//require_once(dirname(__FILE__) . '/forms/courses_form.php');
 
 global $DB, $USER, $CFG, $OUTPUT, $COURSE;
 
@@ -84,7 +84,7 @@ $PAGE->navbar->add(get_string("cycle", "mod_emarking"));
 
 // User categories for FORM.
 $categoryparameters = array($USER->id, $courseid);
-$categoryform = new category_form(null, $categoryparameters);
+//$categoryform = new category_form(null, $categoryparameters);
 
 echo $OUTPUT->header();
 
@@ -98,25 +98,9 @@ if($selectedcategory == "NULL" && $selectedcourse == "NULL"){
 	$selectedcourse = $curretcourse;
 }
 
-// Category and course select
-echo html_writer::div('<h2>'.get_string('filters', 'mod_emarking').'</h2>');;
+$a = emarking_markers_corrections($emarkingid);
+var_dump($a);
 
-$categoryform->display();	
-if($categorydata = $categoryform->get_data()){
-	$selectedcategory = $categorydata->category;			
-}
-
-if($selectedcategory != 'NULL'){
-	$courseparameters = array($USER->id, $selectedcategory, $courseid);
-	$courseform = new courses_form(null, $courseparameters);
-	$courseform->display();
-}
-		
-if($coursedata = $courseform->get_data()){
-	$selectedcategory = $coursedata->category;	
-	$selectedcourse = $coursedata->courses;
-}
-		
 echo $OUTPUT->tabtree(emarking_cycle_tabs($selectedcourse, $selectedcategory, $course), $currenttab);
 
 $summarychartdata = json_encode([[0,0]]);
@@ -299,11 +283,11 @@ echo $OUTPUT->footer();
 	}
 </script>
 <script>
+
 	if(<?php echo $currenttab;?> != 0){
     	google.charts.setOnLoadCallback(drawmarkersChart);
     }
 	function drawmarkersChart() {
-
 		var markers = <?php echo  json_encode(emarking_markers_corrections($emarkingid, 1));?>;
 		var arraylength = markers.length;
 		
@@ -314,9 +298,7 @@ echo $OUTPUT->footer();
     		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
     	}
 		
-
 		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
-
 		var options = {
 			pointSize: 4,
 			pointShape: 'star',
@@ -324,8 +306,7 @@ echo $OUTPUT->footer();
 			isStacked: true,
 			vAxis: {minValue: 0}
 		};
-
-		var markerschart = new google.visualization.AreaChart(document.getElementById('markerschart'));
+		var markerschart = new google.visualization.LineChart(document.getElementById('markerschart'));
 		markerschart.draw(data, options);
 	}
 </script>
