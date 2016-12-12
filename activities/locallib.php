@@ -165,7 +165,7 @@ $pdf->SetLeftMargin(25);
 
 if($sections->instructions==1){
 $pdf->AddPage();
-$pdf->writeHTML('<h1>Instrucciones</h1> <br>', true, false, false, false, '');
+$pdf->writeHTML('<h1>Instrucciones</h1> ', true, false, false, false, '');
 $instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
 $pdf->writeHTML($instructionshtml, true, false, false, false, '');
 
@@ -174,44 +174,43 @@ $pdf->writeHTML($instructionshtml, true, false, false, false, '');
 if($sections->planification==1){
 $pdf->AddPage();
 $planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
-$pdf->writeHTML('<h1>Planificación</h1><br>', true, false, false, false, '');
+$pdf->writeHTML('<h1>Planificación</h1>', true, false, false, false, '');
 $pdf->writeHTML($planificationhtml, true, false, false, false, '');
 }
 
 if($sections->writing==1){
 $pdf->AddPage();
 $writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
-$pdf->writeHTML('<h1>Escritura</h1><br>', true, false, false, false, '');
+$pdf->writeHTML('<h1>Escritura</h1>', true, false, false, false, '');
 $pdf->writeHTML($writinghtml, true, false, false, false, '');
 }
 
 if($sections->editing==1){
 $pdf->AddPage();
 $editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
-$pdf->writeHTML('<h1>Revisión y edición</h1><br>', true, false, false, false, '');
+$pdf->writeHTML('<h1>Revisión y edición</h1>', true, false, false, false, '');
 $pdf->writeHTML($editinghtml, true, false, false, false, '');
 }
 
 if($sections->teaching==1){
 $pdf->AddPage();
 $teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
-$pdf->writeHTML('<h1>Sugerencias didácticas</h1><br>', true, false, false, false, '');
+$pdf->writeHTML('<h1>Sugerencias didácticas</h1>', true, false, false, false, '');
 $pdf->writeHTML($teachinghtml, true, false, false, false, '');
 }
 
 if($sections->resources==1){
 $pdf->AddPage();
 $languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
-$pdf->writeHTML('<h1>Recursos del lenguaje</h1><br><div align="justify">', true, false, false, false, '');
+$pdf->writeHTML('<h1>Recursos del lenguaje</h1>', true, false, false, false, '');
 $pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
-$pdf->writeHTML('</div>', true, false, false, false, '');
 }
 
 if($sections->rubric==1){
 $pdf->AddPage();
 
 $rubrichtml=show_rubric($activity->rubricid);
-$pdf->writeHTML('<h1>Evaluación</h1><br>', true, false, false, false, '');
+$pdf->writeHTML('<h1>Evaluación</h1>', true, false, false, false, '');
 $pdf->writeHTML($rubrichtml, true, false, false, false, '');
 }
 
