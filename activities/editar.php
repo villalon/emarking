@@ -31,50 +31,42 @@ $mform = new local_ciae_edit_activity();
 if ($mform->is_cancelled()) {
     //Handle form cancel operation, if cancel button is present on form
 } else if ($fromform = $mform->get_data()) {
-	$itemid=rand(1,32767);
-	$fs = get_file_storage();
-	file_save_draft_area_files($fromform->instructions ['itemid'], $context->id, 'mod_emarking', 'instructions', $itemid);
-	$files = $fs->get_area_files(
-			$context->id,
-			'mod_emarking', 'instructions',
-			$itemid,
-			'itemid, filepath, filename',
-			false);
-	$usercontext = context_user::instance($USER->id);
+	$fs = get_file_storage ();
+	file_save_draft_area_files ( $fromform->instructions ['itemid'], $context->id, 'mod_emarking', 'instructions', $fromform->instructions ['itemid'] );
+	$files = $fs->get_area_files ( $context->id, 'mod_emarking', 'instructions', $fromform->instructions ['itemid'], 'itemid, filepath, filename', false );
+	$usercontext = context_user::instance ( $USER->id );
 	
-	$urlAntigua='/draftfile.php/'.$usercontext->id.'/user/draft/'.$fromform->instructions ['itemid'] .'/';
-	$text=$fromform->instructions['text'];
-	var_dump($text);
+	$urlAntigua = '/draftfile.php/' . $usercontext->id . '/user/draft/' . $fromform->instructions ['itemid'] . '/';
+	$instructions = $fromform->instructions ['text'];
+	$planification = $fromform->planification ['text'];
+	$writing = $fromform->writing ['text'];
+	$editing = $fromform->editing ['text'];
 	
-	//$url = moodle_url::make_pluginfile_url($files->contextid, $files->component, $files->filearea, null, null, $files->filename);
+	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $fromform->instructions ['itemid'] . '/';
+	$instructions = str_replace ( $urlAntigua, $urlnueva, $instructions );
+	$planification = str_replace ( $urlAntigua, $urlnueva, $planification );
+	$writing = str_replace ( $urlAntigua, $urlnueva, $writing );
+	$editing = str_replace ( $urlAntigua, $urlnueva, $editing );
 	
-	die();
-	$oldfilename='';
-	foreach($files as $file){
-		$urlAntigua='/draftfile.php/'.$usercontext->id.'/user/draft/'.$fromform->instructions ['itemid'] .'/';
-	if($oldfilename !=$file->get_filename()){
-		$url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $fromform->instructions ['itemid'] , $file->get_filepath(), $file->get_filename());
-		$urlnueva='/pluginfile.php/1/mod_emarking/'.$file->get_filearea().'/'.$fromform->instructions ['itemid'].'/';
-		$text=str_replace($urlAntigua,$urlnueva,$text);
-		$oldfilename=$file->get_filename();
-		
-	}
-}
-	
-	die();
-	if($activity->instructions != $fromform->instructions['text'] || 
-	   $activity->teaching !=	$fromform->teaching['text'] ||
-	   $activity->languageresources	!= $fromform->languageresources['text'] ||
-	   $activity->rubricid != $fromform->rubricid){
-		
-	$activity->instructions				= $fromform->instructions['text'];
-	$activity->teaching   				= $fromform->teaching['text'];
-	$activity->languageresources 		= $fromform->languageresources['text'];
-	$activity->timemodified				= time();
-	$activity->rubricid 				= $fromform->rubricid;
+	$activity->title = $fromform->title;
+	$activity->description = $fromform->description;
+	//$activity->learningobjectives = $oaCode;
+	$activity->comunicativepurpose = $fromform->comunicativepurpose;
+	//$activity->genre = $generos [$genero];
+	$activity->audience = $fromform->audience;
+	$activity->estimatedtime = $fromform->estimatedtime;
+	$activity->instructions = $instructions;
+	$activity->planification = $planification;
+	$activity->writing = $writing;
+	$activity->editing = $editing;
+	$activity->teaching = $fromform->teaching ['text'];
+	$activity->languageresources = $fromform->languageresources ['text'];
+	$activity->timemodified = time ();
+	$activity->userid = $USER->id;
+	$activity->rubricid = $fromform->rubricid;
 	
 	$DB->update_record('emarking_activities', $activity);
-	}
+	
 		
 	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 	redirect($url, 0);
@@ -85,7 +77,7 @@ if ($mform->is_cancelled()) {
 	$keyofgenre = array_search($activity->genre, $generos) + 1;
 	$formData = new stdClass();
 	
- 	$formData->instructions['text']			= $activity->instructions;
+ 	
 	$formData->teaching['text']  			= $activity->teaching;
  	$formData->languageresources['text'] 	= $activity->languageresources;
  	$formData->rubricid 					= $activity->rubricid;
@@ -97,7 +89,7 @@ if ($mform->is_cancelled()) {
  	$formData->estimatedtime 				= $activity->estimatedtime;
  	$formData->activityid 					= $activityid;
  	
- 	$mform->set_data($formData);
+ 	
  
  	//Set default data (if any)
  	if (empty($instructions->id)) {
@@ -105,15 +97,36 @@ if ($mform->is_cancelled()) {
  		$instructions->id = 0;
  	}
  	
- 	$draftid_editor = file_get_submitted_draft_itemid('instructions'); 
  	
- 	file_prepare_draft_area($draftid_editor, $context->id, 'mod_emarking', 'instructions',
- 			$instructions->id, null);
+	$draftid_editor = file_get_submitted_draft_itemid ( 'instructions' );
+	
+	file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instructions', $instructions->id, null );
+	
+	$formData->instructions = array (
+			'text' => $activity->instructions,
+			'',
+			'itemid' => $draftid_editor 
+	);
+	$formData->planification = array (
+			'text' => $activity->planification,
+			'',
+			'itemid' => $draftid_editor 
+	);
+	$formData->writing = array (
+			'text' => $activity->writing,
+			'',
+			'itemid' => $draftid_editor 
+	);
+	$formData->editing = array (
+			'text' => $activity->editing,
+			'',
+			'itemid' => $draftid_editor 
+	);
+	
+	$mform->set_data ( $formData );
  	
- 	$instructions->instructions = array('text'=>'', 'format'=>$instructions->format, 'itemid'=>$draftid_editor);
  	
- 	
- 	$mform->set_data($instructions);
+ 	$mform->set_data($formData);
  	
   $mform->display();
 }
