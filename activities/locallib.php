@@ -38,7 +38,7 @@ function show_rubric($id) {
 			$col = $actualcol;
 		}
 	}
-	$row = sizeof ( $table );
+	
 	$table = "";
 	$table .= '<table class="table table-bordered">';
 	$table .= '<thead>';
@@ -130,17 +130,13 @@ function show_result($data) {
  * @param unknown $activityid        	
  * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
  */
-function get_pdf_activity($activity) {
-	
-	
+function get_pdf_activity($activityid,$download = false,$sections = null) {
 	GLOBAL $USER,$CFG, $DB;
 	require_once ($CFG->libdir . '/pdflib.php');
 	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
-	$tempdir = emarking_get_temp_dir_path($activity->id);
-	if (!file_exists($tempdir)) {
-		emarking_initialize_directory($tempdir, true);
-	}
-
+	
+	
+$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 $user_object = $DB->get_record('user', array('id'=>$activity->userid));
 
 $usercontext=context_user::instance($USER->id);
@@ -156,16 +152,76 @@ $pdf->SetAuthor($user_object->firstname.' '.$user_object->lastname);
 $pdf->SetTitle($activity->title);
 $pdf->SetPrintHeader(false);
 $pdf->SetPrintFooter(false);
-$pdf->SetFont('helvetica', '', 11);
-$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+$pdf->SetFont('times', '', 12);
+
 // set auto page breaks
 $pdf->SetAutoPageBreak(TRUE, 50);
 $pdf->SetTopMargin(40);
+$pdf->SetRightMargin(25);
+$pdf->SetLeftMargin(25);
 // Add a page
 // This method has several options, check the source code documentation for more information.
+
+if($sections->instructions==1){
+$pdf->AddPage();
+$pdf->writeHTML('<h1>Instrucciones</h1> <br>', true, false, false, false, '');
+$instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
+$pdf->writeHTML($instructionshtml, true, false, false, false, '');
+
+}
+
+if($sections->planification==1){
+$pdf->AddPage();
+$planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
+$pdf->writeHTML('<h1>Planificación</h1><br>', true, false, false, false, '');
+$pdf->writeHTML($planificationhtml, true, false, false, false, '');
+}
+
+if($sections->writing==1){
+$pdf->AddPage();
+$writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
+$pdf->writeHTML('<h1>Escritura</h1><br>', true, false, false, false, '');
+$pdf->writeHTML($writinghtml, true, false, false, false, '');
+}
+
+if($sections->editing==1){
+$pdf->AddPage();
+$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
+$pdf->writeHTML('<h1>Revisión y edición</h1><br>', true, false, false, false, '');
+$pdf->writeHTML($editinghtml, true, false, false, false, '');
+}
+
+if($sections->teaching==1){
+$pdf->AddPage();
+$teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
+$pdf->writeHTML('<h1>Sugerencias didácticas</h1><br>', true, false, false, false, '');
+$pdf->writeHTML($teachinghtml, true, false, false, false, '');
+}
+
+if($sections->resources==1){
+$pdf->AddPage();
+$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
+$pdf->writeHTML('<h1>Recursos del lenguaje</h1><br><div align="justify">', true, false, false, false, '');
+$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
+$pdf->writeHTML('</div>', true, false, false, false, '');
+}
+
+if($sections->rubric==1){
 $pdf->AddPage();
 
-$pdf->writeHTML($activity->instructions, true, false, false, false, '');
+$rubrichtml=show_rubric($activity->rubricid);
+$pdf->writeHTML('<h1>Evaluación</h1><br>', true, false, false, false, '');
+$pdf->writeHTML($rubrichtml, true, false, false, false, '');
+}
+
+if($download==true){
+	$pdf->Output($activity->title.'.pdf', 'D');
+	
+} else{
+	$tempdir = emarking_get_temp_dir_path($activity->id);
+	if (!file_exists($tempdir)) {
+		emarking_initialize_directory($tempdir, true);
+	}
 $pdffilename=$activity->title.'.pdf';
 	$pathname = $tempdir . '/' . $pdffilename;
 	if (@file_exists($pathname)) {
@@ -203,7 +259,7 @@ return array (
 		'numpages'=>$numpages,
 		'filedata'=>$filedata
 			);
-   
+}
 }
 /**
  * Creates a new instance of emarking, with the data obteined in 
@@ -326,5 +382,135 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 			'sectionid'=>$sectionid
 	);
 }
+function emarking_activities_add_images_pdf($html,$context){
+	global $DB, $CFG, $OUTPUT;
+
+	// Inclusión de librerías
+	require_once ($CFG->dirroot . '/mod/emarking/orm/locallib.php');
+	require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
+	$filedir = $CFG->dataroot . "/temp/emarking/$context->id";
+	emarking_initialize_directory($filedir, false);
+
+	$fileimg = $CFG->dataroot . "/temp/emarking/$context->id/images";
+	emarking_initialize_directory($fileimg, false);
 
 
+	$fullhtml = array();
+	$numanswers = array();
+	$attemptids = array();
+	$images = array();
+	$imageshtml = array();
+
+				$currentimages = emarking_extract_images_url($html);
+				$idx = 0;
+				foreach ($currentimages[1] as $imageurl) {
+					if (! array_search($imageurl, $images)) {
+						$images[] = $imageurl;
+						$imageshtml[] = $currentimages[0][$idx];
+					}
+					$idx ++;
+				}
+				
+	// Bajar las imágenes del HTML a dibujar
+	$search = array();
+	$replace = array();
+	$replaceweb = array();
+	$imagesize = array();
+	$idx = 0;
+			
+	foreach ($images as $image) {
+		
+			if (! list ($filename, $imageinfo) = emarking_activities_get_file_from_url($image, $fileimg)) {
+				echo "Problem downloading file $image <hr>";
+			} else {
+				// Buscamos el src de la imagen
+				$search[] = 'src="' . $image . '"';
+				$replacehtml = ' src="' . $filename . '"';
+				$replacehtmlxweb = ' src="' . $image . '"';
+				// Si el html de la misma contiene ancho o alto, se deja tal cual
+				$imghtml = $imageshtml[$idx];
+				if (substr_count($imghtml, "width") + substr_count($imghtml, "height") == 0) {
+					$width = $imageinfo[0];
+					$height = $imageinfo[1];
+					$ratio = floatval(10) / floatval($height);
+					$height = 10;
+					$width = (int) ($ratio * floatval($width));
+					$sizehtml = 'width="' . $width . '" height="' . $height . '"';
+					$replacehtml = $sizehtml . ' ' . $replacehtml;
+					$replacehtmlxweb = $sizehtml . ' ' . $replacehtmlxweb;
+				}
+				$replace[] = $replacehtml;
+				$replaceweb[] = $replacehtmlxweb;
+				$imagesize[] = $imageinfo;
+			}
+			$idx ++;
+	}
+	$fullhtml = str_replace($search, $replace, $html);
+	return $fullhtml;
+}
+
+/**
+ *
+ * @param unknown $url
+ * @param unknown $pathname
+ * @return boolean
+ */
+function emarking_activities_get_file_from_url($url, $pathname)
+{
+	// Calculate filename
+	$parts = explode('/', $url);
+	$filename = $parts[count($parts) - 1];
+	 
+	$ispluginfile = false;
+	$ispixfile = false;
+	$index = 0;
+	foreach ($parts as $part) {
+		if ($part === 'pluginfile.php') {
+			$ispluginfile = true;
+			break;
+		}
+		if ($part === 'pix.php') {
+			$ispixfile = true;
+			break;
+		}
+		$index ++;
+	}
+
+	$fs = get_file_storage();
+
+	// If the file is part of Moodle, we get it from the filesystem
+	if ($ispluginfile) {
+		$contextid = $parts[$index + 1];
+		$component = $parts[$index + 2];
+		$filearea = $parts[$index + 3];
+		$itemid = $parts[$index + 4];
+		$filepath = '/';
+		if ($fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename)) {
+			$file = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
+		
+			$file->copy_content_to($pathname . $filename);		
+			$imageinfo = getimagesize($pathname . $filename);
+			return array(
+					$pathname . $filename,
+					$imageinfo
+			);
+		}
+		return false;
+	}
+
+	// Open binary stream and read it
+	$handle = fopen($url, "rb");
+	$content = stream_get_contents($handle);
+	fclose($handle);
+
+	// Save the binary file
+	$file = fopen($pathname . $filename, "wb+");
+	fputs($file, $content);
+	fclose($file);
+
+	$imageinfo = getimagesize($pathname . $filename);
+	return array(
+			$pathname . $filename,
+			$imageinfo
+	);
+}

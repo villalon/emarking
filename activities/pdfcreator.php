@@ -1,39 +1,25 @@
 <?php
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 require_once("$CFG->libdir/pdflib.php");
+require_once ($CFG->dirroot . '/mod/emarking/activities/locallib.php');
 GLOBAL $USER, $DB;
 
 $activityid = required_param('id', PARAM_INT);
+$instructions = optional_param('instructions', 0,PARAM_INT);
+$planification = optional_param('planification', 0,PARAM_INT);
+$editing = optional_param('editing', 0,PARAM_INT);
+$writing = optional_param('writing', 0,PARAM_INT);
+$teaching = optional_param('teaching', 0,PARAM_INT);
+$resources = optional_param('resources', 0,PARAM_INT);
+$rubric = optional_param('rubric', 0,PARAM_INT);
 
-$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-$user_object = $DB->get_record('user', array('id'=>$activity->userid));
-$usercontext=context_user::instance($USER->id);
+$sections = new stdClass ();
+$sections->instructions=$instructions;
+$sections->planification=$planification;
+$sections->editing=$editing;
+$sections->writing=$writing;
+$sections->teaching=$teaching;
+$sections->resources=$resources;
+$sections->rubric=$rubric;
 
-// create new PDF document
-
-$pdf = new TCPDF(PDF_PAGE_ORIENTATION, 'mm', 'A4', true, 'UTF-8', false);
-
-// set document information
-
-// set document information
-$pdf->SetCreator($USER->firstname.' '.$USER->lastname);
-$pdf->SetAuthor($user_object->firstname.' '.$user_object->lastname);
-$pdf->SetTitle($activity->title);
-$pdf->SetPrintHeader(false);
-$pdf->SetPrintFooter(false);
-$pdf->SetFont('helvetica', '', 11);
-//SetMargins($left,$top,$right = -1,$keepmargins = false)
-$pdf->SetMargins(25,40 , 25, true);
-$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-// set auto page breaks
-$pdf->SetAutoPageBreak(TRUE, 50);
-//$pdf->SetTopMargin(40);
-// Add a page
-// This method has several options, check the source code documentation for more information.
-$pdf->AddPage();
-
-$pdf->writeHTML($activity->instructions, true, false, false, false, '');
-
-$pdf->Output($activity->title.'.pdf', 'I');
-
-	
+get_pdf_activity($activityid,true,$sections);

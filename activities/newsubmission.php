@@ -9,9 +9,14 @@ GLOBAL $USER;
 $activityid = required_param('id', PARAM_INT);
 $courseid = required_param('course', PARAM_INT);
 $askMarking = optional_param('askMarking',0, PARAM_INT);
-$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 require_login($courseid);
-$pdf=get_pdf_activity($activity);
+$sections = new stdClass ();
+$sections->instructions=1;
+$sections->planification=1;
+$sections->editing=1;
+$sections->writing=1;
+
+$pdf=get_pdf_activity($activityid,false,$sections);
 $itemid=$pdf['itemid'];
 $numpages=$pdf['numpages'];
 $filedata=$pdf['filedata'];

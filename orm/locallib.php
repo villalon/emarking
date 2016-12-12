@@ -242,7 +242,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
             continue;
         
         $doc->AddPage();
-        emarking_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), 2, $fileimg, $logofilepath, $course, null, false, 0);
+        emarking_orm_draw_header($doc, $stinfo, $quizobj->get_quiz_name(), 2, $fileimg, $logofilepath, $course, null, false, 0);
         $doc->SetFont('times', '', 12);
         $doc->SetAutoPageBreak(true);
         $doc->SetXY(PDF_MARGIN_LEFT, 40);
@@ -293,7 +293,7 @@ function emarking_create_quiz_pdf($cm, $debug = false, $context = null, $course 
     return $downloadurl;
 }
 
-function emarking_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true, $isanswersheet = false, $attemptid = 0)
+function emarking_orm_draw_header($pdf, $stinfo, $examname, $pagenumber, $fileimgpath, $logofilepath, $course, $totalpages = null, $bottomqr = true, $isanswersheet = false, $attemptid = 0)
 {
     global $CFG;
     
@@ -350,7 +350,7 @@ function emarking_get_file_from_url($url, $pathname)
     // Calculate filename
     $parts = explode('/', $url);
     $filename = $parts[count($parts) - 1];
-    
+   
     $ispluginfile = false;
     $ispixfile = false;
     $index = 0;
@@ -600,7 +600,7 @@ function emarking_add_answer_sheet($pdf, $filedir, $stinfo, $logofilepath, $path
         255
     ));
     
-    emarking_draw_header($pdf, $stinfo, $examname, 1, $fileimg, $logofilepath, $course, null, false, true, $attemptid);
+    emarking_orm_draw_header($pdf, $stinfo, $examname, 1, $fileimg, $logofilepath, $course, null, false, true, $attemptid);
 }
 
 /**

@@ -185,8 +185,14 @@ class local_ciae_create_activity extends moodleform {
         $mform->addElement('static', '', '','Cree las instrucciones que se entregarán a los estudiantes.');
         $systemcontext = context_system::instance();
         $editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES, 'context'=>$systemcontext);
-        $mform->addElement('editor', 'instructions', '',null,$editoroptions);
+        $mform->addElement('editor', 'instructions', 'Instrucciones',null,$editoroptions);
         $mform->setType('instructions', PARAM_RAW);
+        $mform->addElement('editor', 'planification', 'Planificación',null,$editoroptions);
+        $mform->setType('planification', PARAM_RAW);
+        $mform->addElement('editor', 'writing', 'Escritura',null,$editoroptions);
+        $mform->setType('writing', PARAM_RAW);
+        $mform->addElement('editor', 'editing', 'Edición',null,$editoroptions);
+        $mform->setType('editing', PARAM_RAW);
 
         
         
