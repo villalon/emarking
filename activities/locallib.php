@@ -257,7 +257,9 @@ $itemid=rand(1,32767);
 return array (
 		'itemid'=>$itemid,
 		'numpages'=>$numpages,
-		'filedata'=>$filedata
+		'filedata'=>$filedata,
+		'activitytitle'=>$activity->title,
+		'rubricid'=>$activity->rubricid
 			);
 }
 }

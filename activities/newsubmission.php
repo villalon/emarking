@@ -23,7 +23,7 @@ $filedata=$pdf['filedata'];
 
 $emarking = new stdClass();
 $emarking->course = $courseid;
-$emarking->name = $activity->title;
+$emarking->name = $pdf['activitytitle'];;
 $emarking->intro = "";
 $emarking->custommarks = "";
 $emarking->markingduedate = time();
@@ -33,9 +33,8 @@ $emarking->grademin = 1.0;
 $emarking->keywords = "keyword1,keyword2,sentence1";
 $emarking->exam=0;
 $emarking->uploadtype=EMARKING_UPLOAD_QR;
-//var_dump($activity);
+
 $data=emarking_create_activity_instance($emarking,$courseid,$itemid,$numpages,$filedata);
-//var_dump($data);
 $contextmodule = context_module::instance($data['cmid']);
 $coursecontext = context_course::instance($courseid, MUST_EXIST);
 
@@ -46,9 +45,9 @@ $gradingArea->component='mod_emarking';
 $gradingArea->areaname='attempt';
 $gradingArea->activemethod='rubric';
 $insert = $DB->insert_record('grading_areas', $gradingArea);
-$rubric= $DB->get_record('grading_definitions',array('id'=>$activity->rubricid));
+$rubric= $DB->get_record('grading_definitions',array('id'=>$pdf['rubricid']));
 $rubricdefinition=$rubric->id;
-$rubric->copiedfromid=$activity->rubricid;
+$rubric->copiedfromid=$pdf['rubricid'];
 $rubric->timecopied=time();
 $rubric->areaid=$insert;
 unset($rubric->id);
@@ -84,9 +83,8 @@ if($askMarking==1){
 		redirect($forkUrl, 0);
 	}
 	$instance = $DB->get_record('enrol', array('id'=>1, 'enrol'=>'manual'), '*', MUST_EXIST);
-	var_dump($instance);
+	
 	$roleid = $instance->roleid;
-	var_dump($roleid);
 	$course = $DB->get_record('course', array('id'=>$instance->courseid), '*', MUST_EXIST);
 	$timestart = $course->startdate;
 	$roles = get_assignable_roles($coursecontext);
@@ -109,7 +107,6 @@ if($askMarking==1){
     	 
 	
 }
-/*
+
 $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid,'create'=>1));
 redirect($forkUrl, 0);
-*/
