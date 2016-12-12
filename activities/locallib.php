@@ -156,6 +156,7 @@ $pdf->SetFont('times', '', 12);
 
 // set auto page breaks
 $pdf->SetAutoPageBreak(TRUE, 50);
+$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
 $pdf->SetTopMargin(40);
 $pdf->SetRightMargin(25);
 $pdf->SetLeftMargin(25);
