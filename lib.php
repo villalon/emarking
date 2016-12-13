@@ -861,9 +861,12 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     // end of send_file defaults.
     $filename = array_pop($args);
     $itemid = array_pop($args);
-    $contextcourse = context_course::instance($course->id);
     if($filearea!='instructions'){
+    	$contextcourse = context_course::instance($course->id);
         $contextcategory = context_coursecat::instance($course->category);
+    }
+    if($filearea=='instructions'){
+    	$lifetime= 60*60*24*36500;
     }
     // Downloading digitized answers requires uploadexam permission on activity.
     if ($filearea === 'upload') {

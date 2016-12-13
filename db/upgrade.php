@@ -1645,5 +1645,31 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2016112901, 'emarking');
     }
+    if ($oldversion < 2016120900) {
+    
+    	// Define key commentid (foreign) to be added to emarking_feedback.
+    	$table = new xmldb_table('emarking_activities');
+        $field = new xmldb_field('writing', XMLDB_TYPE_TEXT, null, null, null, null, null, 'status');
+
+        // Conditionally launch add field writing.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('planification', XMLDB_TYPE_TEXT, null, null, null, null, null, 'writing');
+        
+        // Conditionally launch add field planification.
+        if (!$dbman->field_exists($table, $field)) {
+        	$dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('editing', XMLDB_TYPE_TEXT, null, null, null, null, null, 'planification');
+        
+        // Conditionally launch add field editing.
+        if (!$dbman->field_exists($table, $field)) {
+        	$dbman->add_field($table, $field);
+        }
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2016120900, 'emarking');
+    }
     return true;
 }

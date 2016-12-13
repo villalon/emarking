@@ -118,8 +118,3 @@ $coursesUrl=new moodle_url($CFG->wwwroot.'/my');
         </div>
         </div>
         </div>
- 
-        
-    
-    
-  

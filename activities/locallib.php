@@ -38,7 +38,7 @@ function show_rubric($id) {
 			$col = $actualcol;
 		}
 	}
-	$row = sizeof ( $table );
+	
 	$table = "";
 	$table .= '<table class="table table-bordered">';
 	$table .= '<thead>';
@@ -130,16 +130,13 @@ function show_result($data) {
  * @param unknown $activityid        	
  * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
  */
-function get_pdf_activity($activity) {
-	
-	
+function get_pdf_activity($activityid,$download = false,$sections = null) {
 	GLOBAL $USER,$CFG, $DB;
 	require_once ($CFG->libdir . '/pdflib.php');
-	$tempdir = emarking_get_temp_dir_path($activity->id);
-	if (!file_exists($tempdir)) {
-		emarking_initialize_directory($tempdir, true);
-	}
-
+	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
+	
+	
+$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 $user_object = $DB->get_record('user', array('id'=>$activity->userid));
 
 $usercontext=context_user::instance($USER->id);
@@ -155,23 +152,84 @@ $pdf->SetAuthor($user_object->firstname.' '.$user_object->lastname);
 $pdf->SetTitle($activity->title);
 $pdf->SetPrintHeader(false);
 $pdf->SetPrintFooter(false);
-$pdf->SetFont('helvetica', '', 11);
-$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+$pdf->SetFont('times', '', 12);
+
 // set auto page breaks
 $pdf->SetAutoPageBreak(TRUE, 50);
+$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
 $pdf->SetTopMargin(40);
+$pdf->SetRightMargin(25);
+$pdf->SetLeftMargin(25);
 // Add a page
 // This method has several options, check the source code documentation for more information.
+
+if($sections->instructions==1){
+$pdf->AddPage();
+$pdf->writeHTML('<h1>Instrucciones</h1> ', true, false, false, false, '');
+$instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
+$pdf->writeHTML($instructionshtml, true, false, false, false, '');
+
+}
+
+if($sections->planification==1){
+$pdf->AddPage();
+$planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
+$pdf->writeHTML('<h1>Planificación</h1>', true, false, false, false, '');
+$pdf->writeHTML($planificationhtml, true, false, false, false, '');
+}
+
+if($sections->writing==1){
+$pdf->AddPage();
+$writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
+$pdf->writeHTML('<h1>Escritura</h1>', true, false, false, false, '');
+$pdf->writeHTML($writinghtml, true, false, false, false, '');
+}
+
+if($sections->editing==1){
+$pdf->AddPage();
+$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
+$pdf->writeHTML('<h1>Revisión y edición</h1>', true, false, false, false, '');
+$pdf->writeHTML($editinghtml, true, false, false, false, '');
+}
+
+if($sections->teaching==1){
+$pdf->AddPage();
+$teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
+$pdf->writeHTML('<h1>Sugerencias didácticas</h1>', true, false, false, false, '');
+$pdf->writeHTML($teachinghtml, true, false, false, false, '');
+}
+
+if($sections->resources==1){
+$pdf->AddPage();
+$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
+$pdf->writeHTML('<h1>Recursos del lenguaje</h1>', true, false, false, false, '');
+$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
+}
+
+if($sections->rubric==1){
 $pdf->AddPage();
 
-$pdf->writeHTML($activity->instructions, true, false, false, false, '');
+$rubrichtml=show_rubric($activity->rubricid);
+$pdf->writeHTML('<h1>Evaluación</h1>', true, false, false, false, '');
+$pdf->writeHTML($rubrichtml, true, false, false, false, '');
+}
+
+if($download==true){
+	$pdf->Output($activity->title.'.pdf', 'D');
+	
+} else{
+	$tempdir = emarking_get_temp_dir_path($activity->id);
+	if (!file_exists($tempdir)) {
+		emarking_initialize_directory($tempdir, true);
+	}
 $pdffilename=$activity->title.'.pdf';
 	$pathname = $tempdir . '/' . $pdffilename;
 	if (@file_exists($pathname)) {
 		unlink($pathname);
 	}
+	$numpages = $pdf->getNumPages();
 	 $pdf->Output($pathname, 'F');
-
+	
 $itemid=rand(1,32767);
 	 $filerecord = array(
 	 		'contextid' => $usercontext->id,
@@ -186,69 +244,73 @@ $itemid=rand(1,32767);
 	 		'license' => 'allrightsreserved'
 	 );
 	 // Si el archivo ya existía entonces lo borramos.
-	 if ($fs->file_exists($usercontext->id, 'mod_emarking', 'user', 4, '/', $pdffilename)) {
+	 if ($fs->file_exists($usercontext->id, 'mod_emarking', 'user', $itemid, '/', $pdffilename)) {
 	 	$contents = $file->get_content();
 	 }
 	 $fileinfo = $fs->create_file_from_pathname($filerecord, $pathname);
-return $itemid;
-   
+
+	 $filedata [] = array(
+	 		'pathname' => $pathname,
+	 		'filename' => $pdffilename
+	 );
+	 
+return array (
+		'itemid'=>$itemid,
+		'numpages'=>$numpages,
+		'filedata'=>$filedata,
+		'activitytitle'=>$activity->title,
+		'rubricid'=>$activity->rubricid
+			);
+}
 }
 /**
- * Saves a new instance of the emarking into the database
- * Given an object containing all the necessary data,
- * (defined by the form in mod_form.php) this function
- * will create a new instance and return the id number
- * of the new instance.
+ * Creates a new instance of emarking, with the data obteined in 
+ * the bank of activities.
  *
- * @param object $emarking
- *        	An object from the form in mod_form.php
- * @param mod_emarking_mod_form $mform        	
- * @return int The id of the newly inserted emarking record
+ * @param object data
+ *        	An object from data of the new instance emarking
+ * @param inst $destinationcourse
+ * 			The course where the instance will be create        	
+ * @return int $itemid
+ * 			The id of the pdf for emarking
  */
-function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mform = null) {
+function emarking_create_activity_instance(stdClass $data,$destinationcourse,$itemid,$numpages,$filedata) {
 	global $DB, $CFG, $COURSE, $USER;
+	require_once ($CFG->dirroot . "/course/lib.php");
+	
+	require_once ($CFG->dirroot . "/mod/emarking/lib.php");
+	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
+	
+	$emarkingmod = $DB->get_record ( 'modules', array (
+			'name' => 'emarking'
+	) );
+
+	$data->id = null;
+	$data->course = $destinationcourse;
+	
 	$data->timecreated = time ();
 	$id = $DB->insert_record ( 'emarking', $data );
 	$data->id = $id;
 	$course = $data->course;
 	emarking_grade_item_update ( $data );
 	
-	foreach ( $data as $k => $v ) {
-		$parts = explode ( '-', $k );
-		if (count ( $parts ) > 1 && $parts [0] === 'marker') {
-			$markerid = intval ( $parts [1] );
-			$marker = new stdClass ();
-			$marker->emarking = $id;
-			$marker->marker = $markerid;
-			$marker->qualitycontrol = 1;
-			$DB->insert_record ( 'emarking_markers', $marker );
-		}
-	}
+
 	// entregar id del curso
 	$context = context_course::instance ( $course );
-	$examid = 0;
+	
+	$examfiles = $filedata;
+
 	// If there's no previous exam to associate, and we are creating a new
 	// EMarking, we need the PDF file.
-	
-	if ($data->exam == 0) {
-		$examfiles = emarking_validate_exam_files_from_draft ($itemid);
-		if (count ( $examfiles ) == 0) {
-			throw new Exception ( 'Invalid PDF exam files' );
-		}
-		$numpages = $examfiles [0] ['numpages'];
-	} else {
-		$examid = $data->exam;
-	}
-	
 	
 	$studentsnumber = emarking_get_students_count_for_printing ( $course );
 	
 	// A new exam object is created and its attributes filled from form data.
-	if ($examid == 0) {
+	 
 		$exam = new stdClass ();
 		$exam->course = $course;
 		$exam->courseshortname = $COURSE->shortname;
-		$exam->name = "a";
+		$exam->name = $data->name;
 		$exam->examdate = time();
 		$exam->emarking = $id;
 		$exam->headerqr = 1;
@@ -257,24 +319,22 @@ function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mf
 		$exam->extrasheets = 0;
 		$exam->extraexams = 0;
 		$exam->usebackside = 0;
-		if ($examid == 0) {
-			$exam->timecreated = time ();
-		}
-		$exam->timemodified = time ();
+		$exam->timecreated = time ();
+		$exam->timemodified = 0;
 		$exam->requestedby = $USER->id;
 		$exam->totalstudents = $studentsnumber;
 		$exam->comment = "comment";
 		// Get the enrolments as a comma separated values.
-	
 		$exam->enrolments = "manual";
 		$exam->printdate = 0;
 		$exam->status = 10;
 		// Calculate total pages for exam.
-		$exam->totalpages = 2;
-		$exam->printingcost = emarking_get_category_cost ( $course );
+		$exam->totalpages = $numpages;
+		$exam->printingcost = 0;
 		$exam->id = $DB->insert_record ( 'emarking_exams', $exam );
 		$fs = get_file_storage ();
 		foreach ( $examfiles as $exampdf ) {
+			
 			// Save the submitted file to check if it's a PDF.
 			$filerecord = array (
 					'component' => 'mod_emarking',
@@ -292,14 +352,7 @@ function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mf
 			$fs->delete_area_files ( $contextid, 'emarking', 'exams', $exam->id );
 			print_error ( get_string ( 'errorsavingpdf', 'mod_emarking' ) );
 		}
-	} else {
-		$exam = $DB->get_record ( "emarking_exams", array (
-				"id" => $examid 
-		) );
-		$exam->emarking = $id;
-		$exam->timemodified = time ();
-		$DB->update_record ( 'emarking_exams', $exam );
-	}
+	
 	$headerqr = 1;
 	setcookie ( "emarking_headerqr", $headerqr, time () + 3600 * 24 * 365 * 10, '/' );
 	$defaultexam = new stdClass ();
@@ -311,32 +364,11 @@ function emarking_add_instance(stdClass $data,$itemid, mod_emarking_mod_form $mf
 	$defaultexam->usebackside = $exam->usebackside;
 	$defaultexam->enrolments = $exam->enrolments;
 	setcookie ( "emarking_exam_defaults", json_encode ( $defaultexam ), time () + 3600 * 24 * 365 * 10, '/' );
-	return $id;
-}
-/**
- * Creates a copy of the emarking in the database.
- *
- * @param unknown $originalemarking        	
- * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
- */
-function emarking_copy_to_cm($originalemarking, $destinationcourse,$itemid) {
-	global $CFG, $DB;
-	require_once ($CFG->dirroot . "/course/lib.php");
 	
-	
-	$emarkingmod = $DB->get_record ( 'modules', array (
-			'name' => 'emarking' 
-	) );
-	$emarking = new stdClass ();
-	$emarking = $originalemarking;
-	$emarking->id = null;
-	$emarking->course = $destinationcourse;
-	$emarking->id = emarking_add_instance ( $emarking,$itemid );
-	// Add coursemodule.
 	$mod = new stdClass ();
 	$mod->course = $destinationcourse;
 	$mod->module = $emarkingmod->id;
-	$mod->instance = $emarking->id;
+	$mod->instance = $data->id;
 	$mod->section = 0;
 	$mod->visible = 0; // Hide the forum.
 	$mod->visibleold = 0; // Hide the forum.
@@ -347,383 +379,140 @@ function emarking_copy_to_cm($originalemarking, $destinationcourse,$itemid) {
 	}
 	$sectionid = course_add_cm_to_section ( $mod->course, $cmid, 0 );
 	return array (
-			'id'=>$emarking->id,
+			'id'=>$data->id,
 			'cmid'=>$cmid,
-			'sectionid'=>$sectionid 
+			'sectionid'=>$sectionid
 	);
 }
-/**
- * Creates or updates grade item for the give emarking instance
- * Needed by grade_update_mod_grades() in lib/gradelib.php
- *
- * @param stdClass $emarking
- *        	instance object with extra cmidnumber and modname property
- * @param null $grades        	
- * @return int 0 if ok, error code otherwise
- */
-function emarking_grade_item_update(stdClass $emarking, $grades = null) {
-	global $CFG;
-	require_once ($CFG->libdir . '/gradelib.php');
-	
-	if ($grades == null) {
-		emarking_calculate_grades_users ( $emarking );
-	}
-	$params = array ();
-	$params ['itemname'] = clean_param ( $emarking->name, PARAM_NOTAGS );
-	$params ['gradetype'] = GRADE_TYPE_VALUE;
-	$params ['grademax'] = $emarking->grade;
-	$params ['grademin'] = $emarking->grademin;
-	if ($grades === 'reset') {
-		$params ['reset'] = true;
-		$grades = null;
-	}
-	$ret = grade_update ( 'mod/emarking', $emarking->course, 'mod', 'emarking', $emarking->id, 0, $grades, $params );
-	emarking_publish_all_grades ( $emarking );
-	return $ret;
-}
-/**
- * Erraces all the content of a directory, then ir creates te if they don't exist.
- *
- * @param unknown $dir
- *            Directorio
- * @param unknown $delete
- *            Borrar archivos previamente
- */
-function emarking_initialize_directory($dir, $delete) {
-	if ($delete) {
-		// First erase all files.
-		if (is_dir($dir)) {
-			emarking_rrmdir($dir);
-		}
-	}
-	// Si no existe carpeta para temporales se crea.
-	if (!is_dir($dir)) {
-		if (!mkdir($dir, 0777, true)) {
-			print_error(get_string('initializedirfail', 'mod_emarking', $dir));
-		}
-	}
-}
+function emarking_activities_add_images_pdf($html,$context){
+	global $DB, $CFG, $OUTPUT;
 
-/**
- * Recursively remove a directory.
- * Enter description here ...
- *
- * @param unknown_type $dir
- */
-function emarking_rrmdir($dir) {
-	foreach(glob($dir . '/*') as $file) {
-		if (is_dir($file)) {
-			emarking_rrmdir($file);
-		} else {
-			unlink($file);
-		}
-	}
-	rmdir($dir);
-}
-/**
- * Devuelve el path por defecto de archivos temporales de emarking.
- * Normalmente debiera ser moodledata\temp\emarking
- *
- * @param unknown $postfix
- *            Postfijo (típicamente el id de assignment)
- * @return string El path al directorio temporal
- */
-function emarking_get_temp_dir_path($postfix) {
-	global $CFG;
-	return $CFG->dataroot . "/temp/emarking/" . $postfix;
-}
-/**
- * 
- * @param unknown $emarking
- * @param number $userid
- * @return void|boolean
- */
-function emarking_calculate_grades_users($emarking, $userid = 0) {
-    global $DB, $USER, $CFG;
-    require_once($CFG->dirroot . '/grade/grading/lib.php');
-    if (! $cm = get_coursemodule_from_instance('emarking', $emarking->id)) {
-        return;
-    }
-    if ($emarking->type != EMARKING_TYPE_ON_SCREEN_MARKING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
-        return;
-    }
-    $context = context_module::instance($cm->id);
-    // Get the grading manager, then method and finally controller.
-    $gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
-    $gradingmethod = $gradingmanager->get_active_method();
-    $controller = $gradingmanager->get_controller($gradingmethod);
-    $range = $controller->get_grade_range();
-    $rubricscores = $controller->get_min_max_score();
-    $totalrubricscore = $rubricscores ['maxscore'];
-    $filter = 'WHERE 1=1';
-    if ($userid > 0) {
-        $filter = 'WHERE es.student = ' . $userid;
-    }
-    $studentscores = $DB->get_records_sql(
-            "
-			SELECT es.id,
-			es.student,
-	        d.id as draftid,
-			sum(ifnull(rl.score,0)) as score,
-			sum(ifnull(ec.bonus,0)) as bonus,
-			sum(ifnull(rl.score,0)) + sum(ifnull(ec.bonus,0)) as totalscore
-			FROM {emarking_submission} es
-			INNER JOIN {emarking_page} ep ON (es.emarking = :emarking AND ep.submission = es.id)
-			INNER JOIN {emarking_draft} d ON (d.submissionid = es.id AND d.qualitycontrol = 0)
-			LEFT JOIN {emarking_comment} ec ON (ec.page = ep.id AND ec.levelid > 0 AND ec.draft = d.id)
-			LEFT JOIN {gradingform_rubric_levels} rl ON (ec.levelid = rl.id)
-			$filter
-			AND d.status >= 10
-	        AND rl.id IS NOT NULL
-			GROUP BY es.emarking, es.id", array(
-                'emarking' => $emarking->id));
-    foreach ($studentscores as $studentscore) {
-        $totalscore = min(floatval($studentscore->totalscore), $totalrubricscore);
-        $finalgrade = emarking_calculate_grade($emarking, $totalscore, $totalrubricscore);
-        $submission = $DB->get_record('emarking_submission', array(
-            'id' => $studentscore->id));
-        $submission->grade = $finalgrade;
-        $DB->update_record('emarking_submission', $submission);
-        $draft = $DB->get_record('emarking_draft', array(
-            'id' => $studentscore->draftid));
-        $draft->grade = $finalgrade;
-        $DB->update_record('emarking_draft', $draft);
-    }
-    return true;
-}
-/**
- * Calculates the grade according to score
- * and corrects if there is a slope adjustment
- *
- * @param unknown $emarking
- * @param unknown $totalscore
- * @param unknown $totalrubricscore
- * @return Ambigous <number, mixed>
- */
-function emarking_calculate_grade($emarking, $totalscore, $totalrubricscore) {
-	if (isset($emarking->adjustslope) && $emarking->adjustslope) {
-		$finalgrade = min($emarking->grade,
-				((($emarking->adjustslopegrade - $emarking->grademin) / $emarking->adjustslopescore) * $totalscore) +
-				$emarking->grademin);
-	} else {
-		$finalgrade = ((($emarking->grade - $emarking->grademin) / $totalrubricscore) * $totalscore) + $emarking->grademin;
-	}
-	return $finalgrade;
-}
-/**
- *
- * @param unknown $emarking
- * @return void|boolean
- */
-function emarking_publish_all_grades($emarking) {
-	global $DB, $USER, $CFG;
-	
-		return;
-	
-}
-function emarking_validate_exam_files_from_draft($itemid) {
-	global $USER, $COURSE;
-	// We get the draftid from the form.
-	;
-	
-	$usercontext = context_user::instance($USER->id);
-	$fs = get_file_storage();
-	$files = $fs->get_area_files($usercontext->id, 'user', 'exam_files',$itemid);
+	// Inclusión de librerías
+	require_once ($CFG->dirroot . '/mod/emarking/orm/locallib.php');
+	require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
+	$filedir = $CFG->dataroot . "/temp/emarking/$context->id";
+	emarking_initialize_directory($filedir, false);
 
-	$tempdir = emarking_get_temp_dir_path($COURSE->id);
-	emarking_initialize_directory($tempdir, true);
-	$numpagesprevious = - 1;
-	$exampdfs = array();
-	
-	foreach ($files as $uploadedfile) {
-		if ($uploadedfile->is_directory() ||
-				$uploadedfile->get_mimetype() !== 'application/pdf') {
-					continue;
-					
+	$fileimg = $CFG->dataroot . "/temp/emarking/$context->id/images";
+	emarking_initialize_directory($fileimg, false);
+
+
+	$fullhtml = array();
+	$numanswers = array();
+	$attemptids = array();
+	$images = array();
+	$imageshtml = array();
+
+				$currentimages = emarking_extract_images_url($html);
+				$idx = 0;
+				foreach ($currentimages[1] as $imageurl) {
+					if (! array_search($imageurl, $images)) {
+						$images[] = $imageurl;
+						$imageshtml[] = $currentimages[0][$idx];
+					}
+					$idx ++;
 				}
 				
-				$filename = $uploadedfile->get_filename();
-				$filename = emarking_clean_filename($filename);
-				$newfilename = $tempdir . '/' . $filename;
-				$pdffile = emarking_get_path_from_hash($tempdir, $uploadedfile->get_pathnamehash());
-				// Executes pdftk burst to get all pages separated.
-				$numpages = emarking_pdf_count_pages($newfilename, $tempdir, false);
-				$exampdfs [] = array(
-						'pathname' => $pdffile,
-						'filename' => $filename,
-						'numpages' => $numpages
-				);
+	// Bajar las imágenes del HTML a dibujar
+	$search = array();
+	$replace = array();
+	$replaceweb = array();
+	$imagesize = array();
+	$idx = 0;
+			
+	foreach ($images as $image) {
+		
+			if (! list ($filename, $imageinfo) = emarking_activities_get_file_from_url($image, $fileimg)) {
+				echo "Problem downloading file $image <hr>";
+			} else {
+				// Buscamos el src de la imagen
+				$search[] = 'src="' . $image . '"';
+				$replacehtml = ' src="' . $filename . '"';
+				$replacehtmlxweb = ' src="' . $image . '"';
+				// Si el html de la misma contiene ancho o alto, se deja tal cual
+				$imghtml = $imageshtml[$idx];
+				if (substr_count($imghtml, "width") + substr_count($imghtml, "height") == 0) {
+					$width = $imageinfo[0];
+					$height = $imageinfo[1];
+					$ratio = floatval(10) / floatval($height);
+					$height = 10;
+					$width = (int) ($ratio * floatval($width));
+					$sizehtml = 'width="' . $width . '" height="' . $height . '"';
+					$replacehtml = $sizehtml . ' ' . $replacehtml;
+					$replacehtmlxweb = $sizehtml . ' ' . $replacehtmlxweb;
+				}
+				$replace[] = $replacehtml;
+				$replaceweb[] = $replacehtmlxweb;
+				$imagesize[] = $imageinfo;
+			}
+			$idx ++;
 	}
-	return $exampdfs;
+	$fullhtml = str_replace($search, $replace, $html);
+	return $fullhtml;
 }
+
 /**
- * Replace "acentos", spaces from file names.
- * Evita problemas en Windows y Linux.
  *
- * @param unknown $filename
- *            El nombre original del archivo
- * @return unknown El nombre sin acentos, espacios.
+ * @param unknown $url
+ * @param unknown $pathname
+ * @return boolean
  */
-function emarking_clean_filename($filename, $slash = false) {
-	$replace = array(
-			' ',
-			'á',
-			'é',
-			'í',
-			'ó',
-			'ú',
-			'ñ',
-			'Ñ',
-			'Á',
-			'É',
-			'Í',
-			'Ó',
-			'Ú',
-			'(',
-			')',
-			',',
-			'&',
-			'#'
-	);
-	$replacefor = array(
-			'-',
-			'a',
-			'e',
-			'i',
-			'o',
-			'u',
-			'n',
-			'N',
-			'A',
-			'E',
-			'I',
-			'O',
-			'U',
-			'-',
-			'-',
-			'-',
-			'-',
-			'-'
-	);
-	if ($slash) {
-		$replace[] = '/';
-		$replacefor[] = '-';
+function emarking_activities_get_file_from_url($url, $pathname)
+{
+	// Calculate filename
+	$parts = explode('/', $url);
+	$filename = $parts[count($parts) - 1];
+	 
+	$ispluginfile = false;
+	$ispixfile = false;
+	$index = 0;
+	foreach ($parts as $part) {
+		if ($part === 'pluginfile.php') {
+			$ispluginfile = true;
+			break;
+		}
+		if ($part === 'pix.php') {
+			$ispixfile = true;
+			break;
+		}
+		$index ++;
 	}
-	$newfile = str_replace($replace, $replacefor, $filename);
-	return $newfile;
-}
-/**
- * Esta funcion copia el archivo solicitado mediante el Hash (lo busca en la base de datos) en la carpeta temporal especificada.
- *
- * @param String $tempdir
- *            Carpeta a la cual queremos copiar el archivo
- * @param String $hash
- *            hash del archivo en base de datos
- * @param String $prefix
- *            ???
- * @return mixed
- */
-function emarking_get_path_from_hash($tempdir, $hash, $prefix = '', $create = true) {
-	global $CFG;
-	// Obtiene filesystem.
+
 	$fs = get_file_storage();
-	// Obtiene archivo gracias al hash.
-	if (!$file = $fs->get_file_by_hash($hash)) {
+
+	// If the file is part of Moodle, we get it from the filesystem
+	if ($ispluginfile) {
+		$contextid = $parts[$index + 1];
+		$component = $parts[$index + 2];
+		$filearea = $parts[$index + 3];
+		$itemid = $parts[$index + 4];
+		$filepath = '/';
+		if ($fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename)) {
+			$file = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
+		
+			$file->copy_content_to($pathname . $filename);		
+			$imageinfo = getimagesize($pathname . $filename);
+			return array(
+					$pathname . $filename,
+					$imageinfo
+			);
+		}
 		return false;
 	}
-	// Se copia archivo desde Moodle a temporal.
-	$newfile = emarking_clean_filename($tempdir . '/' . $prefix . $file->get_filename());
-	$file->copy_content_to($newfile);
-	return $newfile;
-}
-/**
- * Extracts all pages in a big PDF file as separate PDF files, deleting the original PDF if successfull.
- *
- * @param unknown $newfile
- *            PDF file to extract
- * @param unknown $tempdir
- *            Temporary folder
- * @param string $doubleside
- *            Extract every two pages (for both sides scanning)
- * @return number unknown number of pages extracted
- */
-function emarking_pdf_count_pages($newfile, $tempdir, $doubleside = true) {
-	global $CFG;
-	if ($CFG->version > 2015111600) {
-		require_once ($CFG->dirroot . "/lib/pdflib.php");
-		require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-	} else {
-		require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
-	}
-	require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
-	$doc = new FPDI();
-	$files = $doc->setSourceFile($newfile);
-	$doc->Close();
-	return $files;
-}
-function emarking_get_category_cost($courseid) {
-	global $DB, $CFG;
-	$course = $DB->get_record('course', array(
-			'id' => $courseid
-	), 'id, category');
-	$coursecategory = $course->category;
-	$categorycost = null;
-	$noinfloop = 0;
-	while ($categorycost == null || $categorycost == 0) {
-		$categorycostparams = array(
-				$coursecategory
-		);
-		$sqlcategorycost = "SELECT cc.id, cc.name as name, ccc.printingcost AS cost, cc.parent as parent
-        			  FROM mdl_course_categories as cc
-			          LEFT JOIN mdl_emarking_category_cost AS ccc ON (cc.id = ccc.category)
-        			  WHERE cc.id = ?";
-		if ($categorycosts = $DB->get_records_sql($sqlcategorycost, $categorycostparams)) {
-			foreach($categorycosts as $cost) {
 
-				if ($cost->cost == null || $cost->cost == 0) {
-					$coursecategory = $cost->parent;
-					$noinfloop++;
-				} else {
-					$categorycost = $cost->cost;
-					return $categorycost;
-				}
-				if ($cost->parent == 0) {
-					$categorycost = $CFG->emarking_defaultcost;
-					return $categorycost;
-				}
-			}
-		}
-	}
-}
-/**
- + * Get students count from a course, for printing.
- + *
- + * @param unknown_type $courseid
- + */
-function emarking_get_students_count_for_printing($courseid, $exam = null) {
-		global $DB;
-		$sqlenrolments = "";
-		if ($exam != null) {
-				$parts = explode(',', $exam->enrolments);
-				if (count($parts) > 0) {
-						$enrolments = array();
-						foreach($parts as $part) {
-								$enrolments[] = "'$part'";
-							}
-							$sqlenrolments = implode(',', $enrolments);
-							$sqlenrolments = " AND e.enrol IN ($sqlenrolments)";
-						}
-					}
-					$query = "SELECT count(u.id) as total
-					FROM {user_enrolments} ue
-					JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ? $sqlenrolments)
-					JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
-					JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
-					JOIN {user} u ON (ue.userid = u.id)
-					GROUP BY e.courseid";
-					// Se toman los resultados del query dentro de una variable.
-					$rs = $DB->get_record_sql($query, array(
-									$courseid
-							));
-					return isset($rs->total) ? $rs->total : null;
+	// Open binary stream and read it
+	$handle = fopen($url, "rb");
+	$content = stream_get_contents($handle);
+	fclose($handle);
+
+	// Save the binary file
+	$file = fopen($pathname . $filename, "wb+");
+	fputs($file, $content);
+	fclose($file);
+
+	$imageinfo = getimagesize($pathname . $filename);
+	return array(
+			$pathname . $filename,
+			$imageinfo
+	);
 }
