@@ -77,7 +77,7 @@ if ($mform->is_cancelled()) {
 if ($mform->get_data()) {
     // Save uploaded file in Moodle filesystem and check.
     $fs = get_file_storage();
-    $itemid = $USER->id;
+    $itemid = $student->id;
     $filemimetypes = array(
         'dummy',
         'application/pdf'
@@ -95,6 +95,9 @@ if ($mform->get_data()) {
         print_error(get_string('invalidfilenotpdf', 'mod_emarking'));
     } else {
         $transaction = $DB->start_delegated_transaction();
+        $filepath = $file->copy_content_to_temp();
+        rename($filepath, $filepath . '.pdf');
+        emarking_upload_answers($emarking, $filepath . '.pdf', $course, $cm, false, false, $student);
         $DB->commit_delegated_transaction($transaction);
         // Display confirmation page before moving to process.
         redirect($urlemarking, get_string('uploadanswersuccessful', 'mod_emarking'), 3);

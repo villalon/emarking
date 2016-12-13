@@ -51,6 +51,10 @@ function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymou
         $filterpages = true;
         $allowedpages = emarking_get_allowed_pages($emarking);
     }
+    // If it was uploaded text or a file, no sense to send anonymous.
+    if($emarking->uploadtype != EMARKING_UPLOAD_QR) {
+        $studentanonymous = false;
+    }
     // In case there are no pages for this submission, we generate missing pages for those allowed.
     if (! $pages = $DB->get_records('emarking_page', array(
         'submission' => $submission->id), 'page ASC')) {

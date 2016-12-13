@@ -905,13 +905,19 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
             send_file_not_found();
         }
         $subparts = explode('.', $parts [2]);
-        $studentid = intval($subparts [0]);
+        $draftid = intval($subparts [0]);
+        if(!$draft = $DB->get_record('emarking_draft', array('id'=>$draftid))) {
+            send_file_not_found();
+        }
+        if(!$submission = $DB->get_record('emarking_submission', array('id'=>$draft->submissionid))) {
+            send_file_not_found();
+        }
         $emarkingid = intval($parts [1]);
         if (! $emarking = $DB->get_record('emarking', array(
             'id' => $emarkingid))) {
             send_file_not_found();
         }
-        if ($studentid != $USER->id && ! is_siteadmin($USER) && ! has_capability('mod/emarking:supervisegrading', $context)) {
+        if ($submission->student != $USER->id && ! is_siteadmin($USER) && ! has_capability('mod/emarking:supervisegrading', $context)) {
             send_file_not_found();
         }
         $forcedownload = true;

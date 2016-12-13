@@ -863,13 +863,17 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
 }
 
 /**
- *
- * @package mod
- * @subpackage emarking
- * @copyright 2015 Jorge Villalon <villalon@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Uploads a PDF or ZIP file as digitized answers from students.
+ * @param unknown $emarking the Emarking activity
+ * @param unknown $filepath the full path to the file
+ * @param unknown $course the course
+ * @param unknown $cm the course module
+ * @param unknown $doubleside if the scanning was doubleside
+ * @param unknown $ignorecourse if a course validation should be performed
+ * @return boolean[]|string[]|number[]|boolean[]|number[]|string[]|boolean[]|number[]|unknown[]
  */
-function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside, $ignorecourse) {
+
+function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside, $ignorecourse, $student = null) {
     global $CFG, $DB;
     require_once $CFG->dirroot . '/mod/emarking/lib/qrextractor/config.php';
     $context = context_module::instance($cm->id);
@@ -881,6 +885,15 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
     emarking_initialize_directory($tempdir, true);
     $extension = pathinfo($filepath, PATHINFO_EXTENSION);
     $filename = pathinfo($filepath, PATHINFO_FILENAME);
+    if($emarking->uploadtype == EMARKING_UPLOAD_FILE &&
+        ($extension !== 'pdf' || $student == NULL)) {
+        return array(
+            false,
+            'Invalid file type for Emarking upload type',
+            0,
+            0
+        );
+    }
     if($extension === 'zip') {
     if (!emarking_unzip($filepath, $tempdir . "/") || !$exam) {
         return array(
@@ -891,12 +904,18 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         );
     }
     } elseif ($extension === 'pdf') {
-        $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
-            . '--url ' . $CFG->wwwroot . '/ --user ' . $CFG->emarking_qr_user . ' --pwd '
-            . $CFG->emarking_qr_password . ' --pdf ' . $filepath . ' --tmp ' . $tempdir . ' --log4j '
-            . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
-        if($doubleside) {
-            $command .= ' -doubleside';
+        if($emarking->uploadtype != EMARKING_UPLOAD_FILE) {
+            $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
+                . '--url ' . $CFG->wwwroot . '/ --user ' . $CFG->emarking_qr_user . ' --pwd '
+                . $CFG->emarking_qr_password . ' --pdf ' . $filepath . ' --tmp ' . $tempdir . ' --log4j '
+                . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+        } else {
+            $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
+                . '-extractonly --userid ' . $student->id . ' --courseid ' . $course->id . ' --pdf ' . $filepath . ' --tmp ' . $tempdir . ' --log4j '
+                . $CFG->dirroot . '/mod/emarking/lib/qrextractor/log4j.properties';
+            if($doubleside) {
+                $command .= ' -doubleside';
+            }
         }
         if(isset($CFG->debug) && $CFG->debug >= 32767) {
             $command .= ' -debug';
@@ -955,7 +974,10 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         $courseid = $parts[1];
         $pagenumber = $parts[2];
         // Now we process the files according to the emarking type.
-        if ($emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
+        if ($emarking->type == EMARKING_TYPE_PRINT_ONLY ||
+            $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||
+            $emarking->type == EMARKING_TYPE_PRINT_SCAN ||
+            $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             if ($studentid === 'ERROR') {
                 $orphanpage = true;
             }
@@ -1106,6 +1128,7 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
     if((!$filename || !$dirpath) && !$storedfile) {
         throw new Exception('Invalid arguments, either a file path or a storedfile must be provided.');
     }
+    var_dump($dirpath . "/" . $filename);
     // Verify that image file exist.
     if (($filename && $dirpath) && !file_exists($dirpath . "/" . $filename)) {
         throw new Exception("Invalid path and/or filename $dirpath/$filename");
@@ -1191,7 +1214,11 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
             $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile, $student);
         }
     } else {
-        $fileinfoanonymous = emarking_create_page_file_from_path_or_file($anonymousfilename, $path, $student, $context, $emarking, NULL, $pagenumber);
+        if($emarking->uploadtype == EMARKING_UPLOAD_FILE) {
+            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($fileinfo, $student);
+        } else {
+            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile, $student);
+        }
     }
     if(!$fileinfo || !$fileinfoanonymous) {
         throw new Exception('Could not create file or anonymous');
@@ -2205,13 +2232,17 @@ function emarking_create_qr_from_string($qrstring) {
     QRcode::png($qrstring, $img);
     return $img;
 }
-function emarking_create_anonymous_page_from_storedfile(stored_file $file, $student) {
-    if (!$file) {
-        throw new Exception('Stored file does not exist');
+function emarking_create_anonymous_page_from_storedfile(stored_file $file, $student, $filepath=NULL) {
+    if (!$file && !$filepath) {
+        throw new Exception('Stored file does not exist or filepath not passed as parameter');
     }
     // Get file storage and copy file to temp folder.
     $fs = get_file_storage();
-    $tmppath = $file->copy_content_to_temp('emarking', 'anonymous');
+    if($file) {
+        $tmppath = $file->copy_content_to_temp('emarking', 'anonymous');
+    } else {
+        $tmppath = $filepath;
+    }
     // Treat the file as an image, get its size and draw a white rectangle.
     $size = getimagesize($tmppath, $info);
     $imagemime = exif_imagetype($tmppath);

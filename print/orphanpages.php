@@ -204,8 +204,8 @@ if ($numorphanpages == 0) {
         $imgurl = moodle_url::make_pluginfile_url($context->id, 'mod_emarking', 'orphanpages', $emarking->id, '/', $file->get_filename());
         $imgurl .= '?r=' . random_string();
         $data = array(
-            $OUTPUT->action_link($imgurl, html_writer::div(html_writer::img($imgurl, $file->get_filename()), '', array(
-                'style' => 'height:100px; overflow:hidden; max-width:600px;'
+            $OUTPUT->action_link($imgurl, html_writer::div(html_writer::img($imgurl, $file->get_filename(), array('width'=>'600px')), '', array(
+                'style' => 'height:100px; overflow:scroll; max-width:620px;'
             ))),
             implode(' ', $actions)
         );

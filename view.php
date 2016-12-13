@@ -365,6 +365,16 @@ foreach($allstudents as $student) {
     $countstudents++;
 }
 $totalstudents = $countstudents;
+// If students upload their submissions, get the list or the submission itself.
+if($emarking->uploadtype == EMARKING_UPLOAD_FILE) {
+    $fs = get_file_storage();
+    if($usercangrade) {
+        $submissionfiles = $fs->get_area_files($context->id, 'mod_emarking', 'submission');
+    } else {
+        $submissionfiles = $fs->get_area_files($context->id, 'mod_emarking', 'submission', $USER->id);
+    }
+}
+// Here starts the table
 $actionsheader = "";
 if (has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubriccriteria && ($emarking->type != EMARKING_TYPE_MARKER_TRAINING)) {
     $actionsheader .= $usercangrade ? '<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
@@ -771,7 +781,15 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
             'id' => $cm->id,
             'sid' => $draft->id
         ));
-        $actionsarray[] = $OUTPUT->action_link($uploadanswerurl, get_string('uploadsubmission', 'mod_emarking'));
+        if($d->status < EMARKING_STATUS_SUBMITTED) {
+            $actionsarray[] = $OUTPUT->action_link($uploadanswerurl, get_string('uploadsubmission', 'mod_emarking'));
+        } else if($owndraft) {
+            $printversionurl = new moodle_url('/mod/emarking/marking/printversion.php', array(
+                'id' => $cm->id,
+                'did' => $d->id
+            ));
+            $actionsarray[] = $OUTPUT->action_link($printversionurl, "PDF");
+        }
     }
     $divclass = $usercangrade ? 'printactions' : 'useractions';
     $actionshtml = implode("&nbsp;|&nbsp;", $actionsarray);
