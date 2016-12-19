@@ -1235,11 +1235,13 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 					}
 				}
 			}
+			$dates = array_values($dates);
 			foreach($data as $key => $value){
 				$markersdata[] = $value;
 			}
-
+		
 			for($id = 0; $id < count($markersdata); $id++){
+				$returndata[$id][] = $dates[$id];
 				foreach($names as $name){
 					$returndata[$id][] = $markersdata[$id][$name];
 				}

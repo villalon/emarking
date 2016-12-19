@@ -27,8 +27,7 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once(dirname(__FILE__) . '/locallib.php');
-//require_once(dirname(__FILE__) . '/forms/category_form.php');
-//require_once(dirname(__FILE__) . '/forms/courses_form.php');
+
 
 global $DB, $USER, $CFG, $OUTPUT, $COURSE;
 
@@ -84,7 +83,6 @@ $PAGE->navbar->add(get_string("cycle", "mod_emarking"));
 
 // User categories for FORM.
 $categoryparameters = array($USER->id, $courseid);
-//$categoryform = new category_form(null, $categoryparameters);
 
 echo $OUTPUT->header();
 
@@ -97,9 +95,6 @@ if($selectedcategory == "NULL" && $selectedcourse == "NULL"){
 	$selectedcategory = $currentcategory->name;
 	$selectedcourse = $curretcourse;
 }
-
-$a = emarking_markers_corrections($emarkingid);
-var_dump($a);
 
 echo $OUTPUT->tabtree(emarking_cycle_tabs($selectedcourse, $selectedcategory, $course), $currenttab);
 
@@ -129,9 +124,21 @@ if($currenttab == 0){
   	// Emarkings days data to table.
   	
   	$table = new html_table();
-  	$table->size = array('20%','10%','10%','10%','10%','10%','10%','10%','10%');
+
   	$table->data = emarking_time_progression_table($course->id);
+  	
+  	$temp = array();
+  	for($row = 0; $row < count($table->data); $row++){
+  		for($col = 0; $col <= 8; $col++){
+  			if($row != 0 ){
+  				$temp[$col][$row] = $table->data[$row][$col];
+  			}
+  		}
+  	}
+  	
+  	$table->data = $temp;
   	echo html_writer::table($table);
+  	
   	
   	echo emarking_justice_perception($selectedcourse);
   	
@@ -295,7 +302,7 @@ echo $OUTPUT->footer();
 		data.addColumn('string', 'Date');
 		for (var i = 0; i < arraylength; i++) {
     		data.addColumn('number', markers[i]);
-    		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+    	
     	}
 		
 		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
