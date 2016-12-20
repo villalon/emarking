@@ -1164,7 +1164,8 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 						  INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
 					      LEFT JOIN mdl_emarking_regrade AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
 					INNER JOIN {user} AS u ON (y.marker = u.id)
-					GROUP BY u.id";
+					GROUP BY u.id
+			 		ORDER BY name ASC";
 	if($markers = $DB->get_records_sql($markerssql, array($emarkingid))){
 		$arraymarkers = array();
 		$contador = 1;
@@ -1187,44 +1188,65 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 							  INNER JOIN {emarking_submission} AS s ON (s.emarking = e.id AND emarking = ?)
 							  INNER JOIN {emarking_draft} AS d ON (s.id = d.submissionid)
 							  INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
-						      LEFT JOIN mdl_emarking_regrade AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
+						      LEFT JOIN {emarking_regrade} AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
 						INNER JOIN {user} AS u ON (y.marker = u.id)
-						ORDER BY correctiontime ASC";
+						ORDER BY correctiontime, name ASC";
 		if($comments = $DB->get_records_sql($commentssql, array($emarkingid))){
-			$date = 0-0-0;
-			$lenght = count($comments);
-			$datecount = 1;
-			$arraylenght = count($markers) + 1;
-			foreach ($comments as $comment){
-				if($date == 0-0-0){
-					$arraystacking['date'] = strtotime ( '-1 day' , strtotime ( $comment->date  ) ) ;
-					$arraystacking['date'] = date ( 'Y-m-j' , $arraystacking['date'] );
-					for($i = 1; $i < $arraylenght ; $i++){
-						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
-					}
-					array_push($arraymarkers,$arraystacking);
-				}
-				$arraystacking['date'] = $comment->date;
-				$arraystacking[$comment->name] = $arraystacking[$comment->name] + 1;
-				if($datecount == $lenght){
-					unset($arraymarkers[count($arraymarkers)-1]);
-					for($i = 1; $i < $arraylenght ; $i++){
-						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
-					}
-					array_push($arraymarkers,$arraystacking);
-				}
-				if(strtotime($date) < strtotime($comment->date) && $datecount !== $lenght) {
-					for($i = 1; $i < $arraylenght ; $i++){
-						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
-					}
-					array_push($arraymarkers,$arraystacking);
-					$date = $comment->date;
-				}
-				$datecount++;
-			}
 			
-			$arraymarkers = array_values(array_map('array_values', $arraymarkers));
-			return $arraymarkers;
+			$auxdate = 0;
+			$auxcorrector = $comments[1]->name;
+			$data = array();	
+			foreach($comments as $comment){
+				if($comment->date != $auxdate){
+					$data[$comment->date] = array();
+					$dates[] = $comment->date;
+				}	
+			}
+			foreach($markers as $correctors){				
+				$names[] = $correctors->name;
+			}
+			$names = array_unique($names);
+			$dates = array_unique($dates);
+			$size = count($comments);
+			
+			foreach($dates as $date){
+				foreach($names as $name){
+					$data[$date][$name] = 0 ;
+				}
+			}
+		
+			$auxdate = $comments[1]->date;
+			$auxname = $comments[1]->name;
+			
+			foreach($dates as $date){
+				$count = 0;
+				foreach($comments as $correctors){
+					if($date == $auxdate && $auxname == $correctors->name){
+						$count++;
+					}elseif($date == $auxdate && $auxname != $correctors->name){
+                        $data[$date][$auxname] = $count;
+                        $count = 1;
+                        $auxname = $correctors->name;                       
+					}elseif($date != $auxdate){
+                        $data[$date][$auxname] = $count;
+                        $count = 1;
+                        $auxdate = $correctors->date;
+                        $auxname = $correctors->name;                       
+					}
+				}
+			}
+			$dates = array_values($dates);
+			foreach($data as $key => $value){
+				$markersdata[] = $value;
+			}
+		
+			for($id = 0; $id < count($markersdata); $id++){
+				$returndata[$id][] = $dates[$id];
+				foreach($names as $name){
+					$returndata[$id][] = $markersdata[$id][$name];
+				}
+			}
+			return $returndata;
 		}
 	}
 }
