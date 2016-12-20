@@ -764,6 +764,15 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
         ));
         $actionsarray[] = $OUTPUT->action_link($printversionurl, "PDF");
     }
+    if($emarking->uploadtype == EMARKING_UPLOAD_FILE &&
+            has_capability('mod/emarking:submit', $context) &&
+            ($owndraft || $issupervisor)) {
+        $uploadanswerurl = new moodle_url('/mod/emarking/marking/uploadsubmission.php', array(
+            'id' => $cm->id,
+            'sid' => $draft->id
+        ));
+        $actionsarray[] = $OUTPUT->action_link($uploadanswerurl, get_string('uploadsubmission', 'mod_emarking'));
+    }
     $divclass = $usercangrade ? 'printactions' : 'useractions';
     $actionshtml = implode("&nbsp;|&nbsp;", $actionsarray);
     if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {

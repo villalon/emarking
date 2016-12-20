@@ -869,7 +869,7 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
  * @copyright 2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside) {
+function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside, $ignorecourse) {
     global $CFG, $DB;
     require_once $CFG->dirroot . '/mod/emarking/lib/qrextractor/config.php';
     $context = context_module::instance($cm->id);
@@ -921,9 +921,9 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
     $doubleside = false;
     $pngfiles = array();
     foreach($files as $fileintemp) {
-        if (!is_dir($fileintemp) && strtolower(substr($fileintemp, -4, 4)) === ".jpg") {
+        if (!is_dir($fileintemp) && (strtolower(substr($fileintemp, -4, 4)) === ".jpg" || strtolower(substr($fileintemp, -4, 4)) === ".png")) {
             $pngfiles[] = $fileintemp;
-            if (strtolower(substr($fileintemp, -5, 5)) === "b.jpg") {
+            if (strtolower(substr($fileintemp, -5, 5)) === "b.jpg" || strtolower(substr($fileintemp, -5, 5)) === "b.png") {
                 $doubleside = true;
             }
         }
@@ -959,7 +959,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
             if ($studentid === 'ERROR') {
                 $orphanpage = true;
             }
-            if ($courseid != $course->id) {
+            if (!$ignorecourse && $courseid != $course->id) {
                 $orphanpage = true;
             }
             $student = $DB->get_record('user', array(
@@ -1063,7 +1063,7 @@ function emarking_get_digitized_answer_files($emarking = NULL, $status = NULL) {
         $statusfilter = ' AND D.status = ?';
         $params[] = $status;
     }
-    $sql = "SELECT D.id, F.id as fileid, D.emarking, F.pathnamehash as hash, F.filename, F.itemid, F.mimetype, F.filesize, D.timecreated, D.status, D.doubleside FROM {files} F
+    $sql = "SELECT D.id, F.id as fileid, D.emarking, D.ignorecourse, F.pathnamehash as hash, F.filename, F.itemid, F.mimetype, F.filesize, D.timecreated, D.status, D.doubleside FROM {files} F
     INNER JOIN {emarking_digitized_answers} D ON ($emarkingfilter D.file = F.id AND D.id = F.itemid)
     WHERE F.filearea = 'upload' $statusfilter
     ORDER BY D.timecreated";
@@ -1114,11 +1114,14 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
     if (!$student) {
         throw new Exception("Invalid student to submit page");
     }
+    $ispng = strtolower(substr($filename, -4)) === '.png';
+    $extension = $ispng ? '.png' : '.jpg';
+    $extensionanonymous = $ispng ? '_a.png' : '_a.jpg';
     // Calculate definitive filename
-    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '.jpg';
+    $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . $extension;
     // If is anonymous, the filename requires a _a
-    if (strtolower(substr($filename, -6)) === '_a.jpg') {
-        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . '_a.jpg';
+    if (strtolower(substr($filename, -6)) === $extensionanonymous) {
+        $newfilename = $student->id . '-' . $emarking->course . '-' . $pagenumber . $extensionanonymous;
     }
     // Filesystem.
     $fs = get_file_storage();
@@ -2452,11 +2455,12 @@ function emarking_process_digitized_answers() {
         $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
         // Process documents and obtain results.
         list($result, $errors, $totaldocumentsprocessed, $totaldocumentsignored) =
-        emarking_upload_answers($emarking, $zipfile, $course, $cm, $digitizedanswerfile->doubleside);
+        emarking_upload_answers($emarking, $zipfile, $course, $cm, $digitizedanswerfile->doubleside, $digitizedanswerfile->ignorecourse);
         if($result) {
             $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_PROCESSED;
         } else {
             $digitizedanswerfile->status = EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING;
+            $msg .= $errors;
         }
         $digitizedanswerfile->totalpages = $totaldocumentsprocessed;
         $digitizedanswerfile->identifiedpages = ($totaldocumentsprocessed - $totaldocumentsignored);

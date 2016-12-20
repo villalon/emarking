@@ -64,6 +64,11 @@ class mod_emarking_upload_form extends moodleform {
         $mform->addElement('checkbox', 'doubleside', get_string('doubleside', 'mod_emarking'));
         $mform->setType('doubleside', PARAM_BOOL);
         $mform->setDefault('doubleside', false);
+        // Scanned file is double sided.
+        $mform->addElement('checkbox', 'ignorecourse', get_string('ignorecourse', 'mod_emarking'));
+        $mform->setType('ignorecourse', PARAM_BOOL);
+        $mform->setDefault('ignorecourse', false);
+        $mform->setAdvanced('ignorecourse');
         // Header.
         $mform->addElement('static', 'qrprocessing_help', '', $OUTPUT->heading(get_string('usedigitizedzipfile', 'mod_emarking'), 4));
         $mform->setAdvanced('qrprocessing_help');

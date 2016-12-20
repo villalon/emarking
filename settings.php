@@ -33,8 +33,14 @@ $settings->add(
 $types = emarking_types_array();
 $settings->add(
         new admin_setting_configmultiselect('emarking_enabledtypes',
-                get_string('emarking_enabledtypes', 'mod_emarking'),
-                get_string('emarking_enabledtypes_help', 'mod_emarking'), array_keys($types), $types));
+                get_string('enabledtypes', 'mod_emarking'),
+                get_string('enabledtypes_help', 'mod_emarking'), array_keys($types), $types));
+// Enabled EMarking upload types
+$types = emarking_uploadtypes_array();
+$settings->add(
+        new admin_setting_configmultiselect('emarking_enableduploadtypes',
+                get_string('enableduploadtypes', 'mod_emarking'),
+                get_string('enableduploadtypes_help', 'mod_emarking'), array_keys($types), $types));
 // Minimum days allowed before sending an exam to print.
 $choices = array();
 for ($i = 0; $i < 100; $i ++) {

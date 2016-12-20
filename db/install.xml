@@ -86,6 +86,8 @@
 				<FIELD NAME="copiedfromparent" TYPE="int" LENGTH="10"
 					NOTNULL="false" DEFAULT="0"  SEQUENCE="false" COMMENT="If the copy process from the parent finished"/>
 				<FIELD NAME="keywords" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="The keywords are use to create feedback."/>
+				<FIELD NAME="uploadtype" TYPE="int" LENGTH="10"
+					NOTNULL="false" SEQUENCE="false" COMMENT="Emarking upload type (student uploads a pdf, QRs are scanned, etc.)"/>
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
@@ -644,6 +646,10 @@
 					SEQUENCE="false" COMMENT="when the file was created" />
 				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" COMMENT="last time it was modified" />
+				<FIELD NAME="doubleside" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="if it was scanned by two sides" />
+				<FIELD NAME="ignorecourse" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="import answers if the student is enrolled, not verifying course" />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />

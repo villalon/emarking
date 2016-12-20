@@ -76,6 +76,13 @@ class mod_emarking_mod_form extends moodleform_mod {
                     "onchange" => "show_full_form()"));
         $mform->addHelpButton('type', 'markingtype', 'mod_emarking');
         $mform->setType('type', PARAM_INT);
+        // Upload types for submissions.
+        $uploadtypes = $this->get_upload_types_available($emarking);
+        // SUBMISSION UPLOAD TYPE.
+        $mform->addElement('select', 'uploadtype', get_string('uploadtype', 'mod_emarking'), $uploadtypes);
+        $mform->addHelpButton('uploadtype', 'uploadtype', 'mod_emarking');
+        $mform->setType('uploadtype', PARAM_INT);
+        $mform->setDefault('uploadtype', EMARKING_UPLOAD_QR);
         // EXAM NAME.
         $mform->addElement('text', 'name', get_string('name'), array(
             'size' => '64'));
@@ -597,6 +604,8 @@ class mod_emarking_mod_form extends moodleform_mod {
                     document.getElementById('id_osm').style.display = 'none';
                     document.getElementById('id_markerstraining').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
+                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
+                    document.getElementById('fitem_id_importemarking').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                 } else if (strUser == '1') {
             // On Screen Marking.
@@ -609,7 +618,9 @@ class mod_emarking_mod_form extends moodleform_mod {
                     document.getElementById('id_modstandardgrade').style.display = 'block';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
                     document.getElementById('id_headerqr').checked = true;
-                } else if(strUser == '2') {
+                    document.getElementById('fitem_id_uploadtype').style.display = 'block';
+                    document.getElementById('fitem_id_importemarking').style.display = 'block';
+    } else if(strUser == '2') {
             // Markers training.
                     document.getElementById('id_print').style.display = 'none';
 	                document.getElementById('id_scan').style.display = 'none';
@@ -625,7 +636,9 @@ class mod_emarking_mod_form extends moodleform_mod {
                     document.getElementById('fitem_id_regradesclosedate').style.display = 'none';
                     document.getElementById('id_markerstraining').style.display = 'block';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
+                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
+                    document.getElementById('fitem_id_importemarking').style.display = 'block';
                 } else if(strUser == '4') {
             // Peer review.
                     document.getElementById('id_print').style.display = 'block';
@@ -643,6 +656,8 @@ class mod_emarking_mod_form extends moodleform_mod {
                     document.getElementById('id_markerstraining').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
+                    document.getElementById('fitem_id_uploadtype').style.display = 'block';
+                    document.getElementById('fitem_id_importemarking').style.display = 'block';
             } else if(strUser == '5') {
             // Print and scan.
                     document.getElementById('id_print').style.display = 'block';
@@ -653,6 +668,8 @@ class mod_emarking_mod_form extends moodleform_mod {
                     document.getElementById('id_markerstraining').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'block';
+                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
+                    document.getElementById('fitem_id_importemarking').style.display = 'none';
                 } else {
                     console.log('Invalid type value ' + strUser);
                     document.getElementById('id_print').style.display = 'none';
@@ -660,6 +677,8 @@ class mod_emarking_mod_form extends moodleform_mod {
                     document.getElementById('id_osm').style.display = 'none';
                     document.getElementById('id_modstandardgrade').style.display = 'none';
                     document.getElementById('id_modstandardelshdr').style.display = 'none';
+                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
+                    document.getElementById('fitem_id_importemarking').style.display = 'none';
                 }
             document.getElementById('fitem_id_introeditor').style.display = 'none';
             document.getElementById('id_submitbutton2').style.display = 'none';
@@ -685,6 +704,17 @@ class mod_emarking_mod_form extends moodleform_mod {
         } else if ($emarking->type == EMARKING_TYPE_PEER_REVIEW) {
             $types = array();
             $types [EMARKING_TYPE_PEER_REVIEW] = get_string('type_peer_review', 'mod_emarking');
+        }
+        return $types;
+    }
+    private function get_upload_types_available($emarking) {
+        $types = emarking_uploadtypes_array(true);
+        // If emarking is null then return an empty all values
+        if (!$emarking) {
+            return $types;
+        } else if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN) {
+            $types = array();
+            $types [EMARKING_UPLOAD_QR] = get_string('uploadtype_qr', 'mod_emarking');
         }
         return $types;
     }
