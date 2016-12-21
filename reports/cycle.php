@@ -37,7 +37,7 @@ $selectedcategory = optional_param("selectedcategory", "NULL", PARAM_RAW);
 $selectedcourse = optional_param("selectedcourse", "NULL", PARAM_RAW);
 
 $page = optional_param('page', 0, PARAM_INT);
-$perpage = 3;
+$perpage = 5;
 
 // EMarking tab I want to show, "0" means the summary tab.
 $currenttab = optional_param("currenttab", 0, PARAM_INT);
