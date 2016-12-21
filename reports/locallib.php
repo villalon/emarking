@@ -1162,7 +1162,7 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 						  INNER JOIN {emarking_submission} AS s ON (s.emarking = e.id AND emarking = ?)
 						  INNER JOIN {emarking_draft} AS d ON (s.id = d.submissionid)
 						  INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
-					      LEFT JOIN mdl_emarking_regrade AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
+					      LEFT JOIN {emarking_regrade} AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
 					INNER JOIN {user} AS u ON (y.marker = u.id)
 					GROUP BY u.id
 			 		ORDER BY name ASC";

@@ -36,6 +36,9 @@ $emarkingid = optional_param("emarking", -1, PARAM_INT);
 $selectedcategory = optional_param("selectedcategory", "NULL", PARAM_RAW);
 $selectedcourse = optional_param("selectedcourse", "NULL", PARAM_RAW);
 
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = 3;
+
 // EMarking tab I want to show, "0" means the summary tab.
 $currenttab = optional_param("currenttab", 0, PARAM_INT);
 
@@ -135,9 +138,20 @@ if($currenttab == 0){
   			}
   		}
   	}
+  	$emarkingcount = count($table->data);
   	
-  	$table->data = $temp;
+  	for($i = 0; $i <= count($temp); $i ++){
+  		for($j = $perpage * $page; $j <= $perpage * $page + $perpage; $j ++){
+  			if(isset($temp[$i][$j])){
+  				$pagedata[$i][$j] = $temp[$i][$j];
+  			}
+  		}
+  	}
+  	
+  	$table->data = $pagedata;
   	echo html_writer::table($table);
+  	
+  	echo $OUTPUT->paging_bar($emarkingcount, $page, $perpage, $CFG->wwwroot.'/mod/emarking/reports/cycle.php?course='.$course->id);
   	
   	
   	echo emarking_justice_perception($selectedcourse);
@@ -154,7 +168,7 @@ if($currenttab == 0){
    	echo html_writer::tag('h4',get_string('ciclemarkerscorrections', 'emarking'),array('style' => 'width:100%;'));
    	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 40%;'));
 }
-
+// var_dump(json_encode(emarking_markers_corrections($emarkingid)));
 echo $OUTPUT->footer();
 
 // Scripts for each google chart (must be pass to .js file).
@@ -305,7 +319,7 @@ echo $OUTPUT->footer();
     	
     	}
 		
-		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
+		data.addRows(<?php echo json_encode(emarking_markers_corrections($emarkingid));?>);
 		var options = {
 			pointSize: 4,
 			pointShape: 'star',
