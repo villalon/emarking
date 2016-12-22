@@ -1184,11 +1184,11 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 		$markers = array_reverse($markers);
 		$commentssql = "SELECT  comment,CONCAT(u.firstname,' ',u.lastname) as name, FROM_UNIXTIME(correctiontime, '%Y-%m-%d') as date
 						FROM (SELECT c.id as comment, IF(r.id IS NULL,c.markerid,r.markerid) as marker, c.timecreated as correctiontime
-							  FROM {emarking} AS e
-							  INNER JOIN {emarking_submission} AS s ON (s.emarking = e.id AND emarking = ?)
-							  INNER JOIN {emarking_draft} AS d ON (s.id = d.submissionid)
-							  INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
-						      LEFT JOIN {emarking_regrade} AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
+						FROM {emarking} AS e
+						INNER JOIN {emarking_submission} AS s ON (s.emarking = e.id AND emarking = ?)
+						INNER JOIN {emarking_draft} AS d ON (s.id = d.submissionid)
+						INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
+						LEFT JOIN {emarking_regrade} AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
 						INNER JOIN {user} AS u ON (y.marker = u.id)
 						ORDER BY correctiontime, name ASC";
 		if($comments = $DB->get_records_sql($commentssql, array($emarkingid))){
@@ -1218,23 +1218,19 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 			$auxdate = $comments[1]->date;
 			$auxname = $comments[1]->name;
 			
-			foreach($dates as $date){
-				$count = 0;
-				foreach($comments as $correctors){
-					if($date == $auxdate && $auxname == $correctors->name){
-						$count++;
-					}elseif($date == $auxdate && $auxname != $correctors->name){
-                        $data[$date][$auxname] = $count;
-                        $count = 1;
-                        $auxname = $correctors->name;                       
-					}elseif($date != $auxdate){
-                        $data[$date][$auxname] = $count;
-                        $count = 1;
-                        $auxdate = $correctors->date;
-                        $auxname = $correctors->name;                       
+			$name=$comments[1]->name;
+			foreach($comments as $correctors){
+				foreach($dates as $date){
+					if ($date==$correctors->date && $name==$correctors->name){
+						$data[$date][$correctors->name]++;
+					}elseif($date!=$correctors->date || $name!=$correctors->name){
+						
+						$name=$correctors->name;
+						
 					}
 				}
 			}
+			
 			$dates = array_values($dates);
 			foreach($data as $key => $value){
 				$markersdata[] = $value;

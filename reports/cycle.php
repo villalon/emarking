@@ -168,7 +168,7 @@ if($currenttab == 0){
    	echo html_writer::tag('h4',get_string('ciclemarkerscorrections', 'emarking'),array('style' => 'width:100%;'));
    	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 40%;'));
 }
-// var_dump(json_encode(emarking_markers_corrections($emarkingid)));
+
 echo $OUTPUT->footer();
 
 // Scripts for each google chart (must be pass to .js file).
