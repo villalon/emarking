@@ -1194,7 +1194,7 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 		if($comments = $DB->get_records_sql($commentssql, array($emarkingid))){
 			
 			$auxdate = 0;
-			$auxcorrector = $comments[1]->name;
+
 			$data = array();	
 			foreach($comments as $comment){
 				if($comment->date != $auxdate){
@@ -1215,17 +1215,15 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 				}
 			}
 			
-			$name=$comments[1]->name;
-			var_dump($comments);
-			var_dump($name);
+			
+			$name = array_values($comments)[1]->name;
+
 			foreach($comments as $correctors){
 				foreach($dates as $date){
-					if ($date==$correctors->date && $name==$correctors->name){
+					if ($date == $correctors->date && $name == $correctors->name){
 						$data[$date][$correctors->name]++;
-					}elseif($date!=$correctors->date || $name!=$correctors->name){
-						
+					}elseif($date != $correctors->date || $name != $correctors->name){
 						$name=$correctors->name;
-						
 					}
 				}
 			}
