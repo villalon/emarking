@@ -1216,6 +1216,7 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 			}
 			
 			$name=$comments[1]->name;
+			var_dump($comments);
 			var_dump($name);
 			foreach($comments as $correctors){
 				foreach($dates as $date){
