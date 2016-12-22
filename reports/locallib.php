@@ -1214,11 +1214,9 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 					$data[$date][$name] = 0 ;
 				}
 			}
-		
-			$auxdate = $comments[1]->date;
-			$auxname = $comments[1]->name;
 			
 			$name=$comments[1]->name;
+			var_dump($name);
 			foreach($comments as $correctors){
 				foreach($dates as $date){
 					if ($date==$correctors->date && $name==$correctors->name){
