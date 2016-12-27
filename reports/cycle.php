@@ -37,7 +37,7 @@ $selectedcategory = optional_param("selectedcategory", "NULL", PARAM_RAW);
 $selectedcourse = optional_param("selectedcourse", "NULL", PARAM_RAW);
 
 $page = optional_param('page', 0, PARAM_INT);
-$perpage = 5;
+$perpage = 4;
 
 // EMarking tab I want to show, "0" means the summary tab.
 $currenttab = optional_param("currenttab", 0, PARAM_INT);
@@ -126,19 +126,25 @@ if($currenttab == 0){
   	echo html_writer::end_tag('div');
   	// Emarkings days data to table.
   	
-  	$table = new html_table();
+  	$tabledata = emarking_time_progression_table($course->id);
+  	$headers = $tabledata[1];
+  	unset($tabledata[0]);
+  	unset($tabledata[1]);
+  	$tabledata = array_values($tabledata);
 
-  	$table->data = emarking_time_progression_table($course->id);
   	
   	$temp = array();
-  	for($row = 0; $row < count($table->data); $row++){
+  	for($row = 0; $row < count($tabledata); $row++){
   		for($col = 0; $col <= 8; $col++){
-  			if($row != 0 ){
-  				$temp[$col][$row] = $table->data[$row][$col];
+  			if($col != 0 ){
+  				$temp[$col][$row] = $tabledata[$row][$col];
+  			}else{
+  				$temp[$col][$row] = "<b>".$tabledata[$row][$col]."</b>";
   			}
   		}
   	}
-  	$emarkingcount = count($table->data);
+  	
+  	$emarkingcount = count($tabledata);
   	
   	for($i = 0; $i <= count($temp); $i ++){
   		for($j = $perpage * $page; $j <= $perpage * $page + $perpage; $j ++){
@@ -147,7 +153,11 @@ if($currenttab == 0){
   			}
   		}
   	}
+  	for($id = 0; $id <= 8; $id ++){
+  		array_unshift($pagedata[$id],"<b>".$headers[$id]."</b>");
+  	}
   	
+  	$table = new html_table();
   	$table->data = $pagedata;
   	echo html_writer::table($table);
   	
@@ -292,6 +302,7 @@ echo $OUTPUT->footer();
   		data.addRows(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
   		
         var options = {
+        	legend: { position: 'top', alignment: 'start ', maxLines: 3},
         	pointShape: 'star',
         	pointSize: 4,
         	tooltip: {isHtml: true},
@@ -321,6 +332,7 @@ echo $OUTPUT->footer();
 		
 		data.addRows(<?php echo json_encode(emarking_markers_corrections($emarkingid));?>);
 		var options = {
+			legend: { position: 'top', alignment: 'start ', maxLines: 3},
 			pointSize: 4,
 			pointShape: 'star',
 			tooltip: {isHtml: true},

@@ -1202,19 +1202,20 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 					$dates[] = $comment->date;
 				}	
 			}
+			
 			foreach($markers as $correctors){				
 				$names[] = $correctors->name;
 			}
 			$names = array_unique($names);
 			$dates = array_unique($dates);
 			$size = count($comments);
+			sort($names);
 			
 			foreach($dates as $date){
 				foreach($names as $name){
 					$data[$date][$name] = 0 ;
 				}
 			}
-			
 			
 			$name = array_values($comments)[1]->name;
 
