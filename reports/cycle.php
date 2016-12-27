@@ -302,6 +302,7 @@ echo $OUTPUT->footer();
   		data.addRows(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
   		
         var options = {
+        	legend: { position: 'top', alignment: 'start ', maxLines: 3},
         	pointShape: 'star',
         	pointSize: 4,
         	tooltip: {isHtml: true},
@@ -331,6 +332,7 @@ echo $OUTPUT->footer();
 		
 		data.addRows(<?php echo json_encode(emarking_markers_corrections($emarkingid));?>);
 		var options = {
+			legend: { position: 'top', alignment: 'start ', maxLines: 3},
 			pointSize: 4,
 			pointShape: 'star',
 			tooltip: {isHtml: true},
