@@ -159,6 +159,7 @@ $string ['examname'] = 'Nombre de la prueba';
 $string ['examname_help'] = 'Nombre de la prueba, por ejemplo: Control 2, Prueba final, Exámen.';
 $string ['exam'] = 'Prueba';
 $string ['exams'] = 'Pruebas';
+$string ['blockexams'] = 'Emarkings';
 $string ['examnotavailable'] = 'Tu prueba no está disponible';
 $string ['examstatusdownloaded'] = 'Descargada';
 $string ['examstatusprinted'] = 'Impresa';
@@ -639,10 +640,12 @@ $string ['singlepdf'] = 'PDF único con todos los estudiantes';
 $string ['multiplepdfs'] = 'Múltiples pdfs en un archivo zip';
 $string ['multiplepdfs_help'] = 'Si se selecciona, EMarking generará un archivo zip que contendrá un pdf personalizado por cada estudiante, si no se generará un solo pdf con todas las pruebas.';
 $string ['myexams'] = 'Mis pruebas';
+$string ['blockmyexams'] = 'Mis emarkings';
 $string ['myexams_help'] = 'Esta página muestra todas las pruebas que han sido enviadas a imprimir para este curso. Usted puede editarlas o incluso cancelarlas mientras no hayan sido descargadas por el centro de copiado.';
 $string ['names'] = 'Nombres/Apellidos';
 $string ['emailsent'] = 'Security code sent to your email';
 $string ['newprintorder'] = 'Enviar prueba a impresión';
+$string ['blocknewprintorder'] = 'Enviar emarking a impresión';
 $string ['newprintorder_help'] = 'Para enviar una prueba a imprimir debe indicar un nombre para la prueba (p.ej: Prueba 1), la fecha exacta en que se tomará la prueba y un archivo pdf con la prueba misma.<br/>
 		<strong>Encabezado personalizado EMarking:</strong> Si escoge esta opción, la prueba será impresa con un encabezado personalizado para cada estudiante, incluyendo su foto si está disponible. Este encabezado permite luego procesar automáticamente las pruebas usando el módulo EMarking, que apoya el proceso de corrección, entrega de calificaciones y recepción de recorrecciones.<br/>
 		<strong>Instrucciones para el centro de copiado:</strong> Instrucciones especiales pueden ser enviadas al centro de copiado, tales como imprimir hojas extra por cada prueba o pruebas extra.
