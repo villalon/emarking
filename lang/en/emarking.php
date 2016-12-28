@@ -159,6 +159,7 @@ $string ['examname'] = 'Exam name';
 $string ['examname_help'] = 'Exam name e.g: Final examn, Mid-term.';
 $string ['exam'] = 'Exam';
 $string ['exams'] = 'Exams';
+$string ['blockexams'] = 'Emarkings';
 $string ['examnotavailable'] = 'Your exam is not available';
 $string ['examstatusdownloaded'] = 'Downloaded';
 $string ['examstatusprinted'] = 'Printed';
@@ -631,10 +632,12 @@ $string ['singlepdf'] = 'Single PDF with all students';
 $string ['multiplepdfs'] = 'Multiple pdfs in a zip file';
 $string ['multiplepdfs_help'] = 'If selected EMarking generates a zip file containing a personalized version for the exam for each student, otherwise a single large pdf file will be generated.';
 $string ['myexams'] = 'My exams';
+$string ['blockmyexams'] = 'My emarkings';
 $string ['myexams_help'] = 'This page shows all the exam papers that have been sent for printing in this course. You can edit and cancel a submission as long as it has not been downloaded from the copy center.';
 $string ['names'] = 'First Name/Last Name';
 $string ['emailsent'] = 'Security code sent to your email';
 $string ['newprintorder'] = 'Send new exam for printing';
+$string ['blocknewprintorder'] = 'Send new emarking for printing';
 $string ['newprintorder_help'] = 'In order to send an exam paper for printing you need to provide a title for the exam (e.g: Final exam), the exact date when the exam will be held and a pdf file with the exam paper.<br/>
 		<strong>EMarking header:</strong> If you check this option, exams will be printed with a personalized header for each student, including her picture if available. This header can be later automatically processed by the EMarking module, that helps in the process of marking, delivering marks and accepting regrade requests.<br/>
 		<strong>Copy center instructions:</strong> Instructions to be sent to the copy center, such as printing extra sheets per student or extra exams.
