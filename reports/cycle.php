@@ -170,13 +170,13 @@ if($currenttab == 0){
 }else{
 	// Gantt chart title
 	echo html_writer::tag('h4',get_string('cicleganttchart', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'ganttchart'));
+   	echo html_writer::div('','', array('id' => 'ganttchart','style' => 'height: 100%;'));
    	
    	echo html_writer::tag('h4',get_string('ciclestackedstatuses', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'areachart'));
+   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 100%;'));
    	
    	echo html_writer::tag('h4',get_string('ciclemarkerscorrections', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'markerschart'));
+   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 100%;'));
 }
 
 echo $OUTPUT->footer();
@@ -265,6 +265,7 @@ echo $OUTPUT->footer();
 		data.addRows(dataarray);
 		
 		var options = {
+			height: 300,
 			gantt: {
 				trackHeight: 30
 			}};
@@ -302,6 +303,7 @@ echo $OUTPUT->footer();
   		data.addRows(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
   		
         var options = {
+        	height: 300,
         	legend: { position: 'bottom', alignment: 'start ', maxLines: 3},
         	pointShape: 'star',
         	pointSize: 4,
@@ -332,6 +334,7 @@ echo $OUTPUT->footer();
 		
 		data.addRows(<?php echo json_encode(emarking_markers_corrections($emarkingid));?>);
 		var options = {
+			height: 300,
 			legend: { position: 'bottom', alignment: 'start ', maxLines: 3},
 			pointSize: 4,
 			pointShape: 'star',
