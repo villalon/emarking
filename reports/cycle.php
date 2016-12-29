@@ -170,13 +170,13 @@ if($currenttab == 0){
 }else{
 	// Gantt chart title
 	echo html_writer::tag('h4',get_string('cicleganttchart', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'ganttchart','style' => 'height: 40%;'));
+   	echo html_writer::div('','', array('id' => 'ganttchart'));
    	
    	echo html_writer::tag('h4',get_string('ciclestackedstatuses', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 40%;'));
+   	echo html_writer::div('','', array('id' => 'areachart'));
    	
    	echo html_writer::tag('h4',get_string('ciclemarkerscorrections', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 40%;'));
+   	echo html_writer::div('','', array('id' => 'markerschart'));
 }
 
 echo $OUTPUT->footer();
@@ -231,7 +231,7 @@ echo $OUTPUT->footer();
   		chart.draw(view, options);
   	}
 </script>
-<script style="heigth:40%">
+<script>
 	if(<?php echo $currenttab;?> != 0){
   		google.charts.setOnLoadCallback(drawganttChart);
   	}
@@ -274,7 +274,7 @@ echo $OUTPUT->footer();
 		chart.draw(data, options);
 	}
 </script>
-<script style="heigth:30%">
+<script>
 	if(<?php echo $currenttab;?> != 0){
     	google.charts.setOnLoadCallback(drawareaChart);
     }
@@ -314,7 +314,7 @@ echo $OUTPUT->footer();
         areachart.draw(data, options);
 	}
 </script>
-<script style="heigth:30%">
+<script>
 
 	if(<?php echo $currenttab;?> != 0){
     	google.charts.setOnLoadCallback(drawmarkersChart);
