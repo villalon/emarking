@@ -231,7 +231,7 @@ echo $OUTPUT->footer();
   		chart.draw(view, options);
   	}
 </script>
-<script>
+<script style="heigth:40%">
 	if(<?php echo $currenttab;?> != 0){
   		google.charts.setOnLoadCallback(drawganttChart);
   	}
@@ -274,7 +274,7 @@ echo $OUTPUT->footer();
 		chart.draw(data, options);
 	}
 </script>
-<script>
+<script style="heigth:30%">
 	if(<?php echo $currenttab;?> != 0){
     	google.charts.setOnLoadCallback(drawareaChart);
     }
@@ -302,7 +302,7 @@ echo $OUTPUT->footer();
   		data.addRows(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
   		
         var options = {
-        	legend: { position: 'top', alignment: 'start ', maxLines: 3},
+        	legend: { position: 'bottom', alignment: 'start ', maxLines: 3},
         	pointShape: 'star',
         	pointSize: 4,
         	tooltip: {isHtml: true},
@@ -314,7 +314,7 @@ echo $OUTPUT->footer();
         areachart.draw(data, options);
 	}
 </script>
-<script>
+<script style="heigth:30%">
 
 	if(<?php echo $currenttab;?> != 0){
     	google.charts.setOnLoadCallback(drawmarkersChart);
@@ -332,7 +332,7 @@ echo $OUTPUT->footer();
 		
 		data.addRows(<?php echo json_encode(emarking_markers_corrections($emarkingid));?>);
 		var options = {
-			legend: { position: 'top', alignment: 'start ', maxLines: 3},
+			legend: { position: 'bottom', alignment: 'start ', maxLines: 3},
 			pointSize: 4,
 			pointShape: 'star',
 			tooltip: {isHtml: true},
