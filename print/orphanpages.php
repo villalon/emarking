@@ -130,6 +130,7 @@ if ($numorphanpages == 0) {
     <input type='hidden' name='id' value='$cm->id'>
     <input type='hidden' name='page' value='$page'>
     <input type='hidden' name='delete' value='true'>
+    <input type='hidden' name='action' value='delete'>
     ";
     }
     $options = array();

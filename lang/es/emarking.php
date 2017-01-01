@@ -21,6 +21,14 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// DOWNLOAD SECURITY.
+$string['downloadsecurity'] = 'Nivel de seguridad para descarga';
+$string['downloadsecurity_help'] = 'Aquí puede definir el nivel de seguridad requerido para descargar una prueba. Sin validación permite a cualquier usuario con la capability downloadexam descargar una prueba directamente. Las otras opciones incluyen enviar un código de seguridad que debe ser ingresado por el usuario, el que puede enviarsepor correo eletrónico o como mensaje al teléfono móvil.';
+$string['security_novalidation'] = 'Sin validación';
+$string['security_tokenemail'] = 'Código enviado por email';
+$string['security_tokensms'] = 'Código enviado por SMS';
+$string['settingssecurity'] = 'Seguridad';
+$string['settingssecurity_help'] = 'Aquí puede definir el nivel de seguridad para descargar pruebas.';
 // ANSWER KEYS
 $string ['answerkeyfile'] = 'Pauta';
 // EMARKING TYPES WORKFLOW.

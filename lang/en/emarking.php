@@ -21,7 +21,15 @@
  * @copyright 2012-2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// ANSWER KEYS
+// DOWNLOAD SECURITY.
+$string['downloadsecurity'] = 'Download security level';
+$string['downloadsecurity_help'] = 'You can define here the level of security required to download an exam. No validation allows any user withe the downloadexam capability to directly download an exam. Other options are using a token sent to the user\'s emailo or using a token sent to the user\'s mobile phone.';
+$string['security_novalidation'] = 'No validation';
+$string['security_tokenemail'] = 'Token sent by email';
+$string['security_tokensms'] = 'Token sent by SMS';
+$string['settingssecurity'] = 'Security';
+$string['settingssecurity_help'] = 'Here you can define security settings for downloading exams.';
+// ANSWER KEYS.
 $string ['answerkeyfile'] = 'Answer key file';
 // EMARKING TYPES WORKFLOW.
 $string ['orsentexam'] = 'Use previously sent exam';

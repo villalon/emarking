@@ -115,6 +115,20 @@ $settings->add(
 $settings->add(
         new admin_setting_configtext('emarking_nodejspath', get_string('nodejspath', 'mod_emarking'),
                 get_string('nodejspath_help', 'mod_emarking'), '', PARAM_URL));
+// Security settings.
+$settings->add(
+        new admin_setting_heading('emarking_securitysettings', get_string('settingssecurity', 'mod_emarking'),
+                get_string('settingssecurity_help', 'mod_emarking')));
+// Minimum days allowed before sending an exam to print.
+$choices = array(
+        EMARKING_SECURITY_NO_VALIDATION => get_string('security_novalidation', 'mod_emarking'),
+        EMARKING_SECURITY_TOKEN_EMAIL => get_string('security_tokenemail', 'mod_emarking'),
+        EMARKING_SECURITY_TOKEN_SMS => get_string('security_tokensms', 'mod_emarking')
+);
+$settings->add(
+        new admin_setting_configselect('emarking_downloadsecurity',
+                get_string('downloadsecurity', 'mod_emarking'),
+                get_string('downloadsecurity_help', 'mod_emarking'), 0, $choices));
 // SMS communication.
 // SMS settings.
 $settings->add(

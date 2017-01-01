@@ -311,7 +311,7 @@ function emarking_send_processanswers_notification($emarking, $course) {
     // Get all users that should be notified.
     $users = get_enrolled_users(context_course::instance($course->id), "mod/emarking:receivenotification");
     foreach($users as $user) {
-        $eventdata = new stdClass();
+        $eventdata = new \core\message\message();
         $eventdata->component = 'mod_emarking';
         $eventdata->name = 'notification';
         $eventdata->userfrom = $USER;
@@ -322,6 +322,7 @@ function emarking_send_processanswers_notification($emarking, $course) {
         $eventdata->fullmessagehtml = $posthtml;
         $eventdata->smallmessage = $postsubject;
         $eventdata->notification = 1;
+        $eventdata->courseid = $course->id;
         message_send($eventdata);
     }
     // Save the date of the digitization.
@@ -409,7 +410,7 @@ function emarking_send_digitizing_notification($cron = true, $debug = false, $de
         // Get all users that should be notified.
         $users = get_enrolled_users(context_course::instance($course), "mod/emarking:receivedigitizingnotification");
         foreach($users as $user) {
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->component = 'mod_emarking';
             $eventdata->name = 'notification';
             $eventdata->userfrom = $USER;
@@ -420,6 +421,7 @@ function emarking_send_digitizing_notification($cron = true, $debug = false, $de
             $eventdata->fullmessagehtml = $posthtml;
             $eventdata->smallmessage = $postsubject;
             $eventdata->notification = 1;
+            $eventdata->courseid = $course->id;
             message_send($eventdata);
         }
         // Save the date of the digitization.
@@ -1455,19 +1457,19 @@ function emarking_exam_total_pages_to_print($exam) {
  * @param unknown_type $coursename            
  * @param unknown_type $examname            
  */
-function emarking_send_email_code($code, $user, $coursename, $examname) {
+function emarking_send_email_code($code, $user, $course, $examname) {
     global $CFG;
     $posttext = get_string('emarkingsecuritycode', 'mod_emarking') . '\n';
-    $posttext .= $coursename . ' ' . $examname . '\n';
+    $posttext .= $course->fullname . ' ' . $examname . '\n';
     $posttext .= get_string('yourcodeis', 'mod_emarking') . ': ' . $code . '';
     $thismessagehtml = '<html>';
     $thismessagehtml .= '<h3>' . get_string('emarkingsecuritycode', 'mod_emarking') . '</h3>';
-    $thismessagehtml .= $coursename . ' ' . $examname . '<br>';
+    $thismessagehtml .= $course->fullname . ' ' . $examname . '<br>';
     $thismessagehtml .= get_string('yourcodeis', 'mod_emarking') . ':<br>' . $code . '<br>';
     $thismessagehtml .= '</html>';
     $subject = get_string('emarkingsecuritycode', 'mod_emarking');
     $headers = "From: $CFG->supportname  \r\n" . "Reply-To: $CFG->noreplyaddress\r\n" . 'Content-Type: text/html; charset="utf-8"' . "\r\n" . 'X-Mailer: PHP/' . phpversion();
-    $eventdata = new stdClass();
+    $eventdata = new \core\message\message();
     $eventdata->component = 'mod_emarking';
     $eventdata->name = 'notification';
     $eventdata->userfrom = get_admin();
@@ -1477,7 +1479,8 @@ function emarking_send_email_code($code, $user, $coursename, $examname) {
     $eventdata->fullmessageformat = FORMAT_HTML;
     $eventdata->fullmessagehtml = $thismessagehtml;
     $eventdata->smallmessage = $subject;
-    $eventdata->notification = 1;
+    $eventdata->notification = '0';
+    $eventdata->courseid = $course->id;
     return message_send($eventdata);
 }
 

@@ -85,6 +85,10 @@ define('EMARKING_DIGITIZED_ANSWER_UPLOADED', 10);
 define('EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED', 20);
 define('EMARKING_DIGITIZED_ANSWER_ERROR_PROCESSING', 30);
 define('EMARKING_DIGITIZED_ANSWER_PROCESSED', 40);
+// Download exams security levels.
+define('EMARKING_SECURITY_NO_VALIDATION', 0);
+define('EMARKING_SECURITY_TOKEN_EMAIL', 10);
+define('EMARKING_SECURITY_TOKEN_SMS', 20);
 // Moodle core API.
 /**
  * Returns the information on whether the module supports a feature
@@ -116,7 +120,11 @@ function emarking_supports($feature) {
 function emarking_types_array($filterenabled = false) {
     global $CFG;
     $types = array();
-    $allowed = explode(',', $CFG->emarking_enabledtypes);
+    if(isset($CFG->emarking_enabledtypes)) {
+        $allowed = explode(',', $CFG->emarking_enabledtypes);
+    } else {
+        $allowed = array();
+    }
     // All available types
     $types[EMARKING_TYPE_PRINT_ONLY] = get_string('type_print_only', 'mod_emarking');
     $types[EMARKING_TYPE_PRINT_SCAN] = get_string('type_print_scan', 'mod_emarking');
@@ -141,7 +149,11 @@ function emarking_types_array($filterenabled = false) {
 function emarking_uploadtypes_array($filterenabled = false) {
     global $CFG;
     $types = array();
-    $allowed = explode(',', $CFG->emarking_enableduploadtypes);
+    if(isset($CFG->emarking_enableduploadtypes)) {
+        $allowed = explode(',', $CFG->emarking_enableduploadtypes);
+    } else {
+        $allowed = array();
+    }
     // All available types
     $types[EMARKING_UPLOAD_QR] = get_string('uploadtype_qr', 'mod_emarking');
     $types[EMARKING_UPLOAD_HTML] = get_string('uploadtype_html', 'mod_emarking');
@@ -858,6 +870,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
     $forcedownload=false;
     $mimetype='';
     $dontdie=false;
+    $directdownload = isset($CFG->emarking_downloadsecurity) && $CFG->emarking_downloadsecurity == EMARKING_SECURITY_NO_VALIDATION;
     // end of send_file defaults.
     $filename = array_pop($args);
     $itemid = array_pop($args);
@@ -933,7 +946,7 @@ function emarking_pluginfile($course, $cm, $context, $filearea, array $args, $fo
             send_file_not_found();
         }
         $token = required_param('token', PARAM_INT);
-        if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
+        if ($token > 9999 && ($_SESSION [$USER->sesskey . "smstoken"] === $token || $directdownload)) {
             if (! $exam = $DB->get_record('emarking_exams', array(
                 'emarking' => $itemid))) {
                 send_file_not_found();

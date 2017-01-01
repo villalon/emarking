@@ -54,8 +54,9 @@ if ($sesskey != $USER->sesskey) {
         "error" => get_string("invalidsessionkey", "mod_emarking")));
     die();
 }
+$directdownload = isset($CFG->emarking_downloadsecurity) && $CFG->emarking_downloadsecurity == EMARKING_SECURITY_NO_VALIDATION;
 // If we have the token and session id ok we get the exam id from the session.
-if ($token > 9999) {
+if ($token > 9999 && !$directdownload) {
     $examid = $_SESSION [$USER->sesskey . "examid"];
 }
 // We get the exam object.
@@ -103,7 +104,7 @@ if ($exam->status < EMARKING_EXAM_PROCESSED) {
     die();
 }
 // If a token was sent and it was not valid, log and die.
-if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] !== $token) {
+if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] !== $token && !$directdownload) {
     $item = array(
         "context" => $contextcourse,
         "objectid" => $exam->emarking);
@@ -117,7 +118,7 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] !== $token) {
     die();
 }
 // A token was sent to validate download it will have 5 digits, otherwise it should be 0.
-if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
+if ($token > 9999 && ($_SESSION [$USER->sesskey . "smstoken"] === $token || $directdownload)) {
     $now = new DateTime();
     $tokendate = new DateTime();
     $tokendate->setTimestamp($_SESSION [$USER->sesskey . "smsdate"]);
@@ -150,6 +151,12 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) {
              . $pdffilename . '?token=' . $token);
     die();
 }
+if($directdownload) {
+    echo json_encode(array(
+            'error' => get_string('error') . core_text::strtolower(' ' . get_string('exam', 'mod_emarking') . ' ' .
+                    ' Direct download does not require token.')));
+    die();
+}
 // If the token was not sent, then create new token,
 // save data in session variables and send through email or mobile phone.
 $newtoken = rand(10000, 99999); // Generate random 5 digits token.
@@ -178,7 +185,7 @@ if ($CFG->emarking_usesms) {
                     "message" => ""));
     }
 } else {
-    if (emarking_send_email_code($newtoken, $USER, $course->fullname, $exam->name)) {
+    if (emarking_send_email_code($newtoken, $USER, $course, $exam->name)) {
         echo json_encode(
                 array(
                     "error" => "",

@@ -260,7 +260,7 @@ input[type="text"] {
 
 .downloademarking {
 	cursor: pointer;
-	float: right;
+	margin-bottom: 12px;
 }
 
 .newprintorder input {
