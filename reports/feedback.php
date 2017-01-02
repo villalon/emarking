@@ -113,10 +113,12 @@ for ($i = 0; $i < count($data); $i ++) {
 }
 echo $OUTPUT->heading($rubricname, 2);
 echo html_writer::div(html_writer::table($table), 'gradingform_rubric');
-$sql = "select rawtext
-from mdl_emarking_comment
-where draft in (select id from mdl_emarking_draft where emarkingid = :emarkingid)
-and length(rawtext) > 0";
+$sql = "SELECT rawtext
+FROM {emarking_comment}
+WHERE draft IN (
+        SELECT id FROM {emarking_draft} WHERE emarkingid = :emarkingid)
+AND LENGTH(rawtext) > 0
+AND textformat <> 5";
 $comments = $DB->get_recordset_sql($sql, array('emarkingid'=>$emarking->id));
 $words = array();
 // add Elements
