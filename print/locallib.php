@@ -926,7 +926,8 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;
-        return array(
+        var_dump($output);
+            return array(
             false,
             $errormsg,
             0,
@@ -1087,7 +1088,22 @@ function emarking_get_digitized_answer_files($emarking = NULL, $status = NULL) {
         $statusfilter = ' AND D.status = ?';
         $params[] = $status;
     }
-    $sql = "SELECT D.id, F.id as fileid, D.emarking, D.ignorecourse, F.pathnamehash as hash, F.filename, F.itemid, F.mimetype, F.filesize, D.timecreated, D.status, D.doubleside FROM {files} F
+    $sql = "
+            SELECT D.id,
+            F.id as fileid,
+            D.emarking,
+            D.ignorecourse,
+            F.pathnamehash as hash,
+            F.filename,
+            F.itemid,
+            F.mimetype,
+            F.filesize,
+            D.timecreated, 
+            D.status,
+            D.doubleside,
+            D.totalpages,
+            D.identifiedpages
+    FROM {files} F
     INNER JOIN {emarking_digitized_answers} D ON ($emarkingfilter D.file = F.id AND D.id = F.itemid)
     WHERE F.filearea = 'upload' $statusfilter
     ORDER BY D.timecreated";
@@ -1130,7 +1146,6 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
     if((!$filename || !$dirpath) && !$storedfile) {
         throw new Exception('Invalid arguments, either a file path or a storedfile must be provided.');
     }
-    var_dump($dirpath . "/" . $filename);
     // Verify that image file exist.
     if (($filename && $dirpath) && !file_exists($dirpath . "/" . $filename)) {
         throw new Exception("Invalid path and/or filename $dirpath/$filename");
@@ -1219,7 +1234,7 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
         if($emarking->uploadtype == EMARKING_UPLOAD_FILE) {
             $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($fileinfo, $student);
         } else {
-            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile, $student);
+            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($fileinfo, $student);
         }
     }
     if(!$fileinfo || !$fileinfoanonymous) {

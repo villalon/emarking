@@ -358,6 +358,8 @@ $string ['pagesperexam'] = 'Páginas por prueba';
 $string ['printdetails'] = 'Detalles impresión';
 $string ['apply'] = 'Aplicar';
 $string ['statuspercriterion'] = 'Avance por pregunta';
+$string ['feedbackreport'] = 'Reporte de retroalimentación';
+$string ['viewfeedback'] = 'Ver retroalimentación';
 // EMARKING COST REPORT.
 $string ['period'] = 'Periodo';
 $string ['subcategoryname'] = 'Nombre de la sub-categoría';

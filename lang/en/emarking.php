@@ -363,6 +363,8 @@ $string ['pagesperexam'] = 'Pages per exam';
 $string ['printdetails'] = 'Print details';
 $string ['apply'] = 'Apply';
 $string ['statuspercriterion'] = 'Status per criterion';
+$string ['feedbackreport'] = 'Feedback report';
+$string ['viewfeedback'] = 'View feedback';
 // EMARKING COST REPORT.
 $string ['period'] = 'Period';
 $string ['subcategoryname'] = 'Subcategory name';
