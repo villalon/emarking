@@ -52,6 +52,8 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "feedback");
+list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
+    emarking_validate_rubric($context, true, true);
 $totalsubmissions = $DB->count_records_sql(
         "
                 SELECT COUNT(DISTINCT s.id) AS total
@@ -83,7 +85,7 @@ $sql = "SELECT
     LEFT JOIN {emarking_comment} c ON (c.levelid = l.id)
     GROUP BY s.id, a.id, l.id
     ORDER BY a.sortorder ASC, l.score ASC";
-$emarkingstats = $DB->get_recordset_sql($sql, array('definitionid'=>2, 'emarkingid'=>1));
+$emarkingstats = $DB->get_recordset_sql($sql, array('definitionid'=>$definition->id, 'emarkingid'=>$emarking->id));
 $definition = array();
 foreach($emarkingstats as $stat) {
     if(!isset($definition[$stat->criterionid])) {
