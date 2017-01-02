@@ -121,7 +121,7 @@ $comments = $DB->get_recordset_sql($sql, array('emarkingid'=>$emarking->id));
 $words = array();
 // add Elements
 foreach($comments as $comment) {
-    $s = preg_replace('/[^a-z\dáéíóúÁÉÍÓÚ]+/i', ' ', $comment->rawtext);
+    $s = preg_replace('/[^a-z\dáéíóúÁÉÍÓÚ]+/i', ' ', urldecode($comment->rawtext));
     $s = preg_split('/\s/', $s);
     foreach($s as $ss) {
         $token = core_text::strtolower($ss);

@@ -34,8 +34,16 @@ $filter = required_param('filter', PARAM_ALPHA);
 $fids = required_param('fids', PARAM_RAW_TRIMMED);
 if($filter === 'tag') {
     $fids = urldecode($fids);
+    $title = get_string('viewfeedback', 'mod_emarking') . ' ' . $fids;
 } elseif($filter === 'level') {
     $fids = intval($fids);
+    if(!$level = $DB->get_record('gradingform_rubric_levels', array('id'=>$fids))) {
+        print_error('Invalid level id');
+    }
+    if(!$criterion = $DB->get_record('gradingform_rubric_criteria', array('id'=>$level->criterionid))) {
+        print_error('Invalid criterion id');
+    }
+    $title = $criterion->description .  '<br/>' . $level->definition;
 } else {
     print_error('Invalid filter');
 }
@@ -58,7 +66,7 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 echo $OUTPUT->header();
-echo $OUTPUT->heading($emarking->name . ' ' . core_text::strtotitle($filter) . ' '. $fids);
+echo $OUTPUT->heading($emarking->name . '<br/>' . core_text::strtotitle($title));
 $totalsubmissions = $DB->count_records_sql(
         "
                 SELECT COUNT(DISTINCT s.id) AS total
