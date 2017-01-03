@@ -192,28 +192,34 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 			<fieldset>
 				<p>
 					<label for="id"><?php echo $message ?></label><br /> <input
-						type="text" name="sms" id="sms" placeholder=""> <select
-						onchange="change(this.value);">
-						<option value="0"><?php echo get_string("singlepdf", "mod_emarking") ?></option>
-						<option value="1"><?php echo get_string("multiplepdfs", "mod_emarking") ?></option>
-					</select>
+						type="text" name="sms" id="sms" placeholder="">
 				</p>
 			</fieldset>
 		</form>
 	</div>
 </div>
-<script type="text/javascript">
-	function change(e){
-			multipdfs = e;
-		}
-</script>
 <?php
 }
-if (has_capability ( "mod/emarking:downloadexam", $context )) {
-    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string ( 'exam', 'mod_emarking' ) . ' ' . core_text::strtolower ( get_string ( 'examstatusbeingprocessed', 'mod_emarking' ) ) : get_string ( 'downloadexam', 'mod_emarking' );
+if (has_capability("mod/emarking:downloadexam", $context)) {
+    $directdownload = isset($CFG->emarking_downloadsecurity) && $CFG->emarking_downloadsecurity == EMARKING_SECURITY_NO_VALIDATION;
+    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string('exam', 'mod_emarking') . ' ' .
+             core_text::strtolower(get_string('examstatusbeingprocessed', 'mod_emarking')) : get_string('downloadexam', 
+                    'mod_emarking');
     $disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
-    $downloadexambutton = "<input type='button' class='downloademarking' examid ='$exam->id' value='" . $buttontext . "' $disabled>";
-    echo $downloadexambutton;
+    if (! $directdownload) {
+        $downloadexambutton = "<input type='button' class='downloademarking btn btn-default' examid ='$exam->id' value='" . $buttontext .
+                 "' $disabled>";
+        echo $downloadexambutton;
+    } else {
+        $directdownloadurl = new moodle_url('/mod/emarking/print/download.php', 
+                array(
+                    'sesskey' => sesskey(),
+                    'token' => rand(10000, 99999),
+                    'multi' => 0,
+                    'incourse' => 1,
+                    'examid' => $exam->id));
+        echo $OUTPUT->single_button($directdownloadurl, $buttontext, 'GET');
+    }
 }
 if ($issupervisor) {
 	// Active types tab.

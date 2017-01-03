@@ -162,6 +162,7 @@ if (count($digitizedanswersfiles) == 0) {
         'Mime type',
         get_string('uploaded', 'hub'),
         get_string('status', 'mod_emarking'),
+        core_text::strtotitle(get_string('pages', 'mod_emarking')),
         get_string('actions', 'mod_emarking')
     );
     foreach($digitizedanswersfiles as $file) {
@@ -187,14 +188,9 @@ if (count($digitizedanswersfiles) == 0) {
                 'style' => 'width:1.5em;'
             )));
         }
-        if ($file->status != EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED
-            && $usercanmanageanswersfiles) {
-            $actions[] = $OUTPUT->action_icon($processurl, new pix_icon('i/reload', 'reload', null, array(
-                'style' => 'width:1.5em;'
-            )));
-        }
-        if ($file->status == EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED
-            && is_siteadmin()) {
+        if (($file->status != EMARKING_DIGITIZED_ANSWER_BEING_PROCESSED
+            && $usercanmanageanswersfiles)
+            || is_siteadmin()) {
             $actions[] = $OUTPUT->action_icon($processurl, new pix_icon('i/reload', 'reload', null, array(
                 'style' => 'width:1.5em;'
             )));
@@ -208,6 +204,7 @@ if (count($digitizedanswersfiles) == 0) {
             $mimetype,
             emarking_time_ago($file->timecreated),
             emarking_get_string_for_status_digitized($file->status),
+            $file->totalpages . '/' . $file->identifiedpages,
             implode(' ', $actions)
         );
     }

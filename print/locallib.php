@@ -311,7 +311,7 @@ function emarking_send_processanswers_notification($emarking, $course) {
     // Get all users that should be notified.
     $users = get_enrolled_users(context_course::instance($course->id), "mod/emarking:receivenotification");
     foreach($users as $user) {
-        $eventdata = new stdClass();
+        $eventdata = new \core\message\message();
         $eventdata->component = 'mod_emarking';
         $eventdata->name = 'notification';
         $eventdata->userfrom = $USER;
@@ -322,6 +322,7 @@ function emarking_send_processanswers_notification($emarking, $course) {
         $eventdata->fullmessagehtml = $posthtml;
         $eventdata->smallmessage = $postsubject;
         $eventdata->notification = 1;
+        $eventdata->courseid = $course->id;
         message_send($eventdata);
     }
     // Save the date of the digitization.
@@ -409,7 +410,7 @@ function emarking_send_digitizing_notification($cron = true, $debug = false, $de
         // Get all users that should be notified.
         $users = get_enrolled_users(context_course::instance($course), "mod/emarking:receivedigitizingnotification");
         foreach($users as $user) {
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->component = 'mod_emarking';
             $eventdata->name = 'notification';
             $eventdata->userfrom = $USER;
@@ -420,6 +421,7 @@ function emarking_send_digitizing_notification($cron = true, $debug = false, $de
             $eventdata->fullmessagehtml = $posthtml;
             $eventdata->smallmessage = $postsubject;
             $eventdata->notification = 1;
+            $eventdata->courseid = $course->id;
             message_send($eventdata);
         }
         // Save the date of the digitization.
@@ -924,7 +926,8 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;
-        return array(
+        var_dump($output);
+            return array(
             false,
             $errormsg,
             0,
@@ -1085,7 +1088,22 @@ function emarking_get_digitized_answer_files($emarking = NULL, $status = NULL) {
         $statusfilter = ' AND D.status = ?';
         $params[] = $status;
     }
-    $sql = "SELECT D.id, F.id as fileid, D.emarking, D.ignorecourse, F.pathnamehash as hash, F.filename, F.itemid, F.mimetype, F.filesize, D.timecreated, D.status, D.doubleside FROM {files} F
+    $sql = "
+            SELECT D.id,
+            F.id as fileid,
+            D.emarking,
+            D.ignorecourse,
+            F.pathnamehash as hash,
+            F.filename,
+            F.itemid,
+            F.mimetype,
+            F.filesize,
+            D.timecreated, 
+            D.status,
+            D.doubleside,
+            D.totalpages,
+            D.identifiedpages
+    FROM {files} F
     INNER JOIN {emarking_digitized_answers} D ON ($emarkingfilter D.file = F.id AND D.id = F.itemid)
     WHERE F.filearea = 'upload' $statusfilter
     ORDER BY D.timecreated";
@@ -1128,7 +1146,6 @@ function emarking_create_page_file_from_path_or_file($filename, $dirpath, $stude
     if((!$filename || !$dirpath) && !$storedfile) {
         throw new Exception('Invalid arguments, either a file path or a storedfile must be provided.');
     }
-    var_dump($dirpath . "/" . $filename);
     // Verify that image file exist.
     if (($filename && $dirpath) && !file_exists($dirpath . "/" . $filename)) {
         throw new Exception("Invalid path and/or filename $dirpath/$filename");
@@ -1217,7 +1234,7 @@ function emarking_submit($emarking, $context, $path, $filename, $student, $pagen
         if($emarking->uploadtype == EMARKING_UPLOAD_FILE) {
             $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($fileinfo, $student);
         } else {
-            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($storedfile, $student);
+            $fileinfoanonymous = emarking_create_anonymous_page_from_storedfile($fileinfo, $student);
         }
     }
     if(!$fileinfo || !$fileinfoanonymous) {
@@ -1455,19 +1472,19 @@ function emarking_exam_total_pages_to_print($exam) {
  * @param unknown_type $coursename            
  * @param unknown_type $examname            
  */
-function emarking_send_email_code($code, $user, $coursename, $examname) {
+function emarking_send_email_code($code, $user, $course, $examname) {
     global $CFG;
     $posttext = get_string('emarkingsecuritycode', 'mod_emarking') . '\n';
-    $posttext .= $coursename . ' ' . $examname . '\n';
+    $posttext .= $course->fullname . ' ' . $examname . '\n';
     $posttext .= get_string('yourcodeis', 'mod_emarking') . ': ' . $code . '';
     $thismessagehtml = '<html>';
     $thismessagehtml .= '<h3>' . get_string('emarkingsecuritycode', 'mod_emarking') . '</h3>';
-    $thismessagehtml .= $coursename . ' ' . $examname . '<br>';
+    $thismessagehtml .= $course->fullname . ' ' . $examname . '<br>';
     $thismessagehtml .= get_string('yourcodeis', 'mod_emarking') . ':<br>' . $code . '<br>';
     $thismessagehtml .= '</html>';
     $subject = get_string('emarkingsecuritycode', 'mod_emarking');
     $headers = "From: $CFG->supportname  \r\n" . "Reply-To: $CFG->noreplyaddress\r\n" . 'Content-Type: text/html; charset="utf-8"' . "\r\n" . 'X-Mailer: PHP/' . phpversion();
-    $eventdata = new stdClass();
+    $eventdata = new \core\message\message();
     $eventdata->component = 'mod_emarking';
     $eventdata->name = 'notification';
     $eventdata->userfrom = get_admin();
@@ -1477,7 +1494,8 @@ function emarking_send_email_code($code, $user, $coursename, $examname) {
     $eventdata->fullmessageformat = FORMAT_HTML;
     $eventdata->fullmessagehtml = $thismessagehtml;
     $eventdata->smallmessage = $subject;
-    $eventdata->notification = 1;
+    $eventdata->notification = '0';
+    $eventdata->courseid = $course->id;
     return message_send($eventdata);
 }
 

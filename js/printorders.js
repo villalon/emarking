@@ -71,15 +71,6 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
 		}
 	});
 	panel.addButton({
-		value  : messages.cancel,
-		section: Y.WidgetStdMod.FOOTER,
-		action : function (e) {
-			e.preventDefault();
-			panel.hide();
-			currentButton.show();
-		}
-	});
-	panel.addButton({
 		value  : messages.resendcode,
 		section: Y.WidgetStdMod.FOOTER,
 		action : function (e) {

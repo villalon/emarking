@@ -19,7 +19,7 @@
  * 
  * @package mod
  * @subpackage emarking
- * @copyright 2013 Jorge Villalon <villalon@gmail.com>
+ * @copyright 2013-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -27,4 +27,5 @@ defined('MOODLE_INTERNAL') || die();
 $messageproviders = array(
     // Notify copy center that a teacher has submitted a new print order.
     'notification' => array(
-        'capability' => 'mod/emarking:receivenotification'));
+        'capability' => 'mod/emarking:receivenotification')
+);

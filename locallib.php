@@ -885,9 +885,10 @@ function emarking_tabs($context, $cm, $emarking) {
         }
     }
     // Grade report tab.
-    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("reports", "mod_emarking"));
+    $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/feedback.php?id={$cm->id}", get_string("reports", "mod_emarking"));
+    $gradereporttab->subtree[] = new tabobject("feedback", $CFG->wwwroot . "/mod/emarking/reports/feedback.php?id={$cm->id}", get_string("feedback", "assign"));
+    $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grades.php?id={$cm->id}", get_string("grades", "grades"));
     $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
-    $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grade.php?id={$cm->id}", get_string("grades", "grades"));
     $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
     if ($emarking->justiceperception > EMARKING_JUSTICE_DISABLED) {
         $gradereporttab->subtree[] = new tabobject("justicereport", $CFG->wwwroot . "/mod/emarking/reports/justice.php?id={$cm->id}", get_string("justice", 'mod_emarking'));
