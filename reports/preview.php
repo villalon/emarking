@@ -108,37 +108,48 @@ echo "
         .c0 { width: 800px; }
         .feedbackmarker {
         color: #023D56;
-        /* border: solid 1px #023D56; */
         padding: 5px;
         background-color: #B5C689;
         opacity: 1.0;
         filter: alpha(opacity=100);
         max-width: 230px;
         }
-    .feedbackmarker:hover {
-    opacity: 0.5;
-    filter: alpha(opacity=40);
-    }
+        .feedbackmarker:hover {
+        opacity: 0.25;
+        filter: alpha(opacity=40);
+        }
+        .generaltable {
+        width: auto;
+        }
         </style>
     ";
+$pages = array();
+foreach($emarkingstats as $stat) {
+    if(!isset($pages[$stat->file])) {
+        $pages[$stat->file] = array();
+    }
+    $pages[$stat->file][] = $stat; 
+}
 $table = new html_table();
 $table->head = array('');
 $table->data = array();
 $current = 0;
-foreach($emarkingstats as $stat) {
-    $fileinfo = $fs->get_file_by_id($stat->file);
+foreach($pages as $file => $stat) {
+    $fileinfo = $fs->get_file_by_id($file);
     $imageinfo = $fileinfo->get_imageinfo();
     $imagehtml = html_writer::start_div('', array('style'=>'position:relative;width:100%;border:solid 1px black;'));
     $width = 800;
     $height = intval(800 / $imageinfo['width'] * $imageinfo['height']);
-    $feedback = $stat->levelid > 0 ?
-        $stat->description . '<br/>' . $stat->definition . '<br/>' . $stat->rawtext :
-        $stat->rawtext;
     $imagehtml .= '<canvas id="c'.$current.'" width="'.$width.'px" height="'.$height.'px" 
             style="background:url('.$CFG->wwwroot.'/pluginfile.php/'.$fileinfo->get_contextid().'/mod_emarking/pages/'.$fileinfo->get_itemid().'/'.$fileinfo->get_filename().'?r='.random_string(5).'); background-size:cover;"></canvas>';
-    $posx = round($width * $stat->posx,0);
-    $posy = round($height * $stat->posy,0);
+    foreach($stat as $text) {
+    $feedback = $text->levelid > 0 ?
+        $text->description . '<br/>' . $text->definition . '<br/>' . $text->rawtext :
+        $text->rawtext;
+    $posx = round($width * $text->posx,0);
+    $posy = round($height * $text->posy,0);
     $imagehtml .= html_writer::div($feedback, 'feedbackmarker', array('style'=>'position:absolute;top:'.$posy.'px;left:'.$posx.'px;'));
+    }
     $imagehtml .= html_writer::end_div();
     $table->data[] = array($imagehtml);
     $current++;
