@@ -115,7 +115,7 @@ echo "
         max-width: 230px;
         }
         .feedbackmarker:hover {
-        opacity: 0.5;
+        opacity: 0.25;
         filter: alpha(opacity=40);
         }
         .generaltable {
