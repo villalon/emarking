@@ -145,10 +145,11 @@ foreach ( $usercourses as $usercourse ) {
 					</div>
 				</div>
 				<div class="col-md-9">
-					<div class="panel panel-default">
-						<h1>Tus Cursos</h1>
+					
+						
 						<div class="panel panel-default">
 							<div class="panel-body">
+					<h1>Tus Cursos</h1>
 					<?php
 					foreach ( $coursesasteacher as $course ) {
 						echo '<div class="panel panel-default">';
@@ -157,7 +158,7 @@ foreach ( $usercourses as $usercourse ) {
 								'course' => $course->id 
 						) );
 						echo '<h3>' . $course->fullname . '</h3>';
-						echo '<div id="accordion" role="tablist" aria-multiselectable="true">';
+						
 						foreach ( $emarkingintances as $instace ) {
 							$exam=$DB->get_record('emarking_exams',array('emarking'=>$instace->id));
 							echo '<div class="card">
@@ -177,227 +178,23 @@ foreach ( $usercourses as $usercourse ) {
    							 echo $downloadexambutton; 
 							echo '</div>';
 						}
+						
 						echo '</div>';
 						echo '</div>';
 						echo '</div>';
+						
+						
 					}
 					?>
-							</div>
-						</div>
-
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<h2 class="title">Tus Aportes</h2>
 					
- <?php
-	echo '<ul class="nav nav-tabs">';
-	echo '<li class="active"><a data-toggle="tab" href="#home">Actividades (' . $countActivities . ')</a></li>';
-	echo '<li><a data-toggle="tab" href="#menu1">Rúbricas (' . $countRubrics . ')</a></li>';
-	echo '<li><a data-toggle="tab" href="#menu2">Opiniones (15)</a></li>';
-	
-	echo '</ul>';
-	?>
-
-
-  <div class="tab-content">
-
-									<div id="home" class="tab-pane fade in active">
-										<h3 style="text-align: left;">Actividades</h3>
-					
-			
-			<?php
-			echo '<a href="' . $createActivity . '" style="text-align: right;">';
-			echo $OUTPUT->pix_icon ( 't/addfile', 'Crear una actividad' );
-			echo ' Crear una actividad</a>';
-			if ($countActivities == 1) {
-				echo show_result ( $activities );
-			} elseif ($countActivities > 1) {
-				
-				foreach ( $activities as $activity ) {
-					echo show_result ( $activity );
-				}
-			} else {
-				echo "<h3>Aún no has creado actividades...</h3>";
-			}
-			?>
-			
-			
-			
-			</div>
-									<div id="menu1" class="tab-pane fade">
-										<h3 style="text-align: left;">Rúbricas</h3>
-					<?php
-					if ($countRubrics == 1) {
-						
-						$rubric = $DB->get_record ( 'grading_definitions', array (
-								'usercreated' => $USER->id 
-						) );
-						echo '<div class="panel panel-default">';
-						echo '<div class="panel-body">';
-						echo '<h3>' . $rubric->name . '</h3>';
-						echo '<a href="$createActivity" style="text-align: right;">';
-						echo $OUTPUT->pix_icon ( 'i/edit', 'Crear una actividad' );
-						echo ' Editar rúbrica</a>';
-						echo $rubric->description;
-						echo show_rubric ( $rubric->id );
-						echo '</div>';
-						echo '</div>';
-					} elseif ($countRubrics >= 1) {
-						
-						$rubrics = $DB->get_records ( 'grading_definitions', array (
-								'usercreated' => $USER->id 
-						) );
-						
-						foreach ( $rubrics as $rubric ) {
-							
-							echo '<div class="panel panel-default">';
-							echo '<div class="panel-body">';
-							echo '<h3>' . $rubric->name . '</h3>';
-							echo '<a href="$createActivity" style="text-align: right;">';
-							echo $OUTPUT->pix_icon ( 'i/edit', 'Crear una actividad' );
-							echo ' Editar rúbrica</a>';
-							echo $rubric->description;
-							echo show_rubric ( $rubric->id );
-							echo '</div>';
-							echo '</div>';
-						}
-					}
-					?>
-			
-					</div>
-									<div id="menu2" class="tab-pane fade">
-										<h3 style="text-align: left;">Opiniones</h3>
-										<div class="panel panel-default">
-											<div class="panel-body">
-												<div class="container">
-													<div class="col-md-6 text-left descargas">
-														<h3 class="title">
-															<a href="#">Amigos por correspondencia</a>
-														</h3>
-														<h4 style="margin-top: 0px; margin-bottom: 0px;">
-															Excelente actividad <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star-empty"
-																aria-hidden="true" style="font-size: 20px;"></span>
-														</h4>
-														<p style="font-size: 18px;">Lorem ipsum dolor sit amet,
-															consectetur adipiscing elit. Etiam eget commodo eros....
-
-
-														
-													
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="panel panel-default">
-											<div class="panel-body">
-												<div class="container">
-													<div class="col-md-6 text-left descargas">
-														<h3 class="title">
-															<a href="#">Amigos por correspondencia</a>
-														</h3>
-														<h4 style="margin-top: 0px; margin-bottom: 0px;">
-															Excelente actividad <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star-empty"
-																aria-hidden="true" style="font-size: 20px;"></span>
-														</h4>
-														<p style="font-size: 18px;">Lorem ipsum dolor sit amet,
-															consectetur adipiscing elit. Etiam eget commodo eros....
-
-
-														
-													
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="panel panel-default">
-											<div class="panel-body">
-												<div class="container">
-													<div class="col-md-6 text-left descargas">
-														<h3 class="title">
-															<a href="#">Amigos por correspondencia</a>
-														</h3>
-														<h4 style="margin-top: 0px; margin-bottom: 0px;">
-															Excelente actividad <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star-empty"
-																aria-hidden="true" style="font-size: 20px;"></span>
-														</h4>
-														<p style="font-size: 18px;">Lorem ipsum dolor sit amet,
-															consectetur adipiscing elit. Etiam eget commodo eros....
-
-
-														
-													
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="panel panel-default">
-											<div class="panel-body">
-												<div class="container">
-													<div class="col-md-6 text-left descargas">
-														<h3 class="title">
-															<a href="#">Amigos por correspondencia</a>
-														</h3>
-														<h4 style="margin-top: 0px; margin-bottom: 0px;">
-															Excelente actividad <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star" aria-hidden="true"
-																style="font-size: 20px;"></span> <span
-																class="glyphicon glyphicon-star-empty"
-																aria-hidden="true" style="font-size: 20px;"></span>
-														</h4>
-														<p style="font-size: 18px;">Lorem ipsum dolor sit amet,
-															consectetur adipiscing elit. Etiam eget commodo eros....
-
-
-														
-													
-													</div>
-												</div>
-											</div>
-										</div>
-										<ul class="pagination">
-											<li class="active"><a href="#">1</a></li>
-											<li><a href="#">2</a></li>
-											<li><a href="#">3</a></li>
-											<li><a href="#">4</a></li>
-										</ul>
-									</div>
-								</div>
-							</div>
 						</div>
+						hola
 					</div>
+					hola
+				</div>
+				</div>
+					</div>
+									
 	
 	</section>
 	<!-- FIN BUSCADOR -->

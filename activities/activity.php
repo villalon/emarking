@@ -172,11 +172,10 @@ foreach ( $oaComplete as $oaPerCourse ) {
 					<div class="panel panel-default">
 						<div class="panel-body">
 							<h2 class="title"> <?php echo $activity->title ?> </h2>
+							 <button type="button" class="btn btn-success" data-toggle="modal"
+								data-target="#myModal"><span class="glyphicon glyphicon-cloud-download"></span> Descargar Actividad</button>
+							 
 							 <?php	
-	$buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string ( 'exam', 'mod_emarking' ) . ' ' . core_text::strtolower ( get_string ( 'examstatusbeingprocessed', 'mod_emarking' ) ) : get_string ( 'downloadexam', 'mod_emarking' );
-    $disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
-    $downloadexambutton = "<input type='button' class='downloademarking' examid ='$exam->id' value='" . $buttontext . "' $disabled>";
-    echo $downloadexambutton;
 								
 						if ($activity->userid == $USER->id) {
 							echo '<a href="' . $editUrl . '" class="btn btn-primary" role="button">
@@ -201,7 +200,7 @@ foreach ( $oaComplete as $oaPerCourse ) {
 							<div class="tab-content">
 								<div id="home" class="tab-pane fade in active">
 									<h3 style="text-align: left;">Instrucciones para el estudiante</h3>
-
+ 
 									<div class="panel panel-default">
 										<div class="panel-body">
 											<h4 style="text-align: left;">Instrucciones</h4>
