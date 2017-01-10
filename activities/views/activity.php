@@ -1,24 +1,20 @@
 <?php
-require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
-require_once ('generos.php');
+require_once (dirname(dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) )) . '/config.php');
+require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php'); 
 GLOBAL $USER, $CFG, $PAGE;
 $teacherroleid = 3;
 $logged = false;
 $PAGE->set_context ( context_system::instance () );
 // Id of the exam to be deleted.
 $activityid = required_param ( 'id', PARAM_INT );
-$check = optional_param ( 'create', 0, PARAM_INT );
+
 $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking.php', array (
 		'id' => $activityid 
 ) );
-$editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/edit.php', array (
+$editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/edit.php', array (
 		'activityid' => $activityid 
 ) );
 
-if (isset ( $check ) && $check == 1) {
-	$message = "eMarking creado exitosamente.";
-	echo "<script type='text/javascript'>alert('$message');</script>";
-}
 
 if (isloggedin ()) {
 	$logged = true;
@@ -87,61 +83,11 @@ foreach ( $oaComplete as $oaPerCourse ) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
-<!-- Head -->
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="">
-<meta name="author" content="">
-<title>Lorem Ipsum</title>
-<!-- CSS Font, Bootstrap, style de la página y auto-complete  -->
-<link rel="stylesheet" href="css/font-awesome.min.css">
-<link rel="stylesheet" href="css/bootstrap.min.css">
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="auto-complete.css">
-
-
-<!-- Fin CSS -->
-<!-- Css traidos desde google, no sé cuales realmete se usan  -->
-<link
-	href='http://fonts.googleapis.com/css?family=Open+Sans:600italic,400,800,700,300'
-	rel='stylesheet' type='text/css'>
-<link
-	href='http://fonts.googleapis.com/css?family=BenchNine:300,400,700'
-	rel='stylesheet' type='text/css'>
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300">
-<link rel="stylesheet"
-	href="https://cdn.rawgit.com/yahoo/pure-release/v0.6.0/pure-min.css">
-<!-- Fin CSS de google -->
-<!-- Importar  Scripts Javascript -->
-<script src="js/modernizr.js"></script>
-
-<!-- Fin Script Javascript -->
-<!-- Scripts JQuery -->
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-<script type="text/javascript" src="jquery-1.8.0.min.js"></script>
-<link rel="stylesheet"
-	href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-<script
-	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-<!-- Script para filtro de genero -->
-
-</head>
+<?php include 'header.php'; ?>
 
 <!-- BODY -->
 <body>
-	<!-- Header  -->
 
-			<?php include 'header.php'; ?>
-	
-
-<!-- fIN DEL header -->
 	<!-- BUSCADOR -->
 	<section class="perfil">
 		<div class="container">
@@ -320,7 +266,7 @@ foreach ( $oaComplete as $oaPerCourse ) {
 		</div>
 	</section>
 </body>
-<?php include 'views/footer.php'; ?>
+<?php include 'footer.php'; ?>
  
 
 <!-- Modal -->
@@ -335,7 +281,7 @@ foreach ( $oaComplete as $oaPerCourse ) {
 			</div>
 			
 			<div class="modal-body">
-			 	<form action="pdfcreator.php" method="get">
+			 	<form action="../pdfcreator.php" method="get">
  					<div class="form-check">
    			 			<label class="form-check-label">
       						<input type="checkbox" class="form-check-input" name="instructions" value="1" checked>
@@ -401,7 +347,7 @@ foreach ( $oaComplete as $oaPerCourse ) {
 				<h4 class="modal-title">Utilizar actividad</h4>
 			</div>
 			<div class="modal-body">
-		 <form role="form" action="newsubmission.php">
+		 <form role="form" action="../newsubmission.php">
 									<br> <br> <select class="form-control" name="course">
 										<option>Seleccione el curso</option>
  									 <?php

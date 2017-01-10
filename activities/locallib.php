@@ -72,7 +72,7 @@ function show_rubric($id) {
 function show_result($data) {
 	GLOBAL $CFG;
 	
-	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
+	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/activity.php', array (
 			'id' => $data->id 
 	) );
 	$oaComplete = explode ( "-", $data->learningobjectives );
@@ -104,7 +104,7 @@ function show_result($data) {
 	$show .= '<p>' . $data->description . '</p>';
 	$show .= '</div>';
 	$show .= '<div  class="col-md-3" style="text-align: left">';
-	$show .= '<img src="img/premio.png" class="premio" height="40px" width="40px">';
+	$show .= '<img src="../img/premio.png" class="premio" height="40px" width="40px">';
 	$show .= '<p>55 Visitas</p>';
 	$show .= '<p>3 Comentarios</p>';
 	$show .= '<p>20 votos</p>';

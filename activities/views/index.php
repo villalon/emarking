@@ -1,41 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="">
-<meta name="author" content="">
-<title>Lorem Ipsum</title>
-<link rel="stylesheet" href="css/font-awesome.min.css">
-<link rel="stylesheet" href="css/bootstrap.min.css">
-<link rel="stylesheet" href="css/style.css">
-<link
-	href='http://fonts.googleapis.com/css?family=Open+Sans:600italic,400,800,700,300'
-	rel='stylesheet' type='text/css'>
-<link
-	href='http://fonts.googleapis.com/css?family=BenchNine:300,400,700'
-	rel='stylesheet' type='text/css'>
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300">
-<link rel="stylesheet"
-	href="https://cdn.rawgit.com/yahoo/pure-release/v0.6.0/pure-min.css">
-
-<link rel="stylesheet" href="auto-complete.css">
-<script src="js/modernizr.js"></script>
-<!--[if lt IE 9]>
-      <script src="js/html5shiv.js"></script>
-      <script src="js/respond.min.js"></script>
-    <![endif]-->
-
-</head>
-<body>
-
-	<!-- ====================================================
-	header section -->
-	<header class="top-header">
-		<?php include 'header.php'; ?>
-	</header>
-	<!-- end of header area -->
+<?php
+require_once (dirname (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) ) . '/config.php');
+include 'header.php';
+?>
 
 	<section class="slider" id="home">
 		<div class="container-fluid">
@@ -46,7 +13,7 @@
 					<!-- Wrapper for slides -->
 					<div class="carousel-inner" role="listbox">
 						<div class="item active">
-							<img src="img/slide-one.jpg" alt="">
+							<img src="../img/slide-one.jpg" alt="">
 							<div class="carousel-caption">
 								<h1>Título 1</h1>
 								<p>(1)Esto es un texto de ejemplo</p>
@@ -54,7 +21,7 @@
 							</div>
 						</div>
 						<div class="item">
-							<img src="img/slide-two.jpg" alt="">
+							<img src="../img/slide-two.jpg" alt="">
 							<div class="carousel-caption">
 								<h1>Título 2</h1>
 								<p>(2)Esto es un texto de ejemplo</p>
@@ -176,7 +143,7 @@
 						<div class="col-md-4 col-sm-6">
 							<div class="single-about-detail clearfix">
 								<div class="about-img">
-									<img class="img-responsive" src="img/item1.jpg" alt="">
+									<img class="img-responsive" src="../img/item1.jpg" alt="">
 								</div>
 								<div class="about-details">
 
@@ -191,7 +158,7 @@
 						<div class="col-md-4 col-sm-6">
 							<div class="single-about-detail">
 								<div class="about-img">
-									<img class="img-responsive" src="img/item2.jpg" alt="">
+									<img class="img-responsive" src="../img/item2.jpg" alt="">
 								</div>
 								<div class="about-details">
 
@@ -207,7 +174,7 @@
 						<div class="col-md-4 col-sm-6">
 							<div class="single-about-detail">
 								<div class="about-img">
-									<img class="img-responsive" src="img/item3.jpg" alt="">
+									<img class="img-responsive" src="../img/item3.jpg" alt="">
 								</div>
 								<div class="about-details">
 
@@ -245,7 +212,7 @@
 					<div class="single-service">
 						<div class="single-service-img">
 							<div class="service-img">
-								<img class="heart img-responsive" src="img/service1.png" alt="">
+								<img class="heart img-responsive" src="../img/service1.png" alt="">
 							</div>
 						</div>
 						<h3>Heart problem</h3>
@@ -255,7 +222,7 @@
 					<div class="single-service">
 						<div class="single-service-img">
 							<div class="service-img">
-								<img class="brain img-responsive" src="img/service2.png" alt="">
+								<img class="brain img-responsive" src="../img/service2.png" alt="">
 							</div>
 						</div>
 						<h3>brain problem</h3>
@@ -265,7 +232,7 @@
 					<div class="single-service">
 						<div class="single-service-img">
 							<div class="service-img">
-								<img class="knee img-responsive" src="img/service3.png" alt="">
+								<img class="knee img-responsive" src="../img/service3.png" alt="">
 							</div>
 						</div>
 						<h3>knee problem</h3>
@@ -275,7 +242,7 @@
 					<div class="single-service">
 						<div class="single-service-img">
 							<div class="service-img">
-								<img class="bone img-responsive" src="img/service4.png" alt="">
+								<img class="bone img-responsive" src="../img/service4.png" alt="">
 							</div>
 						</div>
 						<h3>human bones problem</h3>
@@ -288,28 +255,12 @@
 
 
 
-	<!-- footer starts here -->
-	<footer class="footer clearfix">
-		<div class="container">
-			<div class="row">
-				<div class="col-xs-6 footer-para">
-					<p>&copy; All right reserved</p>
-				</div>
-				<div class="col-xs-6 text-right">
-					<a href=""><i class="fa fa-facebook"></i></a> <a href=""><i
-						class="fa fa-twitter"></i></a>
-				</div>
-			</div>
-		</div>
-	</footer>
+<?php
+include 'footer.php';
+?>
 
 	<!-- script tags
 	============================================================= -->
-	<script src="js/jquery-2.1.1.js"></script>
-	<script src="js/gmaps.js"></script>
-	<script src="js/smoothscroll.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/custom.js"></script>
 	<script src="js/auto-complete.js"></script>
 	<script>
 		var tipo = new autoComplete({
@@ -347,8 +298,6 @@
 
 		});
 	</script>
-	<script
-		src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"
-		async defer></script>
+	
 </body>
 </html>

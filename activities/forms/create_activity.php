@@ -31,7 +31,7 @@ class local_ciae_create_activity extends moodleform {
     public function definition() {
         global $CFG, $OUTPUT, $COURSE, $DB;
         
-       require_once ('generos.php');
+       require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
        array_unshift($generos, "Seleccione un género");
        $result = $DB->get_records_sql('
          SELECT gd.id,

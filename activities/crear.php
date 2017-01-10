@@ -9,7 +9,7 @@ $PAGE->set_pagelayout ( 'embedded' );
 require_login ();
 $context = context_system::instance ();
 $PAGE->set_context ( $context );
-$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/create.php' );
+$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/create.php' );
 $PAGE->set_url ( $url );
 echo $OUTPUT->header ();
 
@@ -20,8 +20,7 @@ $mform = new local_ciae_create_activity ();
 if ($mform->is_cancelled ()) {
 	// Handle form cancel operation, if cancel button is present on form
 } else if ($fromform = $mform->get_data ()) {
-	require ('generos.php');
-	
+	 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 	$genero = ( int ) $fromform->genre - 1;
 	
 	$OAC1 = "";
