@@ -25,7 +25,25 @@
 defined('MOODLE_INTERNAL') || die();
 global $PAGE, $CFG;
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
-// Basic settings.
+// Marking settings.
+$settings->add(
+        new admin_setting_heading('emarking_markingsettings', get_string('markingsettings', 'mod_emarking'),
+                get_string('markingsettings_help', 'mod_emarking')));
+// Marking buttons.
+$buttonchoices = array(
+        EMARKING_BUTTON_RUBRIC => get_string('buttonrubric', 'mod_emarking'),
+        EMARKING_BUTTON_COMMENT => get_string('buttoncomment', 'mod_emarking'),
+        EMARKING_BUTTON_TICK => get_string('buttontick', 'mod_emarking'),
+        EMARKING_BUTTON_CROSS => get_string('buttoncross', 'mod_emarking'),
+        EMARKING_BUTTON_PEN => get_string('buttonpen', 'mod_emarking'),
+        EMARKING_BUTTON_HIGHLIGHT => get_string('buttonhighlight', 'mod_emarking'),
+        EMARKING_BUTTON_QUESTION => get_string('buttonquestion', 'mod_emarking')
+);
+$settings->add(
+        new admin_setting_configmultiselect('emarking_markingbuttonsenabled',
+                get_string('markingbuttonsenabled', 'mod_emarking'),
+                get_string('markingbuttonsenabled_help', 'mod_emarking'), array_keys($buttonchoices), $buttonchoices));
+// Print settings.
 $settings->add(
         new admin_setting_heading('emarking_basicsettings', get_string('printsettings', 'mod_emarking'),
                 get_string('printsettings_help', 'mod_emarking')));

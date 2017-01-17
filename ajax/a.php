@@ -178,6 +178,7 @@ if ($action === 'ping') {
                 'publishedTests' => $publishtest,
                 'heartbeat' => $emarking->heartbeatenabled,
                 'linkrubric' => $linkrubric,
+                'buttons' => $CFG->emarking_markingbuttonsenabled,
                 'collaborativefeatures' => $emarking->collaborativefeatures,
                 'coursemodule' => $cm->id,
                 'nodejspath' => $nodejspath,
