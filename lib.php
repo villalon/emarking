@@ -89,9 +89,20 @@ define('EMARKING_DIGITIZED_ANSWER_PROCESSED', 40);
 define('EMARKING_SECURITY_NO_VALIDATION', 0);
 define('EMARKING_SECURITY_TOKEN_EMAIL', 10);
 define('EMARKING_SECURITY_TOKEN_SMS', 20);
+
 //Types of page´s layout
 define('EMARKING_PAGES_LAYOUT_STANDARD', 0);
 define('EMARKING_PAGES_LAYOUT_EMBEDDED', 10);
+
+// Marking buttons in Emarking interface.
+define('EMARKING_BUTTON_COMMENT', 1);
+define('EMARKING_BUTTON_RUBRIC', 2);
+define('EMARKING_BUTTON_TICK', 3);
+define('EMARKING_BUTTON_CROSS', 4);
+define('EMARKING_BUTTON_PEN', 5);
+define('EMARKING_BUTTON_QUESTION', 6);
+define('EMARKING_BUTTON_HIGHLIGHT', 7);
+
 // Moodle core API.
 /**
  * Returns the information on whether the module supports a feature

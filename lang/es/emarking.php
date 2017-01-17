@@ -21,6 +21,18 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// MARKING BUTTONS.
+$string['buttonrubric'] = 'Rúbrica';
+$string['buttoncomment'] = 'Comentario';
+$string['buttontick'] = 'Correcto';
+$string['buttoncross'] = 'Incorrecto';
+$string['buttonpen'] = 'Lápiz';
+$string['buttonhighlight'] = 'Marcador';
+$string['buttonquestion'] = 'Pregunta';
+$string['markingbuttonsenabled'] = 'Botones de corrección';
+$string['markingbuttonsenabled_help'] = 'Lista de botones que estarán disponibles para la corrección de pruebas';
+$string['markingsettings'] = 'Configuración de corrección';
+$string['markingsettings_help'] = 'Configuraciones de corrección para todo el sitio';
 // DOWNLOAD SECURITY.
 $string['downloadsecurity'] = 'Nivel de seguridad para descarga';
 $string['downloadsecurity_help'] = 'Aquí puede definir el nivel de seguridad requerido para descargar una prueba. Sin validación permite a cualquier usuario con la capability downloadexam descargar una prueba directamente. Las otras opciones incluyen enviar un código de seguridad que debe ser ingresado por el usuario, el que puede enviarsepor correo eletrónico o como mensaje al teléfono móvil.';

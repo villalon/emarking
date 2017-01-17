@@ -404,7 +404,8 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     $emarkingcomment->draft = $draft->id;
     $emarkingcomment->posx = $posx;
     $emarkingcomment->posy = $posy;
-    $emarkingcomment->width = '140';
+    $emarkingcomment->width = $winwidth;
+    $emarkingcomment->height = $winheight;
     $emarkingcomment->pageno = $pageno;
     $emarkingcomment->timecreated = time();
     $emarkingcomment->timemodified = time();
@@ -522,11 +523,16 @@ function emarking_add_comment($submission, $draft) {
     $comment = required_param('comment', PARAM_RAW_TRIMMED);
     // Comment format.
     $format = required_param('format', PARAM_INT);
+    // Path.
+    $path = optional_param('path', NULL, PARAM_RAW_TRIMMED);
     // Get the page for this submission and page number.
     if (! $page = $DB->get_record('emarking_page', array(
         'submission' => $submission->id,
         'page' => $pageno))) {
         emarking_json_error("Invalid page for insterting comment");
+    }
+    if(($format == EMARKING_BUTTON_HIGHLIGHT || $format == EMARKING_BUTTON_PEN) && strlen($path) < 3) {
+        emarking_json_error("Invalid path");
     }
     // If the comment belongs to a rubric criterion.
     $criterionid = optional_param("criterionid", 0, PARAM_INT);
@@ -535,6 +541,9 @@ function emarking_add_comment($submission, $draft) {
     // Transformation pixels screen to percentages.
     $posx = ($posx / $winwidth);
     $posy = ($posy / $winheight);
+    // Scale width and height also.
+    $width = $winwidth;
+    $height = $winheight;
     // Create the new comment record.
     $emarkingcomment = new stdClass();
     $emarkingcomment->page = $page->id;
@@ -552,6 +561,9 @@ function emarking_add_comment($submission, $draft) {
     $emarkingcomment->levelid = 0;
     $emarkingcomment->criterionid = $criterionid;
     $emarkingcomment->textformat = $format;
+    if($format == EMARKING_BUTTON_HIGHLIGHT || $format == EMARKING_BUTTON_PEN) {
+        $emarkingcomment->path = $path;
+    }
     // Insert it into the database.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
     // Update draft correction time

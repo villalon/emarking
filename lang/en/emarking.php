@@ -21,6 +21,18 @@
  * @copyright 2012-2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// MARKING BUTTONS.
+$string['buttonrubric'] = 'Rubric';
+$string['buttoncomment'] = 'Comment';
+$string['buttontick'] = 'Tick';
+$string['buttoncross'] = 'Cross';
+$string['buttonpen'] = 'Pen';
+$string['buttonhighlight'] = 'Highlighter';
+$string['buttonquestion'] = 'Question';
+$string['markingbuttonsenabled'] = 'Marking buttons';
+$string['markingbuttonsenabled_help'] = 'List of buttons that will be available for marking.';
+$string['markingsettings'] = 'Marking settings';
+$string['markingsettings_help'] = 'Site wide settings for marking';
 // DOWNLOAD SECURITY.
 $string['downloadsecurity'] = 'Download security level';
 $string['downloadsecurity_help'] = 'You can define here the level of security required to download an exam. No validation allows any user withe the downloadexam capability to directly download an exam. Other options are using a token sent to the user\'s emailo or using a token sent to the user\'s mobile phone.';
