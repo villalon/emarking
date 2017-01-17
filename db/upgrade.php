@@ -1673,6 +1673,15 @@ function xmldb_emarking_upgrade($oldversion) {
     }
     if ($oldversion < 2017011500) {
     
+        // Define field feedback to be added to emarking_comment.
+        $table = new xmldb_table('emarking_comment');
+        $field = new xmldb_field('feedback', XMLDB_TYPE_CHAR, '1000', null, null, null, '0', 'status');
+        
+        // Conditionally launch add field feedback.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
         // Define field path to be added to emarking_comment.
         $table = new xmldb_table('emarking_comment');
         $field = new xmldb_field('path', XMLDB_TYPE_TEXT, null, null, null, null, null, 'feedback');
