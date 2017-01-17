@@ -1,8 +1,9 @@
 <?php
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 //include simplehtml_form.php
-require_once('forms/edit_activity.php');
-require ('generos.php');
+
+require_once ($CFG->dirroot. '/mod/emarking/activities/forms/edit_activity.php');
+require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 
  //Código para setear contexto, url, layout
 global $PAGE,$USER, $OUTPUT, $DB;
@@ -68,7 +69,7 @@ if ($mform->is_cancelled()) {
 	$DB->update_record('emarking_activities', $activity);
 	
 		
-	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
+	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/activity.php', array('id' => $activityid));
 	redirect($url, 0);
   //In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
@@ -93,7 +94,7 @@ if ($mform->is_cancelled()) {
  
  	//Set default data (if any)
  	if (empty($instructions->id)) {
- 		$instructions = new object();
+ 		$instructions = new stdClass();
  		$instructions->id = 0;
  	}
  	

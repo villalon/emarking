@@ -96,7 +96,7 @@ if ($mform->is_cancelled ()) {
 	
 	$insert = $DB->insert_record ( 'emarking_activities', $record );
 	
-	$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
+	$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/activity.php', array (
 			'id' => $insert 
 	) );
 	redirect ( $url, 0 );

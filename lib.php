@@ -89,6 +89,9 @@ define('EMARKING_DIGITIZED_ANSWER_PROCESSED', 40);
 define('EMARKING_SECURITY_NO_VALIDATION', 0);
 define('EMARKING_SECURITY_TOKEN_EMAIL', 10);
 define('EMARKING_SECURITY_TOKEN_SMS', 20);
+//Types of page´s layout
+define('EMARKING_PAGES_LAYOUT_STANDARD', 0);
+define('EMARKING_PAGES_LAYOUT_EMBEDDED', 10);
 // Moodle core API.
 /**
  * Returns the information on whether the module supports a feature

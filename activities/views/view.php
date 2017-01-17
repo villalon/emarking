@@ -14,7 +14,7 @@ require_once (dirname (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) 
 						<div class="panel panel-default">
 							<div class="panel-body">
 					<?php 
-					
+					 include  $CFG->dirroot . '/mod/emarking/view.php';
 					?>
 				</div>
 					</div>

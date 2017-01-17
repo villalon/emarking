@@ -123,7 +123,7 @@ $emarkingintances = $DB->get_records_sql($sql,array(get_string('pluginname', 'mo
 						echo '<h3>' . $course->fullname . '</h3>';
 						
 						foreach ( $emarkingintances as $instace ) {
-							$emarkingurl=new moodle_url($CFG->wwwroot .'/mod/emarking/activities/view.php', array(
+							$emarkingurl=new moodle_url($CFG->wwwroot .'/mod/emarking/activities/views/view.php', array(
 									"id" => $instace->coursemodule));
 							echo '<a href="'.$emarkingurl.'">'.$instace->name.'</a><br>';
 							

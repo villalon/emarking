@@ -3,6 +3,7 @@
 require_once (dirname(dirname(dirname ( dirname ( dirname ( __FILE__ ) ) ) )). '/config.php');
 GLOBAL $USER, $CFG;
 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 $teacherroleid = 3;
 $logged = false;
 
@@ -22,7 +23,7 @@ if (isloggedin ()) {
 }
  
 include 'header.php'; 
-include_once '../forms/search.php';
+include_once $CFG->dirroot. '/mod/emarking/activities/forms/search.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 	switch ($_POST['type']){
@@ -50,7 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		break;
 	}
-	
+$totalresults=count($results);
+
 include 'results.php';
 }
 include 'footer.php'; 

@@ -1,6 +1,3 @@
-<?php 
-require_once ('../locallib.php');
-?>
 <section class="barraResultado">
 <hr>
 	<div class="container">
@@ -8,7 +5,7 @@ require_once ('../locallib.php');
 			<div class="col-md-1">
 			</div>
 			<div class="col-md-8">
-				<p><? count($results) ?> Resultado(s) </p>
+				<p><? $totalresults ?> Resultado(s) </p>
 				
 			</div>
 			<div class="col-md-2">
