@@ -4,6 +4,8 @@ $id = required_param('id', PARAM_INT);
 $markingUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/view.php',array('id'=>$id));
 $downloadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/download.php',array('id'=>$id));
 $reportsUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/report.php',array('id'=>$id));
+$uploadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/upload.php',array('id'=>$id));
+$orphanpagesUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/orphanpages.php',array('id'=>$id));
 ?>
 <!DOCTYPE html>
 <?php include 'headerMy.php'; ?>
@@ -18,12 +20,19 @@ $reportsUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/report.
 						<div class="panel panel-default">
 							<div class="panel-body">
 							<ul class="nav nav-tabs">
- 							 <li class="active"><a href="<?= $markingUrl ?>">Corrección</a></li>
- 							 <li><a href="<?= $downloadUrl ?>">Descargar y digitalizar</a></li>
+ 							 <li><a href="<?= $markingUrl ?>">Corrección</a></li>
+ 							 <li class="active"><a href="<?= $downloadUrl ?>">Descargar y digitalizar</a></li>
 							 <li><a href="<?= $reportsUrl ?>">Reportes</a></li>
 							</ul>
+							<ul class="nav nav-tabs">
+ 							 <li class="active"><a href="<?= $downloadUrl ?>">Descargar</a></li>
+ 							 <li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
+							 <li><a href="<?= $orphanpagesUrl ?>">Páginas Huerfanas</a></li>
+							</ul>
 <?php 						
-include  $CFG->dirroot . '/mod/emarking/view.php';
+// /print/uploadanswer.php
+// /print/uorphanpages.php
+include  $CFG->dirroot . '/mod/emarking/print/exam.php';
 ?>
  
 				</div>

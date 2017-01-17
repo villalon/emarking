@@ -18,12 +18,13 @@ $reportsUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/report.
 						<div class="panel panel-default">
 							<div class="panel-body">
 							<ul class="nav nav-tabs">
- 							 <li class="active"><a href="<?= $markingUrl ?>">Corrección</a></li>
+ 							 <li><a href="<?= $markingUrl ?>">Corrección</a></li>
  							 <li><a href="<?= $downloadUrl ?>">Descargar y digitalizar</a></li>
-							 <li><a href="<?= $reportsUrl ?>">Reportes</a></li>
+							 <li class="active"><a href="<?= $reportsUrl ?>">Reportes</a></li>
 							</ul>
+							
 <?php 						
-include  $CFG->dirroot . '/mod/emarking/view.php';
+include  $CFG->dirroot . '/mod/emarking/reports/feedback.php';
 ?>
  
 				</div>
