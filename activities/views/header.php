@@ -4,7 +4,7 @@ $logoutUrl=new moodle_url($CFG->wwwroot.'/login/logout.php',array('sesskey'=>$US
 $searchUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/search.php');
 $createactivityUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/create.php');
 $myUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/my.php');
-$coursesUrl=new moodle_url($CFG->wwwroot.'/my');
+$coursesUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/my.php');
 $loginUrl=new moodle_url($CFG->wwwroot.'/login/index.php');
 if (isloggedin ()) {
 	$image=new moodle_url($CFG->wwwroot.'/user/pix.php/'.$USER->id.'/f2.jpg');

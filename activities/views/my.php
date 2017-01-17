@@ -144,11 +144,7 @@ $emarkingintances = $DB->get_records_sql($sql,array(get_string('pluginname', 'mo
 						</div>
 					
 					</div>
-					<div class="panel panel-default">
-					<div class="panel-body" >
-					hola
-					</div>
-				</div>
+					
 				</div>
 				</div>
 					</div>
