@@ -255,8 +255,8 @@ li a.active {
 /*Perfil area*/
 
 .perfil h2 {
-    font-size: 90px;
-    color: #42b3e5;
+    font-size: 20px;
+    color: #000000;
     margin-top: 50px;
      padding:40px;
 }
