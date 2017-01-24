@@ -20,9 +20,9 @@ $mform = new local_ciae_create_activity ();
 if ($mform->is_cancelled ()) {
 	// Handle form cancel operation, if cancel button is present on form
 } else if ($fromform = $mform->get_data ()) {
-	 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+	 include ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 	$genero = ( int ) $fromform->genre - 1;
-	
+	var_dump($genero);
 	$OAC1 = "";
 	if (isset ( $fromform->C1 )) {
 		

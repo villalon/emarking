@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <?php
 require_once (dirname (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) ) . '/config.php');
-include ('header.php');
+include ('headerMy.php');
 ?>
 <body>
 <section class="createActivity">
