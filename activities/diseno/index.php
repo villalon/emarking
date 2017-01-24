@@ -24,13 +24,13 @@
    <div class="carousel-inner">
    
       <div class="item active">
-      <img src="img/slide01.png" alt="01" class="img-responsive">
+      <img src="img/slide01.png" alt="01" class="img-responsive" style="min-width: 100%;">
       <div class="carousel-caption">
       </div>
       </div>
       
       <div class="item">
-      <img src="img/slide02.png" alt="02" class="img-responsive">
+      <img src="img/slide02.png" alt="02" class="img-responsive"  style="min-width: 100%;">
       <div class="carousel-caption">
       </div>
       </div>
@@ -48,9 +48,7 @@
    
 </div>
 <!-- Slider End -->
-       <div class="row">
-         <div class="col-lg-12" style="height:10px"></div>
-       </div>
+
  <!-- Actividades -->
   <div class="row_activities">
     <div class="container">
@@ -155,4 +153,5 @@
 <script src="js/bootstrap.js"></script>
 
 </body>
+<?php include 'footer.html'; ?>
 </html>
