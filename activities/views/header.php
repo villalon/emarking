@@ -9,46 +9,28 @@ $loginUrl=new moodle_url($CFG->wwwroot.'/login/index.php');
 if (isloggedin ()) {
 	$image=new moodle_url($CFG->wwwroot.'/user/pix.php/'.$USER->id.'/f2.jpg');
 }
+$css=new moodle_url($CFG->wwwroot.'/mod/emarking/activity/css/style_escribiendo.css');
 
 ?>
 <meta charset="UTF-8">
 <title>Escribiendo online</title>
 <!-- CSS Font, Bootstrap, style de la página y auto-complete  -->
-<link rel="stylesheet" href="../css/font-awesome.min.css">
-<link rel="stylesheet" href="../css/bootstrap.min.css">
-<link rel="stylesheet" href="../css/style.css">
-<link rel="stylesheet" href="../auto-complete.css">
+<link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../css/style_escribiendo.css" rel="stylesheet" type="text/css">
+
 <!-- Fin CSS -->
-<!-- Css traidos desde google, no sé cuales realmete se usan  -->
-<link
-	href='http://fonts.googleapis.com/css?family=Open+Sans:600italic,400,800,700,300'
-	rel='stylesheet' type='text/css'>
-<link
-	href='http://fonts.googleapis.com/css?family=BenchNine:300,400,700'
-	rel='stylesheet' type='text/css'>
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300">
-<link rel="stylesheet"
-	href="https://cdn.rawgit.com/yahoo/pure-release/v0.6.0/pure-min.css">
-<!-- Fin CSS de google -->
 <!-- Importar  Scripts Javascript -->
-<script src="../js/modernizr.js"></script>
 
 <!-- Fin Script Javascript -->
 <!-- Scripts JQuery -->
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-<link rel="stylesheet"
-	href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="../js/bootstrap.js"></script>
 
 <!-- Script para filtro de genero -->
 <header class="top-header">	
- <link rel="stylesheet" href="../css/bootstrap.min.css">   
-   <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  
+   <div class="navbar navbar-default" role="navigation">
     <div class="container"> 
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">

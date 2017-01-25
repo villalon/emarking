@@ -60,7 +60,7 @@ foreach ( $usercourses as $usercourse ) {
 
 	<!-- fIN DEL header -->
 	<!-- BUSCADOR -->
-	<section class="perfil">
+	<div class="profile">
 		<div class="container">
 			<div class="row">
 				<h2></h2>
@@ -150,7 +150,7 @@ $emarkingintances = $DB->get_records_sql($sql,array(get_string('pluginname', 'mo
 					</div>
 									
 	
-	</section>
+	</div>
 	<!-- FIN BUSCADOR -->
 </body>
 <?php include 'footer.php'; ?>

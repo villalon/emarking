@@ -1,25 +1,5 @@
-<section class="barraResultado">
-<hr>
-	<div class="container">
-		<div class="row">
-			<div class="col-md-1">
-			</div>
-			<div class="col-md-8">
-				<p><? $totalresults ?> Resultado(s) </p>
-				
-			</div>
-			<div class="col-md-2">
-				<select class="form-control">
-					<option>Ordenar por:</option>
- 					<option>Comentarios</option>
-  					<option>Likes</option>
-  					<option>Vistos</option>
-				</select>
-			</div>
-		</div>
-	</div>
-</section>
-<section class="resultados">
+
+<div class="results">
 	<div class="container">
 		<div id="filtros" class="col-md-1" style="text-align: left">
 			
@@ -40,4 +20,4 @@
 			
 		</div>
 	</div>
-</section>
+</div>

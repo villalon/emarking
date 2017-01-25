@@ -89,7 +89,7 @@ foreach ( $oaComplete as $oaPerCourse ) {
 <body>
 
 	<!-- BUSCADOR -->
-	<section class="perfil">
+	<div class="activity">
 		<div class="container">
 			<div class="row">
 				<h2></h2>
@@ -251,7 +251,7 @@ foreach ( $oaComplete as $oaPerCourse ) {
 				</div>
 			</div>
 	
-	</section>
+	</div>
 	<!-- FIN BUSCADOR -->
 	<section>
 		<div class="container">
