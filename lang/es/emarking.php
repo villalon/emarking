@@ -127,6 +127,8 @@ $string ['scalelevels'] = 'Porcentajes para escala';
 $string ['studentachievement'] = '% de estudiantes';
 $string ['level'] = 'Nivel de logro';
 $string ['outcomesnotconfigured'] = 'No se han configurado resultados de aprendizaje para esta prueba E-Marking';
+$string['coloredrubricforced'] = 'Forzar rúbrica multicolor';
+$string['coloredrubricforced_help'] = 'Fuerza todas las actividades Emarking a utilizar rúbricas multicolor, ignorando la configuración del usuario';
 // GENERAL.
 $string ['criteria'] = 'Criterios';
 $string ['deleterow'] = 'Borrar fila';
