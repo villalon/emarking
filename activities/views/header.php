@@ -28,7 +28,7 @@ $css=new moodle_url($CFG->wwwroot.'/mod/emarking/activity/css/style_escribiendo.
 <script src="../js/bootstrap.js"></script>
 
 <!-- Script para filtro de genero -->
-<header class="top-header">	
+<header class="header">	
   
    <div class="navbar navbar-default" role="navigation">
     <div class="container"> 
