@@ -132,6 +132,8 @@ $string ['scalelevels'] = 'Percentages per level';
 $string ['studentachievement'] = 'Students %';
 $string ['level'] = 'Achievement level';
 $string ['outcomesnotconfigured'] = 'Outcomes have not yet been setup for this E-Marking activity';
+$string['coloredrubricforced'] = 'Force colored rubric';
+$string['coloredrubricforced_help'] = 'Forces all Emarking activities to use colored rubrics and ignore user settings';
 // GENERAL.
 $string ['criteria'] = 'Criteria';
 $string ['deleterow'] = 'Delete row';

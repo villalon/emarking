@@ -43,6 +43,14 @@ $settings->add(
         new admin_setting_configmultiselect('emarking_markingbuttonsenabled',
                 get_string('markingbuttonsenabled', 'mod_emarking'),
                 get_string('markingbuttonsenabled_help', 'mod_emarking'), array_keys($buttonchoices), $buttonchoices));
+$yesno = array(
+        0 => get_string('no'),
+        1 => get_string('yes')
+);
+$settings->add(
+        new admin_setting_configselect('emarking_coloredrubricforced', 
+                get_string('coloredrubricforced','mod_emarking'), 
+                get_string('coloredrubricforced_help','mod_emarking'), 0, $yesno));
 // Print settings.
 $settings->add(
         new admin_setting_heading('emarking_basicsettings', get_string('printsettings', 'mod_emarking'),
