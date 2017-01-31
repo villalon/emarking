@@ -41,6 +41,11 @@ $string['security_tokenemail'] = 'Código enviado por email';
 $string['security_tokensms'] = 'Código enviado por SMS';
 $string['settingssecurity'] = 'Seguridad';
 $string['settingssecurity_help'] = 'Aquí puede definir el nivel de seguridad para descargar pruebas.';
+//TYPE OF LAYOUT SETTINGS
+$string['pagelayouttype'] = 'Selecciona el tipo de layout';
+$string['pagelayouttype_help'] = '';
+$string['page_layout_standard'] = 'Standard';
+$string['page_layout_embedded'] = 'Embedded';
 // ANSWER KEYS
 $string ['answerkeyfile'] = 'Pauta';
 // EMARKING TYPES WORKFLOW.
