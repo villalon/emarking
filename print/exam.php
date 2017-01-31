@@ -56,7 +56,15 @@ $PAGE->set_context ( $context );
 $PAGE->set_course ( $course );
 $PAGE->set_cm ( $cm );
 $PAGE->set_title ( get_string ( "emarking", "mod_emarking" ) );
-$PAGE->set_pagelayout ( "incourse" );
+switch($CFG->emarking_pagelayouttype){
+	case EMARKING_PAGES_LAYOUT_STANDARD:
+		$PAGE->set_pagelayout('standard');
+		break;
+		
+	case EMARKING_PAGES_LAYOUT_EMBEDDED:
+		$PAGE->set_pagelayout('embedded');
+		break;
+}
 $PAGE->navbar->add ( get_string ( "print", "mod_emarking" ) );
 if (has_capability ( "mod/emarking:downloadexam", $context )) {
 	$PAGE->requires->js ( "/mod/emarking/js/printorders.js" );
@@ -64,7 +72,9 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 echo $OUTPUT->header ();
 // Heading and tabs if we are within a course module.
 echo $OUTPUT->heading ( $emarking->name );
-echo $OUTPUT->tabtree ( emarking_tabs ( $context, $cm, $emarking ), "myexams" );
+if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+}
 $params = array (
 		"course" => $course->id,
 		"emarking" => $emarking->id 

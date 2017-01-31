@@ -41,6 +41,11 @@ $string['security_tokenemail'] = 'Token sent by email';
 $string['security_tokensms'] = 'Token sent by SMS';
 $string['settingssecurity'] = 'Security';
 $string['settingssecurity_help'] = 'Here you can define security settings for downloading exams.';
+//TYPE OF LAYOUT SETTINGS
+$string['pagelayouttype'] = 'Select type of layout';
+$string['pagelayouttype_help'] = '';
+$string['page_layout_standard'] = 'Standard';
+$string['page_layout_embedded'] = 'Embedded';
 // ANSWER KEYS.
 $string ['answerkeyfile'] = 'Answer key file';
 // EMARKING TYPES WORKFLOW.

@@ -72,7 +72,7 @@ function show_rubric($id) {
 function show_result($data) {
 	GLOBAL $CFG;
 	
-	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
+	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/activity.php', array (
 			'id' => $data->id 
 	) );
 	$oaComplete = explode ( "-", $data->learningobjectives );
@@ -104,7 +104,7 @@ function show_result($data) {
 	$show .= '<p>' . $data->description . '</p>';
 	$show .= '</div>';
 	$show .= '<div  class="col-md-3" style="text-align: left">';
-	$show .= '<img src="img/premio.png" class="premio" height="40px" width="40px">';
+	$show .= '<img src="../img/premio.png" class="premio" height="40px" width="40px">';
 	$show .= '<p>55 Visitas</p>';
 	$show .= '<p>3 Comentarios</p>';
 	$show .= '<p>20 votos</p>';
@@ -167,6 +167,7 @@ if($sections->instructions==1){
 $pdf->AddPage();
 $pdf->writeHTML('<h1>Instrucciones</h1> ', true, false, false, false, '');
 $instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
+$instructionshtml=emarking__activities_clean_html_to_print($instructionshtml);
 $pdf->writeHTML($instructionshtml, true, false, false, false, '');
 
 }
@@ -175,6 +176,7 @@ if($sections->planification==1){
 $pdf->AddPage();
 $planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
 $pdf->writeHTML('<h1>Planificación</h1>', true, false, false, false, '');
+$planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
 $pdf->writeHTML($planificationhtml, true, false, false, false, '');
 }
 
@@ -182,6 +184,7 @@ if($sections->writing==1){
 $pdf->AddPage();
 $writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
 $pdf->writeHTML('<h1>Escritura</h1>', true, false, false, false, '');
+$writinghtml=emarking__activities_clean_html_to_print($writinghtml);
 $pdf->writeHTML($writinghtml, true, false, false, false, '');
 }
 
@@ -189,6 +192,7 @@ if($sections->editing==1){
 $pdf->AddPage();
 $editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
 $pdf->writeHTML('<h1>Revisión y edición</h1>', true, false, false, false, '');
+$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
 $pdf->writeHTML($editinghtml, true, false, false, false, '');
 }
 
@@ -196,6 +200,7 @@ if($sections->teaching==1){
 $pdf->AddPage();
 $teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
 $pdf->writeHTML('<h1>Sugerencias didácticas</h1>', true, false, false, false, '');
+$teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
 $pdf->writeHTML($teachinghtml, true, false, false, false, '');
 }
 
@@ -203,6 +208,7 @@ if($sections->resources==1){
 $pdf->AddPage();
 $languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
 $pdf->writeHTML('<h1>Recursos del lenguaje</h1>', true, false, false, false, '');
+$languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
 $pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
 }
 
@@ -211,6 +217,7 @@ $pdf->AddPage();
 
 $rubrichtml=show_rubric($activity->rubricid);
 $pdf->writeHTML('<h1>Evaluación</h1>', true, false, false, false, '');
+$rubrichtml=emarking__activities_clean_html_to_print($rubrichtml);
 $pdf->writeHTML($rubrichtml, true, false, false, false, '');
 }
 
@@ -516,3 +523,22 @@ function emarking_activities_get_file_from_url($url, $pathname)
 			$imageinfo
 	);
 }
+/**
+ * Limpia el HTML producido por una pregunta de un quiz
+ *
+ * @param String $html
+ * @return String
+ */
+function emarking__activities_clean_html_to_print($html)
+{
+	
+	$html = preg_replace('/<tbody\s*>/', '', $html);
+	$html = preg_replace('/<\/tbody>/', '', $html);
+	$html = preg_replace('/<td(.*?)>/', '<td>', $html);
+	$html = preg_replace('/border="\d+"/', '', $html);
+	$html = preg_replace('/<table(.*?)>/', '<br/><table border="1">', $html);
+	$html = preg_replace('/<div>(<input.*?)<\/div>/', '<br/>$1', $html);
+
+	return $html;
+}
+

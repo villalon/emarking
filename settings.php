@@ -141,6 +141,16 @@ $settings->add(
 $settings->add(
         new admin_setting_configtext('emarking_nodejspath', get_string('nodejspath', 'mod_emarking'),
                 get_string('nodejspath_help', 'mod_emarking'), '', PARAM_URL));
+
+//Select type of layout for emarking
+$choices = array(
+        EMARKING_PAGES_LAYOUT_STANDARD => get_string('page_layout_standard', 'mod_emarking'),
+        EMARKING_PAGES_LAYOUT_EMBEDDED => get_string('page_layout_embedded', 'mod_emarking')
+);
+$settings->add(
+        new admin_setting_configselect('emarking_pagelayouttype',
+                get_string('pagelayouttype', 'mod_emarking'),
+                get_string('pagelayouttype_help', 'mod_emarking'), 0, $choices));
 // Security settings.
 $settings->add(
         new admin_setting_heading('emarking_securitysettings', get_string('settingssecurity', 'mod_emarking'),

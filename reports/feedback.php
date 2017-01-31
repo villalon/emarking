@@ -42,7 +42,15 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('incourse');
+switch($CFG->emarking_pagelayouttype){
+	case EMARKING_PAGES_LAYOUT_STANDARD:
+		$PAGE->set_pagelayout('standard');
+		break;
+		
+	case EMARKING_PAGES_LAYOUT_EMBEDDED:
+		$PAGE->set_pagelayout('embedded');
+		break;
+}
 $PAGE->navbar->add(get_string('feedbackreport', 'mod_emarking'));
 // Require jquery for modal.
 $PAGE->requires->jquery();
@@ -51,7 +59,9 @@ $PAGE->requires->jquery_plugin('ui-css');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "feedback");
+if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+}
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
     emarking_validate_rubric($context, true, true);
 $totalsubmissions = $DB->count_records_sql(
