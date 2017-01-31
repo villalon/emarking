@@ -378,7 +378,9 @@ $string ['printdetails'] = 'Print details';
 $string ['apply'] = 'Apply';
 $string ['statuspercriterion'] = 'Status per criterion';
 $string ['feedbackreport'] = 'Feedback report';
+$string ['feedback'] = 'Feedback';
 $string ['viewfeedback'] = 'View feedback';
+$string['feedbackwordcloud'] = 'Feedback word cloud';
 // EMARKING COST REPORT.
 $string ['period'] = 'Period';
 $string ['subcategoryname'] = 'Subcategory name';

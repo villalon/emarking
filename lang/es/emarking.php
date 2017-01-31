@@ -373,7 +373,9 @@ $string ['printdetails'] = 'Detalles impresión';
 $string ['apply'] = 'Aplicar';
 $string ['statuspercriterion'] = 'Avance por pregunta';
 $string ['feedbackreport'] = 'Reporte de retroalimentación';
+$string ['feedback'] = 'Retroalimentación';
 $string ['viewfeedback'] = 'Ver retroalimentación';
+$string['feedbackwordcloud'] = 'Nube de palabras de retroalimentación';
 // EMARKING COST REPORT.
 $string ['period'] = 'Periodo';
 $string ['subcategoryname'] = 'Nombre de la sub-categoría';

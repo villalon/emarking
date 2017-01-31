@@ -886,7 +886,7 @@ function emarking_tabs($context, $cm, $emarking) {
     }
     // Grade report tab.
     $gradereporttab = new tabobject("gradereport", $CFG->wwwroot . "/mod/emarking/reports/feedback.php?id={$cm->id}", get_string("reports", "mod_emarking"));
-    $gradereporttab->subtree[] = new tabobject("feedback", $CFG->wwwroot . "/mod/emarking/reports/feedback.php?id={$cm->id}", get_string("feedback", "assign"));
+    $gradereporttab->subtree[] = new tabobject("feedback", $CFG->wwwroot . "/mod/emarking/reports/feedback.php?id={$cm->id}", get_string("feedback", "mod_emarking"));
     $gradereporttab->subtree[] = new tabobject("report", $CFG->wwwroot . "/mod/emarking/reports/grades.php?id={$cm->id}", get_string("grades", "grades"));
     $gradereporttab->subtree[] = new tabobject("markingreport", $CFG->wwwroot . "/mod/emarking/reports/marking.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
     $gradereporttab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
@@ -2127,4 +2127,18 @@ function emarking_show_orphan_pages_link($context, $cm) {
         ));
         echo $OUTPUT->action_link($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages));
     }
+}
+
+
+function emarking_get_hue_color($sequence) {
+    // We pick a sequence based on Golden Ratio of the 360 values of HUE
+    $goldenratio = 0.618033988749895 * (float) 360;
+    // We choose the number corresponding to the sequence
+    $color = (float) $sequence * (float) $goldenratio;
+    $color = $color % 360;
+    
+    // We need the int version
+    $hue = intval($color);
+    
+    return "hsl($hue,50%,85%)";
 }
