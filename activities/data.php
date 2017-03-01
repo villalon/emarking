@@ -1,57 +1,106 @@
 
 <?php
-require_once (dirname ( dirname ( dirname ( __FILE__ ) ) ) . '/config.php');
+
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
+require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 GLOBAL $DB;
-/*$data = Array(
-		"VotosPositivos"=>array("Pedro","Juan"),
-		"VotosNegativos"=>array("Diego"),
-		"Comentarios"=>array(array("Pedro"=>"Me encantó","likes"=>array("Juanita","Mario")), "María"=>"La utilicé en mis clases y a mis alumnos les encantó"),
-		"Visitas"=>array("Pedro","Juan","Diego","Belén","María","Catalina")		
+
+$comentario=array(
+		array(	"id"=>1,
+				"userid"=>1,
+				"username"=>"pepito",
+				"timecreated"=>54621584681,
+				"post"=>"Me encantó",
+				"likes"=>array(
+								"Juanita",
+								"Mario"),
+				"dislikes"=>array(
+								  "Juanita",
+				                  "Mario")),
+		array(	"id"=>1,
+				"userid"=>1,
+				"post"=>"Me encantó",
+				"username"=>"pepito",
+				"timecreated"=>54621584681,
+				"likes"=>array(
+								"Juanita",
+								"Mario"),
+				"dislikes"=>array())
+				);
+
+$jsoncomentario=json_encode($comentario, JSON_UNESCAPED_UNICODE);
+
+
+
+$data = Array(
+		"Vote"=>array("all"=>array("user"=>"Pedro","nota"=>"5")),
+		"Comentarios"=>$comment
+			
 		);
 
-$total=Array("1"=>$data);
+$total=Array("data"=>$data);
 $json=json_encode($total, JSON_UNESCAPED_UNICODE);
-var_dump($json);
+
 $record = new stdClass();
-$record->activityid 			= 6;
+$record->activityid 			= 1;
 $record->timecreated         	= time();
 $record->data		= $json;
+//$insert = $DB->insert_record('emarking_social', $record);
+ 
+
+$record = $DB->get_record('emarking_social', array('activityid'=>1));
+$data=emarking_activities_clean_string_to_json($record->data);
+$decode=json_decode($data);
+$social=$decode->data;
+var_dump($social->Comentarios);
+die();
 
 
-$insert = $DB->insert_record('emarking_social', $record);
 
-*/
-$todo=$DB->get_record_sql("SELECT COLUMN_JSON(data) AS data FROM mdl_emarking_social where id=4");
 
-$bodytag = str_replace('"[\\', "[", $todo->data);
-$bodytag2 = str_replace('\\"', '"', $bodytag);
-$bodytag3 = str_replace(']"', ']', $bodytag2);
-$bodytag4 = str_replace('"[', '[', $bodytag3);
+$data=$decode->data;
+$comentarios=$data->Comentarios;
+foreach($comentarios as $comentario){
+	echo $comentario->id."<br>";
+	echo $comentario->userid."<br>";
+	echo $comentario->username."<br>";
+	echo $comentario->timecreated."<br>";
+	echo $comentario->post."<br>";
+	var_dump(count($comentario->dislikes));
+	var_dump(count($comentario->likes));
+	
+}
+
+//$insert = $DB->insert_record('emarking_social', $record);
+
+/*
+$todo=$DB->get_record_sql("SELECT data AS data FROM mdl_emarking_social where id=2");
+$manage = json_decode($todo->data);
+$algo=$manage->data;
+$comentarios=$algo->Comentarios;
+var_dump($comentarios->0);
+
+
 
 $mal=Array('"[\\','\\"',']"','"[');
 $bien=Array("[",'"',']','[');
-$manage = json_decode($bodytag4);
-var_dump($manage);
 
-//$sql=$DB->get_records_sql("SELECT COLUMN_JSON(data) as 'attribute' FROM mdl_emarking_resources WHERE COLUMN_GET(data, 'description' AS CHAR) like '%carta%' OR
-		//COLUMN_GET(data, 'comunicativePurpose' AS CHAR) like '%carta%'OR COLUMN_GET(data, 'type' AS CHAR) like '%carta%' OR COLUMN_GET(data, 'title' AS CHAR) like '%carta%'");
+//var_dump($manage);
 
-//$sql=$DB->get_records_sql("SELECT COLUMN_JSON(data) as 'attribute' FROM mdl_emarking_resources WHERE COLUMN_GET(data, 'views' AS CHAR) like '%pedro%'");
-/*$sql=$DB->get_records_sql("SELECT COLUMN_JSON(data) as 'attribute' FROM mdl_emarking_resources");
 
-//var_dump($sql);
+
 $mal=Array('"[\\','\\"',']"','"[');
 $bien=Array("[",'"',']','[');
-foreach($sql as $algo){
+
 		
-$replace=str_replace($mal, $bien, $algo->attribute);
+$replace=str_replace($mal, $bien, $todo->data);
 $jsonsql=json_decode($replace);
+var_dump($jsonsql);
 if( isset($jsonsql->comments)){
 	
 	var_dump($jsonsql);
+
+
 }
-
-}*/
-?>
-
+*/
   

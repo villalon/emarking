@@ -1,7 +1,7 @@
 <?php
 
 $url = new moodle_url($CFG->wwwroot.'/mod/emagrking/activities/editRubric.php');
-require_once('forms/rubric.php');
+require_once('rubric.php');
 require_once($CFG->dirroot.'/grade/grading/form/rubric/lib.php');
 require_once($CFG->dirroot.'/grade/grading/lib.php');
 

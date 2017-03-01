@@ -1,13 +1,13 @@
 <?php
 
-$generos = Array('Afiches',
-'Anécdotas',
-'Artículos informativos',
-'Blogs (entradas de blog)',
+$generos = Array('Afiche',
+'Anécdota',
+'Artículo informativo',
+'Blog (entradas de blog)',
 'Carta de presentación',
 'Carta de solicitud u otras cartas a autoridades',
 'Carta personal',
-'Cartas',
+'Carta',
 'Cartas al director',
 'Columnas de opinión',
 'Comentarios breves a noticias en redes sociales',

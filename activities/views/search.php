@@ -55,6 +55,6 @@ $totalresults=count($results);
 
 include 'results.php';
 }
-include 'footer.php'; 
+include 'footer.html'; 
  
  ?>

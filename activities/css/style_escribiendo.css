@@ -1,19 +1,78 @@
 @charset "utf-8";
 /* CSS Escribiendo */
-
+html,
 body {
-	color: white;
+	color: black;
 	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
-	font-size: 11px;
+	font-size: 15px;
+	padding-top: 70px;
+	background-color: white;
 }
+
+
+.header {
+	background-color: #00547C;
+}
+
 .row_caract {
 	background-color: #117E89;
+}
+.row_info {
+	background-color: white;
+}
+
+/*CSS Header*/
+
+.navbar-default .navbar-text{color:#DAE5EC}.navbar-default .navbar-nav>li>a{color:#DAE5EC}.navbar-default .navbar-nav>li>a:focus,.navbar-default .navbar-nav>li>a:hover{
+	color: #71A7BB;
+	text-decoration:underline;
+}
+
+/*Submenu*/
+#menu>li:hover>ul{
+	display: block;
+	position:relative;
+	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
+	font-size: 0.7em;
+	text-transform:none;
+	list-style:none;
+	color:#00B0D0;
+	-webkit-transition: all .3s ease;
+	-moz-transition: all .3s ease;
+	-ms-transition: all .3s ease;
+	-o-transition: all .3s ease;
+	transition: all .3s ease;
+}
+#menu>li>ul {
+	display: none;
+}
+
+.logos_head {
+	background-image: url(../img/header/logos_escribiendo_02.png);
+	background-repeat: no-repeat;
+	background-color: #00547C;
+	margin-left: 5px;
+	min-height: 140px;
+	min-width: 190px;
+}
+.text_nav {
+	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
+	font-size: 2.0em;
+	text-transform: uppercase;
+}
+
+.hr_nav {
+	margin: 0 0 0 0px;
+	opacity: 0.7;
 }
 
 
 /* CSS Activities */
 .row_activities{
 	background-color: #003551;
+	color: white;
+	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
+	font-size: 12px;
 }
 .tit_actv {
 	background-image: url(../img/index/tit_actividades.png);
@@ -23,7 +82,6 @@ body {
 .h2tit_actv a{
 	color: white;
 }
-
 .h2tit_actv a:hover{
 	opacity: 0.5;
 	text-decoration:none;
@@ -32,7 +90,7 @@ body {
 	opacity: 0.5;
 }
 .text_actv {
-	font-size: 11px;
+	font-size: 12px;
 	opacity: 0.7;
 }
 .img1_actv {
@@ -54,7 +112,6 @@ body {
 	min-height: 374px;
 	padding: 15 25 0 25px;
 }
-
 
 
 
@@ -116,7 +173,7 @@ body {
 	float: left;
 	margin-left: 30px;
 	margin-top: 0px;
-	width: 27%;
+	width: 40%;
 	color: #F90;
 	font-size: 1.0em;
 	position: relative;
@@ -153,32 +210,126 @@ body {
 
 hr { margin-top: 2px;}
 
-.activity {
-	color: black;
+/* ficha resultado */
+.text_ficha_cierre {
 	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
-	font-size: 14px;
-	
+	font-size: 11px;
+	padding: 3;
 }
 
-.results {
-	color: black;
-	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
-	font-size: 14px;
-	
+#div-sep { 
+border-left: 1px solid #999; 
+width:1px;
+min-height:100%; 
+} 
+
+/* tab */
+.active_tab >li.active  a{
+    background-color: #ffffff !important;
+    box-shadow: inset 0 3px 0 #06C;
+    color: #29324e;
+	z-index: 1;
+}
+.panel-shadow {
+    box-shadow: rgba(0, 0, 0, 0.3) 7px 7px 7px;
+}
+.panel-white {
+  border: 1px solid #dddddd;
+}
+.panel-white  .panel-heading {
+  color: #333;
+  background-color: #fff;
+  border-color: #ddd;
+}
+.panel-white  .panel-footer {
+  background-color: #fff;
+  border-color: #ddd;
 }
 
-.search {
-	color: black;
-	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
-	font-size: 14px;
-		
+.post .post-heading {
+  height: 95px;
+  padding: 20px 15px;
 }
-.profile {
-	color: black;
-	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
-	font-size: 14px;
-	
+.post .post-heading .avatar {
+  width: 60px;
+  height: 60px;
+  display: block;
+  margin-right: 15px;
 }
-.header {
-	margin-bottom: 0px;
+.post .post-heading .meta .title {
+  margin-bottom: 0;
+}
+.post .post-heading .meta .title a {
+  color: black;
+}
+.post .post-heading .meta .title a:hover {
+  color: #aaaaaa;
+}
+.post .post-heading .meta .time {
+  margin-top: 8px;
+  color: #999;
+}
+.post .post-image .image {
+  width: 100%;
+  height: auto;
+}
+.post .post-description {
+  padding: 15px;
+}
+.post .post-description p {
+  font-size: 14px;
+}
+.post .post-description .stats {
+  margin-top: 20px;
+}
+.post .post-description .stats .stat-item {
+  display: inline-block;
+  margin-right: 15px;
+}
+.post .post-description .stats .stat-item .icon {
+  margin-right: 8px;
+}
+.post .post-footer {
+  border-top: 1px solid #ddd;
+  padding: 15px;
+}
+.post .post-footer .input-group-addon a {
+  color: #454545;
+}
+.post .post-footer .comments-list {
+  padding: 0;
+  margin-top: 20px;
+  list-style-type: none;
+}
+.post .post-footer .comments-list .comment {
+  display: block;
+  width: 100%;
+  margin: 20px 0;
+}
+.post .post-footer .comments-list .comment .avatar {
+  width: 35px;
+  height: 35px;
+}
+.post .post-footer .comments-list .comment .comment-heading {
+  display: block;
+  width: 100%;
+}
+.post .post-footer .comments-list .comment .comment-heading .user {
+  font-size: 14px;
+  font-weight: bold;
+  display: inline;
+  margin-top: 0;
+  margin-right: 10px;
+}
+.post .post-footer .comments-list .comment .comment-heading .time {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 0;
+  display: inline;
+}
+.post .post-footer .comments-list .comment .comment-body {
+  margin-left: 50px;
+}
+.post .post-footer .comments-list .comment > .comments-list {
+  margin-left: 50px;
 }

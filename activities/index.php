@@ -15,19 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of emarking
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
- * 
- * @package mod
- * @subpackage emarking
- * @copyright 2011 Jorge Villalón
- * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
- * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @package   mod_emarking
+ * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
+global $PAGE, $DB, $USER, $CFG;
 
-$plugin->version = 2017022800; // The current module version (Date: YYYYMMDDXX).
-$plugin->requires = 2013110500; // Requires this Moodle version.
-$plugin->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place.
+
+$PAGE->set_context(context_system::instance());
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
+$PAGE->set_url($url);
+$PAGE->set_title('escribiendo');
+
+//print the header
+include 'views/header.php';
+
+//print the body
+include 'views/index.php';
+
+//print the footer
+include 'views/footer.html';

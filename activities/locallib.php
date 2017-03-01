@@ -70,9 +70,9 @@ function show_rubric($id) {
 	return $table;
 }
 function show_result($data) {
-	GLOBAL $CFG;
+	GLOBAL $CFG, $DB;
 	
-	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/activity.php', array (
+	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
 			'id' => $data->id 
 	) );
 	$oaComplete = explode ( "-", $data->learningobjectives );
@@ -86,43 +86,9 @@ function show_result($data) {
 		$coursesOA .= '<p>Curso: ' . $firstSplit [0] . '° básico</p>';
 		$coursesOA .= '<p>OAs: ' . $secondSplit [0] . '</p>';
 	}
+	$userobject=$DB->get_record('user',array('id'=>$data->userid));
+	include ($CFG->dirroot. '/mod/emarking/activities/views/showresult.php');
 	
-	$show = '<a href="' . $activityUrl . '">';
-	$show .= '<div id="resultados" class="col-md-12" style="text-align: left">';
-	$show .= '<div class="panel panel-default">';
-	$show .= '<div class="single-result-detail clearfix">';
-	$show .= '<div id="descripcion" class="panel-body">';
-	$show .= '<center><h3>' . $data->title . '</h3></center>';
-	$show .= '<div  class="col-md-4" style="text-align: left">';
-	$show .= $coursesOA;
-	$show .= '<p>Propósito Comunicativo: Informar</p>';
-	$show .= '<p>Género: ' . $data->genre . '</p>';
-	$show .= '<p>Audiencia: ' . $data->audience . '</p>';
-	$show .= '<p>Tiempo estimado: 90 min.</p>';
-	$show .= '</div>';
-	$show .= '<div  class="col-md-5">';
-	$show .= '<p>' . $data->description . '</p>';
-	$show .= '</div>';
-	$show .= '<div  class="col-md-3" style="text-align: left">';
-	$show .= '<img src="../img/premio.png" class="premio" height="40px" width="40px">';
-	$show .= '<p>55 Visitas</p>';
-	$show .= '<p>3 Comentarios</p>';
-	$show .= '<p>20 votos</p>';
-	$show .= '<span class="glyphicon glyphicon-star" aria-hidden="true"></span>';
-	$show .= '<span class="glyphicon glyphicon-star" aria-hidden="true"></span>';
-	$show .= '<span class="glyphicon glyphicon-star" aria-hidden="true"></span>';
-	$show .= '<span class="glyphicon glyphicon-star" aria-hidden="true"></span>';
-	$show .= '<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>';
-	$show .= '<p></p><p></p>';
-	
-	$show .= '</div>';
-	$show .= '</div>';
-	$show .= '</div>';
-	
-	$show .= '</div>';
-	$show .= '</div>';
-	$show .= '</a>';
-	return $show;
 }
 /**
  * Creates a pdf from selected activity.
@@ -541,4 +507,18 @@ function emarking__activities_clean_html_to_print($html)
 
 	return $html;
 }
-
+/**
+ * Limpia una cadena de string para ser transformado en json
+ *
+ * @param String $html
+ * @return String
+ */
+function emarking_activities_clean_string_to_json($string){
+	
+	$bodytag = str_replace('"[\\', "[", $string);
+	$bodytag2 = str_replace('\\"', '"', $bodytag);
+	$bodytag3 = str_replace(']"', ']', $bodytag2);
+	$bodytag4 = str_replace('"[', '[', $bodytag3);
+	
+	return $bodytag4;
+}

@@ -1,694 +1,453 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/emarking/db" VERSION="20160116"
-	COMMENT="XMLDB file for Moodle mod/emarking" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
-	<TABLES>
-		<TABLE NAME="emarking"
-			COMMENT="An eMarking activity in which an exam can be marked">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="Course emarking activity belongs to" />
-				<FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"
-					SEQUENCE="false" COMMENT="name field for moodle instances" />
-				<FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false"
-					COMMENT="General introduction of the emarking activity" />
-				<FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false"
-					COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)" />
-				<FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true"
-					DEFAULT="0.00" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="grademin" TYPE="number" LENGTH="5" NOTNULL="true"
-					DEFAULT="0.00" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="custommarks" TYPE="text" NOTNULL="false"
-					SEQUENCE="false"
-					COMMENT="Custom marks allow to include custom marks in the eMarking interface" />
-				<FIELD NAME="anonymous" TYPE="int" LENGTH="4" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false"
-					COMMENT="Anonymous marking hides student data to markers" />
-				<FIELD NAME="regraderestrictdates" TYPE="int" LENGTH="10"
-					NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="regradesopendate" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="regradesclosedate" TYPE="int" LENGTH="10"
-					NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="peervisibility" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="heartbeatenabled" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="downloadrubricpdf" TYPE="int" LENGTH="10"
-					NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="totalpages" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="adjustslope" TYPE="int" LENGTH="4" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false"
-					COMMENT="Slope will be calculated using a second point grade,score" />
-				<FIELD NAME="adjustslopegrade" TYPE="number" LENGTH="5"
-					NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="adjustslopescore" TYPE="number" LENGTH="10"
-					NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="5" />
-				<FIELD NAME="linkrubric" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="markingduedate" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="collaborativefeatures" TYPE="int" LENGTH="10"
-					NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Wall, chat, SOS" />
-				<FIELD NAME="justiceperception" TYPE="int" LENGTH="10"
-					NOTNULL="false" DEFAULT="0" SEQUENCE="false"
-					COMMENT="Justice perception survey for students" />
-				<FIELD NAME="agreementflexibility" TYPE="int" LENGTH="3"
-					NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="firststagedate" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="secondstagedate" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="enablescan" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="enableosm" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="digitizingdate" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="digitizingnotified" TYPE="int" LENGTH="10"
-					NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="answerkeyfile" TYPE="int" LENGTH="10"
-					NOTNULL="false" SEQUENCE="false" COMMENT="File of an answer key for guiding students and markers"/>
-				<FIELD NAME="parent" TYPE="int" LENGTH="10"
-					NOTNULL="false" SEQUENCE="false" COMMENT="Emarking activity from where it was copied"/>
-				<FIELD NAME="copiedfromparent" TYPE="int" LENGTH="10"
-					NOTNULL="false" DEFAULT="0"  SEQUENCE="false" COMMENT="If the copy process from the parent finished"/>
-				<FIELD NAME="keywords" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="The keywords are use to create feedback."/>
-				<FIELD NAME="uploadtype" TYPE="int" LENGTH="10"
-					NOTNULL="false" SEQUENCE="false" COMMENT="Emarking upload type (student uploads a pdf, QRs are scanned, etc.)"/>
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="course" UNIQUE="false" FIELDS="course" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_submission"
-			COMMENT="A submission is a set of pages submitted by a student as an exam">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="student" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true"
-					DEFAULT="0.00" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="generalfeedback" TYPE="text" NOTNULL="false"
-					SEQUENCE="false" COMMENT="General feedback for a submission" />
-				<FIELD NAME="seenbystudent" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="teacher" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="answerkey" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="idx_id_emarking" UNIQUE="false" FIELDS="emarking"
-					COMMENT="Index to speed up looking for submissions in an emarking activity" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_marker_criterion"
-			COMMENT="A table that links a marker to a specific criterion">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="marker" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="block" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="1" SEQUENCE="false" COMMENT="Visual block" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="idx_id_emarking" UNIQUE="false" FIELDS="emarking"
-					COMMENT="Find marker assignments for a specific emarking activity" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_page_criterion" COMMENT="A table that links a page to a specific criterion">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="page" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="block" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="1" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_page" COMMENT="A page within a student submission">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="submission" TYPE="int" LENGTH="20" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="file" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-				<FIELD NAME="fileanonymous" TYPE="text" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="page" TYPE="int" LENGTH="20" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="idx_id_submission" UNIQUE="false" FIELDS="submission"
-					COMMENT="Speed up looking for pages from a particular submission" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_comment" COMMENT="Marks in the pages">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="page" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="draft" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="posx" TYPE="number" LENGTH="10" NOTNULL="false"
-					DEFAULT="0.00000" SEQUENCE="false" DECIMALS="5" />
-				<FIELD NAME="posy" TYPE="number" LENGTH="10" NOTNULL="true"
-					DEFAULT="0.00000" SEQUENCE="false" DECIMALS="5" />
-				<FIELD NAME="width" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="120" SEQUENCE="false" />
-				<FIELD NAME="height" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="120" SEQUENCE="false" />
-				<FIELD NAME="rawtext" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-				<FIELD NAME="pageno" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="colour" TYPE="char" LENGTH="10" NOTNULL="false"
-					DEFAULT="yellow" SEQUENCE="false" />
-				<FIELD NAME="levelid" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="criterionid" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="bonus" TYPE="number" LENGTH="10" NOTNULL="true"
-					DEFAULT="0.00" SEQUENCE="false" DECIMALS="5" />
-				<FIELD NAME="textformat" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="2" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true"
-					DEFAULT="1" SEQUENCE="false" />
-				<FIELD NAME="feedback" TYPE="char" LENGTH="1000" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-				<FIELD NAME="path" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="idx_id_page" UNIQUE="false" FIELDS="page"
-					COMMENT="To find comments from a particular page" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_perception" COMMENT="Justice perception of students">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="student" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="submission" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="overall_fairness" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="expectation_reality" TYPE="int" LENGTH="10"
-					NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="stage" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="1" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false"
-					COMMENT="user comment" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_perception_criteria" COMMENT="Justice perception per criteria">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="perception" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="overall_fairness" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="expectation_reality" TYPE="int" LENGTH="10"
-					NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_exams"
-			COMMENT="Exams that will be printed through the emarking system">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="name" TYPE="char" LENGTH="50" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="printdate" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="headerqr" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="printrandom" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="printlist" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="courseshortname" TYPE="char" LENGTH="255"
-					NOTNULL="true" SEQUENCE="false" />
-				<FIELD NAME="file" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="examdate" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="the date in which the exam will be taken." />
-				<FIELD NAME="requestedby" TYPE="char" LENGTH="50" NOTNULL="false"
-					SEQUENCE="false"
-					COMMENT="the username of the teacher who generated this print order" />
-				<FIELD NAME="extrasheets" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="the amount of extra sheet per student" />
-				<FIELD NAME="usebackside" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false"
-					COMMENT="define if it is allowed the use of the back side of the sheet" />
-				<FIELD NAME="extraexams" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="additional tests without student ID" />
-				<FIELD NAME="totalpages" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="total pages in the PDF" />
-				<FIELD NAME="totalstudents" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="total students" />
-				<FIELD NAME="notified" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="if the printing was notified" />
-				<FIELD NAME="enrolments" TYPE="char" LENGTH="250" NOTNULL="false"
-					SEQUENCE="false" COMMENT="the list of enrolments to include in printing" />
-				<FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false"
-					COMMENT="user comment" />
-				<FIELD NAME="filetoprint" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="printingcost" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_regrade" COMMENT="Regrading requests made by students">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="draft" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" COMMENT="Id of a criterion in a rubric filling" />
-				<FIELD NAME="motive" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" COMMENT="motive category" />
-				<FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false"
-					COMMENT="user comment" />
-				<FIELD NAME="accepted" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" COMMENT="if the regrade was accepted" />
-				<FIELD NAME="markercomment" TYPE="text" NOTNULL="false"
-					SEQUENCE="false" COMMENT="user comment" />
-				<FIELD NAME="levelid" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="bonus" TYPE="number" LENGTH="10" NOTNULL="true"
-					DEFAULT="0.00" SEQUENCE="false" DECIMALS="5" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id"
-					COMMENT="Primary key for regrades" />
-				<KEY NAME="draft" TYPE="foreign" FIELDS="draft" REFTABLE="emarking_submission"
-					REFFIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_markers" COMMENT="Markers assigned to an eMarking activity">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="marker" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_predefined_comment" COMMENT="Default comment for the table, please edit me">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarkingid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_draft" COMMENT="Default comment for the table, please edit me">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="submissionid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="emarkingid" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="student" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="groupid" TYPE="char" LENGTH="255" NOTNULL="false"
-					DEFAULT="NULL" SEQUENCE="false" />
-				<FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="generalfeedback" TYPE="text" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="seenbystudent" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="teacher" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			    <FIELD NAME="timecorrectionstarted" TYPE="int" LENGTH="10" NOTNULL="false"
-			    	SEQUENCE="false"/>
-				<FIELD NAME="timecorrectionended" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false"/>
-				<FIELD NAME="timefirstpublished" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false"/>
-				<FIELD NAME="timelastpublished" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false"/>
-				<FIELD NAME="timeregradingstarted" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false"/>
-				<FIELD NAME="timeregradingended" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false"/>
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_grade_history"
-			COMMENT="This tables stores all the changes in grades for each draft">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="draftid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="score" TYPE="number" LENGTH="5" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="bonus" TYPE="number" LENGTH="5" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" DECIMALS="2" />
-				<FIELD NAME="marker" TYPE="int" LENGTH="10" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="idx_id_draft" UNIQUE="false" FIELDS="draftid" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_chat" COMMENT="Default comment for the table, please edit me">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="message" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-				<FIELD NAME="room" TYPE="int" LENGTH="20" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="source" TYPE="int" LENGTH="20" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="draftid" TYPE="int" LENGTH="20" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="urgencylevel" TYPE="int" LENGTH="20" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="parentid" TYPE="int" LENGTH="20" NOTNULL="false"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="idx_draft" UNIQUE="false" FIELDS="draftid, room, timecreated" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_printers" COMMENT="Table for manage printers">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false" />
-				<FIELD NAME="command" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-				<FIELD NAME="ip" TYPE="text" NOTNULL="false" SEQUENCE="false" />
-				<FIELD NAME="datecreated" TYPE="text" NOTNULL="false"
-					SEQUENCE="false" COMMENT="date" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_users_printers" COMMENT="Table for relationship printers users">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="id_user" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="id_printer" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="datecreated" TYPE="int" LENGTH="10" NOTNULL="false"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_collaborative_work" COMMENT="Default comment for the table, please edit me">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="commentid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false"
-					COMMENT="0: defused collaborative button, 1: actived collaborative button" />
-				<FIELD NAME="text" TYPE="char" LENGTH="1000" NOTNULL="false"
-					SEQUENCE="false" />
-				<FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="createdtime" TYPE="int" LENGTH="20" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_outcomes_criteria"
-			COMMENT="Relationship between rubric criteria and learning outcomes">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="EMarking activity" />
-				<FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="Id of a rubric criterion" />
-				<FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="Id of the outcome" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="idx_outcome_criterion_emarking" UNIQUE="false"
-					FIELDS="emarking" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_scale_levels"
-			COMMENT="Percentages by which the levels in a scale are chosen">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="EMarking activity" />
-				<FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="Id of a scale" />
-				<FIELD NAME="levels" TYPE="text" NOTNULL="false" SEQUENCE="false"
-					COMMENT="Percentages separated by comma" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_category_cost" COMMENT="Exam printing costs per course category">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="category" TYPE="int" LENGTH="19" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="printingcost" TYPE="int" LENGTH="19" NOTNULL="true"
-					SEQUENCE="false" />
-				<FIELD NAME="costcenter" TYPE="int" LENGTH="19" NOTNULL="true"
-					SEQUENCE="false" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-			<INDEXES>
-				<INDEX NAME="category" UNIQUE="true" FIELDS="category" />
-			</INDEXES>
-		</TABLE>
-		<TABLE NAME="emarking_digitized_answers"
-			COMMENT="Each digitized answer represents a file containing digitized answers">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" />
-				<FIELD NAME="file" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="id of the file in mdl_files" />
-				<FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="emarking activity id" />
-				<FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="answers processing status" />
-				<FIELD NAME="totalpages" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="total pages found in the file" />
-				<FIELD NAME="identifiedpages" TYPE="int" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="pages successfully identified by its qr" />
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="when the file was created" />
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="last time it was modified" />
-				<FIELD NAME="doubleside" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="if it was scanned by two sides" />
-				<FIELD NAME="ignorecourse" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="false" COMMENT="import answers if the student is enrolled, not verifying course" />
-			</FIELDS>
-			<KEYS>
-				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-			</KEYS>
-		</TABLE>
-		<TABLE NAME="emarking_activities" COMMENT="Default comment for the table, please edit me">
-			<FIELDS>
-				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-				<FIELD NAME="title" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
-				<FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-				<FIELD NAME="learningobjectives" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false" COMMENT="course and LO separated by comma ex: 6-15,6-16,6-25."/>
-				<FIELD NAME="comunicativepurpose" TYPE="char" LENGTH="250" NOTNULL="true" SEQUENCE="false"/>
-				<FIELD NAME="genre" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
-				<FIELD NAME="audience" TYPE="char" LENGTH="500" NOTNULL="false" SEQUENCE="false"/>
-				<FIELD NAME="estimatedtime" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="in minutes"/>
-				<FIELD NAME="instructions" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="instructions for students"/>
-				<FIELD NAME="teaching" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-				<FIELD NAME="languageresources" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-				<FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-				<FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
-				<FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-				<FIELD NAME="rubricid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-				<FIELD NAME="parent" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
-				<FIELD NAME="status" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
-				<FIELD NAME="writing" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        		<FIELD NAME="planification" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        		<FIELD NAME="editing" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-			</FIELDS>
-			<KEYS>
-			<KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-			</KEYS>
-			</TABLE>
+<XMLDB PATH="mod/emarking/db" VERSION="20170228" COMMENT="XMLDB file for Moodle mod/emarking"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="emarking" COMMENT="An eMarking activity in which an exam can be marked">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course emarking activity belongs to"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the emarking activity"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)"/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="grademin" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="custommarks" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Custom marks allow to include custom marks in the eMarking interface"/>
+        <FIELD NAME="anonymous" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Anonymous marking hides student data to markers"/>
+        <FIELD NAME="regraderestrictdates" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="regradesopendate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="regradesclosedate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="peervisibility" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="heartbeatenabled" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="downloadrubricpdf" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="totalpages" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="adjustslope" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Slope will be calculated using a second point grade,score"/>
+        <FIELD NAME="adjustslopegrade" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="adjustslopescore" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="5"/>
+        <FIELD NAME="linkrubric" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="markingduedate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="collaborativefeatures" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Wall, chat, SOS"/>
+        <FIELD NAME="justiceperception" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Justice perception survey for students"/>
+        <FIELD NAME="agreementflexibility" TYPE="int" LENGTH="3" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="firststagedate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="secondstagedate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enablescan" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enableosm" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="digitizingdate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="digitizingnotified" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="answerkeyfile" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="File of an answer key for guiding students and markers"/>
+        <FIELD NAME="parent" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Emarking activity from where it was copied"/>
+        <FIELD NAME="copiedfromparent" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="If the copy process from the parent finished"/>
+        <FIELD NAME="keywords" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="The keywords are use to create feedback."/>
+        <FIELD NAME="uploadtype" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Emarking upload type (student uploads a pdf, QRs are scanned, etc.)"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_submission" COMMENT="A submission is a set of pages submitted by a student as an exam">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="student" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="generalfeedback" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General feedback for a submission"/>
+        <FIELD NAME="seenbystudent" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="teacher" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="answerkey" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_id_emarking" UNIQUE="false" FIELDS="emarking" COMMENT="Index to speed up looking for submissions in an emarking activity"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_marker_criterion" COMMENT="A table that links a marker to a specific criterion">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="marker" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="block" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Visual block"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_id_emarking" UNIQUE="false" FIELDS="emarking" COMMENT="Find marker assignments for a specific emarking activity"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_page_criterion" COMMENT="A table that links a page to a specific criterion">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="page" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="block" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_page" COMMENT="A page within a student submission">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="submission" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="file" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="fileanonymous" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="page" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_id_submission" UNIQUE="false" FIELDS="submission" COMMENT="Speed up looking for pages from a particular submission"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_comment" COMMENT="Marks in the pages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="page" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="draft" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="posx" TYPE="number" LENGTH="10" NOTNULL="false" DEFAULT="0.00000" SEQUENCE="false" DECIMALS="5"/>
+        <FIELD NAME="posy" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.00000" SEQUENCE="false" DECIMALS="5"/>
+        <FIELD NAME="width" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="120" SEQUENCE="false"/>
+        <FIELD NAME="height" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="120" SEQUENCE="false"/>
+        <FIELD NAME="rawtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="pageno" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="colour" TYPE="char" LENGTH="10" NOTNULL="false" DEFAULT="yellow" SEQUENCE="false"/>
+        <FIELD NAME="levelid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="criterionid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="bonus" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="5"/>
+        <FIELD NAME="textformat" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="feedback" TYPE="char" LENGTH="1000" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="path" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_id_page" UNIQUE="false" FIELDS="page" COMMENT="To find comments from a particular page"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_perception" COMMENT="Justice perception of students">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="student" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="submission" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="overall_fairness" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="expectation_reality" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="stage" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="user comment"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_perception_criteria" COMMENT="Justice perception per criteria">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="perception" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="overall_fairness" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="expectation_reality" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_exams" COMMENT="Exams that will be printed through the emarking system">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="printdate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="headerqr" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="printrandom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="printlist" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseshortname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="file" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="examdate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="the date in which the exam will be taken."/>
+        <FIELD NAME="requestedby" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="the username of the teacher who generated this print order"/>
+        <FIELD NAME="extrasheets" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="the amount of extra sheet per student"/>
+        <FIELD NAME="usebackside" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="define if it is allowed the use of the back side of the sheet"/>
+        <FIELD NAME="extraexams" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="additional tests without student ID"/>
+        <FIELD NAME="totalpages" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="total pages in the PDF"/>
+        <FIELD NAME="totalstudents" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="total students"/>
+        <FIELD NAME="notified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="if the printing was notified"/>
+        <FIELD NAME="enrolments" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false" COMMENT="the list of enrolments to include in printing"/>
+        <FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="user comment"/>
+        <FIELD NAME="filetoprint" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="printingcost" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_regrade" COMMENT="Regrading requests made by students">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="draft" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Id of a criterion in a rubric filling"/>
+        <FIELD NAME="motive" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="motive category"/>
+        <FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="user comment"/>
+        <FIELD NAME="accepted" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="if the regrade was accepted"/>
+        <FIELD NAME="markercomment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="user comment"/>
+        <FIELD NAME="levelid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="bonus" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0.00" SEQUENCE="false" DECIMALS="5"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for regrades"/>
+        <KEY NAME="draft" TYPE="foreign" FIELDS="draft" REFTABLE="emarking_submission" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_markers" COMMENT="Markers assigned to an eMarking activity">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="marker" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_predefined_comment" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarkingid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_draft" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="submissionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="emarkingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="student" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="NULL" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="generalfeedback" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="seenbystudent" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="teacher" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecorrectionstarted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecorrectionended" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timefirstpublished" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timelastpublished" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timeregradingstarted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timeregradingended" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_grade_history" COMMENT="This tables stores all the changes in grades for each draft">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="draftid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="score" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="bonus" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="marker" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_id_draft" UNIQUE="false" FIELDS="draftid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_chat" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="message" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="room" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="source" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="draftid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="urgencylevel" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="parentid" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_draft" UNIQUE="false" FIELDS="draftid, room, timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_printers" COMMENT="Table for manage printers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="command" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="ip" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="datecreated" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="date"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_users_printers" COMMENT="Table for relationship printers users">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="id_user" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="id_printer" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="datecreated" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_collaborative_work" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="commentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0: defused collaborative button, 1: actived collaborative button"/>
+        <FIELD NAME="text" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="markerid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="createdtime" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_outcomes_criteria" COMMENT="Relationship between rubric criteria and learning outcomes">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="EMarking activity"/>
+        <FIELD NAME="criterion" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of a rubric criterion"/>
+        <FIELD NAME="outcome" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of the outcome"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_outcome_criterion_emarking" UNIQUE="false" FIELDS="emarking"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_scale_levels" COMMENT="Percentages by which the levels in a scale are chosen">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="EMarking activity"/>
+        <FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of a scale"/>
+        <FIELD NAME="levels" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Percentages separated by comma"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_category_cost" COMMENT="Exam printing costs per course category">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="category" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="printingcost" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="costcenter" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="category" UNIQUE="true" FIELDS="category"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="emarking_digitized_answers" COMMENT="Each digitized answer represents a file containing digitized answers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="file" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of the file in mdl_files"/>
+        <FIELD NAME="emarking" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="emarking activity id"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="answers processing status"/>
+        <FIELD NAME="totalpages" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="total pages found in the file"/>
+        <FIELD NAME="identifiedpages" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="pages successfully identified by its qr"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="when the file was created"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="last time it was modified"/>
+        <FIELD NAME="doubleside" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="if it was scanned by two sides"/>
+        <FIELD NAME="ignorecourse" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="import answers if the student is enrolled, not verifying course"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_activities" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="learningobjectives" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false" COMMENT="course and LO separated by comma ex: 6-15,6-16,6-25."/>
+        <FIELD NAME="comunicativepurpose" TYPE="char" LENGTH="250" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="genre" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="audience" TYPE="char" LENGTH="500" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="estimatedtime" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="in minutes"/>
+        <FIELD NAME="instructions" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="instructions for students"/>
+        <FIELD NAME="teaching" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="languageresources" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="rubricid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="parent" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="writing" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="planification" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="editing" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="emarking_social" COMMENT="contains all the social data of an activity incluiding post, likes, etc">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="activityid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="data" TYPE="binary" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="data" TYPE="binary" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

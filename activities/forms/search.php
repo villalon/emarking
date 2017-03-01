@@ -5,7 +5,7 @@ foreach($generos as $genero){
 	$options .='<option value="'.$genero.'">'.$genero.'</option>';		
 	
 }
-GLOBAL $USER, $CFG;
+
 ?>
 <script>
 $(document).ready(function () {
@@ -37,7 +37,8 @@ $(document).ready(function () {
 
 });
 </script>
-<form action="" method="post">
+
+
 <div class="search text-center">
 	<h3></h3>
 		<h3></h3>
@@ -50,7 +51,7 @@ $(document).ready(function () {
 			<div class="col-md-1 col-sm-0">
 			</div>
 			<div class="col-md-11">
-				<form method="get" action="resultados.php" class="pure-form">
+				<form method="post" action="" class="pure-form">
 				<div class="row">
 				<div class="form-group">
 				<div class="col-md-8">
@@ -68,9 +69,9 @@ $(document).ready(function () {
 					<div class="form-group">
 						<div class="col-md-8">
 						<?php if ($_SERVER['REQUEST_METHOD'] == 'POST' & $_POST['type']==1){
-					echo '<input class="recursos"  type="text" name="search" value="'.$_POST['search'].'">';
+					echo '<input type="text" class="form-control" name="search" value="'.$_POST['search'].'">';
 						}else{
-							echo '<input class="recursos"  type="text" name="search">';
+							echo '<input class="form-control" type="text" name="search">';
 						}?>
 							
 						</div>
@@ -81,13 +82,14 @@ $(document).ready(function () {
 					</div> 
 				<div class="row" id="oa" style="display:none;"> 
 				<div class="form-group">
-						<div class="col-md-8">
-					 	<select name="oa">
+						<div class="col-md-3">
+					 	<select class="form-control" name="oa">
 							<option value="">Seleccione un curso</option>
    						 <option>5°</option>
-  				<option>6°</option>
- 			 
+  							<option>6°</option>
    						 </select>
+   						 </div>
+   						 <div class="col-md-5">
    			<label>13 <input type="checkbox" name="13" ></label>
    			<label>14 <input type="checkbox"  name="14"></label>
    			<label>15 <input type="checkbox" name="15"></label>
@@ -107,7 +109,7 @@ $(document).ready(function () {
 			<div class="row" id="pc" style="display:none;">
 					<div class="form-group">
 						<div class="col-md-8">
-						 <select name="pc">
+						 <select name="pc" class="form-control">
 						<option value="">Seleccione un propósito comunicativo</option>
    						<option>Argumentar</option>
   						<option>Informar</option>
@@ -122,7 +124,7 @@ $(document).ready(function () {
 			<div class="row" id="genero" style="display:none;">
 					<div class="form-group">
 						<div class="col-md-8">
-						 <select name="genero">
+						 <select name="genero" class="form-control">
 						<option value="">Seleccione un género</option>
 						<?php echo $options; ?>
   						</select>
@@ -139,4 +141,3 @@ $(document).ready(function () {
 	</div>
 	</div>
 </div>
-</form>
