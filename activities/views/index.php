@@ -83,7 +83,7 @@
                 <br>
                 Ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat.</p>
            </div>
-         <div class="col-xs-1 col-sm-3 col-md-2 col-lg-4 img2_actv"></div>
+         <div class="col-xs-1 col-sm-3 col-md-2 col-lg-3 img2_actv"></div>
        </div>
  
        <br><br>
@@ -140,7 +140,6 @@
 
 
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="js/bootstrap.js"></script>
+
 
 </body>

@@ -1,62 +1,8 @@
 <!DOCTYPE html>
-<?php
-require_once (dirname(dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) )) . '/config.php');
-GLOBAL $USER, $CFG, $PAGE, $DB;
-require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
-require_once ($CFG->dirroot . "/mod/emarking/lib.php");require_login ();
-$PAGE->set_context ( context_system::instance () );
-$image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f1.jpg' );
-$createActivity = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/crear.php/' );
-$userData = $DB->get_record ( 'user', array (
-		'id' => $USER->id 
-) );
-$countActivities = $DB->count_records_sql ( "select count(*) from {emarking_activities} where userid=?", array (
-		$USER->id 
-) );
-$countRubrics = $DB->count_records_sql ( "select count(*) from {grading_definitions} where usercreated=?", array (
-		$USER->id 
-) );
-
-$editProfileUrl = new moodle_url ( $CFG->wwwroot . '/user/edit.php/', array (
-		'id' => $USER->id 
-) );
-
-if ($countRubrics == 1) {
-	$rubrics = $DB->get_record ( 'grading_definitions', array (
-			'usercreated' => $USER->id 
-	) );
-} elseif ($countRubrics >= 1) {
-	
-	$rubrics = $DB->get_records ( 'grading_definitions', array (
-			'usercreated' => $USER->id 
-	) );
-}
-
-if ($countActivities == 1) {
-	$activities = $DB->get_record ( 'emarking_activities', array (
-			'userid' => $USER->id 
-	) );
-} elseif ($countActivities >= 1) {
-	
-	$activities = $DB->get_records ( 'emarking_activities', array (
-			'userid' => $USER->id 
-	) );
-}
-$usercourses = enrol_get_users_courses ( $USER->id );
-
-foreach ( $usercourses as $usercourse ) {
-	
-	$coursecontext = context_course::instance ( $usercourse->id );
-	
-	if (has_capability ( 'moodle/course:update', $coursecontext )) {
-		$coursesasteacher [] = $usercourse;
-	}
-}
-
-?>
 
 
-	<?php include 'header.php'; ?>
+
+
 
 	<!-- fIN DEL header -->
 	<!-- BUSCADOR -->
@@ -153,4 +99,3 @@ $emarkingintances = $DB->get_records_sql($sql,array(get_string('pluginname', 'mo
 	</div>
 	<!-- FIN BUSCADOR -->
 </body>
-<?php include 'footer.php'; ?>

@@ -46,7 +46,20 @@ body {
 #menu>li>ul {
 	display: none;
 }
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
+    color: white;
+    background-color: #094969;
+}
 
+.dropdown-menu {
+	background-color: #094969;
+	border-radius: 6px;
+}
+
+.dropdown-menu> li> a {
+	color: #DAE5EC;
+	text-decoration: none;
+}
 .logos_head {
 	background-image: url(../img/header/logos_escribiendo_02.png);
 	background-repeat: no-repeat;

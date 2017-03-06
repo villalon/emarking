@@ -209,7 +209,7 @@ class local_ciae_create_activity extends moodleform {
         $mform->addElement('header', 'RUB', 'Evaluación', null);
         $mform->addElement('select', 'rubricid', 'Evaluación', $rubrics);
         
-        $this->add_action_buttons(true,'enviar');
+        $this->add_action_buttons(false,'enviar');
 
             
         ?>
