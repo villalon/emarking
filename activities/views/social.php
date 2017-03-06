@@ -33,7 +33,7 @@ foreach($comments as $comment){
 					</div>
 					<div class="pull-left meta">
 						<div class="title h5">
-							<a href="#"><b><?=$comment->username;?></b></a> made a post.
+							<a href="#"><b><?=$comment->username;?></b></a> comentó esta actividad.
 						</div>
 						<h6 class="text-muted time"><?=$date?></h6>
 					</div>

@@ -9,7 +9,7 @@
 						<div class="panel-body">
 							<h3>Resumen</h3>
 
-							<p>Título: <?php echo $activity->title; ?></p>
+							<p>Título: <?=ucfirst(strtolower($activity->title))?></p>
 							<p>Descipción: <?php echo $activity->description;?></p>
 					<?php echo $coursesOA; ?>
 					<p>Propósito comunicativo: <?php echo $activity->comunicativepurpose; ?></p>
@@ -27,7 +27,7 @@
 				<div class="col-md-9">
 					<div class="panel panel-default">
 						<div class="panel-body">
-							<h2 class="title"> <?php echo $activity->title ?> </h2>
+							<h2 class="title"> <?=ucfirst(strtolower($activity->title))?> </h2>
 							 <button type="button" class="btn btn-success" data-toggle="modal"
 								data-target="#myModal"><span class="glyphicon glyphicon-cloud-download"></span> Descargar Actividad</button>
 							 

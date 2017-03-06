@@ -2,7 +2,7 @@
 $homeUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/index.php' );
 $searchUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/search.php' );
 $createactivityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php' );
-$myUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/my.php' );
+$myUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/my.php' );
 $loginUrl = new moodle_url ( $CFG->wwwroot . '/login/index.php' );
 if (isloggedin ()) {
@@ -28,7 +28,8 @@ if (isloggedin ()) {
 	href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="js/bootstrap.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
 
 <!-- Script para filtro de genero -->
 <header class="header">
@@ -63,7 +64,7 @@ if (isloggedin ()) {
 
 				</ul>
 				<ul class="nav navbar-nav navbar-left">
-					<li class="text_nav"><a href="#">Inicio</a></li>
+					<li class="text_nav"><a href="<?=$homeUrl?>">Inicio</a></li>
 					<li class="text_nav"><a href="#contact">Actividades</a></li>
 
 					<li class="text_nav"><a href="#about">Nosotros</a></li>

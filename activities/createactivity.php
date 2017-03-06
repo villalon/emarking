@@ -20,9 +20,12 @@
  * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 global $PAGE, $DB, $USER, $CFG, $OUTPUT;
+
 require_once ('forms/create_activity.php');
+
 require_login ();
 $PAGE->set_pagelayout ( 'embedded' );
 $context = context_system::instance ();
@@ -30,9 +33,10 @@ $PAGE->set_context ( $context );
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/create.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
+
 echo $OUTPUT->header ();
 //print the header
-include 'views/header.php';
+
 ?>
 
 <div class="container">
@@ -178,4 +182,5 @@ echo $OUTPUT->footer ();
 echo" 	</div>			
 	</div>";
 //print the footer
+include 'views/header.php';
 include 'views/footer.html';

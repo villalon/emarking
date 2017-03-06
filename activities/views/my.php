@@ -28,19 +28,7 @@
 					
 					</div>
 					</div>
-					<div class="panel panel-default">
-						<div class="panel-body">
-							<h2 class="title">Tu progreso</h2>
-							<h4>Puntos totales</h4>
-							<h3 class="importante">3.542</h3>
-							<h4>Categoría</h4>
-							<h3 class="importante">Experta en confección de actividades</h3>
-							<h4>Premios</h4>
-							<img src="img/premio.jpg" alt="Smiley face" height="100"
-								width="70">
-
-						</div>
-					</div>
+					
 				</div>
 				<div class="col-md-9">
 					

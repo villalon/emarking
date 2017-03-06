@@ -22,7 +22,7 @@
      <div id="descripcion" class="panel-body">
         
         <span style="font-size: 16px;">Género: <?=$data->genre?></span>
-        <h3><b><?=$data->title?></b></h3>
+        <h3><b><?=ucfirst(strtolower($data->title));?></b></h3>
         <br>
 <p><?=$data->description?></p>
      </div>
