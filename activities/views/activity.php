@@ -238,7 +238,7 @@ include "modals/useactivity.php";
 		        'action':'rating'
 		        	 },
 	        success:function(result){
-		        alert(result);
+		        
 		        for (i = 1; i <= mount; i++) { 
 		        	document.getElementById(i).className="btn btn-warning btn-sm";
 		        }

@@ -129,8 +129,9 @@ $decode=json_decode($recordcleaned);
 $social=$decode->data;
 $comments=$social->Comentarios;
 $votes=$social->Vote;
+if(isset($votes)){
 $average=get_average($votes);
-
+}
 $votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
 if(isset($_POST['submit'])) {
 	$comentario = new stdClass ();

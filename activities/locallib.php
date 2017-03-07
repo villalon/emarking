@@ -611,13 +611,13 @@ function if_user_has_voted($array,$userid){
 function get_average($array){
 	$sum=0;
 	$count=0;
+	$countarray=count($array);
 	foreach($array as $object){
+		if($countarray==1){
+			return $object['rating'];
+		}
 		$sum=$sum + (int)$object->rating;
 		$count++;
 	}
-	if($count==1){
-		return $sum;
-	}
 	return $average=$sum/$count;
-	
 }
