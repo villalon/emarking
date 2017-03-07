@@ -3,7 +3,7 @@ $homeUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/index.php'
 $searchUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/search.php' );
 $createactivityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php' );
 $myUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
-$coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/my.php' );
+$coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $loginUrl = new moodle_url ( $CFG->wwwroot . '/login/index.php' );
 if (isloggedin ()) {
 	$logoutUrl = new moodle_url ( $CFG->wwwroot . '/login/logout.php', array (

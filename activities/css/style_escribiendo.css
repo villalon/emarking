@@ -1,6 +1,9 @@
 @charset "utf-8";
 /* CSS Escribiendo */
-html,
+html {
+  min-height: 100%;
+  position: relative;
+}
 body {
 	color: black;
 	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";

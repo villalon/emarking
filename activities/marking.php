@@ -23,11 +23,11 @@
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 global $PAGE, $DB, $USER, $CFG;
 $id = required_param('id', PARAM_INT);
-$page= required_param('page', PARAM_INT);
-$markingUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'page'=>1));
-$downloadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'page'=>2));
-$uploadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'page'=>3));
-$reportsUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'page'=>4));
+$tab= required_param('tab', PARAM_INT);
+$markingUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>1));
+$downloadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>2));
+$uploadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>3));
+$reportsUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>4));
 
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
@@ -36,6 +36,7 @@ $PAGE->set_title('escribiendo');
 
 //print the header
 include 'views/header.php';
+include 'views/footer.html';
 ?>
 <div class="container">
 	<div class="row">
@@ -47,7 +48,7 @@ include 'views/header.php';
 						
 						
 <?php 
-switch ($page) {
+switch ($tab) {
 	case 1 :
 ?>
 						<li class="active"><a href="<?= $markingUrl ?>">Corrección</a></li>
@@ -100,4 +101,4 @@ switch ($page) {
 </div>
 <?php 
 //print the footer
-include 'views/footer.html';
+
