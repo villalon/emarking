@@ -41,12 +41,12 @@ foreach($comments as $comment){
 				<div class="post-description">
 					<p><?=$comment->post;?></p>
 					<div class="stats">
-						<a href="#" class="btn btn-default stat-item"> <i
-							class="fa fa-thumbs-up icon"></i><?=count($comment->likes);?>
-						</a>
-						<a href="#" class="btn btn-default stat-item"> <i
+						<button  class="btn btn-default stat-item"> <i
+							class="fa fa-thumbs-up icon" onclick="foo()"></i><?=count($comment->likes);?>
+						</button>
+						<button class="btn btn-default stat-item"> <i
 							class="fa fa-thumbs-down icon"></i><?=count($comment->dislikes);?>
-						</a>
+						</button>
 					</div>
 				</div>
 				
@@ -56,3 +56,20 @@ foreach($comments as $comment){
 <?php }}else{?>
 <p>Aún no hay comentarios en esta actividad</p>
 <?php }?>
+<script>
+
+	 function foo (type) {
+		
+	      $.ajax({
+	        url:"ajax.php", //the page containing php script
+	        type: "POST", //request type
+	        data: {'id':'hola',
+		        'userid':'1',
+		        'type':'type'
+		        	 },
+	        success:function(result){
+	         alert(result);
+	       }
+	     });
+}
+</script>

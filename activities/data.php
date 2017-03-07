@@ -29,15 +29,26 @@ $comentario=array(
 				);
 
 $jsoncomentario=json_encode($comentario, JSON_UNESCAPED_UNICODE);
+/*
+$votes=array(
+		    array(
+		    		'userid'=>1,
+		    		'rating'=>5),
+			array(
+					'userid'=>2,
+					'rating'=>1
+)
+			);
+$jsonvotes=json_encode($votes, JSON_UNESCAPED_UNICODE);
 
-
-
+*/
 $data = Array(
-		"Vote"=>array("all"=>array("user"=>"Pedro","nota"=>"5")),
-		"Comentarios"=>$comment
+		"Vote"=>null,
+		"Comentarios"=>$jsoncomentario
 			
 		);
-
+var_dump($data);
+/*
 $total=Array("data"=>$data);
 $json=json_encode($total, JSON_UNESCAPED_UNICODE);
 
@@ -72,7 +83,7 @@ foreach($comentarios as $comentario){
 }
 
 //$insert = $DB->insert_record('emarking_social', $record);
-
+*/
 /*
 $todo=$DB->get_record_sql("SELECT data AS data FROM mdl_emarking_social where id=2");
 $manage = json_decode($todo->data);

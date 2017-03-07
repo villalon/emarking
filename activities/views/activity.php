@@ -23,7 +23,50 @@
 
 						</div>
 					</div>
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<h3>Calificación</h3>
+						<div class="rating-block">
+							<h4>Average user rating</h4>
+							<h2 id="average" class="bold padding-bottom-7">
+								<?=$average?> <small>/ 5</small>
+							</h2>
+							<button id="1" type="button" class="btn btn-default btn-grey btn-sm"
+								aria-label="Left Align" value="1" onclick="rating(this.value)">
+								<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+							</button>
+							<button id="2" type="button" class="btn btn-default btn-grey btn-sm"
+								aria-label="Left Align" value="2"
+								onclick="rating(this.value)">
+					  <span 
+								class="glyphicon glyphicon-star" aria-hidden="true">
+								</span>
+							</button>
+							<button id="3" type="button" class="btn btn-default btn-grey btn-sm"
+								aria-label="Left Align" value="3"
+								onclick="rating(this.value)">
+					  <span 
+								class="glyphicon glyphicon-star" aria-hidden="true">
+								</span>
+							</button>
+							<button id="4"type="button" class="btn btn-default btn-grey btn-sm"
+								aria-label="Left Align" value="4"
+								onclick="rating(this.value)">
+					  <span 
+								class="glyphicon glyphicon-star" aria-hidden="true">
+								</span>
+							</button>
+							<button id="5" type="button" class="btn btn-default btn-grey btn-sm"
+								aria-label="Left Align" value="5"
+								onclick="rating(this.value)">
+					  <span 
+								class="glyphicon glyphicon-star" aria-hidden="true">
+								</span>
+							</button>
+						</div>
+					</div>
 				</div>
+			</div>
 				<div class="col-md-9">
 					<div class="panel panel-default">
 						<div class="panel-body">
@@ -48,14 +91,14 @@
 							
 <!-- Aqui agregue el cambio para las tabs -->
 							<ul class="nav nav-tabs active_tab">
-								<li class="active"><a data-toggle="tab" href="#home">Instrucciones</a></li>
+								<li class="active"><a data-toggle="tab" href="#home">Para el estudiante</a></li>
 								<li><a data-toggle="tab" href="#menu1">Didáctica</a></li>
 								<li><a data-toggle="tab" href="#menu2">Evaluación</a></li>
 							</ul>
 
 							<div class="tab-content">
 								<div id="home" class="tab-pane fade in active">
-									<h3 style="text-align: left;">Instrucciones para el estudiante</h3>
+									
  
 									<div class="panel panel-default">
 										<div class="panel-body">
@@ -182,3 +225,25 @@
 include "modals/downloadactivity.php";
 include "modals/useactivity.php";
 ?>
+<script>
+
+	 function rating (mount) {
+		 
+	      $.ajax({
+	        url:"ajax.php", //the page containing php script
+	        type: "POST", //request type
+	        data: {'id':'<?=$activity->id?>',
+		        'userid':'<?=$USER->id?>',
+		        'rating':mount,
+		        'action':'rating'
+		        	 },
+	        success:function(result){
+		        alert(result);
+		        for (i = 1; i <= mount; i++) { 
+		        	document.getElementById(i).className="btn btn-warning btn-sm";
+		        }
+		        document.getElementById("average").innerHTML=result+ " <small>/ 5</small>";
+	       }
+	     });
+}
+</script>

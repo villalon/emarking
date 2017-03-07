@@ -522,3 +522,102 @@ function emarking_activities_clean_string_to_json($string){
 	
 	return $bodytag4;
 }
+function rating($userid,$activityid,$stars){
+ global $DB;
+ $communitysql = $DB->get_record('emarking_social', array('activityid'=>$activityid));
+
+ if(isset($communitysql->data)&& $communitysql->data!=null){
+ 
+ 	$recordcleaned=emarking_activities_clean_string_to_json($communitysql->data);
+ 	$decode=json_decode($recordcleaned);
+ 	$social=$decode->data;
+ 	$comments=$social->Comentarios;
+ 	$commentsjson=json_encode($comments, JSON_UNESCAPED_UNICODE);
+ 	$votes=$social->Vote;
+ 	if(!isset($votes)){
+ 		
+ 	$votes=array(
+		    array(
+		    		'userid'=>$userid,
+		    		'rating'=>$stars
+		    ));
+ 	$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
+	$data = Array(
+				"Vote"=>$votesjson,
+				"Comentarios"=>$commentsjson
+					
+				);
+	$communitysql->data=$data;
+	$dataarray=Array("data"=>$data);
+	$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
+	$communitysql->data=$datajson;
+	
+	$DB->update_record('emarking_social', $communitysql);
+	return get_average($votes);
+ 	}else {
+ 		
+ 		if(if_user_has_voted($votes,$userid)){
+ 			
+ 			$rating = new stdClass ();
+ 			$rating->userid=$userid;
+ 			$rating->rating=$stars;		
+ 			$votes[]=$rating;
+ 			$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
+ 			$newdata = Array(
+			"Vote"=>$votes,
+			"Comentarios"=>$commentsjson	
+			);
+	
+			$dataarray=Array("data"=>$newdata);
+
+			$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
+			$communitysql->data=$datajson;
+			
+ 			$DB->update_record('emarking_social', $communitysql);
+ 			return get_average($votes);
+ 		}
+ 		
+ 	}
+ }else{
+ 	$votes=array(
+ 			array(
+ 					'userid'=>$userid,
+ 					'rating'=>$stars
+ 			));
+ 	$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
+ 	$data = Array(
+ 			"Vote"=>$votesjson,
+ 			"Comentarios"=>null
+ 				
+ 			);
+ 	$dataarray=Array("data"=>$data);
+	$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
+	$communitysql->data=$datajson;
+	
+	$DB->update_record('emarking_social', $communitysql);
+	return get_average($votes);
+ }
+}
+
+function if_user_has_voted($array,$userid){
+	
+	foreach($array as $object){
+		
+		if (isset($object->userid) && $object->userid == $userid)
+            return false;
+		 }
+		 return true;
+}
+function get_average($array){
+	$sum=0;
+	$count=0;
+	foreach($array as $object){
+		$sum=$sum + (int)$object->rating;
+		$count++;
+	}
+	if($count==1){
+		return $sum;
+	}
+	return $average=$sum/$count;
+	
+}

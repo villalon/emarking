@@ -99,6 +99,7 @@ $row = sizeof ( $table );
 }
 $oaComplete = explode ( "-", $activity->learningobjectives );
 $coursesOA = "";
+
 foreach ( $oaComplete as $oaPerCourse ) {
 
 	$firstSplit = explode ( "[", $oaPerCourse );
@@ -111,11 +112,26 @@ foreach ( $oaComplete as $oaPerCourse ) {
 
 //Busca toda la información de la comunidad en esta actividad
 $communitysql = $DB->get_record('emarking_social', array('activityid'=>$activityid));
+
+if(!$communitysql){
+	
+	$communitysql=new stdClass ();
+	$communitysql->activityid 			= $activityid;
+	$communitysql->timecreated         	= time();
+	$communitysql->data					= null;				
+	$DB->insert_record ( 'emarking_social', $communitysql );
+	$average=0;
+}
+$average=0;
 if(isset($communitysql->data)&& $communitysql->data!=null){
 $recordcleaned=emarking_activities_clean_string_to_json($communitysql->data);
 $decode=json_decode($recordcleaned);
 $social=$decode->data;
 $comments=$social->Comentarios;
+$votes=$social->Vote;
+$average=get_average($votes);
+
+$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
 if(isset($_POST['submit'])) {
 	$comentario = new stdClass ();
 	$comentario->userid=$USER->id;
@@ -127,7 +143,7 @@ if(isset($_POST['submit'])) {
 	$comments[]=$comentario;
 	$commentjson=json_encode($comments, JSON_UNESCAPED_UNICODE);
 	$newdata = Array(
-			"Vote"=>array("all"=>array("user"=>"Pedro","nota"=>"5")),
+			"Vote"=>$votes,
 			"Comentarios"=>$commentjson
 				
 			);
@@ -138,7 +154,7 @@ if(isset($_POST['submit'])) {
 	$communitysql->data=$datajson;
 
 	$DB->update_record('emarking_social', $communitysql);
-	
+	header("Refresh:0");
 }
 }else{
 	if(isset($_POST['submit'])) {
@@ -153,7 +169,7 @@ if(isset($_POST['submit'])) {
 		
 	$commentjson=json_encode($comentario, JSON_UNESCAPED_UNICODE);
 	$data = Array(
-				"Vote"=>array("all"=>array("user"=>"Pedro","nota"=>"5")),
+				"Vote"=>null,
 				"Comentarios"=>$commentjson
 					
 				);
@@ -162,7 +178,7 @@ if(isset($_POST['submit'])) {
 		$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
 		$communitysql->data=$datajson;
 		$DB->update_record('emarking_social', $communitysql);
-		
+		header("Refresh:0");
 		
   }
 }
