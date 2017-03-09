@@ -56,12 +56,11 @@ $PAGE->navbar->add(get_string('feedbackreport', 'mod_emarking'));
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
-
+echo $OUTPUT->header();
+echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-	echo $OUTPUT->header();
-	echo $OUTPUT->heading($emarking->name);
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 }
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
     emarking_validate_rubric($context, true, true);
@@ -75,10 +74,8 @@ $totalsubmissions = $DB->count_records_sql(
                 ", array(
                     'emarking' => $emarking->id));
 if (! $totalsubmissions || $totalsubmissions == 0) {
-	if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-	echo $OUTPUT->notification(get_string('nosubmissionspublished', 'mod_emarking'), 'notifyproblem');
+    echo $OUTPUT->notification(get_string('nosubmissionspublished', 'mod_emarking'), 'notifyproblem');
     echo $OUTPUT->footer();
-	}
     die();
 }
 
@@ -202,10 +199,7 @@ foreach($words as $w => $f) {
 </script>
 <?php echo $OUTPUT->heading(get_string('feedbackwordcloud', 'mod_emarking')); ?>
 <div id="my_favorite_latin_words" style="width: 95%; height: 250px; border: 1px solid #ccc;"></div>
-<?php 
-if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-	echo $OUTPUT->footer();
-}
+<?php echo $OUTPUT->footer();
 function emarking_table_from_criterion($criterion, $cm) {
     global $OUTPUT;
     $levelstable = new html_table();

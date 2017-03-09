@@ -17,15 +17,15 @@ if (isloggedin ()) {
 <!-- CSS Font, Bootstrap, style de la página y auto-complete  -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <link href="css/style_escribiendo.css" rel="stylesheet">
-
+<link rel="stylesheet" type="text/css"
+	href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
 
 <!-- Fin CSS -->
 <!-- Importar  Scripts Javascript -->
 
 <!-- Fin Script Javascript -->
 <!-- Scripts JQuery -->
-<link rel="stylesheet" type="text/css"
-	href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

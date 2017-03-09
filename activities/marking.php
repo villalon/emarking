@@ -53,6 +53,7 @@ $totalsubmissions = $DB->count_records_sql(
 //print the header
 
 ?>
+
 <div class="container">
 	<div class="row">
 		<h2></h2>
@@ -118,3 +119,6 @@ switch ($tab) {
 //print the footer
 include 'views/header.php';
 include 'views/footer.html';
+?>
+
+
