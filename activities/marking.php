@@ -21,9 +21,13 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
+
 global $PAGE, $DB, $USER, $CFG;
+require_once($CFG->dirroot . '/mod/emarking/locallib.php');
+
 $id = required_param('id', PARAM_INT);
 $tab= required_param('tab', PARAM_INT);
+list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 $markingUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>1));
 $downloadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>2));
 $uploadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>3));
@@ -33,9 +37,21 @@ $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
-
+$disabled=null;
+$totalsubmissions = $DB->count_records_sql(
+		"
+                SELECT COUNT(DISTINCT s.id) AS total
+                FROM {emarking_submission} s
+                INNER JOIN {emarking_draft} d
+                    ON (s.emarking = :emarking AND d.status >= " .
+		EMARKING_STATUS_PUBLISHED . " AND d.submissionid = s.id AND d.grade > 0 AND d.qualitycontrol=0)
+                ", array(
+                		'emarking' => $emarking->id));
+		if (! $totalsubmissions || $totalsubmissions == 0) {
+			$disabled='class="disabled disabledTab"';
+		}
 //print the header
-include 'views/header.php';
+
 ?>
 <div class="container">
 	<div class="row">
@@ -53,7 +69,7 @@ switch ($tab) {
 						<li class="active"><a href="<?= $markingUrl ?>">Corrección</a></li>
 						<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
 						<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
-						<li><a href="<?= $reportsUrl ?>">Reportes</a></li>
+						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>" >Reportes</a></li>
 						</ul>
 						<?php 
 		include include  $CFG->dirroot . '/mod/emarking/view.php';		
@@ -63,7 +79,7 @@ switch ($tab) {
 						<li><a href="<?= $markingUrl ?>">Corrección</a></li>
 						<li class="active"><a href="<?= $downloadUrl ?>">Descargar</a></li>
 						<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
-						<li><a href="<?= $reportsUrl ?>">Reportes</a></li>
+						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>">Reportes</a></li>
 						</ul>
 						<?php 
 		include  $CFG->dirroot . '/mod/emarking/print/exam.php';
@@ -73,7 +89,7 @@ switch ($tab) {
 						<li><a href="<?= $markingUrl ?>">Corrección</a></li>
 						<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
 						<li class="active"><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
-						<li><a href="<?= $reportsUrl ?>">Reportes</a></li>
+						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>">Reportes</a></li>
 						</ul>
 						<?php 
 		include  $CFG->dirroot . '/mod/emarking/print/uploadanswers.php';
@@ -100,4 +116,5 @@ switch ($tab) {
 </div>
 <?php 
 //print the footer
+include 'views/header.php';
 include 'views/footer.html';

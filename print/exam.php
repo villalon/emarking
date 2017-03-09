@@ -27,7 +27,6 @@
  */
 require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . "/config.php");
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
-require_once ($CFG->dirroot . "/mod/emarking/lib.php");
 require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 global $DB, $USER, $CFG;
 // Obtains basic data from cm id.
@@ -70,9 +69,9 @@ $PAGE->navbar->add ( get_string ( "print", "mod_emarking" ) );
 if (has_capability ( "mod/emarking:downloadexam", $context )) {
 	$PAGE->requires->js ( "/mod/emarking/js/printorders.js" );
 }
-
+echo $OUTPUT->header ();
 // Heading and tabs if we are within a course module.
-
+echo $OUTPUT->heading ( $emarking->name );
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 }
@@ -96,7 +95,6 @@ $examstable->head = array (
 		get_string ( "examdetails", "mod_emarking" ),
 		"&nbsp;" 
 );
-$examstable->id="emarking-download";
 // CSS classes for each column in the table.
 $examstable->colclasses = array (
 		"exams_examname",
@@ -198,7 +196,18 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 </script>
 <div id="loadingPanel"></div>
 <!-- The panel DIV goes at the end to make sure it is loaded before javascript starts -->
-
+<div id="panelContent">
+	<div class="yui3-widget-bd">
+		<form style="width: 100%">
+			<fieldset>
+				<p>
+					<label for="id"><?php echo $message ?></label><br /> <input
+						type="text" name="sms" id="sms" placeholder="">
+				</p>
+			</fieldset>
+		</form>
+	</div>
+</div>
 <?php
 }
 if (has_capability("mod/emarking:downloadexam", $context)) {
@@ -218,14 +227,8 @@ if (has_capability("mod/emarking:downloadexam", $context)) {
                     'token' => rand(10000, 99999),
                     'multi' => 0,
                     'incourse' => 1,
-                    'examid' => $exam->id));       
-     if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_EMBEDDED) {
-     	
-     	echo '<a href="'.$directdownloadurl.'"><button type="button" class="btn btn-primary" '.$disabled.'>
-         <span class="glyphicon glyphicon-cloud-download"></span>'.$buttontext.'</button></a>';
-     }else {
-     	echo $OUTPUT->single_button($directdownloadurl, $buttontext, 'GET');
-     }
+                    'examid' => $exam->id));
+        echo $OUTPUT->single_button($directdownloadurl, $buttontext, 'GET');
     }
 }
 if ($issupervisor) {
@@ -246,4 +249,4 @@ if ($issupervisor) {
 	}
 	echo html_writer::end_tag ( 'div' );
 }
-
+echo $OUTPUT->footer ();

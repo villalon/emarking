@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-
 /**
  *
  * @package mod
@@ -114,7 +113,6 @@ if (isset($CFG->emarking_pagelayouttype)) {
             break;
     }
 }
-
 $PAGE->set_pagelayout($layout);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
@@ -145,13 +143,10 @@ if (!$emarkingisstudentmarking) {
         die();
     }
 }
-if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED) {
-	// Show header and heading.
-	echo $OUTPUT->header();
-	// Heading and tabs if we are within a course module.
-	echo $OUTPUT->heading($emarking->name);
-}
-
+// Show header and heading.
+echo $OUTPUT->header();
+// Heading and tabs if we are within a course module.
+echo $OUTPUT->heading($emarking->name);
 // Navigation tabs.
 $tabname = $scan ? "scanlist" : "mark";
 if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
@@ -435,12 +430,7 @@ $showpages->sortable(true, $defaulttsort, SORT_ASC);
 if ($emarking->anonymous < 2) {
     $showpages->no_sorting('lastname');
 }
-if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_EMBEDDED) {
-$showpages->no_sorting('status');
-$showpages->no_sorting('grade');
-$showpages->no_sorting('lastname');
 $showpages->no_sorting('comment');
-}
 $showpages->no_sorting('actions');
 $showpages->no_sorting('select');
 $showpages->pageable(true);
@@ -563,7 +553,6 @@ $('#searchInput').keyup(function () {
     }
     //hide all the rows
     jo.hide();
-
     //Recusively filter the jquery object to get results.
     jo.filter(function (i, v) {
         var $t = $(this);
@@ -617,10 +606,11 @@ $submission = $DB->get_record('emarking_submission', array(
 if($usercanpublishgrades) {
     emarking_show_orphan_pages_link($context, $cm);
 }
-// If the user is a tutor or teacher we don't include justice perception.
 if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED) {
+// If the user is a tutor or teacher we don't include justice perception.
 if ($usercangrade || !$submission) {
     echo $OUTPUT->footer();
+    
     die();
 }
 // JUSTICE PERCEPTION FOR CURRENT USER.
@@ -715,8 +705,9 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
         }
         $mform->display();
     }
-echo $OUTPUT->footer();
 
+}else {
+	echo $OUTPUT->footer();
 }
 function emarking_get_userinfo($draft, $course, $emarking) {
     global $OUTPUT, $USER;
@@ -734,7 +725,6 @@ function emarking_get_userinfo($draft, $course, $emarking) {
     }
     return $userinfo;
 }
-
 function emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking) {
     global $USER, $OUTPUT;
     // Bonus info.
@@ -756,7 +746,6 @@ function emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubr
     ));
     return $finalgrade;
 }
-
 function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $publishgradesform, $numcriteria, $scan, $cm, $rubriccriteria) {
     global $OUTPUT, $USER;
     $owndraft = $USER->id == $draft->id;
@@ -825,7 +814,6 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
     }
     return $actions;
 }
-
 function emarking_get_drafts_from_concat($draft) {
     $draftids = explode('#', $draft->draft);
     $draftqcs = explode('#', $draft->qcs);
@@ -866,4 +854,3 @@ function emarking_get_drafts_from_concat($draft) {
     }
     return $drafts;
 }
-
