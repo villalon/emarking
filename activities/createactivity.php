@@ -182,5 +182,5 @@ echo $OUTPUT->footer ();
 echo" 	</div>			
 	</div>";
 //print the footer
-include 'views/header.php';
+include 'views/headermoodle.php';
 include 'views/footer.html';

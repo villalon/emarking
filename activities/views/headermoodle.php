@@ -7,7 +7,7 @@ $coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php'
 $loginUrl = new moodle_url ( $CFG->wwwroot . '/login/index.php' );
 if (isloggedin ()) {
 	$logoutUrl = new moodle_url ( $CFG->wwwroot . '/login/logout.php', array (
-			'sesskey' => $USER->sesskey 
+			'sesskey' => $USER->sesskey
 	) );
 	$image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f2.jpg' );
 }
@@ -28,7 +28,7 @@ if (isloggedin ()) {
 	href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
 
 
 <!-- Script para filtro de genero -->

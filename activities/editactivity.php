@@ -16,7 +16,7 @@ $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
 echo $OUTPUT->header ();
 //print the header
-include 'views/header.php';
+
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 
 if($activity->userid != $USER->id){
@@ -143,4 +143,5 @@ echo $OUTPUT->footer ();
 echo" 	</div>			
 	</div>";
 //print the footer
+include 'views/headermoodle.php';
 include 'views/footer.html';

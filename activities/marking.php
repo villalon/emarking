@@ -117,7 +117,7 @@ switch ($tab) {
 </div>
 <?php 
 //print the footer
-include 'views/header.php';
+include 'views/headermoodle.php';
 include 'views/footer.html';
 ?>
 
