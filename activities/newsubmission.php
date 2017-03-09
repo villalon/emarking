@@ -108,5 +108,5 @@ if($askMarking==1){
 	
 }
 
-$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/view.php', array('id' => $data['cmid']));
+$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php', array('id' => $data['cmid'],'tab'=>1));
 redirect($forkUrl, 0);

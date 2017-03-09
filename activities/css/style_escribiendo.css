@@ -13,7 +13,7 @@ body {
 }
 
 
-.header {
+.pageheader {
 	background-color: #00547C;
 }
 
@@ -373,4 +373,10 @@ min-height:100%;
 .btn-grey{
     background-color:#D8D8D8;
 	color:#FFF;
+}
+#emarking-main{
+	width: 100%;
+}
+#emarking-download{
+	width:60%;
 }

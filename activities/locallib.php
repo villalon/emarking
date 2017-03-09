@@ -129,7 +129,7 @@ $pdf->SetLeftMargin(25);
 // Add a page
 // This method has several options, check the source code documentation for more information.
 
-if($sections->instructions==1){
+if(isset($sections->instructions)&&$sections->instructions==1){
 $pdf->AddPage();
 $pdf->writeHTML('<h1>Instrucciones</h1> ', true, false, false, false, '');
 $instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
@@ -138,7 +138,7 @@ $pdf->writeHTML($instructionshtml, true, false, false, false, '');
 
 }
 
-if($sections->planification==1){
+if(isset($sections->planification)&&$sections->planification==1){
 $pdf->AddPage();
 $planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
 $pdf->writeHTML('<h1>Planificación</h1>', true, false, false, false, '');
@@ -146,7 +146,7 @@ $planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
 $pdf->writeHTML($planificationhtml, true, false, false, false, '');
 }
 
-if($sections->writing==1){
+if(isset($sections->writing)&&$sections->writing==1){
 $pdf->AddPage();
 $writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
 $pdf->writeHTML('<h1>Escritura</h1>', true, false, false, false, '');
@@ -154,7 +154,7 @@ $writinghtml=emarking__activities_clean_html_to_print($writinghtml);
 $pdf->writeHTML($writinghtml, true, false, false, false, '');
 }
 
-if($sections->editing==1){
+if(isset($sections->editing)&&$sections->editing==1){
 $pdf->AddPage();
 $editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
 $pdf->writeHTML('<h1>Revisión y edición</h1>', true, false, false, false, '');
@@ -162,7 +162,7 @@ $editinghtml=emarking__activities_clean_html_to_print($editinghtml);
 $pdf->writeHTML($editinghtml, true, false, false, false, '');
 }
 
-if($sections->teaching==1){
+if(isset($sections->teaching)&&$sections->teaching==1){
 $pdf->AddPage();
 $teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
 $pdf->writeHTML('<h1>Sugerencias didácticas</h1>', true, false, false, false, '');
@@ -170,7 +170,7 @@ $teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
 $pdf->writeHTML($teachinghtml, true, false, false, false, '');
 }
 
-if($sections->resources==1){
+if(isset($sections->resources)&&$sections->resources==1){
 $pdf->AddPage();
 $languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
 $pdf->writeHTML('<h1>Recursos del lenguaje</h1>', true, false, false, false, '');
@@ -178,7 +178,7 @@ $languageresourceshtml=emarking__activities_clean_html_to_print($languageresourc
 $pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
 }
 
-if($sections->rubric==1){
+if(isset($sections->rubric)&&$sections->rubric==1){
 $pdf->AddPage();
 
 $rubrichtml=show_rubric($activity->rubricid);
@@ -513,108 +513,118 @@ function emarking__activities_clean_html_to_print($html)
  * @param String $html
  * @return String
  */
-function emarking_activities_clean_string_to_json($string){
-	
-	$bodytag = str_replace('"[\\', "[", $string);
-	$bodytag2 = str_replace('\\"', '"', $bodytag);
-	$bodytag3 = str_replace(']"', ']', $bodytag2);
-	$bodytag4 = str_replace('"[', '[', $bodytag3);
+function emarking_activities_clean_string_to_json($string) {
+	$bodytag = str_replace ( '"[\\', "[", $string );
+	$bodytag2 = str_replace ( '\\"', '"', $bodytag );
+	$bodytag3 = str_replace ( ']"', ']', $bodytag2 );
+	$bodytag4 = str_replace ( '"[', '[', $bodytag3 );
 	
 	return $bodytag4;
 }
-function rating($userid,$activityid,$stars){
- global $DB;
- $communitysql = $DB->get_record('emarking_social', array('activityid'=>$activityid));
-
- if(isset($communitysql->data)&& $communitysql->data!=null){
- 
- 	$recordcleaned=emarking_activities_clean_string_to_json($communitysql->data);
- 	$decode=json_decode($recordcleaned);
- 	$social=$decode->data;
- 	$comments=$social->Comentarios;
- 	$commentsjson=json_encode($comments, JSON_UNESCAPED_UNICODE);
- 	$votes=$social->Vote;
- 	if(!isset($votes)){
- 		
- 	$votes=array(
-		    array(
-		    		'userid'=>$userid,
-		    		'rating'=>$stars
-		    ));
- 	$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
-	$data = Array(
-				"Vote"=>$votesjson,
-				"Comentarios"=>$commentsjson
-					
-				);
-	$communitysql->data=$data;
-	$dataarray=Array("data"=>$data);
-	$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
-	$communitysql->data=$datajson;
+function rating($userid, $activityid, $stars) {
+	global $DB;
+	$communitysql = $DB->get_record ( 'emarking_social', array (
+			'activityid' => $activityid 
+	) );
 	
-	$DB->update_record('emarking_social', $communitysql);
-	return get_average($votes);
- 	}else {
- 		
- 		if(if_user_has_voted($votes,$userid)){
- 			
- 			$rating = new stdClass ();
- 			$rating->userid=$userid;
- 			$rating->rating=$stars;		
- 			$votes[]=$rating;
- 			$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
- 			$newdata = Array(
-			"Vote"=>$votes,
-			"Comentarios"=>$commentsjson	
-			);
-	
-			$dataarray=Array("data"=>$newdata);
-
-			$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
-			$communitysql->data=$datajson;
-			
- 			$DB->update_record('emarking_social', $communitysql);
- 			return get_average($votes);
- 		}
- 		
- 	}
- }else{
- 	$votes=array(
- 			array(
- 					'userid'=>$userid,
- 					'rating'=>$stars
- 			));
- 	$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
- 	$data = Array(
- 			"Vote"=>$votesjson,
- 			"Comentarios"=>null
- 				
- 			);
- 	$dataarray=Array("data"=>$data);
-	$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
-	$communitysql->data=$datajson;
-	
-	$DB->update_record('emarking_social', $communitysql);
-	return get_average($votes);
- }
-}
-
-function if_user_has_voted($array,$userid){
-	
-	foreach($array as $object){
+	if (isset ( $communitysql->data ) && $communitysql->data != null) {
 		
-		if (isset($object->userid) && $object->userid == $userid)
-            return false;
-		 }
-		 return true;
-}
-function get_average($array){
-	$sum=0;
-	$count=0;
-	foreach($array as $object){
-		$sum=$sum + (int)$object->rating;
-		$count++;
+		$recordcleaned = emarking_activities_clean_string_to_json ( $communitysql->data );
+		$decode = json_decode ( $recordcleaned );
+		$social = $decode->data;
+		$comments = $social->Comentarios;
+		$commentsjson = json_encode ( $comments, JSON_UNESCAPED_UNICODE );
+		$votes = $social->Vote;
+		if (! isset ( $votes )) {
+			
+			$votes = array (
+					array (
+							'userid' => $userid,
+							'rating' => $stars 
+					) 
+			);
+			$votesjson = json_encode ( $votes, JSON_UNESCAPED_UNICODE );
+			$data = Array (
+					"Vote" => $votesjson,
+					"Comentarios" => $commentsjson 
+			)
+			;
+			$communitysql->data = $data;
+			$dataarray = Array (
+					"data" => $data 
+			);
+			$datajson = json_encode ( $dataarray, JSON_UNESCAPED_UNICODE );
+			$communitysql->data = $datajson;
+			
+			$DB->update_record ( 'emarking_social', $communitysql );
+			var_dump($votes);
+			return get_average ( $votes );
+		} else {
+			
+			if (if_user_has_voted ( $votes, $userid )) {
+				
+				$rating = new stdClass ();
+				$rating->userid = $userid;
+				$rating->rating = $stars;
+				$votes [] = $rating;
+				$votesjson = json_encode ( $votes, JSON_UNESCAPED_UNICODE );
+				$newdata = Array (
+						"Vote" => $votes,
+						"Comentarios" => $commentsjson 
+				);
+				
+				$dataarray = Array (
+						"data" => $newdata 
+				);
+				
+				$datajson = json_encode ( $dataarray, JSON_UNESCAPED_UNICODE );
+				$communitysql->data = $datajson;
+				
+				$DB->update_record ( 'emarking_social', $communitysql );
+				return get_average ( $votes );
+			}
+		}
+	} else {
+		$votes = array (
+				array (
+						'userid' => $userid,
+						'rating' => $stars 
+				) 
+		);
+		$votesjson = json_encode ( $votes, JSON_UNESCAPED_UNICODE );
+		$data = Array (
+				"Vote" => $votesjson,
+				"Comentarios" => null 
+		)
+		;
+		$dataarray = Array (
+				"data" => $data 
+		);
+		$datajson = json_encode ( $dataarray, JSON_UNESCAPED_UNICODE );
+		$communitysql->data = $datajson;
+		$voteObject = new stdClass ();
+		$voteObject->userid=$userid;
+		$voteObject->rating=$stars;
+		$arrayVote[]=$voteObject;
+		$DB->update_record ( 'emarking_social', $communitysql );
+
+		return get_average ( $arrayVote );
 	}
-	return $average=$sum/$count;
-	
+}
+
+function if_user_has_voted($array, $userid) {
+	foreach ( $array as $object ) {
+		if (isset ( $object->userid ) && $object->userid == $userid)
+			return false;
+	}
+	return true;
+}
+function get_average($array) {
+	$sum = 0;
+	$count = 0;
+	foreach ( $array as $object ) {
+		$sum = $sum + ( int ) $object->rating;
+		$count ++;
+	}
+	return $average = $sum / $count;
 }

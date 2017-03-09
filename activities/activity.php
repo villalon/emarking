@@ -129,7 +129,17 @@ $decode=json_decode($recordcleaned);
 $social=$decode->data;
 $comments=$social->Comentarios;
 $votes=$social->Vote;
-if(isset($votes)){
+$vote=0;
+if (isset ( $votes )) {
+		if ($countVotes=count ( $votes ) == 1) {
+			if (if_user_has_voted ( $votes [0], $USER->id )) {
+				$vote = $votes [0]->rating;
+			}
+		} else {
+			if (if_user_has_voted ( $votes, $USER->id )) {
+				$vote = $votes->rating;
+			}
+		}
 $average=get_average($votes);
 }
 $votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);

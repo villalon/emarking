@@ -32,9 +32,9 @@ if (isloggedin ()) {
 
 
 <!-- Script para filtro de genero -->
-<header class="header">
+<header class="pageheader">
 
-	<nav class="navbar navbar-default navbar-fixed-top header">
+	<nav class="navbar navbar-default navbar-fixed-top pageheader">
 		<div class="container">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle collapsed"

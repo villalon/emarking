@@ -114,6 +114,7 @@ if (isset($CFG->emarking_pagelayouttype)) {
             break;
     }
 }
+
 $PAGE->set_pagelayout($layout);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
@@ -144,10 +145,13 @@ if (!$emarkingisstudentmarking) {
         die();
     }
 }
-// Show header and heading.
-echo $OUTPUT->header();
-// Heading and tabs if we are within a course module.
-echo $OUTPUT->heading($emarking->name);
+if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED) {
+	// Show header and heading.
+	echo $OUTPUT->header();
+	// Heading and tabs if we are within a course module.
+	echo $OUTPUT->heading($emarking->name);
+}
+
 // Navigation tabs.
 $tabname = $scan ? "scanlist" : "mark";
 if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
@@ -431,7 +435,12 @@ $showpages->sortable(true, $defaulttsort, SORT_ASC);
 if ($emarking->anonymous < 2) {
     $showpages->no_sorting('lastname');
 }
+if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_EMBEDDED) {
+$showpages->no_sorting('status');
+$showpages->no_sorting('grade');
+$showpages->no_sorting('lastname');
 $showpages->no_sorting('comment');
+}
 $showpages->no_sorting('actions');
 $showpages->no_sorting('select');
 $showpages->pageable(true);
@@ -609,6 +618,7 @@ if($usercanpublishgrades) {
     emarking_show_orphan_pages_link($context, $cm);
 }
 // If the user is a tutor or teacher we don't include justice perception.
+if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED) {
 if ($usercangrade || !$submission) {
     echo $OUTPUT->footer();
     die();
@@ -707,6 +717,7 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
     }
 echo $OUTPUT->footer();
 
+}
 function emarking_get_userinfo($draft, $course, $emarking) {
     global $OUTPUT, $USER;
     $profileurl = new moodle_url('/user/view.php', array(

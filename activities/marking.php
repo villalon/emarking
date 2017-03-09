@@ -36,7 +36,6 @@ $PAGE->set_title('escribiendo');
 
 //print the header
 include 'views/header.php';
-include 'views/footer.html';
 ?>
 <div class="container">
 	<div class="row">
@@ -101,4 +100,4 @@ switch ($tab) {
 </div>
 <?php 
 //print the footer
-
+include 'views/footer.html';
