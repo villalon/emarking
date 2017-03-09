@@ -113,6 +113,7 @@ if (isset($CFG->emarking_pagelayouttype)) {
             break;
     }
 }
+
 $PAGE->set_pagelayout($layout);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
@@ -149,7 +150,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Navigation tabs.
 $tabname = $scan ? "scanlist" : "mark";
-if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
+if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED){
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 }
 // Reassign peers if everything is ok with it.
@@ -227,7 +228,9 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 }
 // Show export buttons when grades are available
 if($usercangrade) {
-    emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+	if (isset($CFG->emarking_pagelayouttype)&&$CFG->emarking_pagelayouttype!=EMARKING_PAGES_LAYOUT_EMBEDDED ) {
+	emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+	}
 }
 if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);
