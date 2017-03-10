@@ -102,12 +102,25 @@ if ($mform->is_cancelled ()) {
 	$planification = $fromform->planification ['text'];
 	$writing = $fromform->writing ['text'];
 	$editing = $fromform->editing ['text'];
+	$teaching= $fromform->teaching ['text'];
+	$lenguageresources= $fromform->languageresources ['text'];
 	
+	//changing url of image
 	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $fromform->instructions ['itemid'] . '/';
 	$instructions = str_replace ( $urlAntigua, $urlnueva, $instructions );
 	$planification = str_replace ( $urlAntigua, $urlnueva, $planification );
 	$writing = str_replace ( $urlAntigua, $urlnueva, $writing );
 	$editing = str_replace ( $urlAntigua, $urlnueva, $editing );
+	$teaching = str_replace ( $urlAntigua, $urlnueva, $teaching );
+	$lenguageresources = str_replace ( $urlAntigua, $urlnueva, $lenguageresources );
+	
+	//cleaning html text
+	$instructions = emarking_activities_clean_html_text($instructions);
+	$planification = emarking_activities_clean_html_text($planification);
+	$writing = emarking_activities_clean_html_text($writing);
+	$editing = emarking_activities_clean_html_text($editing);
+	$teaching = emarking_activities_clean_html_text($teaching);
+	$lenguageresources = emarking_activities_clean_html_text($lenguageresources);
 	
 	$record = new stdClass ();
 	$record->title = $fromform->title;
@@ -121,8 +134,8 @@ if ($mform->is_cancelled ()) {
 	$record->planification = $planification;
 	$record->writing = $writing;
 	$record->editing = $editing;
-	$record->teaching = $fromform->teaching ['text'];
-	$record->languageresources = $fromform->languageresources ['text'];
+	$record->teaching = $teaching;
+	$record->languageresources = $lenguageresources;
 	$record->timecreated = time ();
 	$record->userid = $USER->id;
 	$record->rubricid = $fromform->rubricid;
@@ -172,6 +185,16 @@ if ($mform->is_cancelled ()) {
 			'text' => '',
 			'',
 			'itemid' => $draftid_editor 
+	);
+	$instructions->teaching = array (
+			'text' => '',
+			'',
+			'itemid' => $draftid_editor
+	);
+	$instructions->languageresources = array (
+			'text' => '',
+			'',
+			'itemid' => $draftid_editor
 	);
 	
 	$mform->set_data ( $instructions );

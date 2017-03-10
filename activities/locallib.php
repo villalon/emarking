@@ -497,7 +497,7 @@ function emarking_activities_get_file_from_url($url, $pathname)
  */
 function emarking__activities_clean_html_to_print($html)
 {
-	
+	$html = preg_replace ( '!\s+!', ' ', $html );
 	$html = preg_replace('/<tbody\s*>/', '', $html);
 	$html = preg_replace('/<\/tbody>/', '', $html);
 	$html = preg_replace('/<td(.*?)>/', '<td>', $html);
@@ -515,18 +515,18 @@ function emarking__activities_clean_html_to_print($html)
  */
 function emarking_activities_clean_html_text($html)
 {
-
-
-	$html = preg_replace('/<p(.*?)>/', '<p style="text-align: justify;">', $html);
-	$html = preg_replace('/<span(.*?)>/', '<span">', $html);
-	$html = preg_replace('/<tbody\s*>/', '', $html);
-	$html = preg_replace('/<\/tbody>/', '', $html);
-	$html = preg_replace('/<td(.*?)>/', '<td>', $html);
-	$html = preg_replace('/<tr(.*?)>/', '<td>', $html);
-	$html = preg_replace('/border="\d+"/', '', $html);
-	$html = preg_replace('/<table(.*?)>/', '<br/><table border="1">', $html);
+	$html = preg_replace ( '!\s+!', ' ', $html );
+	$html = preg_replace ( '/<p(.*?)>/', '<p>', $html);
+	$html = preg_replace ( '/<span(.*?)>/', '<span>', $html);
+	$html = preg_replace ( '/<td(.*?)>/', '<td>', $html);
+	$html = preg_replace ( '/<tbody(.*?)>/', '', $html );
+	$html = preg_replace ( '/<td> <\/td>/', '', $html);
+	$html = preg_replace ( '/<h1(.*?)>/', '<h1>', $html );
+	$html = preg_replace ( '/<h2(.*?)>/', '<h2>', $html );
+	$html = preg_replace ( '/<h3(.*?)>/', '<h3>', $html );
+	$html = preg_replace ( '/<h4(.*?)>/', '<h4>', $html );
+	$html = preg_replace ( '/<h5(.*?)>/', '<h5>', $html );
 	
-
 	return $html;
 }
 /**

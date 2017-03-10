@@ -51,16 +51,25 @@ if ($mform->is_cancelled()) {
 	$planification = $fromform->planification ['text'];
 	$writing = $fromform->writing ['text'];
 	$editing = $fromform->editing ['text'];
+	$teaching= $fromform->teaching ['text'];
+	$lenguageresources= $fromform->languageresources ['text'];
 	
+	//changing url of image
 	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $fromform->instructions ['itemid'] . '/';
 	$instructions = str_replace ( $urlAntigua, $urlnueva, $instructions );
-	$instructions = emarking_activities_clean_html_text($instructions);
 	$planification = str_replace ( $urlAntigua, $urlnueva, $planification );
-	$planification = emarking_activities_clean_html_text($planification);
 	$writing = str_replace ( $urlAntigua, $urlnueva, $writing );
-	$writing = emarking_activities_clean_html_text($writing);
 	$editing = str_replace ( $urlAntigua, $urlnueva, $editing );
+	$teaching = str_replace ( $urlAntigua, $urlnueva, $teaching );
+	$lenguageresources = str_replace ( $urlAntigua, $urlnueva, $lenguageresources );
+	
+	//cleaning html text
+	$instructions = emarking_activities_clean_html_text($instructions);
+	$planification = emarking_activities_clean_html_text($planification);
+	$writing = emarking_activities_clean_html_text($writing);
 	$editing = emarking_activities_clean_html_text($editing);
+	$teaching = emarking_activities_clean_html_text($teaching);
+	$lenguageresources = emarking_activities_clean_html_text($lenguageresources);
 	
 	$activity->title = $fromform->title;
 	$activity->description = $fromform->description;
@@ -73,8 +82,8 @@ if ($mform->is_cancelled()) {
 	$activity->planification = $planification;
 	$activity->writing = $writing;
 	$activity->editing = $editing;
-	$activity->teaching = $fromform->teaching ['text'];
-	$activity->languageresources = $fromform->languageresources ['text'];
+	$activity->teaching = $teaching;
+	$activity->languageresources = $lenguageresources;
 	$activity->timemodified = time ();
 	$activity->userid = $USER->id;
 	$activity->rubricid = $fromform->rubricid;
@@ -136,6 +145,16 @@ if ($mform->is_cancelled()) {
 			'text' => $activity->editing,
 			'',
 			'itemid' => $draftid_editor 
+	);
+	$formData->teaching = array (
+			'text' => '',
+			'',
+			'itemid' => $draftid_editor
+	);
+	$formData->languageresources = array (
+			'text' => '',
+			'',
+			'itemid' => $draftid_editor
 	);
 	
 	$mform->set_data ( $formData );
