@@ -94,7 +94,7 @@ $(function() {
 						<form class="navbar-form navbar-right" method="post"
 							action="search.php">
 							<input type="text" class="form-control"
-								placeholder="Buscar actividades" name="search"> <input
+								placeholder="Buscar actividades" name="search" size="40"> <input
 								type="hidden" name="type" value="1">
 							<button class="btn btn-md btn-primary" type="submit">Buscar</button>
 						</form>
