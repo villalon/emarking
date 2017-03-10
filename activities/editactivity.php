@@ -53,7 +53,7 @@ if ($mform->is_cancelled()) {
 	$editing = $fromform->editing ['text'];
 	$teaching= $fromform->teaching ['text'];
 	$lenguageresources= $fromform->languageresources ['text'];
-	
+
 	//changing url of image
 	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $fromform->instructions ['itemid'] . '/';
 	$instructions = str_replace ( $urlAntigua, $urlnueva, $instructions );
@@ -62,7 +62,7 @@ if ($mform->is_cancelled()) {
 	$editing = str_replace ( $urlAntigua, $urlnueva, $editing );
 	$teaching = str_replace ( $urlAntigua, $urlnueva, $teaching );
 	$lenguageresources = str_replace ( $urlAntigua, $urlnueva, $lenguageresources );
-	
+
 	//cleaning html text
 	$instructions = emarking_activities_clean_html_text($instructions);
 	$planification = emarking_activities_clean_html_text($planification);
@@ -70,7 +70,8 @@ if ($mform->is_cancelled()) {
 	$editing = emarking_activities_clean_html_text($editing);
 	$teaching = emarking_activities_clean_html_text($teaching);
 	$lenguageresources = emarking_activities_clean_html_text($lenguageresources);
-	
+		
+		
 	$activity->title = $fromform->title;
 	$activity->description = $fromform->description;
 	//$activity->learningobjectives = $oaCode;
@@ -87,7 +88,6 @@ if ($mform->is_cancelled()) {
 	$activity->timemodified = time ();
 	$activity->userid = $USER->id;
 	$activity->rubricid = $fromform->rubricid;
-	
 	$DB->update_record('emarking_activities', $activity);
 	
 	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
@@ -145,12 +145,12 @@ if ($mform->is_cancelled()) {
 			'itemid' => $draftid_editor 
 	);
 	$formData->teaching = array (
-			'text' => '',
+			'text' => $activity->teaching,
 			'',
 			'itemid' => $draftid_editor
 	);
 	$formData->languageresources = array (
-			'text' => '',
+			'text' => $activity->languageresources,
 			'',
 			'itemid' => $draftid_editor
 	);
