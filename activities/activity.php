@@ -61,7 +61,7 @@ if (isloggedin ()) {
 $activity = $DB->get_record ( 'emarking_activities', array (
 		'id' => $activityid
 ) );
-$user_object = $DB->get_record ( 'user', array (
+$userobject = $DB->get_record ( 'user', array (
 		'id' => $activity->userid
 ) );
 
@@ -106,8 +106,8 @@ foreach ( $oaComplete as $oaPerCourse ) {
 	$secondSplit = explode ( "]", $firstSplit [1] );
 	$course = $firstSplit [0];
 
-	$coursesOA .= '<p>Curso: ' . $firstSplit [0] . '° básico</p>';
-	$coursesOA .= '<p>OAs: ' . $secondSplit [0] . '</p>';
+	$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
+	$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
 }
 
 //Busca toda la información de la comunidad en esta actividad

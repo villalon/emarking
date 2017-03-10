@@ -84,7 +84,7 @@ function show_result($data) {
 		$course = $firstSplit [0];
 		
 		$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
-		$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br><hr>';
+		$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
 	}
 	$userobject=$DB->get_record('user',array('id'=>$data->userid));
 	include ($CFG->dirroot. '/mod/emarking/activities/views/showresult.php');

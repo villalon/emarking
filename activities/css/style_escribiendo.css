@@ -403,3 +403,7 @@ min-height:100%;
  .title_result{
  line-height: 0.1;
  }
+ .result_list{
+ display: inline-block
+	
+ }

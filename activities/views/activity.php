@@ -9,20 +9,17 @@
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<h3>Resumen</h3>
-
-						<p>Título: <?=ucfirst(strtolower($activity->title))?></p>
-						<p>Descipción: <?php echo $activity->description;?></p>
-					<?php echo $coursesOA; ?>
-					<p>Propósito comunicativo: <?php echo $activity->comunicativepurpose; ?></p>
-						<p>Género: <?php echo $activity->genre; ?></p>
-						<p>Audiencia: <?php echo $activity->audience; ?></p>
-						<p>Tiempo estimado: <?php echo $activity->estimatedtime; ?> minutos</p>
-						<p>Creado por: <?php echo $user_object->firstname.' '.$user_object->lastname ?> </p>
-
-
-
-
-					</div>
+						
+						<p><?=$coursesOA?>
+						<hr>
+    Género: <?php echo $activity->genre; ?>
+    Propósito Comunicativo: <?=$activity->comunicativepurpose?><br>
+    Audiencia: <?= $activity->audience?><br>
+    Tiempo estimado: <?=$activity->estimatedtime?><br>
+						
+						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
+												
+										</div>
 				</div>
 				<div class="panel panel-default">
 					<div class="panel-body">
@@ -65,7 +62,11 @@
 			<div class="col-md-9">
 				<div class="panel panel-default">
 					<div class="panel-body">
-						<h2 class="title"> <?=ucfirst(strtolower($activity->title))?> </h2>
+						<h3 class="title_result">
+								<b><?=ucfirst(strtolower($activity->title));?></b>
+							</h3>
+							<br>
+							<p><?=$activity->description?></p>
 						<button type="button" class="btn btn-success" data-toggle="modal"
 							data-target="#myModal">
 							<span class="glyphicon glyphicon-cloud-download"></span>
