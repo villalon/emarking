@@ -29,12 +29,50 @@ if (isloggedin ()) {
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script>
+$(function() {
+	var width=$( window ).width();
+	var height=$( window ).height();
+	var sticky = $('.pageheader');
+	var txt = $('.txt');
+	var logos = $('.navbar-brand');
+	var search = $('.search');
+	
+	 if(width < 990){
+   	  txt.removeClass('text_nav');
+   	  txt.addClass('text_nav_1100');
+	      }
 
+	$(window).scroll(function(){
+		  
+		      scroll = $(window).scrollTop();
+		  if (scroll >= 100){ 
+			  sticky.addClass('navbar-fixed-top');
+			  logos.removeClass('logos_head');
+			  search.hide();
+			  if(width < 990){
+			  txt.addClass('text_nav_fixed_1100');
+			  txt.removeClass('text_nav_1100')
+		  		}
+			  }
+		  else {
+			  sticky.removeClass('navbar-fixed-top')
+			  logos.addClass('logos_head')
+			  search.show();
+			  if(width < 990){
+			  txt.removeClass('text_nav_fixed_1100')
+			  txt.addClass('text_nav_1100')
+		  }
+			  };
+		});
+	  
+	});
+</script>
 
 <!-- Script para filtro de genero -->
 <header class="pageheader">
 
-	<nav class="navbar navbar-default navbar-fixed-top pageheader">
+	<nav class="navbar navbar-default  pageheader">
 		<div class="container">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle collapsed"
@@ -49,7 +87,7 @@ if (isloggedin ()) {
 
 			<div id="navbar" class="navbar-collapse collapse">
 
-				<ul class="nav navbar-nav navbar-right">
+				<ul class="nav navbar-nav navbar-right search">
 					<li style="padding-top: 10px">
 						<form class="navbar-form navbar-right" method="post"
 							action="search.php">
@@ -63,13 +101,14 @@ if (isloggedin ()) {
 					<li></li>
 
 				</ul>
-				<ul class="nav navbar-nav navbar-left">
-					<li class="text_nav"><a href="<?=$homeUrl?>">Inicio</a></li>
-					<li class="text_nav"><a href="#contact">Actividades</a></li>
+				<div class="row">
+				<ul class="nav navbar-nav navbar-left text_nav">
+					<li class="txt text_nav"><a href="<?=$homeUrl?>">Inicio</a></li>
+					<li class="txt text_nav"><a href="#contact">Actividades</a></li>
 
-					<li class="text_nav"><a href="#about">Nosotros</a></li>
+					<li class="txt text_nav"><a href="#about">Nosotros</a></li>
 
-					<li class="text_nav"><a href="#about">Proyecto</a></li>
+					<li class="txt text_nav"><a href="#about">Proyecto</a></li>
 
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
@@ -79,7 +118,7 @@ if (isloggedin ()) {
 														
 														?>
           
-                   <li class="dropdown"><a class="dropdown-toggle"
+                   <li class="dropdown txt text_nav"><a class="dropdown-toggle"
 						data-toggle="dropdown" href="#"><?=$USER->firstname;?> <span
 							class="caret"></span></a>
 						<ul class="dropdown-menu">
@@ -101,7 +140,7 @@ if (isloggedin ()) {
 								</div>
 							</li>
 						</ul></li>
-                
+               
              
              <?php }else{?> 
               <li class="text_nac"><a href="<?=$loginUrl?>"><img
@@ -116,4 +155,5 @@ if (isloggedin ()) {
 		<!--/.nav-collapse -->
 		</div>
 	</nav>
+	
 </header>

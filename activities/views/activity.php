@@ -85,8 +85,7 @@
 									<span class="glyphicon glyphicon-floppy-disk"></span> Guardar Actividad</a>';
 								}
 								?>
-								<br>
-						<br>
+								<br> <br>
 
 						<!-- Aqui agregue el cambio para las tabs -->
 						<ul class="nav nav-tabs active_tab">

@@ -8,7 +8,7 @@ body {
 	color: black;
 	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
 	font-size: 15px;
-	padding-top: 140px;
+	
 	background-color: white;
 }
 
@@ -25,10 +25,15 @@ body {
 }
 
 /*CSS Header*/
+.navbar{
+	margin-bottom: 0px;
 
-.navbar-default .navbar-text{color:#DAE5EC}.navbar-default .navbar-nav>li>a{color:#DAE5EC}.navbar-default .navbar-nav>li>a:focus,.navbar-default .navbar-nav>li>a:hover{
+}
+
+.navbar-default{border-color: transparent;} .navbar-text{color:#DAE5EC}.navbar-default .navbar-nav>li>a{color:#DAE5EC}.navbar-default .navbar-nav>li>a:focus,.navbar-default .navbar-nav>li>a:hover{
 	color: #71A7BB;
 	text-decoration:underline;
+	
 }
 
 /*Submenu*/
@@ -73,8 +78,19 @@ body {
 }
 .text_nav {
 	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
-	font-size: 2.0em;
-	text-transform: uppercase;
+	font-size: 1.5em;
+	text-transform: capitalize
+}
+.text_nav_1100 {
+	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
+	font-size: 0.65em;
+	text-transform: capitalize
+}
+
+.text_nav_fixed_1100 {
+	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
+	font-size: 1.0em;
+	text-transform: capitalize
 }
 
 .hr_nav {
@@ -148,7 +164,7 @@ body {
 
 /* footer */
 #container_footer, #container2_footer, #container3_footer {
-	width: 1157px;
+	width: 100%;
 	background-color: #353535;
 	position: relative;
 }
@@ -380,3 +396,7 @@ min-height:100%;
 #emarking-download{
 	width:60%;
 }
+.fixed {
+    position: fixed;
+    top:0; left:0;
+    width: 100%; }
