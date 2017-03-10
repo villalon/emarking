@@ -518,7 +518,7 @@ function emarking_activities_clean_html_text($html)
 
 
 	$html = preg_replace('/<p(.*?)>/', '<p style="text-align: justify;">', $html);
-
+	$html = preg_replace('/<span(.*?)>/', '<span">', $html);
 
 	return $html;
 }
