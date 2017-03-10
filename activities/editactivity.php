@@ -89,9 +89,7 @@ if ($mform->is_cancelled()) {
 	$activity->rubricid = $fromform->rubricid;
 	
 	$DB->update_record('emarking_activities', $activity);
-
-
-		
+	
 	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 	redirect($url, 0);
   //In this case you process validated data. $mform->get_data() returns data posted in form.

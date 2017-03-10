@@ -516,7 +516,7 @@ function emarking__activities_clean_html_to_print($html)
 function emarking_activities_clean_html_text($html)
 {
 	$html = preg_replace ( '!\s+!', ' ', $html );
-	$html = preg_replace ( '/<p(.*?)>/', '<p>', $html);
+	$html = preg_replace ( '/<p(.*?)>/', '<p align="justify">', $html);
 	$html = preg_replace ( '/<span(.*?)>/', '<span>', $html);
 	$html = preg_replace ( '/<td(.*?)>/', '<td>', $html);
 	$html = preg_replace ( '/<tbody(.*?)>/', '', $html );
