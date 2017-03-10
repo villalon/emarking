@@ -76,21 +76,28 @@ body {
 	min-height: 140px;
 	min-width: 190px;
 }
+.logos_head_fixed {
+	background-image: url(../img/header/logo_fixed.png);
+	background-repeat: no-repeat;
+	background-color: #00547C;
+	margin-left: 5px;
+	min-width: 145px;
+}
 .text_nav {
 	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
 	font-size: 1.5em;
-	text-transform: capitalize
+	text-transform: capitalize;
 }
 .text_nav_1100 {
 	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
 	font-size: 0.65em;
-	text-transform: capitalize
+	text-transform: capitalize;
 }
 
 .text_nav_fixed_1100 {
 	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
 	font-size: 1.0em;
-	text-transform: capitalize
+	text-transform: capitalize;
 }
 
 .hr_nav {
@@ -406,4 +413,8 @@ min-height:100%;
  .result_list{
  display: inline-block
 	
+ }
+ .activity_buttons{
+ padding: 5px;
+ width: 170px;
  }

@@ -9,17 +9,34 @@
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<h3>Resumen</h3>
-						
+
 						<p><?=$coursesOA?>
+						
+   
 						<hr>
-    Género: <?php echo $activity->genre; ?>
+						 Género: <?php echo $activity->genre; ?>
     Propósito Comunicativo: <?=$activity->comunicativepurpose?><br>
     Audiencia: <?= $activity->audience?><br>
     Tiempo estimado: <?=$activity->estimatedtime?><br>
-						
+
 						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
-												
-										</div>
+						<hr>
+						<div class="activity_buttons">
+						<button type="button" class="btn  btn-success" data-toggle="modal"
+							data-target="#myModalUse">
+							<span class="glyphicon glyphicon-floppy-disk"></span> Usar
+							Actividad
+						</button>
+						</div>
+						<div class="activity_buttons">
+						<button type="button" class="btn btn-primary" data-toggle="modal"
+							data-target="#myModalUse">
+							<span class="glyphicon glyphicon-floppy-disk"></span> Adaptar
+							Actividad
+						</button>
+						</div>
+						<br>
+					</div>
 				</div>
 				<div class="panel panel-default">
 					<div class="panel-body">
@@ -67,26 +84,10 @@
 							</h3>
 							<br>
 							<p><?=$activity->description?></p>
-						<button type="button" class="btn btn-success" data-toggle="modal"
-							data-target="#myModal">
-							<span class="glyphicon glyphicon-cloud-download"></span>
-							Descargar Actividad
-						</button>
+					
 							 
-							 <?php
-								
-								if ($activity->userid == $USER->id) {
-									echo '<a href="' . $editUrl . '" class="btn btn-primary" role="button">
-										<span class="glyphicon glyphicon-edit"></span> Editar Actividad</a> ';
-									echo '<button type="button" class="btn btn-warning" data-toggle="modal"
-								data-target="#myModalUse">
-									   <span class="glyphicon glyphicon-floppy-disk"></span> Utilizar Actividad</button>';
-								} else {
-									echo '<a href="' . $forkingUrl . '" class="btn btn-primary" role="button">
-									<span class="glyphicon glyphicon-floppy-disk"></span> Guardar Actividad</a>';
-								}
-								?>
-								<br> <br>
+							 
+								<br/> 
 
 						<!-- Aqui agregue el cambio para las tabs -->
 						<ul class="nav nav-tabs active_tab">

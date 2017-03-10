@@ -49,6 +49,7 @@ $(function() {
 		  if (scroll >= 100){ 
 			  sticky.addClass('navbar-fixed-top');
 			  logos.removeClass('logos_head');
+			  logos.addClass('logos_head_fixed');
 			  search.hide();
 			  if(width < 990){
 			  txt.addClass('text_nav_fixed_1100');
@@ -57,7 +58,8 @@ $(function() {
 			  }
 		  else {
 			  sticky.removeClass('navbar-fixed-top')
-			  logos.addClass('logos_head')
+			  logos.addClass('logos_head');
+			  logos.removeClass('logos_head_fixed');
 			  search.show();
 			  if(width < 990){
 			  txt.removeClass('text_nav_fixed_1100')
