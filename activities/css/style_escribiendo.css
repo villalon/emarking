@@ -400,3 +400,6 @@ min-height:100%;
     position: fixed;
     top:0; left:0;
     width: 100%; }
+ .title_result{
+ line-height: 0.1;
+ }
