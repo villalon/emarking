@@ -508,6 +508,21 @@ function emarking__activities_clean_html_to_print($html)
 	return $html;
 }
 /**
+ * Limpia el texto de una actividad
+ *
+ * @param String $html
+ * @return String
+ */
+function emarking_activities_clean_html_text($html)
+{
+
+
+	$html = preg_replace('/<p(.*?)>/', '<p style="text-align: justify;">', $html);
+
+
+	return $html;
+}
+/**
  * Limpia una cadena de string para ser transformado en json
  *
  * @param String $html

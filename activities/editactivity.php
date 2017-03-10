@@ -3,6 +3,7 @@ require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.
 //include simplehtml_form.php
 global $PAGE,$USER,$CFG , $OUTPUT, $DB;
 require_once ($CFG->dirroot. '/mod/emarking/activities/forms/edit_activity.php');
+require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 require_login ();
 
@@ -14,7 +15,9 @@ $PAGE->set_pagelayout('embedded');
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/editactivity.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
+
 echo $OUTPUT->header ();
+include 'views/headermoodle.php';
 //print the header
 
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
@@ -51,9 +54,13 @@ if ($mform->is_cancelled()) {
 	
 	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $fromform->instructions ['itemid'] . '/';
 	$instructions = str_replace ( $urlAntigua, $urlnueva, $instructions );
+	$instructions = emarking_activities_clean_html_text($instructions);
 	$planification = str_replace ( $urlAntigua, $urlnueva, $planification );
+	$planification = emarking_activities_clean_html_text($planification);
 	$writing = str_replace ( $urlAntigua, $urlnueva, $writing );
+	$writing = emarking_activities_clean_html_text($writing);
 	$editing = str_replace ( $urlAntigua, $urlnueva, $editing );
+	$editing = emarking_activities_clean_html_text($editing);
 	
 	$activity->title = $fromform->title;
 	$activity->description = $fromform->description;
@@ -73,7 +80,8 @@ if ($mform->is_cancelled()) {
 	$activity->rubricid = $fromform->rubricid;
 	
 	$DB->update_record('emarking_activities', $activity);
-	
+
+
 		
 	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 	redirect($url, 0);
@@ -143,5 +151,5 @@ echo $OUTPUT->footer ();
 echo" 	</div>			
 	</div>";
 //print the footer
-include 'views/headermoodle.php';
+
 include 'views/footer.html';
