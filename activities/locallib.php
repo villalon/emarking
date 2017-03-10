@@ -519,6 +519,12 @@ function emarking_activities_clean_html_text($html)
 
 	$html = preg_replace('/<p(.*?)>/', '<p style="text-align: justify;">', $html);
 	$html = preg_replace('/<span(.*?)>/', '<span">', $html);
+	$html = preg_replace('/<tbody\s*>/', '', $html);
+	$html = preg_replace('/<\/tbody>/', '', $html);
+	$html = preg_replace('/<td(.*?)>/', '<td>', $html);
+	$html = preg_replace('/border="\d+"/', '', $html);
+	$html = preg_replace('/<table(.*?)>/', '<br/><table border="1">', $html);
+	$html = preg_replace('/<div>(<input.*?)<\/div>/', '<br/>$1', $html);
 
 	return $html;
 }
