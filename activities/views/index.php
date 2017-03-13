@@ -12,7 +12,7 @@
 		<div class="carousel-inner">
 
 			<div class="item active">
-				<img src="img/slide01.png" alt="01" class="img-responsive"
+				<img src="img/slide01.jpg" alt="01" class="img-responsive"
 					style="min-width: 100%;">
 				<div class="carousel-caption"></div>
 			</div>
@@ -54,13 +54,7 @@
 					<hr>
 					<br>
 					<p class="text-justify text_actv">
-						En esta actividad los estudiantes deben escribir un texto
-						informativo en el que describan cómo es el lugar en el que viven.
-						Con esta actividad, el docente puede trabajar los criterios de
-						coherencia y desarrollo de ideas, además de enfatizar la escritura
-						como proceso recursivo.<br> <br> Ad minim veniam, quis nostrud
-						exercitation ullamco laboris nisi ut aliquip ex ea commodo
-						consequat.
+						
 					</p>
 				</div>
 				<div class="col-xs-12 col-sm-2 col-md-4 col-lg-6 img1_actv"></div>
