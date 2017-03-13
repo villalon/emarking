@@ -12,7 +12,7 @@
 		<div class="carousel-inner">
 
 			<div class="item active">
-				<img src="img/slide01.jpg" alt="01" class="img-responsive"
+				<img src="img/slide1.jpg" alt="01" class="img-responsive"
 					style="min-width: 100%;">
 				<div class="carousel-caption"></div>
 			</div>
@@ -37,7 +37,7 @@
 
 
 	<!-- Actividades -->
-	<div class="row_activities">
+	<div class="row_activities" >
 		<div class="container">
 			<br>
 			<div class="row">
@@ -45,34 +45,30 @@
 			</div>
 
 			<div class="row">
+				
 				<div class="col-xs-12 col-sm-5 col-md-4 col-lg-4 col_height"
 					style="background-color: #085B7F;">
-					<h4 class="subtit_actv">Género: Afiches</h4>
+					
+					<h4 class="subtit_actv">Género: <?=$activityArray[0]['genre']?></h4>
 					<h2 class="h2tit_actv">
-						<a class="h2tit_actv"> Este es mi barrio</a>
+						<a class="h2tit_actv" href="<?=$activityArray[0]['link']?>"> <?=$activityArray[0]['title']?></a>
 					</h2>
 					<hr>
 					<br>
-					<p class="text-justify text_actv">
-						
-					</p>
+					<p class="text-justify text_actv"><?=$activityArray[0]['description']?></p>
+				
 				</div>
+				
 				<div class="col-xs-12 col-sm-2 col-md-4 col-lg-6 img1_actv"></div>
 				<div class="col-xs-12 col-sm-5 col-md-4 col-lg-4 col_height"
 					style="background-color: #097C5E;">
-					<h4 class="subtit_actv">Género: Experiencias Personales</h4>
+					<h4 class="subtit_actv">Género: <?=$activityArray[1]['genre']?></h4>
 					<h2 class="h2tit_actv">
-						<a class="h2tit_actv">Vacaciones en la montaña</a>
+						<a class="h2tit_actv" href="<?=$activityArray[1]['link']?>"> <?=$activityArray[1]['title']?></a>
 					</h2>
 					<hr>
 					<br>
-					<p class="text-justify text_actv">
-						Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit
-						aut fugit, sed quia consequuntur magni dolores eos qui ratione
-						voluptatem sequi nesciunt. <br> <br> Ad minim veniam, quis nostrud
-						exercitation ullamco laboris nisi ut aliquip ex ea commodo
-						consequat. Excepteur sint occaecat cupidatat.
-					</p>
+					<p class="text-justify text_actv"><?=$activityArray[1]['description']?></p>
 				</div>
 			</div>
 
@@ -80,35 +76,23 @@
 				<div class="col-xs-1 col-sm-1 col-md-2 col-lg-3 img2_actv"></div>
 				<div class="col-xs-11 col-sm-4 col-md-4 col-lg-4 col_height"
 					style="background-color: #7C3709;">
-					<h4 class="subtit_actv">Género: Anécdotas</h4>
+					<h4 class="subtit_actv">Género: <?=$activityArray[2]['genre']?></h4>
 					<h2 class="h2tit_actv">
-						<a class="h2tit_actv">Perdidos en el cerro</a>
+						<a class="h2tit_actv" href="<?=$activityArray[2]['link']?>"> <?=$activityArray[2]['title']?></a>
 					</h2>
 					<hr>
 					<br>
-					<p class="text-justify text_actv">
-						Ut enim ad minima veniam, quis nostrum exercitationem ullam
-						corporis suscipit laboriosam, nisi ut aliquid ex ea commodi
-						consequatur? <br> <br> Lorem ipsum dolor sit amet, consectetur
-						adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-						dolore magna aliqua. Ut enim ad minim veniam.
-					</p>
+					<p class="text-justify text_actv"><?=$activityArray[2]['description']?></p>
 				</div>
 				<div class="col-xs-11 col-sm-4 col-md-4 col-lg-4 col_height"
 					style="background-color: #757A0A;">
-					<h4 class="subtit_actv">Género: Retratos de hechos</h4>
+					<h4 class="subtit_actv">Género: <?=$activityArray[3]['genre']?></h4>
 					<h2 class="h2tit_actv">
-						<a class="h2tit_actv">Mi día viernes</a>
+						<a class="h2tit_actv" href="<?=$activityArray[3]['link']?>"> <?=$activityArray[3]['title']?></a>
 					</h2>
 					<hr>
 					<br>
-					<p class="text-justify text_actv">
-						Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit
-						aut fugit, sed quia consequuntur magni dolores eos qui ratione
-						voluptatem sequi nesciunt.<br> <br> Ad minim veniam, quis nostrud
-						exercitation ullamco laboris nisi ut aliquip ex ea commodo
-						consequat. Excepteur sint occaecat cupidatat.
-					</p>
+					<p class="text-justify text_actv"><?=$activityArray[3]['description']?></p>
 				</div>
 				<div class="col-xs-1 col-sm-3 col-md-2 col-lg-3 img2_actv"></div>
 			</div>
@@ -151,14 +135,14 @@
 			<div class="col-xs-12 col-sm-3 col-md-6 col-lg-6 tit_blue">
 				<h2>Quiénes Somos</h2>
 				<br>
-				<p class="text_grey1">Escribiendo.online es una comunidad de
+				<p class="text_grey1" align="justify">Escribiendo.online es una comunidad de
 					aprendizaje comprometida con la enseñanza de la escritura en las
 					aulas chilenas. Sabemos que aprender a escribir es un proceso
 					complejo en el que los estudiantes necesitan ser guiados por sus
 					profesores. Pero también sabemos lo difícil y lento que puede
 					resultar revisar y retroalimentar la escritura de los estudiantes.
 				</p>
-				<p class="text_grey1">Por esto hemos creado esta plataforma
+				<p class="text_grey1" align="justify">Por esto hemos creado esta plataforma
 					colaborativa en línea que permite a los profesores compartir
 					actividades, videos y pautas de evaluación de la escritura, así
 					como corregir y retroalimentar en línea los textos de sus
@@ -171,7 +155,7 @@
 				align="center">
 				<h4>Profesores</h4>
 				<img src="img/index/img_profesor.jpg">
-				<p class="text_grey">Los profesores que participan de la comunidad
+				<p class="text_grey" align="justify">Los profesores que participan de la comunidad
 					pueden crear un perfil, inscribir sus cursos, crear actividades,
 					videos y pautas de evaluación, y usar la corrección en línea o
 					enviar los textos de sus estudiantes para evaluación experta.
@@ -184,7 +168,7 @@
 				align="center">
 				<h4>Correctores</h4>
 				<img src="img/index/img_ayudante.png">
-				<p class="text_grey">Los correctores en línea son profesores que se
+				<p class="text_grey" align="justify">Los correctores en línea son profesores que se
 					han capacitado en las rúbricas y pautas de evaluación para llevar a
 					cabo una evaluación experta de los textos subidos a la plataforma
 					por otros profesores.</p>
@@ -194,7 +178,7 @@
 				align="center">
 				<h4>Estudiantes</h4>
 				<img src="img/index/img_student.png">
-				<p class="text_grey">Los estudiantes pueden participar de la
+				<p class="text_grey" align="justify">Los estudiantes pueden participar de la
 					plataforma invitados por sus profesores. En esta pueden revisar la
 					retroalimentación que su profesor les entregó, así como participar
 					en evaluaciones entre pares con sus compañeros de curso.</p>

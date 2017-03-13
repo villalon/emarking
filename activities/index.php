@@ -28,6 +28,20 @@ $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
+$query = "SELECT id, genre, description, title FROM mdl_emarking_activities
+			ORDER BY RAND()
+			LIMIT 4"; 
+$activities = $DB->get_records_sql($query);
+$activityArray=array();
+foreach ($activities as $activity){
+	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activity->id));
+	$activityArray[]=array(
+			'title'=>$activity->title,
+			'genre'=>$activity->genre,
+			'description'=>$activity->description,
+			'link'=>$url
+	);
+}
 
 //print the header
 include 'views/header.php';
