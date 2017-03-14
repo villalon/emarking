@@ -130,6 +130,12 @@ if ($mform->get_data()) {
             $DB->commit_delegated_transaction($transaction);
         }
         // Display confirmation page before moving to process.
+        if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+        	$url = new moodle_url('/mod/emarking/activities/marking.php', array(
+        			'id' => $cm->id));
+        	redirect($url, '', 0);
+        	die();
+        }
         redirect($url, get_string('uploadanswersuccessful', 'mod_emarking'), 3);
         die();
     }
