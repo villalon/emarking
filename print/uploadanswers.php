@@ -132,7 +132,9 @@ if ($mform->get_data()) {
         // Display confirmation page before moving to process.
         if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
         	$url = new moodle_url('/mod/emarking/activities/marking.php', array(
-        			'id' => $cm->id));
+        			'id' => $cm->id,
+        			'tab'=>3
+        	));
         	redirect($url, '', 0);
         	die();
         }
@@ -149,6 +151,14 @@ if($action === 'delete') {
     $fs->delete_area_files($context->id, 'mod_emarking', 'upload', $digitizedanswerid);
     $DB->delete_records('emarking_digitized_answers', array('id'=>$digitizedanswerid));
     // Display confirmation page before moving to process.
+    if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+    	$url = new moodle_url('/mod/emarking/activities/marking.php', array(
+    			'id' => $cm->id,
+    			'tab'=>3
+    	));
+    	redirect($url, '', 0);
+    	die();
+    }
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 } elseif($action === 'process') {
@@ -159,6 +169,14 @@ if($action === 'delete') {
     $digitizedanswer->status = EMARKING_DIGITIZED_ANSWER_UPLOADED;
     $DB->update_record('emarking_digitized_answers', $digitizedanswer);
     // Display confirmation page before moving to process.
+    if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+    	$url = new moodle_url('/mod/emarking/activities/marking.php', array(
+    			'id' => $cm->id,
+    			'tab'=>3
+    	));
+    	redirect($url, '', 0);
+    	die();
+    }
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 }

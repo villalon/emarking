@@ -31,7 +31,7 @@ $(function() {
 						
    
 						<hr>
-						 Género: <?php echo $activity->genre; ?>
+						 Género: <?php echo $activity->genre; ?><br>
     Propósito Comunicativo: <?=$activity->comunicativepurpose?><br>
     Audiencia: <?= $activity->audience?><br>
     Tiempo estimado: <?=$activity->estimatedtime?><br>
