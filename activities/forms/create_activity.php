@@ -59,7 +59,7 @@ class local_ciae_create_activity extends moodleform {
         $mform->addRule('title', get_string('required'), 'required');
         //descripción
         $mform->addElement('static', '', '','Pequeña descrición sobre la actividad a realizar, max 500 caracteres.');
-        $mform->addElement('textarea', 'description', "Descripción", 'wrap="virtual" rows="10" cols="50" maxlength="400"'); 
+        $mform->addElement('textarea', 'description', "Descripción", 'wrap="virtual" rows="10" cols="50" maxlength="300"'); 
         $mform->setType('description', PARAM_TEXT);
  
         $mform->addElement('static', '', '','Los objetivos que entrega el ministerio de educación.');

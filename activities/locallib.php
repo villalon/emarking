@@ -87,6 +87,35 @@ function show_result($data) {
 		$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
 	}
 	$userobject=$DB->get_record('user',array('id'=>$data->userid));
+	
+	//Busca toda la información de la comunidad en esta actividad
+	$communitysql = $DB->get_record('emarking_social', array('activityid'=>$data->id));
+	
+	if(!$communitysql){
+	
+		$communitysql=new stdClass ();
+		$communitysql->activityid 			= $data->id;
+		$communitysql->timecreated         	= time();
+		$communitysql->data					= null;
+		$DB->insert_record ( 'emarking_social', $communitysql );
+		$average=0;
+	}
+	$countvotes=0;
+	$countcomments=0;
+	$average=0;
+	if(isset($communitysql->data)&& $communitysql->data!=null){
+		$recordcleaned=emarking_activities_clean_string_to_json($communitysql->data);
+		$decode=json_decode($recordcleaned);
+		$social=$decode->data;
+		$comments=$social->Comentarios;
+		$votes=$social->Vote;
+		$countvotes=count($votes);
+		$countcomments=count($comments);
+		if($countvotes > 0){
+		$average=get_average($votes);
+		}
+		
+	}
 	include ($CFG->dirroot. '/mod/emarking/activities/views/showresult.php');
 	
 }
@@ -580,7 +609,7 @@ function rating($userid, $activityid, $stars) {
 			$communitysql->data = $datajson;
 			
 			$DB->update_record ( 'emarking_social', $communitysql );
-			var_dump($votes);
+			
 			return get_average ( $votes );
 		} else {
 			
@@ -637,8 +666,9 @@ function rating($userid, $activityid, $stars) {
 
 function if_user_has_voted($array, $userid) {
 	foreach ( $array as $object ) {
-		if (isset ( $object->userid ) && $object->userid == $userid)
-			return false;
+		if (isset ( $object->userid ) && $object->userid == $userid){
+			return $object->rating;
+		}
 	}
 	return true;
 }
@@ -649,5 +679,6 @@ function get_average($array) {
 		$sum = $sum + ( int ) $object->rating;
 		$count ++;
 	}
-	return $average = $sum / $count;
+	$average = $sum / $count;
+	return round($average);
 }

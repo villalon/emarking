@@ -12,7 +12,7 @@
 		<div class="carousel-inner">
 
 			<div class="item active">
-				<img src="img/slide1.jpg" alt="01" class="img-responsive"
+				<img src="img/slide1.png" alt="01" class="img-responsive"
 					style="min-width: 100%;">
 				<div class="carousel-caption"></div>
 			</div>

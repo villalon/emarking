@@ -52,6 +52,9 @@ class mod_emarking_upload_form extends moodleform {
         // The course module id.
         $mform->addElement('hidden', 'id', $instance['coursemoduleid']);
         $mform->setType('id', PARAM_INT);
+        // The course module id.
+        $mform->addElement('hidden', 'tab', 3);
+        $mform->setType('tab', PARAM_INT);
         // The activity id.
         $mform->addElement('hidden', 'emarkingid', $instance['emarkingid']);
         $mform->setType('emarkingid', PARAM_INT);

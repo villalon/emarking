@@ -1,4 +1,21 @@
-
+<script>
+$(function() {
+	var vote = '<?=$vote?>';
+	if(vote > 0){
+		for (i = 1; i <= vote; i++) { 
+        	document.getElementById(i).className="btn btn-warning btn-sm";
+        	document.getElementById(i).disabled = true;
+        }
+		document.getElementById(1).disabled = true;
+        document.getElementById(2).disabled = true;
+        document.getElementById(3).disabled = true;
+        document.getElementById(4).disabled = true;
+        document.getElementById(5).disabled = true;
+		}
+	
+	  
+	});
+</script>
 <!-- BUSCADOR -->
 <div class="activity">
 	<div class="container">
@@ -23,14 +40,14 @@
 						<hr>
 						<div class="activity_buttons">
 						<button type="button" class="btn  btn-success" data-toggle="modal"
-							data-target="#myModalUse">
+							data-target="#myModalUse" <?=$disabled?>>
 							<span class="glyphicon glyphicon-floppy-disk"></span> Usar
 							Actividad
 						</button>
 						</div>
 						<div class="activity_buttons">
 						<button type="button" class="btn btn-primary" data-toggle="modal"
-							data-target="#myModalUse">
+							data-target="#myModalUse" <?=$disabled?>>
 							<span class="glyphicon glyphicon-floppy-disk"></span> Adaptar
 							Actividad
 						</button>
@@ -43,7 +60,7 @@
 						<h3>Calificación</h3>
 						<div class="rating-block" style="text-align: center;">
 							<h2 id="average" class="bold padding-bottom-7">
-								<?=$average?> <small>/ 5</small> <small id="countVotes"
+								<?=round($average)?> <small>/ 5</small> <small id="countVotes"
 									style="font-size: 13px; color: black;"><?=$countVotes?> voto(s)</small>
 							</h2>
 							<button id="1" type="button"
@@ -163,8 +180,9 @@
 
 							<div id="menu2" class="tab-pane fade">
 								<h3 style="text-align: left;">Evaluación</h3>
+	<?php if(isset($rubric)&& $rubric!=null){?>
 								<h4 style="text-align: left;"><?php echo $rubricname?></h4>
-	<?php echo $rubricdescription; ?>
+							<?php echo $rubricdescription; ?>
 			<table class="table table-bordered">
 									<thead>
 										<tr>
@@ -197,8 +215,9 @@
    				    </tbody>
 								</table>
 
-
+<?php }?>
 							</div>
+							
 						</div>
 					</div>
 				</div>
@@ -243,8 +262,15 @@ include "modals/useactivity.php";
 		        for (i = 1; i <= mount; i++) { 
 		        	document.getElementById(i).className="btn btn-warning btn-sm";
 		        }
+		        document.getElementById(1).disabled = true;
+		        document.getElementById(2).disabled = true;
+		        document.getElementById(3).disabled = true;
+		        document.getElementById(4).disabled = true;
+		        document.getElementById(5).disabled = true;
 		        
-		        document.getElementById("average").innerHTML=result+ " <small>/ 5</small>";
+		        var countvotes = parseInt('<?=$countVotes?>') + 1;
+		        document.getElementById("average").innerHTML=result+ " <small>/ 5 </small>" + 
+		        '<small id="countVotes"	style="font-size: 13px; color: black;"> '+ countvotes + " voto(s)";
 	       }
 	     });
 }

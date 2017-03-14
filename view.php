@@ -244,7 +244,13 @@ $usercanpublishgrades = ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||
     has_capability("mod/emarking:supervisegrading", $context) && !$scan;
 // Only when marking normally for a grade we can publish grades.
 if ($usercanpublishgrades) {
-	$publishurl=$CFG->wwwroot.'/mod/emarking/marking/publish.php';
+	if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+		$publishurl=$CFG->wwwroot.'/mod/emarking/activities/marking.php?tab=5';
+	}
+	else{
+		$publishurl=$CFG->wwwroot.'/mod/emarking/marking/publish.php';
+	}
+	
     echo "<form id='publishgrades' action='$publishurl' method='post'>";
     echo "<input type='hidden' name='id' value='$cm->id'>";
 }

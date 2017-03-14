@@ -54,6 +54,7 @@ $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
+if (isset($CFG->emarking_pagelayouttype)) {
 switch($CFG->emarking_pagelayouttype){
 	case EMARKING_PAGES_LAYOUT_STANDARD:
 		$PAGE->set_pagelayout('standard');
@@ -62,6 +63,7 @@ switch($CFG->emarking_pagelayouttype){
 	case EMARKING_PAGES_LAYOUT_EMBEDDED:
 		$PAGE->set_pagelayout('embedded');
 		break;
+}
 }
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('uploadanswers', 'mod_emarking'));

@@ -26,7 +26,7 @@ global $PAGE, $DB, $USER, $CFG;
 require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 
 $id = required_param('id', PARAM_INT);
-$tab= required_param('tab', PARAM_INT);
+$tab= optional_param('tab',1, PARAM_INT);
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 $markingUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>1));
 $downloadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>2));
@@ -49,12 +49,13 @@ $totalsubmissions = $DB->count_records_sql(
                 		'emarking' => $emarking->id));
 		if (! $totalsubmissions || $totalsubmissions == 0) {
 			$disabled='class="disabled disabledTab"';
+			$reportsUrl='#';
 		}
 //print the header
 
 ?>
 
-<div class="container">
+<div class="container" style="padding-top: 150px;padding-bottom: 100px;">
 	<div class="row">
 		<h2></h2>
 		<div class="col-md-12">
@@ -73,7 +74,7 @@ switch ($tab) {
 						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>" >Reportes</a></li>
 						</ul>
 						<?php 
-		include include  $CFG->dirroot . '/mod/emarking/view.php';		
+		include  $CFG->dirroot . '/mod/emarking/view.php';		
 		break;
 	case 2:
 ?>
@@ -92,6 +93,7 @@ switch ($tab) {
 						<li class="active"><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
 						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>">Reportes</a></li>
 						</ul>
+						
 						<?php 
 		include  $CFG->dirroot . '/mod/emarking/print/uploadanswers.php';
 		break;
@@ -104,6 +106,16 @@ switch ($tab) {
 								</ul>
 								<?php 
 				include  $CFG->dirroot . '/mod/emarking/reports/feedback.php';
+				break;
+	 case 5 :
+					?>
+										<li><a href="<?= $markingUrl ?>">Corrección</a></li>
+										<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
+										<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
+										<li <?= $disabled ?>><a href="<?= $reportsUrl ?>" >Reportes</a></li>
+										</ul>
+										<?php 
+				include  $CFG->dirroot . '/mod/emarking/marking/publish.php';
 				break;
 }
 ?>						

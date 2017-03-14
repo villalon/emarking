@@ -80,9 +80,10 @@ $rubric = $DB->get_records_sql ( "SELECT grl.id,
 							  ORDER BY grcid, grl.id", array (
 							  		$activity->rubricid
 							  ) );
+$disabled="disabled";
 if(isset($rubric)&& $rubric!=null){
 foreach ( $rubric as $data ) {
-
+	$disabled=null;
 	$table [$data->description] [$data->definition] = $data->score;
 	$rubricdescription = $data->des;
 	$rubricname = $data->name;
@@ -123,22 +124,21 @@ if(!$communitysql){
 	$average=0;
 }
 $average=0;
+$countVotes=0;
+$vote=0;
 if(isset($communitysql->data)&& $communitysql->data!=null){
 $recordcleaned=emarking_activities_clean_string_to_json($communitysql->data);
 $decode=json_decode($recordcleaned);
 $social=$decode->data;
 $comments=$social->Comentarios;
 $votes=$social->Vote;
-$vote=0;
+
 if (isset ( $votes )) {
-		if ($countVotes=count ( $votes ) == 1) {
-			if (if_user_has_voted ( $votes [0], $USER->id )) {
-				$vote = $votes [0]->rating;
-			}
+	$countVotes=count ( $votes );
+		if ($countVotes == 1) {
+			if ($vote=if_user_has_voted ( $votes [0], $USER->id ));			
 		} else {
-			if (if_user_has_voted ( $votes, $USER->id )) {
-				$vote = $votes->rating;
-			}
+			if ($vote= if_user_has_voted ( $votes, $USER->id ));
 		}
 $average=get_average($votes);
 }

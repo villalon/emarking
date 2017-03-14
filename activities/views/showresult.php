@@ -36,18 +36,26 @@
 						<div class="row" style="text-align: left">
 
 							<div class="result_list">
-								<span class="glyphicon glyphicon-user">&ensp;55 Visitas</span> <span
+								<span
 									class="glyphicon glyphicon-comment" aria-hidden="true"
-									style="margin-left: 10px;">&ensp;3 Comentarios&ensp;</span>
+									style="margin-left: 10px;">&ensp;<?=$countcomments?> Comentario(s)&ensp;</span>
 							</div>
 							<div class="result_list">
-								<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>
-								<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-								<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-								<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-								<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
+								<?php 
+								
+								for ($i=1;$i <= 5;$i++){
+									
+									if($i <= $average){
+										echo '<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>';
+									}
+									else {
+										echo '<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>';
+									}
+								}
+								
+								?>
 								<span class="glyphicon glyphicon-ok" aria-hidden="true"
-									style="margin-left: 10px;"> 20 votos</span>
+									style="margin-left: 10px;"> <?=$countvotes?> voto(s)</span>
 							</div>
 
 						</div>
