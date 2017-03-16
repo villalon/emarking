@@ -15,14 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *
- * @param unknown $divid
- * @param array $labels
- * @param array $data
- * @param unknown $title
- * @param string $xtitle
- * @param string $ytitle
- * @return multitype:string
+* 
+*
+* It can be reached from a block within a category or from an EMarking
+* course module
+*
+* @package mod
+* @subpackage emarking
+* @copyright 2016 Benjamin Espinosa (beespinosa94@gmail.com)
+* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 function emarking_get_google_chart($divid, array $labels, array $data, $title, $xtitle = null, $ytitle = null) {
     // DIV for displaying.
@@ -957,85 +958,86 @@ global $DB;
 		$ganttarray = array();
 		switch ($status) {
 				
-			case EMARKING_TO_PRINT:
+case EMARKING_TO_PRINT:
 				$ganttarray = array(
-						array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $time, null, 100, null),
+						array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $time, null, 100, null),
 				);
 				break;
 		
 			case EMARKING_PRINTED:
 				$ganttarray = array(
-				array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
-				array('2', 'impreso', 'ImpresiÃ³n', $emarking->printdate*1000, $time, null, 100, '1'),
+				array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
+				array('2', get_string('printed', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printdate*1000, $time, null, 100, '1'),
 				);
 				break;
 		
 			case EMARKING_STATUS_SUBMITTED:
 				$ganttarray = array(
-						array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
-						array('2', 'impreso', 'ImpresiÃ³n', $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
-						array('3', 'digitalizado', 'DigitalizaciÃ³n', $emarking->digitalized*1000, $time, null, 100, '2'),
+						array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
+						array('2', get_string('printed', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
+						array('3', get_string('digitalized', 'mod_emarking'), get_string('ganttdigitization', 'mod_emarking'), $emarking->digitalized*1000, $time, null, 100, '2'),
 				);
 				break;
 		
 			case EMARKING_STATUS_GRADING:
 				$ganttarray = array(
-						array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
-						array('2', 'impreso', 'ImpresiÃ³n', $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
-						array('3', 'digitalizado', 'DigitalizaciÃ³n', $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
-						array('4', 'en correccion', 'CorrecciÃ³n', $emarking->correctionstarted*1000, $time, null, 100, '3'),
+						array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
+						array('2', get_string('printed', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
+						array('3', get_string('digitalized', 'mod_emarking'), get_string('ganttdigitization', 'mod_emarking'), $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
+						array('4', get_string('incorrection', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->correctionstarted*1000, $time, null, 100, '3'),
 				);
 				break;
 		
 			case EMARKING_STATUS_PUBLISHED:
 				$ganttarray = array(
-						array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
-						array('2', 'impreso', 'ImpresiÃ³n', $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
-						array('3', 'digitalizado', 'DigitalizaciÃ³n', $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
-						array('4', 'en correccion', 'CorrecciÃ³n', $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
-						array('5', 'corregido', 'CorrecciÃ³n', $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
-						array('6', 'publicado', 'PublicaciÃ³n', $emarking->firstpublished*1000, $time, null, 100, '5'),
+						array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
+						array('2', get_string('printed', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
+						array('3', get_string('digitalized', 'mod_emarking'), get_string('ganttdigitization', 'mod_emarking'), $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
+						array('4', get_string('incorrection', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
+						array('5', get_string('graded', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
+						array('6', get_string('published', 'mod_emarking'), get_string('ganttpublication', 'mod_emarking'), $emarking->firstpublished*1000, $time, null, 100, '5'),
 				);
 				break;
 		
 			case EMARKING_STATUS_REGRADING:
 				$ganttarray = array(
-						array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
-						array('2', 'impreso', 'ImpresiÃ³n', $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
-						array('3', 'digitalizado', 'DigitalizaciÃ³n', $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
-						array('4', 'en correccion', 'CorrecciÃ³n', $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
-						array('5', 'corregido', 'CorrecciÃ³n', $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
-						array('6', 'publicado', 'PublicaciÃ³n', $emarking->firstpublished*1000, $emarking->regradingstarted*1000, null, 100, '5'),
-						array('7', 'en recorreccion', 'RecorrecciÃ³n', $emarking->regradingstarted*1000, $time, null, 100, '6'),
+						array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
+						array('2', get_string('printed', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
+						array('3', get_string('digitalized', 'mod_emarking'), get_string('ganttdigitization', 'mod_emarking'), $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
+						array('4', get_string('incorrection', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
+						array('5', get_string('graded', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
+						array('6', get_string('published', 'mod_emarking'), get_string('ganttpublication', 'mod_emarking'), $emarking->firstpublished*1000, $emarking->regradingstarted*1000, null, 100, '5'),
+						array('7', get_string('inregrading', 'mod_emarking'), get_string('ganttrecorrection', 'mod_emarking'), $emarking->regradingstarted*1000, $time, null, 100, '6'),
 				);
 				break;
 		
 			case EMARKING_STATUS_REGRADING_RESPONDED:
 				$ganttarray = array(
-						array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
-						array('2', 'impreso', 'ImpresiÃ³n', $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
-						array('3', 'digitalizado', 'DigitalizaciÃ³n', $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
-						array('4', 'en correccion', 'CorrecciÃ³n', $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
-						array('5', 'corregido', 'CorrecciÃ³n', $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
-						array('6', 'publicado', 'PublicaciÃ³n', $emarking->firstpublished*1000, $emarking->regradingstarted*1000, null, 100, '5'),
-						array('7', 'en recorreccion', 'RecorrecciÃ³n', $emarking->regradingstarted*1000, $emarking->regraded*1000, null, 100, '6'),
-						array('8', 'recorregido', 'RecorrecciÃ³n', $emarking->regraded*1000, $time, null, 100, '7'),
+						array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
+						array('2', get_string('printed', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
+						array('3', get_string('digitalized', 'mod_emarking'), get_string('ganttdigitization', 'mod_emarking'), $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
+						array('4', get_string('incorrection', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
+						array('5', get_string('graded', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
+						array('6', get_string('published', 'mod_emarking'), get_string('ganttpublication', 'mod_emarking'), $emarking->firstpublished*1000, $emarking->regradingstarted*1000, null, 100, '5'),
+						array('7', get_string('inregrading', 'mod_emarking'), get_string('ganttrecorrection', 'mod_emarking'), $emarking->regradingstarted*1000, $emarking->regraded*1000, null, 100, '6'),
+						array('8', get_string('regraded', 'mod_emarking'), get_string('ganttrecorrection', 'mod_emarking'), $emarking->regraded*1000, $time, null, 100, '7'),
 				);
 				break;
 		
 			case EMARKING_STATUS_FINAL_PUBLISHED:
 				$ganttarray = array(
-						array('1', 'enviado a imprimir', 'ImpresiÃ³n', $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
-						array('2', 'impreso', 'ImpresiÃ³n', $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
-						array('3', 'digitalizado', 'DigitalizaciÃ³n', $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
-						array('4', 'en correccion', 'CorrecciÃ³n', $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
-						array('5', 'corregido', 'CorrecciÃ³n', $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
-						array('6', 'publicado', 'PublicaciÃ³n', $emarking->firstpublished*1000, $emarking->regradingstarted*1000, null, 100, '5'),
-						array('7', 'en recorreccion', 'RecorrecciÃ³n', $emarking->regradingstarted*1000, $emarking->regraded*1000, null, 100, '6'),
-						array('8', 'recorregido', 'RecorrecciÃ³n', $emarking->regraded*1000, $emarking->lastpublished*1000, null, 100, '7'),
-						array('9', 'publicado final', 'PublicaciÃ³n', $emarking->lastpublished*1000, $time, null, 100, '8')
+						array('1', get_string('senttoprint', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printorder*1000, $emarking->printdate*1000, null, 100, null),
+						array('2', get_string('printed', 'mod_emarking'), get_string('ganttprint', 'mod_emarking'), $emarking->printdate*1000, $emarking->digitalized*1000, null, 100, '1'),
+						array('3', get_string('digitalized', 'mod_emarking'), get_string('ganttdigitization', 'mod_emarking'), $emarking->digitalized*1000, $emarking->correctionstarted*1000, null, 100, '2'),
+						array('4', get_string('incorrection', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->correctionstarted*1000, $emarking->corrected*1000, null, 100, '3'),
+						array('5', get_string('graded', 'mod_emarking'), get_string('ganttcorrection', 'mod_emarking'), $emarking->corrected*1000, $emarking->firstpublished*1000, null, 100, '4'),
+						array('6', get_string('published', 'mod_emarking'), get_string('ganttpublication', 'mod_emarking'), $emarking->firstpublished*1000, $emarking->regradingstarted*1000, null, 100, '5'),
+						array('7', get_string('inregrading', 'mod_emarking'), get_string('ganttrecorrection', 'mod_emarking'), $emarking->regradingstarted*1000, $emarking->regraded*1000, null, 100, '6'),
+						array('8', get_string('regraded', 'mod_emarking'), get_string('ganttrecorrection', 'mod_emarking'), $emarking->regraded*1000, $emarking->lastpublished*1000, null, 100, '7'),
+						array('9', get_string('finalpublication', 'mod_emarking'), get_string('ganttpublication', 'mod_emarking'), $emarking->lastpublished*1000, $time, null, 100, '8')
 				);
 				break;
+			
 		}
 		
 		return $ganttarray;
@@ -1162,9 +1164,10 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 						  INNER JOIN {emarking_submission} AS s ON (s.emarking = e.id AND emarking = ?)
 						  INNER JOIN {emarking_draft} AS d ON (s.id = d.submissionid)
 						  INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
-					      LEFT JOIN mdl_emarking_regrade AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
+					      LEFT JOIN {emarking_regrade} AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
 					INNER JOIN {user} AS u ON (y.marker = u.id)
-					GROUP BY u.id";
+					GROUP BY u.id
+			 		ORDER BY name ASC";
 	if($markers = $DB->get_records_sql($markerssql, array($emarkingid))){
 		$arraymarkers = array();
 		$contador = 1;
@@ -1183,48 +1186,63 @@ function emarking_markers_corrections($emarkingid, $ismarkers = null){
 		$markers = array_reverse($markers);
 		$commentssql = "SELECT  comment,CONCAT(u.firstname,' ',u.lastname) as name, FROM_UNIXTIME(correctiontime, '%Y-%m-%d') as date
 						FROM (SELECT c.id as comment, IF(r.id IS NULL,c.markerid,r.markerid) as marker, c.timecreated as correctiontime
-							  FROM {emarking} AS e
-							  INNER JOIN {emarking_submission} AS s ON (s.emarking = e.id AND emarking = ?)
-							  INNER JOIN {emarking_draft} AS d ON (s.id = d.submissionid)
-							  INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
-						      LEFT JOIN mdl_emarking_regrade AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
+						FROM {emarking} AS e
+						INNER JOIN {emarking_submission} AS s ON (s.emarking = e.id AND emarking = ?)
+						INNER JOIN {emarking_draft} AS d ON (s.id = d.submissionid)
+						INNER JOIN {emarking_comment} AS c ON (c.draft = d.id)
+						LEFT JOIN {emarking_regrade} AS r ON (r.criterion = c.criterionid AND c.draft = r.draft)) as y
 						INNER JOIN {user} AS u ON (y.marker = u.id)
-						ORDER BY correctiontime ASC";
+						ORDER BY correctiontime, name ASC";
 		if($comments = $DB->get_records_sql($commentssql, array($emarkingid))){
-			$date = 0-0-0;
-			$lenght = count($comments);
-			$datecount = 1;
-			$arraylenght = count($markers) + 1;
-			foreach ($comments as $comment){
-				if($date == 0-0-0){
-					$arraystacking['date'] = strtotime ( '-1 day' , strtotime ( $comment->date  ) ) ;
-					$arraystacking['date'] = date ( 'Y-m-j' , $arraystacking['date'] );
-					for($i = 1; $i < $arraylenght ; $i++){
-						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
-					}
-					array_push($arraymarkers,$arraystacking);
-				}
-				$arraystacking['date'] = $comment->date;
-				$arraystacking[$comment->name] = $arraystacking[$comment->name] + 1;
-				if($datecount == $lenght){
-					unset($arraymarkers[count($arraymarkers)-1]);
-					for($i = 1; $i < $arraylenght ; $i++){
-						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
-					}
-					array_push($arraymarkers,$arraystacking);
-				}
-				if(strtotime($date) < strtotime($comment->date) && $datecount !== $lenght) {
-					for($i = 1; $i < $arraylenght ; $i++){
-						$arraystacking[$i] = emarking_markers_chart_tooltip($markers,$arraystacking);
-					}
-					array_push($arraymarkers,$arraystacking);
-					$date = $comment->date;
-				}
-				$datecount++;
+			
+			$auxdate = 0;
+
+			$data = array();	
+			foreach($comments as $comment){
+				if($comment->date != $auxdate){
+					$data[$comment->date] = array();
+					$dates[] = $comment->date;
+				}	
 			}
 			
-			$arraymarkers = array_values(array_map('array_values', $arraymarkers));
-			return $arraymarkers;
+			foreach($markers as $correctors){				
+				$names[] = $correctors->name;
+			}
+			$names = array_unique($names);
+			$dates = array_unique($dates);
+			$size = count($comments);
+			sort($names);
+			
+			foreach($dates as $date){
+				foreach($names as $name){
+					$data[$date][$name] = 0 ;
+				}
+			}
+			
+			$name = array_values($comments)[1]->name;
+
+			foreach($comments as $correctors){
+				foreach($dates as $date){
+					if ($date == $correctors->date && $name == $correctors->name){
+						$data[$date][$correctors->name]++;
+					}elseif($date != $correctors->date || $name != $correctors->name){
+						$name=$correctors->name;
+					}
+				}
+			}
+			
+			$dates = array_values($dates);
+			foreach($data as $key => $value){
+				$markersdata[] = $value;
+			}
+		
+			for($id = 0; $id < count($markersdata); $id++){
+				$returndata[$id][] = $dates[$id];
+				foreach($names as $name){
+					$returndata[$id][] = $markersdata[$id][$name];
+				}
+			}
+			return $returndata;
 		}
 	}
 }

@@ -27,8 +27,7 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once(dirname(__FILE__) . '/locallib.php');
-require_once(dirname(__FILE__) . '/forms/category_form.php');
-require_once(dirname(__FILE__) . '/forms/courses_form.php');
+
 
 global $DB, $USER, $CFG, $OUTPUT, $COURSE;
 
@@ -36,6 +35,9 @@ $courseid = required_param("course", PARAM_INT);
 $emarkingid = optional_param("emarking", -1, PARAM_INT);
 $selectedcategory = optional_param("selectedcategory", "NULL", PARAM_RAW);
 $selectedcourse = optional_param("selectedcourse", "NULL", PARAM_RAW);
+
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = 4;
 
 // EMarking tab I want to show, "0" means the summary tab.
 $currenttab = optional_param("currenttab", 0, PARAM_INT);
@@ -84,7 +86,6 @@ $PAGE->navbar->add(get_string("cycle", "mod_emarking"));
 
 // User categories for FORM.
 $categoryparameters = array($USER->id, $courseid);
-$categoryform = new category_form(null, $categoryparameters);
 
 echo $OUTPUT->header();
 
@@ -98,25 +99,6 @@ if($selectedcategory == "NULL" && $selectedcourse == "NULL"){
 	$selectedcourse = $curretcourse;
 }
 
-// Category and course select
-echo html_writer::div('<h2>'.get_string('filters', 'mod_emarking').'</h2>');;
-
-$categoryform->display();	
-if($categorydata = $categoryform->get_data()){
-	$selectedcategory = $categorydata->category;			
-}
-
-if($selectedcategory != 'NULL'){
-	$courseparameters = array($USER->id, $selectedcategory, $courseid);
-	$courseform = new courses_form(null, $courseparameters);
-	$courseform->display();
-}
-		
-if($coursedata = $courseform->get_data()){
-	$selectedcategory = $coursedata->category;	
-	$selectedcourse = $coursedata->courses;
-}
-		
 echo $OUTPUT->tabtree(emarking_cycle_tabs($selectedcourse, $selectedcategory, $course), $currenttab);
 
 $summarychartdata = json_encode([[0,0]]);
@@ -144,10 +126,43 @@ if($currenttab == 0){
   	echo html_writer::end_tag('div');
   	// Emarkings days data to table.
   	
+  	$tabledata = emarking_time_progression_table($course->id);
+  	$headers = $tabledata[1];
+  	unset($tabledata[0]);
+  	unset($tabledata[1]);
+  	$tabledata = array_values($tabledata);
+
+  	
+  	$temp = array();
+  	for($row = 0; $row < count($tabledata); $row++){
+  		for($col = 0; $col <= 8; $col++){
+  			if($col != 0 ){
+  				$temp[$col][$row] = $tabledata[$row][$col];
+  			}else{
+  				$temp[$col][$row] = "<b>".$tabledata[$row][$col]."</b>";
+  			}
+  		}
+  	}
+  	
+  	$emarkingcount = count($tabledata);
+  	
+  	for($i = 0; $i <= count($temp); $i ++){
+  		for($j = $perpage * $page; $j <= $perpage * $page + $perpage; $j ++){
+  			if(isset($temp[$i][$j])){
+  				$pagedata[$i][$j] = $temp[$i][$j];
+  			}
+  		}
+  	}
+  	for($id = 0; $id <= 8; $id ++){
+  		array_unshift($pagedata[$id],"<b>".$headers[$id]."</b>");
+  	}
+  	
   	$table = new html_table();
-  	$table->size = array('20%','10%','10%','10%','10%','10%','10%','10%','10%');
-  	$table->data = emarking_time_progression_table($course->id);
+  	$table->data = $pagedata;
   	echo html_writer::table($table);
+  	
+  	echo $OUTPUT->paging_bar($emarkingcount, $page, $perpage, $CFG->wwwroot.'/mod/emarking/reports/cycle.php?course='.$course->id);
+  	
   	
   	echo emarking_justice_perception($selectedcourse);
   	
@@ -155,13 +170,13 @@ if($currenttab == 0){
 }else{
 	// Gantt chart title
 	echo html_writer::tag('h4',get_string('cicleganttchart', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'ganttchart','style' => 'height: 40%;'));
+   	echo html_writer::div('','', array('id' => 'ganttchart','style' => 'height: 100%;'));
    	
    	echo html_writer::tag('h4',get_string('ciclestackedstatuses', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 40%;'));
+   	echo html_writer::div('','', array('id' => 'areachart','style' => 'height: 100%;'));
    	
    	echo html_writer::tag('h4',get_string('ciclemarkerscorrections', 'emarking'),array('style' => 'width:100%;'));
-   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 40%;'));
+   	echo html_writer::div('','', array('id' => 'markerschart','style' => 'height: 100%;'));
 }
 
 echo $OUTPUT->footer();
@@ -250,6 +265,7 @@ echo $OUTPUT->footer();
 		data.addRows(dataarray);
 		
 		var options = {
+			height: 300,
 			gantt: {
 				trackHeight: 30
 			}};
@@ -287,6 +303,8 @@ echo $OUTPUT->footer();
   		data.addRows(<?php echo  json_encode(emarking_area_chart($emarkingid));?>);
   		
         var options = {
+        	height: 300,
+        	legend: { position: 'bottom', alignment: 'start ', maxLines: 3},
         	pointShape: 'star',
         	pointSize: 4,
         	tooltip: {isHtml: true},
@@ -299,11 +317,11 @@ echo $OUTPUT->footer();
 	}
 </script>
 <script>
+
 	if(<?php echo $currenttab;?> != 0){
     	google.charts.setOnLoadCallback(drawmarkersChart);
     }
 	function drawmarkersChart() {
-
 		var markers = <?php echo  json_encode(emarking_markers_corrections($emarkingid, 1));?>;
 		var arraylength = markers.length;
 		
@@ -311,21 +329,20 @@ echo $OUTPUT->footer();
 		data.addColumn('string', 'Date');
 		for (var i = 0; i < arraylength; i++) {
     		data.addColumn('number', markers[i]);
-    		data.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}});
+    	
     	}
 		
-
-		data.addRows(<?php echo  json_encode(emarking_markers_corrections($emarkingid));?>);
-
+		data.addRows(<?php echo json_encode(emarking_markers_corrections($emarkingid));?>);
 		var options = {
+			height: 300,
+			legend: { position: 'bottom', alignment: 'start ', maxLines: 3},
 			pointSize: 4,
 			pointShape: 'star',
 			tooltip: {isHtml: true},
 			isStacked: true,
 			vAxis: {minValue: 0}
 		};
-
-		var markerschart = new google.visualization.AreaChart(document.getElementById('markerschart'));
+		var markerschart = new google.visualization.LineChart(document.getElementById('markerschart'));
 		markerschart.draw(data, options);
 	}
 </script>
