@@ -1,0 +1,184 @@
+@charset "utf-8";
+/* CSS Escribiendo */
+
+body {
+	color: white;
+	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
+	font-size: 11px;
+}
+.row_caract {
+	background-color: #117E89;
+}
+
+
+/* CSS Activities */
+.row_activities{
+	background-color: #003551;
+}
+.tit_actv {
+	background-image: url(../img/index/tit_actividades.png);
+	height: 85px;
+	background-repeat: no-repeat;
+}
+.h2tit_actv a{
+	color: white;
+}
+
+.h2tit_actv a:hover{
+	opacity: 0.5;
+	text-decoration:none;
+}
+.subtit_actv {
+	opacity: 0.5;
+}
+.text_actv {
+	font-size: 11px;
+	opacity: 0.7;
+}
+.img1_actv {
+	background-image: url(../img/index/img_fnd01.jpg);
+	background-repeat: no-repeat;
+	min-height: 374px;
+}
+.img2_actv {
+	background-image: url(../img/index/img_fnd02.jpg);
+	background-repeat: no-repeat;
+	min-height: 374px;
+}
+.img3_actv {
+	background-image: url(../img/index/img_fnd03.jpg);
+	background-repeat: no-repeat;
+	min-height: 374px;
+}
+.col_height {
+	min-height: 374px;
+	padding: 15 25 0 25px;
+}
+
+
+
+
+/* CSS Us */
+.tit_blue {
+	color: #06C;
+}
+.text_grey1 {
+	color: #333333;
+}
+
+.text_grey {
+	color: #727176;
+}
+
+
+
+
+/* footer */
+#container_footer, #container2_footer, #container3_footer {
+	width: 1157px;
+	background-color: #353535;
+	position: relative;
+}
+#container_footer {
+	height: 80px;
+	vertical-align: baseline;
+}
+#container2_footer {
+	height: 90px;
+}
+
+
+.clear {
+	clear: both;
+}
+
+.col01_footer {
+	float: left;
+	width: 80%;
+	height: 80px;
+	background-image:url(../img/footer/tit_contacto.png);
+	background-repeat: no-repeat;
+}
+
+.col02_footer {
+	float: right;
+	width: 5%;
+	position: relative;
+}
+
+.col02a_footer {
+	float: right;
+	width: 15%;
+	position: relative;
+}
+
+.col03_footer {
+	float: left;
+	margin-left: 30px;
+	margin-top: 0px;
+	width: 27%;
+	color: #F90;
+	font-size: 1.0em;
+	position: relative;
+}
+
+.col03a_footer {
+	float: right;
+	padding-right: 10px;
+	text-align: right;
+	width: 50%;
+	color: #999;
+	font-size: 0.8em;
+}
+
+.col03b_footer {
+	float: left;
+	margin-left: 30px;
+	width: 27%;
+	color: #F90;
+	font-size: 1.0em;
+	position: absolute;
+	left: 4px;
+	bottom: 5px;
+}
+
+.col03c_footer {
+	float: left;
+	margin-left: 30px;
+	width: 25%;
+	color: #F90;
+	font-size: 1.0em;
+	position: relative;
+}
+
+hr { margin-top: 2px;}
+
+.activity {
+	color: black;
+	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
+	font-size: 14px;
+	
+}
+
+.results {
+	color: black;
+	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
+	font-size: 14px;
+	
+}
+
+.search {
+	color: black;
+	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
+	font-size: 14px;
+		
+}
+.profile {
+	color: black;
+	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
+	font-size: 14px;
+	
+}
+.header {
+	margin-bottom: 0px;
+}

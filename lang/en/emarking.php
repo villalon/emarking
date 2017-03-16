@@ -21,6 +21,18 @@
  * @copyright 2012-2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// MARKING BUTTONS.
+$string['buttonrubric'] = 'Rubric';
+$string['buttoncomment'] = 'Comment';
+$string['buttontick'] = 'Tick';
+$string['buttoncross'] = 'Cross';
+$string['buttonpen'] = 'Pen';
+$string['buttonhighlight'] = 'Highlighter';
+$string['buttonquestion'] = 'Question';
+$string['markingbuttonsenabled'] = 'Marking buttons';
+$string['markingbuttonsenabled_help'] = 'List of buttons that will be available for marking.';
+$string['markingsettings'] = 'Marking settings';
+$string['markingsettings_help'] = 'Site wide settings for marking';
 // DOWNLOAD SECURITY.
 $string['downloadsecurity'] = 'Download security level';
 $string['downloadsecurity_help'] = 'You can define here the level of security required to download an exam. No validation allows any user withe the downloadexam capability to directly download an exam. Other options are using a token sent to the user\'s emailo or using a token sent to the user\'s mobile phone.';
@@ -29,6 +41,11 @@ $string['security_tokenemail'] = 'Token sent by email';
 $string['security_tokensms'] = 'Token sent by SMS';
 $string['settingssecurity'] = 'Security';
 $string['settingssecurity_help'] = 'Here you can define security settings for downloading exams.';
+//TYPE OF LAYOUT SETTINGS
+$string['pagelayouttype'] = 'Select type of layout';
+$string['pagelayouttype_help'] = '';
+$string['page_layout_standard'] = 'Standard';
+$string['page_layout_embedded'] = 'Embedded';
 // ANSWER KEYS.
 $string ['answerkeyfile'] = 'Answer key file';
 // EMARKING TYPES WORKFLOW.
@@ -115,6 +132,8 @@ $string ['scalelevels'] = 'Percentages per level';
 $string ['studentachievement'] = 'Students %';
 $string ['level'] = 'Achievement level';
 $string ['outcomesnotconfigured'] = 'Outcomes have not yet been setup for this E-Marking activity';
+$string['coloredrubricforced'] = 'Force colored rubric';
+$string['coloredrubricforced_help'] = 'Forces all Emarking activities to use colored rubrics and ignore user settings';
 // GENERAL.
 $string ['criteria'] = 'Criteria';
 $string ['deleterow'] = 'Delete row';
@@ -365,7 +384,9 @@ $string ['printdetails'] = 'Print details';
 $string ['apply'] = 'Apply';
 $string ['statuspercriterion'] = 'Status per criterion';
 $string ['feedbackreport'] = 'Feedback report';
+$string ['feedback'] = 'Feedback';
 $string ['viewfeedback'] = 'View feedback';
+$string['feedbackwordcloud'] = 'Feedback word cloud';
 // EMARKING COST REPORT.
 $string ['period'] = 'Period';
 $string ['subcategoryname'] = 'Subcategory name';

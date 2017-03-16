@@ -1671,5 +1671,34 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2016120900, 'emarking');
     }
+    if ($oldversion < 2017011500) {
+    
+        // Define field feedback to be added to emarking_comment.
+        $table = new xmldb_table('emarking_comment');
+        $field = new xmldb_field('feedback', XMLDB_TYPE_CHAR, '1000', null, null, null, '0', 'status');
+        
+        // Conditionally launch add field feedback.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // Define field path to be added to emarking_comment.
+        $table = new xmldb_table('emarking_comment');
+        $field = new xmldb_field('path', XMLDB_TYPE_TEXT, null, null, null, null, null, 'feedback');
+    
+        // Conditionally launch add field path.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    
+        // Copy path from pathmarks from rawtext to path.
+        $DB->execute('UPDATE {emarking_comment} SET path = rawtext WHERE textformat=5');
+        
+        // Update all comments from pathmarks to null.
+        $DB->execute('UPDATE {emarking_comment} SET rawtext = NULL WHERE textformat=5');
+        
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2017011500, 'emarking');
+    }
     return true;
 }

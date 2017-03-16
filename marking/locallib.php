@@ -190,6 +190,7 @@ function emarking_get_comments_page($pageno, $draftid, $winwidth, $winheight) {
 		aec.width,
 		aec.height,
 		aec.colour,
+        aec.path,
 		ep.page AS pageno,
 		IFNULL(aec.bonus,0) AS bonus,
 		grm.maxscore,

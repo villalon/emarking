@@ -42,7 +42,15 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('incourse');
+switch($CFG->emarking_pagelayouttype){
+	case EMARKING_PAGES_LAYOUT_STANDARD:
+		$PAGE->set_pagelayout('standard');
+		break;
+		
+	case EMARKING_PAGES_LAYOUT_EMBEDDED:
+		$PAGE->set_pagelayout('embedded');
+		break;
+}
 $PAGE->navbar->add(get_string('feedbackreport', 'mod_emarking'));
 // Require jquery for modal.
 $PAGE->requires->jquery();
@@ -51,7 +59,9 @@ $PAGE->requires->jquery_plugin('ui-css');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "feedback");
+if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+}
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
     emarking_validate_rubric($context, true, true);
 $totalsubmissions = $DB->count_records_sql(
@@ -99,7 +109,7 @@ foreach($emarkingstats as $stat) {
 }
 $data = array();
 foreach($definition as $cid => $criterion) {
-    $data[] = array($definition[$cid]['name'],
+    $data[] = array(html_writer::div($definition[$cid]['name']),
             html_writer::table(emarking_table_from_criterion($criterion, $cm)));
 }
 $table = new html_table();
@@ -110,10 +120,13 @@ $table->head = array('');
 $table->colclasses = array(
         'description',
         'levels');
+$css = '';
 for ($i = 0; $i < count($data); $i ++) {
-    $table->rowclasses [$i] = 'criterion' . ($i % 2 == 0 ? ' even' : ' odd');
+    $css .= '.color' . $i . ' {background-color:' . emarking_get_hue_color($i) . "}\n";
+    $table->rowclasses [$i] = 'criterion' . ' color' . $i;
 }
 echo $OUTPUT->heading($rubricname, 2);
+echo "<style>$css</style>";
 echo html_writer::div(html_writer::table($table), 'gradingform_rubric');
 $sql = "SELECT rawtext
 FROM {emarking_comment}
@@ -149,6 +162,17 @@ $stopwords = array('algún','alguna','algunas','alguno','algunos','ambos','ample
       .gradingform_rubric .criteria {
         width: 95%;
       }
+      .progress-bar {
+        font-size: 10pt;
+        border-radius: 5px;
+        background-color:#0080ff;
+      }
+      .progress {
+        height: 16pt;
+        background-color: white;
+        border: 1px solid #8e8e8e;
+        border-radius: 5px;
+    }
 </style>
 <script type="text/javascript">
       var word_list = [
@@ -173,6 +197,7 @@ foreach($words as $w => $f) {
 	        $("#my_favorite_latin_words").jQCloud(word_list);
 	  });
 </script>
+<?php echo $OUTPUT->heading(get_string('feedbackwordcloud', 'mod_emarking')); ?>
 <div id="my_favorite_latin_words" style="width: 95%; height: 250px; border: 1px solid #ccc;"></div>
 <?php echo $OUTPUT->footer();
 function emarking_table_from_criterion($criterion, $cm) {
@@ -197,9 +222,12 @@ function emarking_table_from_criterion($criterion, $cm) {
         }
         $popupurl = new moodle_url('/mod/emarking/reports/preview.php', array('id'=>$cm->id, 'filter'=>'level', 'fids'=>$lid));
         $percentage = $total > 0 ? round($level->students / $total * 100,0) : 0;
-        $levelstable->data [0] [] = html_writer::div($level->definition
+        $levelstable->data [0] [] = html_writer::div(
+                $level->definition
                 , 'definition');
-        $levelstable->data [1] [] = html_writer::div($percentage . '%');
+        $levelstable->data [1] [] = html_writer::div(
+                html_writer::div($percentage . '%', 'progress-bar progress-bar-info progress-bar-striped',
+                        array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'aria-valuemin'=>0, 'aria-valuemax'=>100, 'style'=>'width:'.$percentage.'%')), 'progress');
         $levelstable->data [2] [] = $OUTPUT->action_link(
                 $popupurl, $OUTPUT->pix_icon('t/preview', get_string('viewfeedback','mod_emarking')),
                 new popup_action('click', $popupurl, 'emarking' . $cm->id, array(

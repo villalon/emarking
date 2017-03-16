@@ -38,7 +38,7 @@ $(document).ready(function () {
 });
 </script>
 <form action="" method="post">
-<section class="buscar text-center">
+<div class="search text-center">
 	<h3></h3>
 		<h3></h3>
 			<h2></h2>
@@ -138,5 +138,5 @@ $(document).ready(function () {
 	</div>
 	</div>
 	</div>
-</section>
+</div>
 </form>

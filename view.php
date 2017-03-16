@@ -103,7 +103,18 @@ if ($exportcsv && $usercangrade && $issupervisor) {
 $PAGE->set_url($urlemarking);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
-$PAGE->set_pagelayout('incourse');
+$layout = 'incourse';
+if (isset($CFG->emarking_pagelayouttype)) {
+    switch ($CFG->emarking_pagelayouttype) {
+        case EMARKING_PAGES_LAYOUT_STANDARD :
+            $layout = 'standard';
+            break;
+        case EMARKING_PAGES_LAYOUT_EMBEDDED :
+            $layout = 'embedded';
+            break;
+    }
+}
+$PAGE->set_pagelayout($layout);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 // Require jquery for modal.
@@ -139,7 +150,9 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Navigation tabs.
 $tabname = $scan ? "scanlist" : "mark";
+if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+}
 // Reassign peers if everything is ok with it.
 if ($reassignpeers && $usercangrade && $issupervisor && $numdraftsgrading == 0) {
     if (emarking_assign_peers($emarking)) {
@@ -229,7 +242,8 @@ $usercanpublishgrades = ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||
     has_capability("mod/emarking:supervisegrading", $context) && !$scan;
 // Only when marking normally for a grade we can publish grades.
 if ($usercanpublishgrades) {
-    echo "<form id='publishgrades' action='marking/publish.php' method='post'>";
+	$publishurl=$CFG->wwwroot.'/mod/emarking/marking/publish.php';
+    echo "<form id='publishgrades' action='$publishurl' method='post'>";
     echo "<input type='hidden' name='id' value='$cm->id'>";
 }
 // Calculates the number of criteria assigned to current user.

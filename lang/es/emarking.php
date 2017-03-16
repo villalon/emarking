@@ -21,6 +21,18 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// MARKING BUTTONS.
+$string['buttonrubric'] = 'Rúbrica';
+$string['buttoncomment'] = 'Comentario';
+$string['buttontick'] = 'Correcto';
+$string['buttoncross'] = 'Incorrecto';
+$string['buttonpen'] = 'Lápiz';
+$string['buttonhighlight'] = 'Marcador';
+$string['buttonquestion'] = 'Pregunta';
+$string['markingbuttonsenabled'] = 'Botones de corrección';
+$string['markingbuttonsenabled_help'] = 'Lista de botones que estarán disponibles para la corrección de pruebas';
+$string['markingsettings'] = 'Configuración de corrección';
+$string['markingsettings_help'] = 'Configuraciones de corrección para todo el sitio';
 // DOWNLOAD SECURITY.
 $string['downloadsecurity'] = 'Nivel de seguridad para descarga';
 $string['downloadsecurity_help'] = 'Aquí puede definir el nivel de seguridad requerido para descargar una prueba. Sin validación permite a cualquier usuario con la capability downloadexam descargar una prueba directamente. Las otras opciones incluyen enviar un código de seguridad que debe ser ingresado por el usuario, el que puede enviarsepor correo eletrónico o como mensaje al teléfono móvil.';
@@ -29,6 +41,11 @@ $string['security_tokenemail'] = 'Código enviado por email';
 $string['security_tokensms'] = 'Código enviado por SMS';
 $string['settingssecurity'] = 'Seguridad';
 $string['settingssecurity_help'] = 'Aquí puede definir el nivel de seguridad para descargar pruebas.';
+//TYPE OF LAYOUT SETTINGS
+$string['pagelayouttype'] = 'Selecciona el tipo de layout';
+$string['pagelayouttype_help'] = '';
+$string['page_layout_standard'] = 'Standard';
+$string['page_layout_embedded'] = 'Embedded';
 // ANSWER KEYS
 $string ['answerkeyfile'] = 'Pauta';
 // EMARKING TYPES WORKFLOW.
@@ -115,6 +132,8 @@ $string ['scalelevels'] = 'Porcentajes para escala';
 $string ['studentachievement'] = '% de estudiantes';
 $string ['level'] = 'Nivel de logro';
 $string ['outcomesnotconfigured'] = 'No se han configurado resultados de aprendizaje para esta prueba E-Marking';
+$string['coloredrubricforced'] = 'Forzar rúbrica multicolor';
+$string['coloredrubricforced_help'] = 'Fuerza todas las actividades Emarking a utilizar rúbricas multicolor, ignorando la configuración del usuario';
 // GENERAL.
 $string ['criteria'] = 'Criterios';
 $string ['deleterow'] = 'Borrar fila';
@@ -360,7 +379,9 @@ $string ['printdetails'] = 'Detalles impresión';
 $string ['apply'] = 'Aplicar';
 $string ['statuspercriterion'] = 'Avance por pregunta';
 $string ['feedbackreport'] = 'Reporte de retroalimentación';
+$string ['feedback'] = 'Retroalimentación';
 $string ['viewfeedback'] = 'Ver retroalimentación';
+$string['feedbackwordcloud'] = 'Nube de palabras de retroalimentación';
 // EMARKING COST REPORT.
 $string ['period'] = 'Periodo';
 $string ['subcategoryname'] = 'Nombre de la sub-categoría';

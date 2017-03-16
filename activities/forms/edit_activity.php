@@ -32,7 +32,8 @@ class local_ciae_edit_activity extends moodleform {
         global $CFG, $OUTPUT, $COURSE, $DB;
         
 
-     require ('generos.php');
+     include ($CFG->dirroot .'/mod/emarking/activities/generos.php');
+     
        array_unshift($generos, "Seleccione un género");
        $result = $DB->get_records_sql('
          SELECT gd.id,
@@ -50,7 +51,7 @@ class local_ciae_edit_activity extends moodleform {
         }
         //pc= Proposito comunicativo, obtenidos de la agencia de calidad
         $pc=array('0'=>'Seleccione un propósito comunicativo','Argumentar'=>'Argumentar','Informar'=>'Informar','Narrar'=>'Narrar');
-
+        $systemcontext = context_system::instance();
         $mform = $this->_form; // Don't forget the underscore! 
         // Paso 1 Información básica
         
@@ -97,7 +98,7 @@ class local_ciae_edit_activity extends moodleform {
         $mform->addGroup($oacheckboxarray, 'CODC1');
        
         $mform->addElement('hidden', 'activityid');
-        $mform->setType('id', PARAM_INT);
+        $mform->setType('activityid', PARAM_INT);
         $mform->addElement('hidden', 'oacount', 1,array('id'=>'oacount'));
         $mform->setType('oacount', PARAM_INT);
         $mform->addElement('html', '<div id="CODC2" style="display:none;">');

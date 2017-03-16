@@ -54,7 +54,15 @@ $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
-$PAGE->set_pagelayout('incourse');
+switch($CFG->emarking_pagelayouttype){
+	case EMARKING_PAGES_LAYOUT_STANDARD:
+		$PAGE->set_pagelayout('standard');
+		break;
+		
+	case EMARKING_PAGES_LAYOUT_EMBEDDED:
+		$PAGE->set_pagelayout('embedded');
+		break;
+}
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('uploadanswers', 'mod_emarking'));
 $mform = new mod_emarking_upload_form(null, array(
@@ -149,7 +157,9 @@ if($action === 'delete') {
 // Display form for uploading zip file.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'uploadanswers');
+if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+}
 $digitizedanswersfiles = emarking_get_digitized_answer_files($emarking);
 if (count($digitizedanswersfiles) == 0) {
     echo $OUTPUT->notification(get_string('nodigitizedanswerfiles', 'mod_emarking'), 'notifymessage');

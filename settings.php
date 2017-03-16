@@ -25,7 +25,33 @@
 defined('MOODLE_INTERNAL') || die();
 global $PAGE, $CFG;
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
-// Basic settings.
+// Marking settings.
+$settings->add(
+        new admin_setting_heading('emarking_markingsettings', get_string('markingsettings', 'mod_emarking'),
+                get_string('markingsettings_help', 'mod_emarking')));
+// Marking buttons.
+$buttonchoices = array(
+        EMARKING_BUTTON_RUBRIC => get_string('buttonrubric', 'mod_emarking'),
+        EMARKING_BUTTON_COMMENT => get_string('buttoncomment', 'mod_emarking'),
+        EMARKING_BUTTON_TICK => get_string('buttontick', 'mod_emarking'),
+        EMARKING_BUTTON_CROSS => get_string('buttoncross', 'mod_emarking'),
+        EMARKING_BUTTON_PEN => get_string('buttonpen', 'mod_emarking'),
+        EMARKING_BUTTON_HIGHLIGHT => get_string('buttonhighlight', 'mod_emarking'),
+        EMARKING_BUTTON_QUESTION => get_string('buttonquestion', 'mod_emarking')
+);
+$settings->add(
+        new admin_setting_configmultiselect('emarking_markingbuttonsenabled',
+                get_string('markingbuttonsenabled', 'mod_emarking'),
+                get_string('markingbuttonsenabled_help', 'mod_emarking'), array_keys($buttonchoices), $buttonchoices));
+$yesno = array(
+        0 => get_string('no'),
+        1 => get_string('yes')
+);
+$settings->add(
+        new admin_setting_configselect('emarking_coloredrubricforced', 
+                get_string('coloredrubricforced','mod_emarking'), 
+                get_string('coloredrubricforced_help','mod_emarking'), 0, $yesno));
+// Print settings.
 $settings->add(
         new admin_setting_heading('emarking_basicsettings', get_string('printsettings', 'mod_emarking'),
                 get_string('printsettings_help', 'mod_emarking')));
@@ -115,6 +141,16 @@ $settings->add(
 $settings->add(
         new admin_setting_configtext('emarking_nodejspath', get_string('nodejspath', 'mod_emarking'),
                 get_string('nodejspath_help', 'mod_emarking'), '', PARAM_URL));
+
+//Select type of layout for emarking
+$choices = array(
+        EMARKING_PAGES_LAYOUT_STANDARD => get_string('page_layout_standard', 'mod_emarking'),
+        EMARKING_PAGES_LAYOUT_EMBEDDED => get_string('page_layout_embedded', 'mod_emarking')
+);
+$settings->add(
+        new admin_setting_configselect('emarking_pagelayouttype',
+                get_string('pagelayouttype', 'mod_emarking'),
+                get_string('pagelayouttype_help', 'mod_emarking'), 0, $choices));
 // Security settings.
 $settings->add(
         new admin_setting_heading('emarking_securitysettings', get_string('settingssecurity', 'mod_emarking'),
