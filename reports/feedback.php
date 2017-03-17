@@ -60,7 +60,8 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+	$tabname = "feedback";
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 }
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
     emarking_validate_rubric($context, true, true);
