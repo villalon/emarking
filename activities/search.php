@@ -65,7 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 			audience like '%$search%' OR
 			instructions like '%$search%' OR
 			teaching like '%$search%' OR
-			languageresources like '%$search%')";
+			languageresources like '%$search%')
+			AND status=1";
 			$results = $DB->get_records_sql($sql);
 			break;
 		case 2;
