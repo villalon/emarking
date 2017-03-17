@@ -139,7 +139,7 @@ if ($mform->is_cancelled ()) {
 	$record->timecreated = time ();
 	$record->userid = $USER->id;
 	$record->rubricid = $fromform->rubricid;
-	
+	$record->status = 1;
 	$instertnewactivity = $DB->insert_record ( 'emarking_activities', $record );
 	
 	$socialrecord=new stdClass ();
