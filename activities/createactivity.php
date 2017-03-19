@@ -25,19 +25,18 @@ require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.
 global $PAGE, $DB, $USER, $CFG, $OUTPUT;
 
 require_once ('forms/create_activity.php');
-
+require_once ('locallib.php');
 require_login ();
 $PAGE->set_pagelayout ( 'embedded' );
 $context = context_system::instance ();
 $PAGE->set_context ( $context );
-$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/create.php');
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
 
 echo $OUTPUT->header ();
 include 'views/headermoodle.php';
 //print the header
-
 ?>
 
 <div class="container">
@@ -139,7 +138,6 @@ if ($mform->is_cancelled ()) {
 	$record->timecreated = time ();
 	$record->userid = $USER->id;
 	$record->rubricid = $fromform->rubricid;
-	$record->status = 1;
 	$instertnewactivity = $DB->insert_record ( 'emarking_activities', $record );
 	
 	$socialrecord=new stdClass ();
