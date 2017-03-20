@@ -283,7 +283,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->setType('justiceperception', PARAM_INT);
         $mform->disabledIf('justiceperception', 'type', 'eq', '2');
         // Feedback
-        $mform->addElement('texareat', 'keywords', get_string('keywords', 'mod_emarking'), 
+        $mform->addElement('textarea', 'keywords', get_string('keywords', 'mod_emarking'), 
                 array(
                     'rows' => 5,
                     'cols' => 100,
