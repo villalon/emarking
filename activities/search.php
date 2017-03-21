@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 		case 2;
 		$oa = str_replace("°", "", $_POST['oa']);
 		$sqlwhere ='WHERE parent IS NULL AND 
-				status=1" AND
+				status=1 AND
 				learningobjectives like "'.$oa.'[%"';
 		if(isset($_POST['13'])){
 			$sqlwhere .= 'AND learningobjectives like "%13%"';
