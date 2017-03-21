@@ -29,7 +29,8 @@ $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
 $query = "SELECT id, genre, description, title FROM mdl_emarking_activities
-			ORDER BY RAND()
+		WHERE status = 1 AND parent IS NULL	
+		ORDER BY RAND()
 			LIMIT 4"; 
 $activities = $DB->get_records_sql($query);
 $activityArray=array();
