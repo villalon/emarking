@@ -76,6 +76,7 @@ $(function() {
 
 	<nav class="navbar navbar-default  pageheader">
 		<div class="container">
+		<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle collapsed"
 					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
@@ -86,9 +87,10 @@ $(function() {
 				</button>
 				<a class="navbar-brand logos_head" href="#"></a>
 			</div>
-
+		</div>
+		<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
 			<div id="navbar" class="navbar-collapse collapse">
-
+				<div class="row">
 				<ul class="nav navbar-nav navbar-right search">
 					<li style="padding-top: 10px">
 						<form class="navbar-form navbar-right" method="post"
@@ -102,11 +104,13 @@ $(function() {
 
 					<li></li>
 
-				</ul>
+				</ul></div>
 				<div class="row">
 				<ul class="nav navbar-nav navbar-left text_nav">
 					<li class="txt text_nav"><a href="<?=$homeUrl?>">Inicio</a></li>
 					<li class="txt text_nav"><a href="#contact">Actividades</a></li>
+					<li class="txt text_nav"><a href="#contact">Foro</a></li>
+
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
              <?php
@@ -150,6 +154,7 @@ $(function() {
 
 		</div>
 		<!--/.nav-collapse -->
+		</div>
 		</div>
 	</nav>
 	

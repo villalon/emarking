@@ -70,7 +70,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$results = $DB->get_records_sql($sql);
 			break;
 		case 2;
-
+		$oa = str_replace("°", "", $_POST['oa']);
+		$sqlwhere ='WHERE learningobjectives like "'.$oa.'[%"';
+		if(isset($_POST['13'])){
+			$sqlwhere .= 'AND learningobjectives like "%13%"';
+		}
+		if(isset($_POST['14'])){
+			$sqlwhere .= 'AND learningobjectives like "%14%"';
+		}
+		if(isset($_POST['15'])){
+			$sqlwhere .= 'AND learningobjectives like "%15%"';
+		}
+		if(isset($_POST['16'])){
+			$sqlwhere .= 'AND learningobjectives like "%16%"';
+		}
+		if(isset($_POST['17'])){
+			$sqlwhere .= 'AND learningobjectives like "%17%"';
+		}
+		if(isset($_POST['18'])){
+			$sqlwhere .= 'AND learningobjectives like "%18%"';
+		}
+		if(isset($_POST['19'])){
+			$sqlwhere .= 'AND learningobjectives like "%19%"';
+		}
+		if(isset($_POST['20'])){
+			$sqlwhere .= 'AND learningobjectives like "%20%"';
+		}
+		if(isset($_POST['21'])){
+			$sqlwhere .= 'AND learningobjectives like "%21%"';
+		}
+		if(isset($_POST['22'])){
+			$sqlwhere .= 'AND learningobjectives like "%22%"';
+		}
+		$sql="SELECT * FROM mdl_emarking_activities ".$sqlwhere;
+		$results = $DB->get_records_sql($sql);
 		break;
 		case 3:
 			$results=$DB->get_records('emarking_activities',array('comunicativepurpose'=>$_POST['pc'],'parent'=>null));
