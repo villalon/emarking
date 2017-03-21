@@ -71,7 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 			break;
 		case 2;
 		$oa = str_replace("°", "", $_POST['oa']);
-		$sqlwhere ='WHERE learningobjectives like "'.$oa.'[%"';
+		$sqlwhere ='WHERE parent IS NULL AND 
+				status=1" AND
+				learningobjectives like "'.$oa.'[%"';
 		if(isset($_POST['13'])){
 			$sqlwhere .= 'AND learningobjectives like "%13%"';
 		}
@@ -106,10 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$results = $DB->get_records_sql($sql);
 		break;
 		case 3:
-			$results=$DB->get_records('emarking_activities',array('comunicativepurpose'=>$_POST['pc'],'parent'=>null));
+			$results=$DB->get_records('emarking_activities',array('comunicativepurpose'=>$_POST['pc'],'parent'=>null,'status'=>1));
 			break;
 		case 4:
-			$results=$DB->get_records('emarking_activities',array('genre'=>$_POST['genero'],'parent'=>null));
+			$results=$DB->get_records('emarking_activities',array('genre'=>$_POST['genero'],'parent'=>null,'status'=>1));
 
 			break;
 	}
