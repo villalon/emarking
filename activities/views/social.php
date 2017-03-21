@@ -53,7 +53,7 @@ foreach($comments as $comment){
 			</div>
 		</div>
 	</div>
-<?php }?>
+<?php }}?>
 <script>
 
 	 function foo (type) {

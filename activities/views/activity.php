@@ -46,11 +46,10 @@ $(function() {
 						</button>
 						</div>
 						<div class="activity_buttons">
-						<button type="button" class="btn btn-primary" data-toggle="modal"
-							data-target="#myModalUse" <?=$disabled?>>
+						<a href="<?=$forkingUrl?>"><button type="button" class="btn btn-primary" <?=$disabled?>>
 							<span class="glyphicon glyphicon-floppy-disk"></span> Adaptar
 							Actividad
-						</button>
+						</button></a>
 						</div>
 						<br>
 					</div>
