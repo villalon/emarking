@@ -53,8 +53,6 @@ foreach($comments as $comment){
 			</div>
 		</div>
 	</div>
-<?php }}else{?>
-<p>Aún no hay comentarios en esta actividad</p>
 <?php }?>
 <script>
 

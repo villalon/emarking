@@ -68,7 +68,7 @@ $totalsubmissions = $DB->count_records_sql(
 switch ($tab) {
 	case 1 :
 ?>
-						<li class="active"><a href="<?= $markingUrl ?>">Corrección</a></li>
+						<li class="active"><a href="<?= $markingUrl ?>">Información del curso</a></li>
 						<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
 						<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
 						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>" >Reportes</a></li>
@@ -78,7 +78,7 @@ switch ($tab) {
 		break;
 	case 2:
 ?>
-						<li><a href="<?= $markingUrl ?>">Corrección</a></li>
+						<li><a href="<?= $markingUrl ?>">Información del curso</a></li>
 						<li class="active"><a href="<?= $downloadUrl ?>">Descargar</a></li>
 						<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
 						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>">Reportes</a></li>
@@ -88,7 +88,7 @@ switch ($tab) {
 		break;
 	case 3:
 ?>
-						<li><a href="<?= $markingUrl ?>">Corrección</a></li>
+						<li><a href="<?= $markingUrl ?>">Información del curso</a></li>
 						<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
 						<li class="active"><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
 						<li <?= $disabled ?>><a href="<?= $reportsUrl ?>">Reportes</a></li>
@@ -99,7 +99,7 @@ switch ($tab) {
 		break;
 		case 4:
 			?>
-								<li><a href="<?= $markingUrl ?>">Corrección</a></li>
+								<li><a href="<?= $markingUrl ?>">Información del curso</a></li>
 								<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
 								<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
 								<li class="active"><a href="<?= $reportsUrl ?>">Reportes</a></li>
@@ -109,7 +109,7 @@ switch ($tab) {
 				break;
 	 case 5 :
 					?>
-										<li><a href="<?= $markingUrl ?>">Corrección</a></li>
+										<li><a href="<?= $markingUrl ?>">Información del curso</a></li>
 										<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
 										<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
 										<li <?= $disabled ?>><a href="<?= $reportsUrl ?>" >Reportes</a></li>

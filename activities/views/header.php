@@ -107,11 +107,6 @@ $(function() {
 				<ul class="nav navbar-nav navbar-left text_nav">
 					<li class="txt text_nav"><a href="<?=$homeUrl?>">Inicio</a></li>
 					<li class="txt text_nav"><a href="#contact">Actividades</a></li>
-
-					<li class="txt text_nav"><a href="#about">Nosotros</a></li>
-
-					<li class="txt text_nav"><a href="#about">Proyecto</a></li>
-
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
              <?php

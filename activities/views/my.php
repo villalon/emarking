@@ -35,7 +35,7 @@
 						
 						<div class="panel panel-default">
 							<div class="panel-body">
-					<h1>Tus Cursos</h1>
+					<h1>Mis Cursos</h1>
 					<?php
 					
 					if(isset($coursesasteacher)){

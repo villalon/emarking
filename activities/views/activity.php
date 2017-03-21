@@ -25,14 +25,14 @@ $(function() {
 
 				<div class="panel panel-default">
 					<div class="panel-body">
-						<h3>Resumen</h3>
+						<h3>Ficha técnica</h3>
 
 						<p><?=$coursesOA?>
 						
    
 						<hr>
 						 Género: <?php echo $activity->genre; ?><br>
-    Propósito Comunicativo: <?=$activity->comunicativepurpose?><br>
+    Propósito comunicativo: <?=$activity->comunicativepurpose?><br>
     Audiencia: <?= $activity->audience?><br>
     Tiempo estimado: <?=$activity->estimatedtime?><br>
 
