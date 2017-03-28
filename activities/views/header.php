@@ -108,7 +108,7 @@ $(function() {
 				<div class="row">
 				<ul class="nav navbar-nav navbar-left text_nav">
 					<li class="txt text_nav"><a href="<?=$homeUrl?>">Inicio</a></li>
-					<li class="txt text_nav"><a href="#contact">Actividades</a></li>
+					<li class="txt text_nav"><a href="<?=$searchUrl?>">Actividades</a></li>
 					<li class="txt text_nav"><a href="#contact">Foro</a></li>
 
 				</ul>
