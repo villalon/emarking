@@ -1700,5 +1700,18 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2017011500, 'emarking');
     }
+    if ($oldversion < 2017022800) {
+    
+    	// Changing nullability of field data on table emarking_social to null.
+    	$table = new xmldb_table('emarking_social');
+    	$field = new xmldb_field('data', XMLDB_TYPE_BINARY, null, null, null, null, null, 'timecreated');
+    
+    	// Launch change of nullability for field data.
+    	$dbman->change_field_notnull($table, $field);
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017022800, 'emarking');
+    }
+    
     return true;
 }

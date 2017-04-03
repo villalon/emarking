@@ -23,7 +23,8 @@
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot . "/mod/emarking/locallib.php");
-global $DB, $USER;
+
+global $DB, $USER, $CFG;
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 $draftid = required_param('ids', PARAM_INT);
@@ -70,9 +71,15 @@ $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('emarking', 'mod_emarking'));
 $PAGE->set_pagelayout('incourse');
 if ($confirm) {
-    $draft->status = $newstatus;
+     $draft->status = $newstatus;
     $DB->update_record('emarking_draft', $draft);
+    if (isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype == 10){
+    	$whenembedded = new moodle_url('/mod/emarking/activities/marking.php', array(
+    			'id' => $cm->id));
+    	redirect($whenembedded, '', 0);
+    }else{
     redirect($cancelurl, get_string('transactionsuccessfull', 'mod_emarking'), 2);
+    }
     die();
 }
 echo $OUTPUT->header();

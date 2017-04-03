@@ -1,19 +1,51 @@
 <?php
-require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
-// include simplehtml_form.php
-require_once ('forms/create_activity.php');
-// Código para setear contexto, url, layout
-global $PAGE, $USER, $CFG, $OUTPUT, $DB;
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$PAGE->set_pagelayout ( 'embedded' );
+/**
+ *
+ * @package   mod_emarking
+ * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
+global $PAGE, $DB, $USER, $CFG, $OUTPUT;
+
+require_once ('forms/create_activity.php');
+require_once ('locallib.php');
 require_login ();
+$PAGE->set_pagelayout ( 'embedded' );
 $context = context_system::instance ();
 $PAGE->set_context ( $context );
-$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/create.php' );
-$PAGE->set_url ( $url );
-echo $OUTPUT->header ();
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php');
+$PAGE->set_url($url);
+$PAGE->set_title('escribiendo');
 
-// Instantiate simplehtml_form
+echo $OUTPUT->header ();
+include 'views/headermoodle.php';
+//print the header
+?>
+
+<div class="container">
+<div class="row">
+
+<h2>Crear una actividad</h2>
+
+<div class="col-md-12">
+<?php 
 $mform = new local_ciae_create_activity ();
 
 // Form processing and displaying is done here
@@ -22,7 +54,7 @@ if ($mform->is_cancelled ()) {
 } else if ($fromform = $mform->get_data ()) {
 	 include ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 	$genero = ( int ) $fromform->genre - 1;
-	var_dump($genero);
+	
 	$OAC1 = "";
 	if (isset ( $fromform->C1 )) {
 		
@@ -69,12 +101,25 @@ if ($mform->is_cancelled ()) {
 	$planification = $fromform->planification ['text'];
 	$writing = $fromform->writing ['text'];
 	$editing = $fromform->editing ['text'];
+	$teaching= $fromform->teaching ['text'];
+	$lenguageresources= $fromform->languageresources ['text'];
 	
+	//changing url of image
 	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $fromform->instructions ['itemid'] . '/';
 	$instructions = str_replace ( $urlAntigua, $urlnueva, $instructions );
 	$planification = str_replace ( $urlAntigua, $urlnueva, $planification );
 	$writing = str_replace ( $urlAntigua, $urlnueva, $writing );
 	$editing = str_replace ( $urlAntigua, $urlnueva, $editing );
+	$teaching = str_replace ( $urlAntigua, $urlnueva, $teaching );
+	$lenguageresources = str_replace ( $urlAntigua, $urlnueva, $lenguageresources );
+	
+	//cleaning html text
+	$instructions = emarking_activities_clean_html_text($instructions);
+	$planification = emarking_activities_clean_html_text($planification);
+	$writing = emarking_activities_clean_html_text($writing);
+	$editing = emarking_activities_clean_html_text($editing);
+	$teaching = emarking_activities_clean_html_text($teaching);
+	$lenguageresources = emarking_activities_clean_html_text($lenguageresources);
 	
 	$record = new stdClass ();
 	$record->title = $fromform->title;
@@ -88,16 +133,20 @@ if ($mform->is_cancelled ()) {
 	$record->planification = $planification;
 	$record->writing = $writing;
 	$record->editing = $editing;
-	$record->teaching = $fromform->teaching ['text'];
-	$record->languageresources = $fromform->languageresources ['text'];
+	$record->teaching = $teaching;
+	$record->languageresources = $lenguageresources;
 	$record->timecreated = time ();
 	$record->userid = $USER->id;
 	$record->rubricid = $fromform->rubricid;
+	$instertnewactivity = $DB->insert_record ( 'emarking_activities', $record );
 	
-	$insert = $DB->insert_record ( 'emarking_activities', $record );
-	
-	$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/views/activity.php', array (
-			'id' => $insert 
+	$socialrecord=new stdClass ();
+	$socialrecord->activityid 			= $instertnewactivity;
+	$socialrecord->timecreated         	= time();
+	$socialrecord->data					= null;				
+	$DB->insert_record ( 'emarking_social', $socialrecord );
+	$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
+			'id' => $instertnewactivity 
 	) );
 	redirect ( $url, 0 );
 	// In this case you process validated data. $mform->get_data() returns data posted in form.
@@ -135,13 +184,25 @@ if ($mform->is_cancelled ()) {
 			'',
 			'itemid' => $draftid_editor 
 	);
+	$instructions->teaching = array (
+			'text' => '',
+			'',
+			'itemid' => $draftid_editor
+	);
+	$instructions->languageresources = array (
+			'text' => '',
+			'',
+			'itemid' => $draftid_editor
+	);
 	
 	$mform->set_data ( $instructions );
 	// displays the form
 	$mform->display ();
 }
 
-// Código para setear contexto, url, layout
 echo $OUTPUT->footer ();
+echo" 	</div>			
+	</div>";
+//print the footer
 
-?>
+include 'views/footer.html';

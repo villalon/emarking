@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-
 /**
  *
  * @package mod
@@ -114,6 +113,7 @@ if (isset($CFG->emarking_pagelayouttype)) {
             break;
     }
 }
+
 $PAGE->set_pagelayout($layout);
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
@@ -150,7 +150,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Navigation tabs.
 $tabname = $scan ? "scanlist" : "mark";
-if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
+if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED){
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
 }
 // Reassign peers if everything is ok with it.
@@ -228,7 +228,9 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 }
 // Show export buttons when grades are available
 if($usercangrade) {
-    emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+	if (isset($CFG->emarking_pagelayouttype)&&$CFG->emarking_pagelayouttype!=EMARKING_PAGES_LAYOUT_EMBEDDED ) {
+	emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
+	}
 }
 if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);
@@ -242,7 +244,13 @@ $usercanpublishgrades = ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||
     has_capability("mod/emarking:supervisegrading", $context) && !$scan;
 // Only when marking normally for a grade we can publish grades.
 if ($usercanpublishgrades) {
-	$publishurl=$CFG->wwwroot.'/mod/emarking/marking/publish.php';
+	if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+		$publishurl=$CFG->wwwroot.'/mod/emarking/activities/marking.php?tab=5';
+	}
+	else{
+		$publishurl=$CFG->wwwroot.'/mod/emarking/marking/publish.php';
+	}
+	
     echo "<form id='publishgrades' action='$publishurl' method='post'>";
     echo "<input type='hidden' name='id' value='$cm->id'>";
 }
@@ -554,7 +562,6 @@ $('#searchInput').keyup(function () {
     }
     //hide all the rows
     jo.hide();
-
     //Recusively filter the jquery object to get results.
     jo.filter(function (i, v) {
         var $t = $(this);
@@ -608,9 +615,11 @@ $submission = $DB->get_record('emarking_submission', array(
 if($usercanpublishgrades) {
     emarking_show_orphan_pages_link($context, $cm);
 }
+if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED) {
 // If the user is a tutor or teacher we don't include justice perception.
 if ($usercangrade || !$submission) {
     echo $OUTPUT->footer();
+    
     die();
 }
 // JUSTICE PERCEPTION FOR CURRENT USER.
@@ -705,8 +714,10 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
         }
         $mform->display();
     }
-echo $OUTPUT->footer();
 
+}else {
+	echo $OUTPUT->footer();
+}
 function emarking_get_userinfo($draft, $course, $emarking) {
     global $OUTPUT, $USER;
     $profileurl = new moodle_url('/user/view.php', array(
@@ -723,7 +734,6 @@ function emarking_get_userinfo($draft, $course, $emarking) {
     }
     return $userinfo;
 }
-
 function emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking) {
     global $USER, $OUTPUT;
     // Bonus info.
@@ -745,7 +755,6 @@ function emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubr
     ));
     return $finalgrade;
 }
-
 function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $publishgradesform, $numcriteria, $scan, $cm, $rubriccriteria) {
     global $OUTPUT, $USER;
     $owndraft = $USER->id == $draft->id;
@@ -814,7 +823,6 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
     }
     return $actions;
 }
-
 function emarking_get_drafts_from_concat($draft) {
     $draftids = explode('#', $draft->draft);
     $draftqcs = explode('#', $draft->qcs);
@@ -855,4 +863,3 @@ function emarking_get_drafts_from_concat($draft) {
     }
     return $drafts;
 }
-

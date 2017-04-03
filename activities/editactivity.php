@@ -1,29 +1,38 @@
 <?php
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 //include simplehtml_form.php
-
+global $PAGE,$USER,$CFG , $OUTPUT, $DB;
 require_once ($CFG->dirroot. '/mod/emarking/activities/forms/edit_activity.php');
+require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+require_login ();
 
- //Código para setear contexto, url, layout
-global $PAGE,$USER, $OUTPUT, $DB;
 $activityid = required_param('activityid', PARAM_INT);
 $context=context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('embedded');
-require_login();
-$PAGE->set_context(context_system::instance());
-$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/edit.php');
+
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/editactivity.php');
 $PAGE->set_url($url);
-	echo $OUTPUT->header();
-	
+$PAGE->set_title('escribiendo');
+
+echo $OUTPUT->header ();
+include 'views/headermoodle.php';
+//print the header
+
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 
 if($activity->userid != $USER->id){
 		print_error('No tienes permiso para editar esta actividad.');
 	
 }
-	
+?>
+	<div class="container">
+		<div class="row">
+		<h2>Editar actividad</h2>
+		<div class="col-md-12">
+
+<?php
 	
 //Instantiate simplehtml_form 
 $mform = new local_ciae_edit_activity();
@@ -42,13 +51,27 @@ if ($mform->is_cancelled()) {
 	$planification = $fromform->planification ['text'];
 	$writing = $fromform->writing ['text'];
 	$editing = $fromform->editing ['text'];
-	
+	$teaching= $fromform->teaching ['text'];
+	$lenguageresources= $fromform->languageresources ['text'];
+
+	//changing url of image
 	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $fromform->instructions ['itemid'] . '/';
 	$instructions = str_replace ( $urlAntigua, $urlnueva, $instructions );
 	$planification = str_replace ( $urlAntigua, $urlnueva, $planification );
 	$writing = str_replace ( $urlAntigua, $urlnueva, $writing );
 	$editing = str_replace ( $urlAntigua, $urlnueva, $editing );
-	
+	$teaching = str_replace ( $urlAntigua, $urlnueva, $teaching );
+	$lenguageresources = str_replace ( $urlAntigua, $urlnueva, $lenguageresources );
+
+	//cleaning html text
+	$instructions = emarking_activities_clean_html_text($instructions);
+	$planification = emarking_activities_clean_html_text($planification);
+	$writing = emarking_activities_clean_html_text($writing);
+	$editing = emarking_activities_clean_html_text($editing);
+	$teaching = emarking_activities_clean_html_text($teaching);
+	$lenguageresources = emarking_activities_clean_html_text($lenguageresources);
+		
+		
 	$activity->title = $fromform->title;
 	$activity->description = $fromform->description;
 	//$activity->learningobjectives = $oaCode;
@@ -60,16 +83,14 @@ if ($mform->is_cancelled()) {
 	$activity->planification = $planification;
 	$activity->writing = $writing;
 	$activity->editing = $editing;
-	$activity->teaching = $fromform->teaching ['text'];
-	$activity->languageresources = $fromform->languageresources ['text'];
+	$activity->teaching = $teaching;
+	$activity->languageresources = $lenguageresources;
 	$activity->timemodified = time ();
 	$activity->userid = $USER->id;
 	$activity->rubricid = $fromform->rubricid;
-	
 	$DB->update_record('emarking_activities', $activity);
 	
-		
-	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/activity.php', array('id' => $activityid));
+	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 	redirect($url, 0);
   //In this case you process validated data. $mform->get_data() returns data posted in form.
 } else {
@@ -123,6 +144,16 @@ if ($mform->is_cancelled()) {
 			'',
 			'itemid' => $draftid_editor 
 	);
+	$formData->teaching = array (
+			'text' => $activity->teaching,
+			'',
+			'itemid' => $draftid_editor
+	);
+	$formData->languageresources = array (
+			'text' => $activity->languageresources,
+			'',
+			'itemid' => $draftid_editor
+	);
 	
 	$mform->set_data ( $formData );
  	
@@ -133,7 +164,9 @@ if ($mform->is_cancelled()) {
 }
 
 
-//Código para setear contexto, url, layout
-echo $OUTPUT->footer();
+echo $OUTPUT->footer ();
+echo" 	</div>			
+	</div>";
+//print the footer
 
-?>
+include 'views/footer.html';
