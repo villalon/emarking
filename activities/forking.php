@@ -18,6 +18,6 @@ elseif($forked =$DB->get_record('emarking_activities',array('userid'=>$USER->id,
 }
 else{
 	$insert = $DB->insert_record('emarking_activities', $record);
-	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/editactivity.php', array('activityid' => $insert));	
+	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/editactivity.php', array('activityid' => $insert));	
 } 
 redirect($forkUrl, 0);

@@ -5,7 +5,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Utilizar actividad</h4>
+				<h4 class="modal-title">Usar actividad</h4>
 			</div>
 			<div class="modal-body">
 		 <form role="form" action="newsubmission.php">
@@ -26,9 +26,9 @@
 			<?php
 							if ($countcourses > 0) {
 								?>
-  				<button type="submit" class="btn btn-primary">Utilizar</button>
+  				<button type="submit" class="btn btn-primary">Usar</button>
   			<?php }else { ?>
-  				<button type="submit" class="btn btn-primary" disabled>Utilizar</button>
+  				<button type="submit" class="btn btn-primary" disabled>Usar</button>
  			<?php }?></div>
 						</form>
  			

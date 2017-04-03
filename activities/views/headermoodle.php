@@ -44,7 +44,7 @@ if (isloggedin ()) {
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand logos_head" href="#"></a>
+				<a class="navbar-brand logos_head" href="<?=$homeUrl?>"></a>
 			</div>
 
 			<div id="navbar" class="navbar-collapse collapse">
@@ -83,10 +83,10 @@ if (isloggedin ()) {
 						data-toggle="dropdown" href="#"><?=$USER->firstname;?> <span
 							class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="<?= $myUrl ?>">Mi perfil</a></li>
-							<li><a href="<?= $createactivityUrl ?>">Mis actividades</a></li>
-							<li><a href="<?= $createactivityUrl ?>">Crear actividad</a></li>
-							<li><a href="<?= $createactivityUrl ?>">Mis cursos</a></li>
+						
+							<li><a href="<?= $myUrl ?>">Mis Cursos</a></li>
+							<li><a href="<?= $myUrl ?>">Mis Actividades</a></li>
+							<li><a href="<?= $createactivityUrl ?>">Crear Actividad</a></li>
 							<li class="divider"></li>
 							<li>
 								<div class="navbar-login navbar-login-session">

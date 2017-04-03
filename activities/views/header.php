@@ -85,7 +85,7 @@ $(function() {
 						class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand logos_head" href="#"></a>
+				<a class="navbar-brand logos_head" href="<?=$homeUrl?>"></a>
 			</div>
 		</div>
 		<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
@@ -123,10 +123,10 @@ $(function() {
 						data-toggle="dropdown" href="#"><?=$USER->firstname;?> <span
 							class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="<?= $myUrl ?>">Mi perfil</a></li>
-							<li><a href="<?= $createactivityUrl ?>">Mis actividades</a></li>
+							<!--- <li><a href="<?= $myUrl ?>">Mi perfil</a></li> --->
+							<li><a href="<?= $myUrl ?>">Mis cursos</a></li>
+							<li><a href="<?= $myUrl ?>">Mis actividades</a></li>
 							<li><a href="<?= $createactivityUrl ?>">Crear actividad</a></li>
-							<li><a href="<?= $createactivityUrl ?>">Mis cursos</a></li>
 							<li class="divider"></li>
 							<li>
 								<div class="navbar-login navbar-login-session">

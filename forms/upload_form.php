@@ -64,21 +64,22 @@ class mod_emarking_upload_form extends moodleform {
         $mform->addHelpButton('assignment_file', 'filerequiredpdf', 'mod_emarking');
         $mform->addRule('assignment_file', get_string('filerequiredpdf', 'mod_emarking'), 'required');
         // Scanned file is double sided.
-        $mform->addElement('checkbox', 'doubleside', get_string('doubleside', 'mod_emarking'));
+        $mform->addElement('checkbox', 'doubleside', "QR en un lado de la hoja");
         $mform->setType('doubleside', PARAM_BOOL);
         $mform->setDefault('doubleside', false);
         // Scanned file is double sided.
-        $mform->addElement('checkbox', 'ignorecourse', get_string('ignorecourse', 'mod_emarking'));
-        $mform->setType('ignorecourse', PARAM_BOOL);
-        $mform->setDefault('ignorecourse', false);
-        $mform->setAdvanced('ignorecourse');
+        //$mform->addElement('checkbox', 'ignorecourse', get_string('ignorecourse', 'mod_emarking'));
+        $mform->addElement('hidden', 'ignorecourse', 1);
+        $mform->setType('ignorecourse', PARAM_INT);
+        //$mform->setDefault('ignorecourse', false);
+        //$mform->setAdvanced('ignorecourse');
         // Header.
-        $mform->addElement('static', 'qrprocessing_help', '', $OUTPUT->heading(get_string('usedigitizedzipfile', 'mod_emarking'), 4));
-        $mform->setAdvanced('qrprocessing_help');
+        //$mform->addElement('static', 'qrprocessing_help', '', $OUTPUT->heading(get_string('usedigitizedzipfile', 'mod_emarking'), 4));
+        //$mform->setAdvanced('qrprocessing_help');
         // Link to desktop tool.
-        $desktoplink = html_writer::link(new moodle_url('/mod/emarking/emarkingdesktop.zip'), get_string('qrprocessing', 'mod_emarking'));
-        $mform->addElement('static', 'qrprocessing', '', $desktoplink);
-        $mform->setAdvanced('qrprocessing');
+        //$desktoplink = html_writer::link(new moodle_url('/mod/emarking/emarkingdesktop.zip'), get_string('qrprocessing', 'mod_emarking'));
+        //$mform->addElement('static', 'qrprocessing', '', $desktoplink);
+        //$mform->setAdvanced('qrprocessing');
         // Action buttons.
         $this->add_action_buttons(true, get_string('processtitle', 'mod_emarking'));
     }
