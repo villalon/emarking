@@ -60,7 +60,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'feedback');
 }
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
     emarking_validate_rubric($context, true, true);
@@ -211,6 +211,7 @@ function emarking_table_from_criterion($criterion, $cm) {
     $levelstable->size = array();
     $levelstable->colclasses = array();
     
+    $current = 1;
     foreach ($criterion as $lid => $level) {
         if($lid === 'name') {
             $criterionname = $level;
@@ -223,12 +224,15 @@ function emarking_table_from_criterion($criterion, $cm) {
         $popupurl = new moodle_url('/mod/emarking/reports/preview.php', array('id'=>$cm->id, 'filter'=>'level', 'fids'=>$lid));
         $percentage = $total > 0 ? round($level->students / $total * 100,0) : 0;
         $levelstable->data [0] [] = html_writer::div(
+        		'Nivel ' . $current
+        		, 'definition');
+        $levelstable->data [1] [] = html_writer::div(
                 $level->definition
                 , 'definition');
-        $levelstable->data [1] [] = html_writer::div(
+        $levelstable->data [2] [] = html_writer::div(
                 html_writer::div($percentage . '%', 'progress-bar progress-bar-info progress-bar-striped',
-                        array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'aria-valuemin'=>0, 'aria-valuemax'=>100, 'style'=>'width:'.$percentage.'%')), 'progress');
-        $levelstable->data [2] [] = $OUTPUT->action_link(
+                        array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'title'=> $level->students . ' ' . get_string('students'), 'aria-valuemin'=>0, 'aria-valuemax'=>100, 'style'=>'width:'.$percentage.'%')), 'progress');
+        $levelstable->data [3] [] = $level->students > 0 ? $OUTPUT->action_link(
                 $popupurl, $OUTPUT->pix_icon('t/preview', get_string('viewfeedback','mod_emarking')),
                 new popup_action('click', $popupurl, 'emarking' . $cm->id, array(
                         'menubar' => 'no',
@@ -237,9 +241,10 @@ function emarking_table_from_criterion($criterion, $cm) {
                         'toolbar' => 'no',
                         'width' => 1024,
                         'height' => 600
-        )));
+        ))) : '&nbsp;';
         $levelstable->size [] = round(100 / (count($criterion) - 1), 1) . '%';
         $levelstable->colclasses [] = 'level';
+        $current++;
     }
     $levelstable->rowclasses[0] = null;
     return $levelstable;

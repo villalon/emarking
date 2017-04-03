@@ -51,6 +51,10 @@ $settings->add(
         new admin_setting_configselect('emarking_coloredrubricforced', 
                 get_string('coloredrubricforced','mod_emarking'), 
                 get_string('coloredrubricforced_help','mod_emarking'), 0, $yesno));
+$settings->add(
+		new admin_setting_configselect('emarking_formativefeedbackonly',
+				get_string('formativefeedbackonly','mod_emarking'),
+				get_string('formativefeedbackonly_help','mod_emarking'), 0, $yesno));
 // Print settings.
 $settings->add(
         new admin_setting_heading('emarking_basicsettings', get_string('printsettings', 'mod_emarking'),
