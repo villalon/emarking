@@ -134,6 +134,8 @@ $string ['level'] = 'Achievement level';
 $string ['outcomesnotconfigured'] = 'Outcomes have not yet been setup for this E-Marking activity';
 $string['coloredrubricforced'] = 'Force colored rubric';
 $string['coloredrubricforced_help'] = 'Forces all Emarking activities to use colored rubrics and ignore user settings';
+$string['formativefeedbackonly'] = 'Formative feedback only';
+$string['formativefeedbackonly_help'] = 'Does not show any summative feedback (scores in rubric, final grade)';
 // GENERAL.
 $string ['criteria'] = 'Criteria';
 $string ['deleterow'] = 'Delete row';
