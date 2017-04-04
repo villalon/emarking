@@ -74,8 +74,7 @@ echo $OUTPUT->header ();
 // Heading and tabs if we are within a course module.
 echo $OUTPUT->heading ( $emarking->name );
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-	$tabname = "myexams";
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'myexams');
 }
 $params = array (
 		"course" => $course->id,

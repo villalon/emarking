@@ -159,8 +159,7 @@ if($action === 'delete') {
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-	$tabname = "uploadanswers";
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'uploadanswers');
 }
 $digitizedanswersfiles = emarking_get_digitized_answer_files($emarking);
 if (count($digitizedanswersfiles) == 0) {
