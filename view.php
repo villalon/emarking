@@ -613,7 +613,11 @@ $submission = $DB->get_record('emarking_submission', array(
     'student' => $USER->id
 ));
 if($usercanpublishgrades) {
-    emarking_show_orphan_pages_link($context, $cm);
+	if(isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_EMBEDDED){
+    emarking_show_orphan_pages_link($context, $cm, true);
+	}else{
+	emarking_show_orphan_pages_link($context, $cm);
+	}
 }
 if (isset ( $CFG->emarking_pagelayouttype ) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED) {
 // If the user is a tutor or teacher we don't include justice perception.
