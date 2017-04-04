@@ -116,6 +116,16 @@ switch ($tab) {
 										<?php 
 				include  $CFG->dirroot . '/mod/emarking/marking/publish.php';
 				break;
+				case 6 :
+					?>
+														<li><a href="<?= $markingUrl ?>">Información del curso</a></li>
+														<li><a href="<?= $downloadUrl ?>">Descargar</a></li>
+														<li><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
+														<li <?= $disabled ?>><a href="<?= $reportsUrl ?>" >Reportes</a></li>
+														</ul>
+														<?php 
+								include  $CFG->dirroot . '/mod/emarking/marking/orphanpages.php';
+								break;
 }
 ?>						
 						
