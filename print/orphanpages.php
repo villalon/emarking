@@ -98,6 +98,7 @@ if ($action === 'delete') {
     			'id' => $cm->id,
     			'tab'=>6
     	));
+    }
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 }
@@ -110,6 +111,7 @@ if ($action === 'rotate') {
     			'id' => $cm->id,
     			'tab'=>6
     	));
+    }
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 }
