@@ -19,6 +19,7 @@
  * @package mod
  * @subpackage emarking
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
+ * @copyright 2015-2017 Hans Jeria <hansjeria@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('AJAX_SCRIPT', true);
@@ -185,7 +186,7 @@ if ($action === 'ping') {
                 'coursemodule' => $cm->id,
                 'nodejspath' => $nodejspath,
                 'motives' => emarking_get_regrade_motives(),
-            	'keywords' => $emarking->keywords,
+            	'keywords' => ($emarking->keywords === 'keyword1,keyword2,sentence1') ? '' : $emarking->keywords,
                 'version' => $plugin->version));
 }
 $url = new moodle_url('/mod/emarking/ajax/a.php', array(
@@ -292,7 +293,11 @@ switch ($action) {
     case 'merlot':
     	$output = emarking_get_resources_merlot($keywords);
     	emarking_json_array($output);
-    	break;    
+    	break;
+    case 'moodleresources':
+    	$output = emarking_get_courseresources($course);
+    	emarking_json_array($output);
+    	break;
     case 'ocwmit' :
     	$output = emarking_get_resources_ocwmit($keywords);
     	emarking_json_array($output);

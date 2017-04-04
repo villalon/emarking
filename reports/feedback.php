@@ -19,6 +19,7 @@
  * @package mod
  * @subpackage emarking
  * @copyright 2016-onwards Jorge Villalon <villalon@gmail.com>
+ * @copyright 2017 Hans Jeria <hansjeria@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
@@ -60,7 +61,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 // Print eMarking tabs.
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'feedback');
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'feedback');
 }
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
     emarking_validate_rubric($context, true, true);
