@@ -18,6 +18,7 @@
  * @package mod
  * @subpackage emarking
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
+ * @copyright 2015-2017 Hans Jeria <hansjeria@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 /**
@@ -1238,7 +1239,7 @@ function emarking_get_resources_ocwmit($keywords){
 
 function emarking_get_resources_merlot($keywords){
 	$merloturl = "https://www.merlot.org/merlot/materials.htm?hasCollections=false&keywords=";
-	$extraparams = "&hasEtextReviews=false&isContentBuilder=false&filterOtherOpen=false&hasAssignments=false&hasAwards=false&filterSubjectsOpen=true&hasRatings=false&filterTypesOpen=false&filterMobileOpen=false&hasComments=false&hasCourses=false&isLeadershipLibrary=false&filterPartnerAffiliationsOpen=true&hasSercActivitySheets=false&hasEditorReviews=false&hasPeerReviews=false&sort.property=relevance&resort=overallRating&sortbutton=";
+	$extraparams = "&hasEtextReviews=false&isContentBuilder=false&filterOtherOpen=false&hasAssignments=false&hasAwards=false&filterSubjectsOpen=true&hasRatings=false&filterTypesOpen=false&filterMobileOpen=false&hasComments=false&hasCourses=false&isLeadershipLibrary=false&filterPartnerAffiliationsOpen=true&hasSercActivitySheets=false&hasEditorReviews=false&hasPeerReviews=false&sort.property=relevance&resort=dateModified&sortbutton=";
 
 	$arraykeywords = explode(" ", $keywords);
 	for($i = 0; $i < count($arraykeywords); $i++){
@@ -1262,6 +1263,25 @@ function emarking_get_resources_merlot($keywords){
 
 	return $output;
 }
+
+function emarking_get_courseresources($course){
+	global $DB, $CFG;
+
+	$sqlgetresources = "SELECT cm.id AS cm, r.id, r.name, r.intro
+			FROM {resource} AS r INNER JOIN {course_modules} AS cm ON (r.id = cm.instance AND cm.course = ?)
+			INNER JOIN {modules} AS m ON (m.name = 'resource' AND m.id = cm.module)";
+	$resources = $DB->get_records_sql($sqlgetresources, array($course->id));
+
+	$output = array();
+	foreach ($resources as $resource){
+		$name = $resource->name." ".strip_tags($resource->intro);
+		$url = "$CFG->wwwroot/mod/resource/view.php?id=".$resource->cm;
+		$output [] = array("resource" => $name."_separador_".$url);
+	}
+
+	return $output;
+}
+
 function emarking_get_chat_history() {
     global $DB;
 

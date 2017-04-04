@@ -23,6 +23,7 @@
  * @package mod
  * @subpackage emarking
  * @copyright 2012-2015 Jorge Villalon <villalon@gmail.com>
+ * @copyright 2017 Hans Jeria <hansjeria@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . "/config.php");
@@ -73,7 +74,7 @@ echo $OUTPUT->header ();
 // Heading and tabs if we are within a course module.
 echo $OUTPUT->heading ( $emarking->name );
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'myexams');
 }
 $params = array (
 		"course" => $course->id,
