@@ -124,7 +124,7 @@ switch ($tab) {
 														<li <?= $disabled ?>><a href="<?= $reportsUrl ?>" >Reportes</a></li>
 														</ul>
 														<?php 
-								include  $CFG->dirroot . '/mod/emarking/marking/orphanpages.php';
+								include  $CFG->dirroot . '/mod/emarking/print/orphanpages.php';
 								break;
 }
 ?>						
