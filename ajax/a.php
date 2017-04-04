@@ -180,6 +180,7 @@ if ($action === 'ping') {
                 'heartbeat' => $emarking->heartbeatenabled,
                 'coloredrubric' => $linkrubric,
                 'coloredrubricforced' => (isset($CFG->emarking_coloredrubricforced) && $CFG->emarking_coloredrubricforced) ? 1 : 0,
+            	'formativeonly' => (isset($CFG->emarking_formativefeedbackonly) && $CFG->emarking_formativefeedbackonly) ? 1 : 0,
                 'buttons' => $CFG->emarking_markingbuttonsenabled,
                 'collaborativefeatures' => $emarking->collaborativefeatures,
                 'coursemodule' => $cm->id,
