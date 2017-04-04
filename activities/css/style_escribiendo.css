@@ -418,3 +418,6 @@ min-height:100%;
  padding: 5px;
  width: 170px;
  }
+ .gradingform_rubric .criteria {
+  height: auto;
+}

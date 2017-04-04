@@ -34,9 +34,10 @@ $uploadUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',a
 $reportsUrl=new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php',array('id'=>$id,'tab'=>4));
 
 $PAGE->set_context(context_system::instance());
-$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
+
 $disabled=null;
 $totalsubmissions = $DB->count_records_sql(
 		"
@@ -54,10 +55,8 @@ $totalsubmissions = $DB->count_records_sql(
 //print the header
 
 ?>
-
 <div class="container" style="padding-top: 150px;padding-bottom: 100px;">
 	<div class="row">
-		<h2></h2>
 		<div class="col-md-12">
 			<div class="panel panel-default">
 				<div class="panel-body">
@@ -129,7 +128,7 @@ switch ($tab) {
 </div>
 <?php 
 //print the footer
-include 'views/headermoodle.php';
+include 'views/header.php';
 include 'views/footer.html';
 ?>
 

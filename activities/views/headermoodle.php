@@ -4,12 +4,16 @@ $searchUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/search.p
 $createactivityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php' );
 $myUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
+$markingUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php');
 $loginUrl = new moodle_url ( $CFG->wwwroot . '/login/index.php' );
 if (isloggedin ()) {
 	$logoutUrl = new moodle_url ( $CFG->wwwroot . '/login/logout.php', array (
 			'sesskey' => $USER->sesskey
 	) );
 	$image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f2.jpg' );
+}
+if(isset($tab)){
+	var_dump($url);
 }
 ?>
 <meta charset="UTF-8">
@@ -26,8 +30,7 @@ if (isloggedin ()) {
 <!-- Scripts JQuery -->
 <link rel="stylesheet" type="text/css"
 	href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
 
 
 

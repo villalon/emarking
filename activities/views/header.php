@@ -26,9 +26,18 @@ if (isloggedin ()) {
 <!-- Scripts JQuery -->
 <link rel="stylesheet" type="text/css"
 	href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
-<script
+<?php 
+$fixed="";
+$fix=false;
+if(!isset($tab)){
+	echo '<script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>';
+}else{
+	$fixed="navbar-fixed-top";
+	$fix=true;
+}
+?>
 <script>
 $(function() {
 	var width=$( window ).width();
@@ -37,12 +46,13 @@ $(function() {
 	var txt = $('.txt');
 	var logos = $('.navbar-brand');
 	var search = $('.search');
-	
+	var fix = "<?php echo $fix; ?>";
+	 if(fix != true){
+
 	 if(width < 990){
    	  txt.removeClass('text_nav');
    	  txt.addClass('text_nav_1100');
 	      }
-
 	$(window).scroll(function(){
 		  
 		      scroll = $(window).scrollTop();
@@ -67,14 +77,14 @@ $(function() {
 		  }
 			  };
 		});
-	  
-	});
+	  }
+	}); 
 </script>
 
 <!-- Script para filtro de genero -->
 <header class="pageheader">
 
-	<nav class="navbar navbar-default  pageheader">
+	<nav class="navbar navbar-default <?= $fixed ?> pageheader">
 		<div class="container">
 		<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 			<div class="navbar-header">
