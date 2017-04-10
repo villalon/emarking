@@ -1700,5 +1700,40 @@ function xmldb_emarking_upgrade($oldversion) {
         // Emarking savepoint reached.
         upgrade_mod_savepoint(true, 2017011500, 'emarking');
     }
+    if ($oldversion < 2017041001) {
+    
+    	// Define table emarking_session to be created.
+    	$table = new xmldb_table('emarking_session');
+    
+    	// Adding fields to table emarking_session.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('userid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('draftid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('starttime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('endtime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    
+    	// Adding keys to table emarking_session.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Conditionally launch create table for emarking_session.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017041001, 'emarking');
+    }
+    if ($oldversion < 2017041002) {
+    
+    	// Define key draftid (foreign) to be added to emarking_session.
+    	$table = new xmldb_table('emarking_session');
+    	$key = new xmldb_key('draftid', XMLDB_KEY_FOREIGN, array('draftid'), 'emarking_draft', array('id'));
+    
+    	// Launch add key draftid.
+    	$dbman->add_key($table, $key);
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017041002, 'emarking');
+    }
     return true;
 }
