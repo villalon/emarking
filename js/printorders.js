@@ -83,8 +83,7 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
 	Y.all('.downloademarking').on('click', function (e) {
 		var url = downloadurl +
 		'?examid=' + e.target.getAttribute('examid') +
-		'&sesskey=' + sessionkey +
-		'&token=' + smsField.get('value');
+		'&sesskey=' + sessionkey;
 		Y.log(url);
 		// We show the loading panel while we load the whole interface.
 		loadingpanel.show();
