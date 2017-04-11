@@ -118,19 +118,23 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] !== $token && !$dir
     die();
 }
 // A token was sent to validate download it will have 5 digits, otherwise it should be 0.
-if ($token > 9999 && ($_SESSION [$USER->sesskey . "smstoken"] === $token || $directdownload)) {
-    $now = new DateTime();
-    $tokendate = new DateTime();
-    $tokendate->setTimestamp($_SESSION [$USER->sesskey . "smsdate"]);
-    $diff = $now->diff($tokendate);
-    if ($diff->i > 5 && false) {
-        echo $OUTPUT->header();
-        echo $OUTPUT->notification(get_string("tokenexpired", "mod_emarking"), "notifyproblem");
-        $buttonurl = $incourse ? $courseurl : $coursecategoryurl;
-        echo $OUTPUT->single_button($buttonurl, get_string("back"), "get");
-        echo $OUTPUT->footer();
-        die();
-    }
+if (($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) || $directdownload) {
+	if(!$directdownload){
+	    $now = new DateTime();
+	    $tokendate = new DateTime();
+	    $tokendate->setTimestamp($_SESSION [$USER->sesskey . "smsdate"]);
+	    $diff = $now->diff($tokendate);
+	    if ($diff->i > 5 && false) {
+	        echo $OUTPUT->header();
+	        echo $OUTPUT->notification(get_string("tokenexpired", "mod_emarking"), "notifyproblem");
+	        $buttonurl = $incourse ? $courseurl : $coursecategoryurl;
+	        echo $OUTPUT->single_button($buttonurl, get_string("back"), "get");
+	        echo $OUTPUT->footer();
+	        die();
+	    }
+	} else {
+		$token = rand(10000, 99999);
+	}
     // Add to Moodle log so some auditing can be done.
     \mod_emarking\event\exam_downloaded::create_from_exam($exam, $contextcourse)->trigger();
     // Get all the files uploaded as forms for this exam.
