@@ -15,53 +15,40 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Displays information about all the assignment modules in the requested course
  *
- * @package   mod_assign
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
+ * @package   mod_emarking
+ * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
-global $PAGE,$USER, $OUTPUT, $DB;
-require_login();
+global $PAGE, $DB, $USER, $CFG;
 
 
 $PAGE->set_context(context_system::instance());
-$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/rubric.php');
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('embedded');
-$strplural = get_string("modulenameplural", "assign");
-$PAGE->set_title($strplural);
-$PAGE->navbar->add($strplural);
-
-
-
-$action = optional_param('action',"create", PARAM_TEXT);
-//print the header
-include 'views/header.php'; 
-
-switch($action) {
-    case "create":
-    ?>
-    <div class="container">
-		<div class="row">
-		<h3></h3>
-		<h2>Crear una rúbrica</h2>
-		<div class="col-md-2"></div>
-		<div class="col-md-7">
-		<?php include 'forms/rubricform.php'; ?>
-		</div>			
-	</div>
-	<?php 
-        break;
-    case "update":
-        break;
-    case "delete":
-        break;
-    default:
-        break;
+$PAGE->set_title('escribiendo');
+$query = "SELECT id, genre, description, title FROM mdl_emarking_activities
+		WHERE status = 1 AND parent IS NULL	
+		ORDER BY RAND()
+			LIMIT 4"; 
+$activities = $DB->get_records_sql($query);
+$activityArray=array();
+foreach ($activities as $activity){
+	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activity->id));
+	$activityArray[]=array(
+			'title'=>$activity->title,
+			'genre'=>$activity->genre,
+			'description'=>$activity->description,
+			'link'=>$url
+	);
 }
+
+//print the header
+include 'views/header.php';
+
+//print the body
+include 'views/index.php';
 
 //print the footer
 include 'views/footer.html';
