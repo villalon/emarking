@@ -34,8 +34,7 @@ $PAGE->set_pagelayout('embedded');
 $strplural = get_string("modulenameplural", "assign");
 $PAGE->set_title($strplural);
 $PAGE->navbar->add($strplural);
-$urlJquery = new moodle_url($CFG->wwwroot.'/lib/jquery/jquery-1.12.1.min.js');
-$PAGE->requires->js($urlJquery);
+
 
 
 $action = optional_param('action',"create", PARAM_TEXT);
@@ -45,7 +44,7 @@ include 'views/header.php';
 switch($action) {
     case "create":
     ?>
-    div class="container">
+    <div class="container">
 		<div class="row">
 		<h3></h3>
 		<h2>Crear una rúbrica</h2>

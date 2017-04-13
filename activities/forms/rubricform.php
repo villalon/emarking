@@ -1,7 +1,7 @@
 <?php
 
 $url = new moodle_url($CFG->wwwroot.'/mod/emagrking/activities/editRubric.php');
-require_once('rubric.php');
+require_once('forms/rubric.php');
 require_once($CFG->dirroot.'/grade/grading/form/rubric/lib.php');
 require_once($CFG->dirroot.'/grade/grading/lib.php');
 
@@ -18,11 +18,13 @@ list($context, $course, $cm) = get_context_info_array($manager->get_context()->i
 //si no existe
 
 //Instantiate simplehtml_form
+
 $mform = new local_ciae_rubric_form(null, array('areaid' => $area->id, 'context' => $context, 'allowdraft' => !$controller->has_active_instances()), 'post', '', array('class' => 'gradingform_rubric_editform'));
+
 $data = $controller->get_definition_for_editing(true);
 $returnurl = optional_param('returnurl', $manager->get_management_url(), PARAM_LOCALURL);
 $data->returnurl = $returnurl;
-$mform->set_data($data);
+//$mform->set_data($data);
 
 
 

@@ -10,7 +10,7 @@
  <br><button name="submit" type="submit" class="btn btn-primary  pull-right" ><i class="fa fa-share"></i> Comentar</button>
  </form>
 <?php }else{?>
-<p>Para comer comentar la actividad debes estar logueado. <p>
+<p>Para comentar la actividad debes estar logueado. <p>
 <?php }?>
 </div>	
 </div>

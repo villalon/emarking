@@ -407,8 +407,9 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || ($emarking->type == EMAR
     $headers[] = get_string('marker', 'mod_emarking');
 }
 if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-   // $headers[] = get_string('grade', 'mod_emarking');
-   
+   if( isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED){
+	$headers[] = get_string('grade', 'mod_emarking');
+   }
 }
 $headers[] = get_string('status', 'mod_emarking');
 $headers[] = get_string('actions', 'mod_emarking');
@@ -517,7 +518,9 @@ foreach($drafts as $draft) {
         $data[] = $markersstring;
     }
     if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-      //  $data[] = $finalgrade;
+    	if( isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED){
+    	$data[] = $finalgrade;
+    	}
     }
     $data[] = $pctmarked . ($draft->answerkey ? $OUTPUT->pix_icon('i/badge', get_string('answerkey', 'mod_emarking')) : '');
     $data[] = $actions;
