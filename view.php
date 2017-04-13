@@ -407,7 +407,8 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || ($emarking->type == EMAR
     $headers[] = get_string('marker', 'mod_emarking');
 }
 if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-    $headers[] = get_string('grade', 'mod_emarking');
+   // $headers[] = get_string('grade', 'mod_emarking');
+   
 }
 $headers[] = get_string('status', 'mod_emarking');
 $headers[] = get_string('actions', 'mod_emarking');
@@ -477,7 +478,7 @@ foreach($drafts as $draft) {
     $selectdraft = '';
     foreach($submissiondrafts as $d) {
         $pctmarked .= emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria);
-        $finalgrade .= emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking);
+       // $finalgrade .= emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking);
         $actions .= emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $usercanpublishgrades, $numcriteria, $scan, $cm, $rubriccriteria);
         $feedback .= strlen($d->feedback) > 0 ? $d->feedback : '';
         $timemodified .= html_writer::start_div("timemodified");
@@ -516,7 +517,7 @@ foreach($drafts as $draft) {
         $data[] = $markersstring;
     }
     if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-        $data[] = $finalgrade;
+      //  $data[] = $finalgrade;
     }
     $data[] = $pctmarked . ($draft->answerkey ? $OUTPUT->pix_icon('i/badge', get_string('answerkey', 'mod_emarking')) : '');
     $data[] = $actions;
