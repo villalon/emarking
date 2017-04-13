@@ -56,6 +56,12 @@ if ($testingmode) {
 }
 // If it's just a heartbeat, answer as quickly as possible.
 if ($action === 'heartbeat') {
+	if (isset($USER->sessionidemarking)) {
+		if ($sessiondraft = $DB->get_record('emarking_session', array('id' => $USER->sessionidemarking))){
+			$sessiondraft->endtime = time();
+			$DB->update_record('emarking_session', $sessiondraft);
+		}
+	}
     emarking_json_array(array(
         'time' => time()));
     die();
@@ -159,6 +165,14 @@ if ($action === 'ping') {
     if (isset($CFG->emarking_nodejspath)) {
         $nodejspath = $CFG->emarking_nodejspath;
     }
+    // Record session
+    $newsession = new stdClass();
+    $newsession->userid = $USER->id;
+    $newsession->draftid = $ids;
+    $newsession->starttime = time();
+    $newsession->endtime = time();
+    $result = $DB->insert_record('emarking_session', $newsession);
+    $USER->sessionidemarking = $result;
     emarking_json_array(
             array(
                 'user' => $USER->id,
