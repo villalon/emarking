@@ -118,7 +118,7 @@ if ($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] !== $token && !$dir
     die();
 }
 // A token was sent to validate download it will have 5 digits, otherwise it should be 0.
-if (($token > 9999 && $_SESSION [$USER->sesskey . "smstoken"] === $token) || $directdownload) {
+if ($token > 9999 && ($_SESSION [$USER->sesskey . "smstoken"] === $token || $directdownload)) {
 	if(!$directdownload){
 	    $now = new DateTime();
 	    $tokendate = new DateTime();
