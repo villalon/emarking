@@ -682,3 +682,65 @@ function get_average($array) {
 	$average = $sum / $count;
 	return round($average);
 }
+
+function get_criteria($id){
+	GLOBAL $DB,$USER;
+$sql="SELECT rl.*, rc.description as criterion, i.max
+FROM mdl_emarking_rubrics_levels as rl
+INNER JOIN mdl_emarking_rubrics_criteria rc ON (rc.id = rl.criterionid )
+LEFT JOIN (select criterionid, max(score) as max FROM mdl_emarking_rubrics_levels as rl group by criterionid) as i on (i.criterionid=rl.criterionid)
+WHERE rl.criterionid=?
+ORDER BY rl.criterionid ASC, rl.score DESC";
+$result = $DB->get_records_sql($sql, array($id));
+$criteriaarray=Array();
+$levelarray=Array();
+
+foreach ($result as $level){
+	$criteriaarray['criteria']=$level->criterion;
+	$levelarray[$level->score]=$level->definition;
+	$criteriaarray['maxscore']=$level->max;
+}
+if (!array_key_exists(1, $levelarray))
+	$levelarray[1]="";
+if (!array_key_exists(2, $levelarray))
+	$levelarray[2]="";
+if (!array_key_exists(3, $levelarray))
+	$levelarray[3]="";
+if (!array_key_exists(4, $levelarray))
+	$levelarray[4]="";
+krsort($levelarray);
+$criteriaarray['levels']=$levelarray;
+$tojson=json_encode($criteriaarray);
+return $tojson;
+
+}
+
+function insert_rubric($data){
+	GLOBAL $DB, $USER;
+	$rubric = new stdClass ();
+	$rubric->name = $data ['rubricname'];
+	$rubric->description = $data ['rubricdescription'];
+	$rubric->usercreated = $USER->id;
+	$rubric->timecreated = time ();
+	$inssertrubric = $DB->insert_record ( 'emarking_rubrics', $rubric );
+	if(isset($data ['criteria'])&& $criterias = $data ['criteria']){
+	foreach ( $criterias as $key => $criteria ) {
+
+		$crit = new stdClass ();
+		$crit->rubricid = $inssertrubric;
+		$crit->description = $criteria;
+		$inssertcriteria = $DB->insert_record ( 'emarking_rubrics_criteria', $crit );
+		if(isset($data ['level'])&& $levels = $data ['level']){
+		foreach ( $levels [$key] as $score => $level ) {
+			if($level!=null){
+				$lev = new stdClass ();
+				$lev->criterionid=$inssertcriteria;
+				$lev->score=$score;
+				$lev->definition=$level;
+				$DB->insert_record ( 'emarking_rubrics_levels', $lev );
+			}
+		}
+		}
+	}
+	}
+}

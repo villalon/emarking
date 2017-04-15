@@ -7,7 +7,7 @@ require_once($CFG->dirroot.'/grade/grading/lib.php');
 
 $id = optional_param("id",0, PARAM_INT);
 
-$area = $DB->get_record_sql('SELECT * FROM {grading_areas} WHERE id =  (SELECT max(id) FROM {grading_areas})');
+$area = $DB->get_record_sql('SELECT * FROM {grading_areas} WHERE id = 4');
 $manager = get_grading_manager($area->id);
 $controller = $manager->get_controller('rubric');
 
@@ -19,7 +19,7 @@ list($context, $course, $cm) = get_context_info_array($manager->get_context()->i
 
 //Instantiate simplehtml_form
 
-$mform = new local_ciae_rubric_form(null, array('areaid' => $area->id, 'context' => $context, 'allowdraft' => !$controller->has_active_instances()), 'post', '', array('class' => 'gradingform_rubric_editform'));
+$mform = new local_ciae_rubric_form(null, array('areaid' => $area->id, 'context' => $context, 'allowdraft' => !$controller->has_active_instances()), 'post', '');
 
 $data = $controller->get_definition_for_editing(true);
 $returnurl = optional_param('returnurl', $manager->get_management_url(), PARAM_LOCALURL);

@@ -64,30 +64,28 @@ $activity = $DB->get_record ( 'emarking_activities', array (
 $userobject = $DB->get_record ( 'user', array (
 		'id' => $activity->userid
 ) );
-
-$rubric = $DB->get_records_sql ( "SELECT grl.id,
-									 gd.description as des,
-									 grc.id as grcid,
-									 grl.score,
-									 grl.definition,
-									 grc.description,
-									 grc.sortorder,
-									 gd.name as name
-							  FROM {gradingform_rubric_levels} as grl,
-	 							   {gradingform_rubric_criteria} as grc,
-    							   {grading_definitions} as gd
-							  WHERE gd.id=? AND grc.definitionid=gd.id AND grc.id=grl.criterionid
-							  ORDER BY grcid, grl.id", array (
+$sql="SELECT rl.*, rc.description as criteria, r.id as rubricid, r.name, r.description,rc.description as criteriondescription, i.max
+FROM mdl_emarking_rubrics_levels as rl
+INNER JOIN mdl_emarking_rubrics_criteria rc ON (rc.id = rl.criterionid )
+INNER JOIN mdl_emarking_rubrics r ON (r.id = rc.rubricid )
+LEFT JOIN (select criterionid, max(score) as max FROM mdl_emarking_rubrics_levels as rl group by criterionid) as i on (i.criterionid=rl.criterionid)
+where r.id=?
+ORDER BY rl.criterionid ASC, rl.score DESC";
+$rubric = $DB->get_records_sql ( $sql, array (
 							  		$activity->rubricid
 							  ) );
+
 $disabled="disabled";
 if(isset($rubric)&& $rubric!=null){
-foreach ( $rubric as $data ) {
+	foreach ( $rubric as $data ) {
+		
 	$disabled=null;
-	$table [$data->description] [$data->definition] = $data->score;
-	$rubricdescription = $data->des;
+	$table [$data->criteriondescription] [$data->score] = $data->definition;
+	$rubricdescription = $data->description;
 	$rubricname = $data->name;
+	$maxlevel=$data->max;
 }
+
 $col = 0;
 foreach ( $table as $calc ) {
 

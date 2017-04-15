@@ -8,60 +8,56 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Displays information about all the assignment modules in the requested course
  *
- * @package   mod_assign
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_emarking
+ * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
-global $PAGE,$USER, $OUTPUT, $DB;
-require_login();
-
-
-$PAGE->set_context(context_system::instance());
-$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/rubric.php');
-$PAGE->set_url($url);
-$PAGE->set_pagelayout('embedded');
-$strplural = get_string("modulenameplural", "assign");
-$PAGE->set_title($strplural);
-$PAGE->navbar->add($strplural);
-
-
-
-$action = optional_param('action',"create", PARAM_TEXT);
-//print the header
-include 'views/header.php'; 
-
-switch($action) {
-    case "create":
-    ?>
-    <div class="container">
-		<div class="row">
-		<h3></h3>
-		<h2>Crear una rúbrica</h2>
-		<div class="col-md-2"></div>
-		<div class="col-md-7">
-		<?php include 'forms/rubricform.php'; ?>
-		</div>			
-	</div>
-	<?php 
-        break;
-    case "update":
-        break;
-    case "delete":
-        break;
-    default:
-        break;
+require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
+require_once ('locallib.php');
+global $PAGE, $DB, $USER, $CFG;
+$id = optional_param ( 'id',0 ,PARAM_INT );
+$PAGE->set_context ( context_system::instance () );
+$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php' );
+$PAGE->set_url ( $url );
+$PAGE->set_title ( 'escribiendo' );
+if (!isloggedin ()) {
+	die();
 }
+if (isset ( $_POST['submit'])) {
+	$data = $_POST;
+	insert_rubric($data);
+}
+if($id!=0){
+$sql="SELECT rl.*, rc.description as criteria, r.id as rubricid, r.name, r.description, rc.description as criteriondescription, i.max
+FROM mdl_emarking_rubrics_levels as rl
+INNER JOIN mdl_emarking_rubrics_criteria rc ON (rc.id = rl.criterionid )
+INNER JOIN mdl_emarking_rubrics r ON (r.id = rc.rubricid )
+LEFT JOIN (select criterionid, max(score) as max FROM mdl_emarking_rubrics_levels as rl group by criterionid) as i on (i.criterionid=rl.criterionid)
+where r.id=?
+ORDER BY rl.criterionid ASC, rl.score DESC";
+$rubric = $DB->get_records_sql($sql,array($id));
+}
+$sql='SELECT rl.*, rc.description as criteria, r.id as rubricid, i.max
+FROM mdl_emarking_rubrics_levels as rl
+INNER JOIN mdl_emarking_rubrics_criteria rc ON (rc.id = rl.criterionid )
+INNER JOIN mdl_emarking_rubrics r ON (r.id = rc.rubricid )
+LEFT JOIN (select criterionid, max(score) as max FROM mdl_emarking_rubrics_levels as rl group by criterionid) as i on (i.criterionid=rl.criterionid)
+ORDER BY rl.criterionid ASC, rl.score DESC';
+$levels = $DB->get_records_sql($sql);
 
-//print the footer
+// print the header
+include 'views/header.php';
+
+// print the main page
+include 'views/rubric.php';
+
+// print the footer
 include 'views/footer.html';

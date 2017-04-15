@@ -17,7 +17,7 @@ if (isloggedin ()) {
 <!-- CSS Font, Bootstrap, style de la página y auto-complete  -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <link href="css/style_escribiendo.css" rel="stylesheet">
-
+<link href="css/dataTables.bootstrap.min.css" rel="stylesheet">
 
 <!-- Fin CSS -->
 <!-- Importar  Scripts Javascript -->
@@ -30,8 +30,8 @@ if (isloggedin ()) {
 $fixed="";
 $fix=false;
 if(!isset($tab)){
-	echo '<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script	src="js/jquery.dataTables.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>';
 }else{
 	$fixed="navbar-fixed-top";

@@ -186,29 +186,40 @@ $(function() {
 									<thead>
 										<tr>
 											<td></td>
-     				    <?php
-													for($i = 1; $i <= $col; $i ++) {
-														echo "<th>Nivel $i</th>";
-													}
+<?php
+$i = $maxlevel;
+while($i>0) {
+	echo "<th>Nivel $i</th>";
+	$i--;
+}
+
 													?>
      				   
      					</tr>
 									</thead>
 									<tbody>
 
-   				    	<?php
-												foreach ( $table as $key => $value ) {
-													echo "<tr>";
-													
-													echo "<th>$key</th>";
-													foreach ( $value as $level => $score ) {
-														echo "<th>$level</th>";
-													}
-													
-													echo "</tr>";
-												}
+<?php 
+   				    	
+foreach ( $table as $key => $value ) {
+echo "<tr>";
+echo "<th>$key</th>";
+if (!array_key_exists(1, $value) && $maxlevel >= 1)
+	$value[1]="";
+if (!array_key_exists(2, $value) && $maxlevel >= 2)
+	$value[2]="";
+if (!array_key_exists(3, $value) && $maxlevel >= 3)
+	$value[3]="";
+if (!array_key_exists(4, $value) && $maxlevel >= 4)
+	$value[4]="";
+krsort($value);
+foreach ( $value as $score => $level ) {
+echo "<th>$level</th>";
+}
+echo "</tr>";
+}
 												
-												?>
+?>
    				    	
 
    				    </tbody>

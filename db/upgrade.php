@@ -1747,5 +1747,64 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017041300, 'emarking');
     }
+    if ($oldversion < 2017041400) {
+    //creating table rubrics
+    	// Define table emarking_rubrics to be created.
+    	$table = new xmldb_table('emarking_rubrics');
+    
+    	// Adding fields to table emarking_rubrics.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('name', XMLDB_TYPE_CHAR, '250', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('description', XMLDB_TYPE_CHAR, '500', null, null, null, null);
+    	$table->add_field('usercreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+    	$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+    	$table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+    	$table->add_field('timemodified', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+    
+    	// Adding keys to table emarking_rubrics.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Conditionally launch create table for emarking_rubrics.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    	//creating table rubic criteria
+    	// Define table emarking_rubrics_criteria to be created.
+    	$table = new xmldb_table('emarking_rubrics_criteria');
+    	
+    	// Adding fields to table emarking_rubrics_criteria.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('rubricid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('description', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+    	
+    	// Adding keys to table emarking_rubrics_criteria.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    	
+    	// Conditionally launch create table for emarking_rubrics_criteria.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    	 //creating table rubrics levels
+    	// Define table emarking_rubrics_levels to be created.
+    	$table = new xmldb_table('emarking_rubrics_levels');
+    	
+    	// Adding fields to table emarking_rubrics_levels.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('criterionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('score', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('definition', XMLDB_TYPE_TEXT, null, null, null, null, null);
+    	
+    	// Adding keys to table emarking_rubrics_levels.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    	
+    	// Conditionally launch create table for emarking_rubrics_levels.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    	 
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017041400, 'emarking');
+    }
+    
     return true;
 }
