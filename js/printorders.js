@@ -90,9 +90,9 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
 		currentExamId = e.target.getAttribute('examid');
 		currentButton = e.target;
 		currentButton.hide();
-		//Y.io(url, callback);
-		Y.config.win.open(url);
-		loadingpanel.hide();
+		Y.io(url, callback);
+		//Y.config.win.open(url);
+		//loadingpanel.hide();
 	});
 	// Create the io callback/configuration.
 	var callback = {

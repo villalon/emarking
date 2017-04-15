@@ -311,7 +311,7 @@ function emarking_send_processanswers_notification($emarking, $course) {
     // Get all users that should be notified.
     $users = get_enrolled_users(context_course::instance($course->id), "mod/emarking:receivenotification");
     foreach($users as $user) {
-        $eventdata = new stdClass();
+        $eventdata = \core\message\message();
         $eventdata->component = 'mod_emarking';
         $eventdata->name = 'notification';
         $eventdata->userfrom = $USER;
@@ -1484,7 +1484,7 @@ function emarking_send_email_code($code, $user, $course, $examname) {
     $thismessagehtml .= '</html>';
     $subject = get_string('emarkingsecuritycode', 'mod_emarking');
     $headers = "From: $CFG->supportname  \r\n" . "Reply-To: $CFG->noreplyaddress\r\n" . 'Content-Type: text/html; charset="utf-8"' . "\r\n" . 'X-Mailer: PHP/' . phpversion();
-    $eventdata = new stdClass();
+    $eventdata = \core\message\message();
     $eventdata->component = 'mod_emarking';
     $eventdata->name = 'notification';
     $eventdata->userfrom = get_admin();
