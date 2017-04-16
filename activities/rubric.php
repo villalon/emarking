@@ -33,7 +33,13 @@ if (!isloggedin ()) {
 	die();
 }
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
+if($activity->userid!=$USER->id){
+	$backUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
+	redirect($backUrl, 0);
+	
+}
 $id=$activity->rubricid;
+
 
 if (isset ( $_POST['submit'])) {
 	$data = $_POST;
