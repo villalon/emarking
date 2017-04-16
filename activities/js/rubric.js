@@ -57,16 +57,18 @@ $(document).ready(function () {
 
 
 function showinput(e){
-	var spanid=e.id;
-	var split = spanid.split("-");
+	var tdid=e.id;
+	var split = tdid.split("-");
 	var row = split[1];
 	var count = split[2];
 	var inputid = 'leveltext-'+row+'-'+count;
+	var spanid = 'level-'+row+'-'+count;
+	var span =document.getElementById(spanid)
 	var input =document.getElementById(inputid) 
 	if(input.value.length > 0){
-	input.value=e.innerHTML;
+	input.value=span.innerHTML;
    }
-	e.style.display='none';
+	span.style.display='none';
 	input.style.display='';
 	input.focus();
 
@@ -82,7 +84,7 @@ function hideinput(e){
 	var span =document.getElementById(spanid) 
 	
 	if(input.value.length == 0){
-		span.value="Click para editar";
+		span.innerHTML="Click para editar";
 	   }else{
 		   span.innerHTML=input.value; 
 	   }
@@ -144,30 +146,30 @@ function add_row(result=null){
 		var levelfourid=obj.levelids[4];
 		}
 	}
-	cols += '<td class="col-sm-2" style="vertical-align: middle;">';
+	cols += '<td class="col-sm-2" id="td-0-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols +='<input id="leveltext-0-'+num+'" onblur="hideinput(this)"type="text" name="criteria['+num+']" class="form-control" style="display:none;" value="'+textcriteria+'"/>';
 	cols +='<input type="hidden" name="criteriaid['+num+']" value="'+criterionid+'"/>';
-	cols +='<span id="level-0-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+criteria+'</span></td>';
+	cols +='<span id="level-0-'+num+'">'+criteria+'</span></td>';
 
-	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
+	cols +='<td class="col-sm-2" id="td-1-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-1-'+num+'" onblur="hideinput(this)" name="level['+num+'][4]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textfour+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][4]" value="'+levelfourid+'"/>';
-	cols +='<span id="level-1-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+levelfour+'</span></td>';
+	cols +='<span id="level-1-'+num+'">'+levelfour+'</span></td>';
 
-	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
+	cols +='<td class="col-sm-2" id="td-2-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-2-'+num+'" onblur="hideinput(this)" name="level['+num+'][3]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textthree+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][3]" value="'+levelthreeid+'"/>';
-	cols +='<span id="level-2-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+levelthree+'</span></td>';
+	cols +='<span id="level-2-'+num+'">'+levelthree+'</span></td>';
 
-	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
+	cols +='<td class="col-sm-2" id="td-3-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-3-'+num+'" onblur="hideinput(this)" name="level['+num+'][2]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+texttwo+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][2]" value="'+leveltwoid+'"/>';
-	cols +='<span id="level-3-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+leveltwo+'</span></td>';
+	cols +='<span id="level-3-'+num+'">'+leveltwo+'</span></td>';
 
-	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
+	cols +='<td class="col-sm-2" id="td-4-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-4-'+num+'" onblur="hideinput(this)" name="level['+num+'][1]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textone+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][1]" value="'+leveloneid+'"/>';
-	cols +='<span id="level-4-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+levelone+'</span></td>';
+	cols +='<span id="level-4-'+num+'">'+levelone+'</span></td>';
 
 	cols += '<td class="col-sm-1" style="vertical-align: middle;"><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Borrar"></td>';
 	newRow.append(cols);
