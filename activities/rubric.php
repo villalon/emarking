@@ -33,16 +33,22 @@ if (!isloggedin ()) {
 }
 if (isset ( $_POST['submit'])) {
 	$data = $_POST;
+	if($id == 0){
 	insert_rubric($data);
+	}else{
+	update_rubric($id,$data);
+	}
 }
+$rubricname="";
+$rubricdescription="";
 if($id!=0){
-$sql="SELECT rl.*, rc.description as criteria, r.id as rubricid, r.name, r.description, rc.description as criteriondescription, i.max
-FROM mdl_emarking_rubrics_levels as rl
-INNER JOIN mdl_emarking_rubrics_criteria rc ON (rc.id = rl.criterionid )
+$rubricdetails=$DB->get_record('emarking_rubrics',array('id'=>$id));
+$rubricname=$rubricdetails->name;
+$rubricdescription=$rubricdetails->description;
+$sql="SELECT  rc.id 
+FROM mdl_emarking_rubrics_criteria rc 
 INNER JOIN mdl_emarking_rubrics r ON (r.id = rc.rubricid )
-LEFT JOIN (select criterionid, max(score) as max FROM mdl_emarking_rubrics_levels as rl group by criterionid) as i on (i.criterionid=rl.criterionid)
-where r.id=?
-ORDER BY rl.criterionid ASC, rl.score DESC";
+where r.id=?";
 $rubric = $DB->get_records_sql($sql,array($id));
 }
 $sql='SELECT rl.*, rc.description as criteria, r.id as rubricid, i.max

@@ -1,5 +1,4 @@
 <script src="js/rubric.js"></script>
-
 <div class="rubrics">
 	<div class="container">
 		<div class="row">
@@ -9,11 +8,11 @@
 					<form action="" method="post" onsubmit="return validateform()" name="rubricCreator">
 						<div class="form-group">
 							<label>Nombre:</label> <input type="text" class="form-control"
-								name="rubricname" id="rubricname">
+								name="rubricname" id="rubricname" value="<?=$rubricname?>">
 						</div>
 						<div class="form-group">
 							<label>Descripción</label>
-							<textarea class="form-control" rows="5" name="rubricdescription"></textarea>
+							<textarea class="form-control" rows="5" name="rubricdescription"><?=$rubricdescription?></textarea>
 						</div>
 						<br> <br>
 						<table class=" table rubric">
@@ -50,7 +49,6 @@
 					</form>
 				</div>
 			</div>
-
 		</div>
 		<div class="row">
 			<div class="col-md-12">
@@ -69,40 +67,8 @@
 					<tbody>
 						
 		      <?php
-		      $bol=true;
-		      $next=4;
-		      foreach ($levels as $level){
-		      	if($level->score == $level->max){
-		      		$cols ='<tr">';
-		      		$cols .= '<td class="col-sm-2" style="text-align: center;vertical-align: middle;">';
-		      		$cols .= '<span>'.$level->criteria.'</span></td>';
-		      		
-		      }
-		      
-		      if($next!=$level->score){
-		      	if($next > $level->score){
-		      	$cols .= '<td class="col-sm-2" style="vertical-align: middle;">';
-		      	$cols .= '<span ></span></td>';
-	
-		      	}
-		      	
-		      }
-		      	$cols .= '<td class="col-sm-2" style="vertical-align: middle;">';
-		      	$cols .= '<span >'.$level->definition.'</span></td>';
-		      
-		      
-		      	$next=$level->score-1;
-		      	
-		      	
-		      	
-		      	if($level->score == 1){
-		      		$cols .= '<td class="col-sm-1" style="vertical-align: middle;"><input type="button" id='.$level->criterionid.' class="ibtnAdd btn btn-md btn-success "  value="Agregar"></td>';
-		      		$cols .='</tr>';
-		      		echo $cols;
-		      		$next=4;
-		      	}	
-	      }
-								?>
+		      add_row($levels,2);
+		      ?>
         
 					</tbody>
 
@@ -112,3 +78,14 @@
 		</div>
 	</div>
 </div>
+
+<?php 
+if($id!=0){
+foreach($rubric as $criteria){
+$json=get_criteria($criteria->id,true);?>
+<script type="text/javascript">
+var json = '<?php echo $json;?>';
+add_row(json)
+this.counter++
+</script>
+<?php }}?>

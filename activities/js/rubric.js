@@ -1,5 +1,5 @@
+counter = 1;
 $(document).ready(function () {
-	var counter = 1;
 	$(document).ready(function () {
 		$('#example').DataTable( {
 			"paging":   false,
@@ -28,12 +28,12 @@ $(document).ready(function () {
 		} );
 	});
 	$("#addrow").on("click", function () {
-		add_row(counter);
-		counter++;
+		add_row();
+		this.counter++;
 	});
 	$("table.rubric").on("click", ".ibtnDel", function (event) {
 		$(this).closest("tr").remove();       
-		counter -= 1
+		this.counter -= 1
 	});
 
 	$("table.rubricSearch").on("click", ".ibtnAdd", function (event) {
@@ -46,13 +46,11 @@ $(document).ready(function () {
 				'action':'search'
 			},
 			success:function(result){
-				add_row(counter,result);
-				counter++;
+				add_row(result);
+				this.counter++;
 			}
 		});
 	});
-
-
 });
 
 
@@ -92,7 +90,8 @@ function hideinput(e){
 	span.style.display='';
 }
 
-function add_row(counter, result=null){
+function add_row(result=null){
+	var num = this.counter;
 	var newRow = $("<tr>");
 	var cols = "";
 	var obj = JSON.parse(result);
@@ -106,51 +105,74 @@ function add_row(counter, result=null){
 	var texttwo ='';
 	var textthree ='';
 	var textfour ='';
+	var criterionid ='';
+	var leveloneid='';
+	var leveltwoid='';
+	var levelthreeid='';
+	var levelfourid='';
+	
 	if(result !=null){
 		var criteria =obj.criteria;
+		if(obj.bool === true)
+		var criterionid =obj.criterionid;
+		
 		var textcriteria =criteria;
 		var maxScore =obj.maxscore;
 		if(obj.levels[1].length > 0){
 		var levelone =obj.levels[1];
 		var textone =levelone;
+		if(obj.bool === true)
+		var leveloneid=obj.levelids[1];
+	
 		}
 		if(obj.levels[2].length > 0){
 		var leveltwo =obj.levels[2];
 		var texttwo =leveltwo;
+		if(obj.bool === true)
+		var leveltwoid=obj.levelids[2];
 		}
 		if(obj.levels[3].length > 0){
 		var levelthree =obj.levels[3];
 		var textthree =levelthree;
+		if(obj.bool === true)
+		var levelthreeid=obj.levelids[3];
 		}
 		if(obj.levels[4].length > 0){
 		var levelfour =obj.levels[4];
 		var textfour =levelfour;
+		if(obj.bool === true)
+		var levelfourid=obj.levelids[4];
 		}
 	}
-	
 	cols += '<td class="col-sm-2" style="vertical-align: middle;">';
-	cols +='<input id="leveltext-0-'+counter+'" onblur="hideinput(this)"type="text" name="criteria['+counter+']" class="form-control" style="display:none;" value="'+textcriteria+'"/>';
-	cols +='<span id="level-0-'+counter+'" onclick="showinput(this)" style="cursor: pointer;">'+criteria+'</span></td>';
+	cols +='<input id="leveltext-0-'+num+'" onblur="hideinput(this)"type="text" name="criteria['+num+']" class="form-control" style="display:none;" value="'+textcriteria+'"/>';
+	cols +='<input type="hidden" name="criteriaid['+num+']" value="'+criterionid+'"/>';
+	cols +='<span id="level-0-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+criteria+'</span></td>';
 
 	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
-	cols += '<textarea id="leveltext-1-'+counter+'" onblur="hideinput(this)" name="level['+counter+'][4]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textfour+'</textarea>';
-	cols +='<span id="level-1-'+counter+'" onclick="showinput(this)" style="cursor: pointer;">'+levelfour+'</span></td>';
+	cols += '<textarea id="leveltext-1-'+num+'" onblur="hideinput(this)" name="level['+num+'][4]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textfour+'</textarea>';
+	cols +='<input type="hidden" name="levelid['+num+'][4]" value="'+levelfourid+'"/>';
+	cols +='<span id="level-1-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+levelfour+'</span></td>';
 
 	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
-	cols += '<textarea id="leveltext-2-'+counter+'" onblur="hideinput(this)" name="level['+counter+'][3]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textthree+'</textarea>';
-	cols +='<span id="level-2-'+counter+'" onclick="showinput(this)" style="cursor: pointer;">'+levelthree+'</span></td>';
+	cols += '<textarea id="leveltext-2-'+num+'" onblur="hideinput(this)" name="level['+num+'][3]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textthree+'</textarea>';
+	cols +='<input type="hidden" name="levelid['+num+'][3]" value="'+levelthreeid+'"/>';
+	cols +='<span id="level-2-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+levelthree+'</span></td>';
 
 	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
-	cols += '<textarea id="leveltext-3-'+counter+'" onblur="hideinput(this)" name="level['+counter+'][2]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+texttwo+'</textarea>';
-	cols +='<span id="level-3-'+counter+'" onclick="showinput(this)" style="cursor: pointer;">'+leveltwo+'</span></td>';
+	cols += '<textarea id="leveltext-3-'+num+'" onblur="hideinput(this)" name="level['+num+'][2]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+texttwo+'</textarea>';
+	cols +='<input type="hidden" name="levelid['+num+'][2]" value="'+leveltwoid+'"/>';
+	cols +='<span id="level-3-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+leveltwo+'</span></td>';
 
 	cols +='<td class="col-sm-2" style="vertical-align: middle;">';
-	cols += '<textarea id="leveltext-4-'+counter+'" onblur="hideinput(this)" name="level['+counter+'][1]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textone+'</textarea>';
-	cols +='<span id="level-4-'+counter+'" onclick="showinput(this)" style="cursor: pointer;">'+levelone+'</span></td>';
+	cols += '<textarea id="leveltext-4-'+num+'" onblur="hideinput(this)" name="level['+num+'][1]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textone+'</textarea>';
+	cols +='<input type="hidden" name="levelid['+num+'][1]" value="'+leveloneid+'"/>';
+	cols +='<span id="level-4-'+num+'" onclick="showinput(this)" style="cursor: pointer;">'+levelone+'</span></td>';
 
 	cols += '<td class="col-sm-1" style="vertical-align: middle;"><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Borrar"></td>';
 	newRow.append(cols);
 	$("table.rubric").append(newRow);
+		
 	
 }
 function validateform(){  

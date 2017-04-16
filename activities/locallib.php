@@ -683,7 +683,7 @@ function get_average($array) {
 	return round($average);
 }
 
-function get_criteria($id){
+function get_criteria($id,$bool=false){
 	GLOBAL $DB,$USER;
 $sql="SELECT rl.*, rc.description as criterion, i.max
 FROM mdl_emarking_rubrics_levels as rl
@@ -694,11 +694,16 @@ ORDER BY rl.criterionid ASC, rl.score DESC";
 $result = $DB->get_records_sql($sql, array($id));
 $criteriaarray=Array();
 $levelarray=Array();
+$levelidarray=Array();
 
 foreach ($result as $level){
 	$criteriaarray['criteria']=$level->criterion;
 	$levelarray[$level->score]=$level->definition;
 	$criteriaarray['maxscore']=$level->max;
+	if($bool){
+		$criteriaarray['criterionid']=$level->criterionid;
+		$levelidarray[$level->score]=$level->id;
+	}
 }
 if (!array_key_exists(1, $levelarray))
 	$levelarray[1]="";
@@ -710,6 +715,10 @@ if (!array_key_exists(4, $levelarray))
 	$levelarray[4]="";
 krsort($levelarray);
 $criteriaarray['levels']=$levelarray;
+if($bool){
+$criteriaarray['levelids']=$levelidarray;
+}
+$criteriaarray['bool']=$bool;
 $tojson=json_encode($criteriaarray);
 return $tojson;
 
@@ -742,5 +751,91 @@ function insert_rubric($data){
 		}
 		}
 	}
+	}
+}
+function update_rubric($id,$data){
+	Global $USER,$DB;
+	$rubric = new stdClass ();
+	$rubric->id=$id;
+	$rubric->name = $data['rubricname'];
+	$rubric->description = $data ['rubricdescription'];
+	$rubric->usermodified = $USER->id;
+	$rubric->timemodified = time ();
+	$DB->update_record('emarking_rubrics', $rubric);
+	$criterias = $data['criteria'];
+	$criteriaid=$data['criteriaid'];
+	$levels=$data['level'];
+	$levelsid=$data['levelid'];
+	//elimino criterios borrados de la rúbrica
+	$criteriosDB=$DB->get_records('emarking_rubrics_criteria', array('rubricid'=>$rubric->id));
+	foreach($criteriosDB as $criterioDB){
+		if (!in_array($criterioDB->id, $criteriaid)) {
+			$DB->delete_records('emarking_rubrics_criteria', array('id'=>$criterioDB->id));
+		}
+	}
+	
+	for ($i = 1; $i <= count($criterias); $i++) {
+		$criteriaRecord = new stdClass ();
+		$criteriaRecord->rubricid=$rubric->id;
+		$criteriaRecord->description=$criterias[$i];
+		//si existe un criterio con ese id, se hace update en la BD
+		if($criteriaid[$i]!=null&&$criteriaRecord->id=$criteriaid[$i]){
+		$DB->update_record('emarking_rubrics_criteria', $criteriaRecord);
+		}//No existe criterio por lo tanto se crea
+		else{
+			$criteriaRecord->id = $DB->insert_record ( 'emarking_rubrics_criteria', $criteriaRecord );
+		}
+		
+		
+		for ($k = 1; $k <= 4; $k++) {
+			$levelRecord = new stdClass ();
+			$levelRecord->criterionid=$criteriaRecord->id;
+			$levelRecord->score=$k;
+			$levelRecord->definition=$levels[$i][$k];
+			if($levelsid[$i][$k]!=null&&$levelRecord->id =$levelsid[$i][$k]){
+			$DB->update_record('emarking_rubrics_levels', $levelRecord);
+			}else{
+			$DB->insert_record ( 'emarking_rubrics_levels', $levelRecord );
+			}
+		}
+	}
+}
+function add_row($data,$type){
+	$bol=true;
+	$next=4;
+	foreach ($data as $level){
+		if($level->score == $level->max){
+			$cols ='<tr">';
+			$cols .= '<td class="col-sm-2" style="text-align: center;vertical-align: middle;">';
+			$cols .= '<span>'.$level->criteria.'</span></td>';
+		}
+	
+		if($next!=$level->score){
+			if($next > $level->score){
+				$cols .= '<td class="col-sm-2" style="vertical-align: middle;">';
+				$cols .= '<span ></span></td>';
+	
+			}
+			 
+		}
+		$cols .= '<td class="col-sm-2" style="vertical-align: middle;">';
+		$cols .= '<span >'.$level->definition.'</span></td>';
+	
+	
+		$next=$level->score-1;
+		 
+		 
+		 
+		if($level->score == 1){
+			if($type==1){
+			$cols .= '<td class="col-sm-1" style="vertical-align: middle;"><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Borrar"></td>';
+			}
+			if($type==2){
+		      		$cols .= '<td class="col-sm-1" style="vertical-align: middle;"><input type="button" id='.$level->criterionid.' class="ibtnAdd btn btn-md btn-success "  value="Agregar"></td>';
+			}
+			$cols .='</tr>';
+			echo $cols;
+			$next=4;
+		}
 	}
 }
