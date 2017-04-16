@@ -111,7 +111,7 @@ $(function() {
 						if(isset($disabled) && $disabled!=null){
 						?>
 <div class="alert alert-warning">
-  <strong>Atención!</strong> Es necesario que la actividad tenga una rúbrica para ser usada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a>
+  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a>
 </div>
 <?php }?>
 						<h3 class="title_result">
