@@ -96,8 +96,10 @@ foreach ( $table as $calc ) {
 }
 $row = sizeof ( $table );
 }
+$coursesOA = '<span>Curso: </span><br>';
+$coursesOA .= '<span>OAs:</span><br>';
+if(isset($activity->learningobjectives)&&$activity->learningobjectives!=null){
 $oaComplete = explode ( "-", $activity->learningobjectives );
-$coursesOA = "";
 
 foreach ( $oaComplete as $oaPerCourse ) {
 
@@ -105,10 +107,10 @@ foreach ( $oaComplete as $oaPerCourse ) {
 	$secondSplit = explode ( "]", $firstSplit [1] );
 	$course = $firstSplit [0];
 
-	$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
+	$coursesOA = '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
 	$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
 }
-
+}
 //Busca toda la información de la comunidad en esta actividad
 $communitysql = $DB->get_record('emarking_social', array('activityid'=>$activityid));
 

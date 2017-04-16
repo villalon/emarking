@@ -1805,6 +1805,25 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017041400, 'emarking');
     }
+    if ($oldversion < 2017041603) {
+    
+    	// Changing nullability of field instructions on table emarking_activities to not null.
+    	$table = new xmldb_table('emarking_activities');
+    	$field = new xmldb_field('instructions', XMLDB_TYPE_TEXT, null, null, null, null, null, 'estimatedtime');
+    	// Launch change of nullability for field instructions.
+    	$dbman->change_field_notnull($table, $field);
+    	
+    	$field = new xmldb_field('rubricid', XMLDB_TYPE_TEXT, null, null, null, null, null, 'estimatedtime');
+    	// Launch change of nullability for field instructions.
+    	$dbman->change_field_notnull($table, $field);
+    	
+    	$field = new xmldb_field('teaching', XMLDB_TYPE_TEXT, null, null, null, null, null, 'estimatedtime');
+    	// Launch change of nullability for field instructions.
+    	$dbman->change_field_notnull($table, $field);
+    	
+    	
+    	upgrade_mod_savepoint(true, 2017041603, 'emarking');
+    }
     
     return true;
 }

@@ -839,3 +839,149 @@ function add_row($data,$type){
 		}
 	}
 }
+function add_new_activity_basic($fromform){
+	global $DB,$USER, $CFG;
+	require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+	$genero = ( int ) $fromform->genre - 1;
+	
+	$oaCode=clean_oa_code($fromform);
+	
+	$record = new stdClass ();
+	$record->title = $fromform->title;
+	$record->description = $fromform->description;
+	$record->learningobjectives = $oaCode;
+	$record->comunicativepurpose = $fromform->comunicativepurpose;
+	$record->genre = $generos [$genero];
+	$record->audience = $fromform->audience;
+	$record->estimatedtime = $fromform->estimatedtime;
+	$record->timecreated = time ();
+	$record->userid = $USER->id;
+	$instertnewactivity = $DB->insert_record ( 'emarking_activities', $record );
+	
+	$socialrecord=new stdClass ();
+	$socialrecord->activityid 			= $instertnewactivity;
+	$socialrecord->timecreated         	= time();
+	$socialrecord->data					= null;
+	$DB->insert_record ( 'emarking_social', $socialrecord );
+	
+	return $instertnewactivity;
+}
+function edit_activity_basic($fromform,$activityid){
+	global $DB,$CFG,$USER;
+	require ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+	$genero = ( int ) $fromform->genre - 1;
+	$oaCode=clean_oa_code($fromform);
+	
+	$record=$DB->get_record('emarking_activities',array('id'=>$activityid));
+	$record->title = $fromform->title;
+	$record->description = $fromform->description;
+	$record->learningobjectives = $oaCode;
+	$record->comunicativepurpose = $fromform->comunicativepurpose;
+	$record->genre = $generos [$genero];
+	$record->audience = $fromform->audience;
+	$record->estimatedtime = $fromform->estimatedtime;
+	$DB->update_record('emarking_activities', $record);
+	
+}
+function add_new_activity_instructions($fromform,$activityid,$context){
+	global $DB, $USER;
+	
+	change_draft_area($fromform->instructions ['itemid'],$context->id,'instructions');
+	
+	$instructions = $fromform->instructions ['text'];
+	$planification = $fromform->planification ['text'];
+	$writing = $fromform->writing ['text'];
+	$editing = $fromform->editing ['text'];
+	
+	//changing url of images 
+	$instructions = change_images_url($instructions,$fromform->instructions ['itemid']);
+	$planification = change_images_url($planification,$fromform->instructions ['itemid']);
+	$writing = change_images_url($writing,$fromform->instructions ['itemid']);
+	$editing = change_images_url($editing,$fromform->instructions ['itemid']);
+	
+	//cleaning html text
+	$instructions = emarking_activities_clean_html_text($instructions);
+	$planification = emarking_activities_clean_html_text($planification);
+	$writing = emarking_activities_clean_html_text($writing);
+	$editing = emarking_activities_clean_html_text($editing);
+	
+	$record=$DB->get_record('emarking_activities',array('id'=>$activityid));
+	$record->instructions = $instructions;
+	$record->planification = $planification;
+	$record->writing = $writing;
+	$record->editing = $editing;
+	$DB->update_record('emarking_activities', $record);
+}
+function add_new_activity_teaching($fromform,$activityid,$context){
+	global $DB,$USER;
+	change_draft_area($fromform->teaching ['itemid'],$context->id,'instructions');
+	$teaching= $fromform->teaching ['text'];
+	$lenguageresources= $fromform->languageresources ['text'];
+	
+	//changing url of images
+	$teaching = change_images_url($teaching,$fromform->teaching ['itemid']);
+	$lenguageresources = change_images_url($lenguageresources,$fromform->teaching ['itemid']);
+	
+	//cleaning html text
+	$teaching = emarking_activities_clean_html_text($teaching);
+	$lenguageresources = emarking_activities_clean_html_text($lenguageresources);
+	$record=$DB->get_record('emarking_activities',array('id'=>$activityid));
+	$record->teaching = $teaching;
+	$record->languageresources = $lenguageresources;
+	$DB->update_record('emarking_activities', $record);
+	
+}
+function change_draft_area($itemid,$contextid,$area){
+	
+	$fs = get_file_storage ();
+	file_save_draft_area_files ( $itemid, $contextid, 'mod_emarking', $area, $itemid );
+	$files = $fs->get_area_files ( $contextid, 'mod_emarking', $area, $itemid, 'itemid, filepath, filename', false );
+	
+}
+function change_images_url($obj,$itemid){
+	global $USER;
+	
+	$usercontext = context_user::instance ( $USER->id );
+	$urlAntigua = '/draftfile.php/' . $usercontext->id . '/user/draft/' . $itemid . '/';
+	$urlnueva = '/pluginfile.php/1/mod_emarking/instructions/' . $itemid . '/';
+	$obj = str_replace ( $urlAntigua, $urlnueva, $obj );
+	return $obj;
+}
+function clean_oa_code($fromform){
+	$OAC1 = "";
+	if (isset ( $fromform->C1 )) {
+	
+		if (isset ( $fromform->CODC1 )) {
+			foreach ( $fromform->CODC1 as $key => $value ) {
+				$porciones = explode ( "C1OA", $key );
+				$OAC1 .= $porciones [1] . ",";
+			}
+			$OAC1 = substr ( $OAC1, 0, - 1 );
+			$OAC1 = $fromform->C1 . "[" . $OAC1 . "]";
+		}
+	}
+	$OAC2 = "";
+	if (isset ( $fromform->C2 )) {
+		if (isset ( $fromform->CODC2 )) {
+			foreach ( $fromform->CODC2 as $key => $value ) {
+				$porciones = explode ( "C2OA", $key );
+				$OAC2 .= $porciones [1] . ",";
+			}
+			$OAC2 = substr ( $OAC2, 0, - 1 );
+			$OAC2 = "-" . $fromform->C2 . "[" . $OAC2 . "]";
+		}
+	}
+	$OAC3 = "";
+	if (isset ( $fromform->C3 )) {
+		if (isset ( $fromform->CODC3 )) {
+			foreach ( $fromform->CODC3 as $key => $value ) {
+				$porciones = explode ( "C3OA", $key );
+				$OAC3 .= $porciones [1] . ",";
+			}
+			$OAC3 = substr ( $OAC3, 0, - 1 );
+			$OAC3 = "-" . $fromform->C3 . "[" . $OAC3 . "]";
+		}
+	}
+	$oaCode = $OAC1 . $OAC2 . $OAC3;
+	return $oaCode;
+}
