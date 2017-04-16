@@ -97,7 +97,6 @@ if($askMarking==1){
 		redirect($forkUrl, 0);
 	}
 	$instance = $DB->get_record('enrol', array('id'=>1, 'enrol'=>'manual'), '*', MUST_EXIST);
-	
 	$roleid = $instance->roleid;
 	$course = $DB->get_record('course', array('id'=>$instance->courseid), '*', MUST_EXIST);
 	$timestart = $course->startdate;
@@ -106,12 +105,18 @@ if($askMarking==1){
 		throw new coding_exception('Can not instantiate enrol_manual');
 	}
 	$instancename = $enrol_manual->get_instance_name($instance);
+	$markerCourse=$DB->get_record('course',array('shortname'=>'correctores'));
+	$markerscoursecontext = context_course::instance($markerCourse->id, MUST_EXIST);
 	
-	$enrol_manual->enrol_user($instance, 3, $roleid, $timestart, 0);
+	$markers=get_enrolled_users($markerscoursecontext);
+	$rand=array_rand ( $markers,1 );
+	$marker=$markers[$rand];
+	$editingteacherroleid=3;
+	$enrol_manual->enrol_user($instance, $marker->id, $roleid, $timestart, 0);
 	 	$ra = new stdClass();
-    	$ra->roleid       = 5;
+    	$ra->roleid       = $editingteacherroleid;
     	$ra->contextid    = $coursecontext->id;
-   		$ra->userid       = 3;
+   		$ra->userid       = $marker->id;
     	$ra->component    = '';
     	$ra->itemid       = 0;
     	$ra->timemodified = 0;
