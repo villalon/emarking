@@ -39,6 +39,9 @@ $PAGE->set_context ( context_system::instance () );
 $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking.php', array (
 		'id' => $activityid
 ) );
+$rubricUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php', array (
+		'activityid' => $activityid
+) );
 $editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivity.php', array (
 		'activityid' => $activityid
 ) );
@@ -76,6 +79,7 @@ $rubric = $DB->get_records_sql ( $sql, array (
 							  ) );
 
 $disabled="disabled";
+$canuse="#myModalUse";
 if(isset($rubric)&& $rubric!=null){
 	foreach ( $rubric as $data ) {
 		

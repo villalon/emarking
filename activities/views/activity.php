@@ -28,8 +28,7 @@ $(function() {
 						<h3>Ficha técnica</h3>
 
 						<p><?=$coursesOA?>
-						
-   
+
 						<hr>
 						 Género: <?php echo $activity->genre; ?><br>
     Propósito comunicativo: <?=$activity->comunicativepurpose?><br>
@@ -38,15 +37,28 @@ $(function() {
 
 						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
 						<hr>
+						<?php 
+						if(isset($disabled) && $disabled!=null){
+						?>
+						<div class="activity_buttons">
+						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Crear Rúbrica
+						</button></a>
+						</div>
+						
+						<?php
+						$canuse="#myModalCantUse";
+						}
+						?>
 						<div class="activity_buttons">
 						<button type="button" class="btn  btn-success" data-toggle="modal"
-							data-target="#myModalUse" <?=$disabled?>>
+							data-target="<?=$canuse?>" >
 							<span class="glyphicon glyphicon-floppy-disk"></span> Usar
 							Actividad
 						</button>
 						</div>
 						<div class="activity_buttons">
-						<a href="<?=$forkingUrl?>"><button type="button" class="btn btn-primary" <?=$disabled?>>
+						<a href="<?=$forkingUrl?>"><button type="button" class="btn btn-primary">
 							<span class="glyphicon glyphicon-floppy-disk"></span> Adaptar
 							Actividad
 						</button></a>
@@ -95,6 +107,13 @@ $(function() {
 			<div class="col-md-9">
 				<div class="panel panel-default">
 					<div class="panel-body">
+					<?php 
+						if(isset($disabled) && $disabled!=null){
+						?>
+<div class="alert alert-warning">
+  <strong>Atención!</strong> Es necesario que la actividad tenga una rúbrica para ser usada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a>
+</div>
+<?php }?>
 						<h3 class="title_result">
 								<b><?=ucfirst(strtolower($activity->title));?></b>
 							</h3>
@@ -254,6 +273,7 @@ echo "</tr>";
 <?php
 include "modals/downloadactivity.php";
 include "modals/useactivity.php";
+include "modals/cantuseactivity.php";
 ?>
 <script>
 

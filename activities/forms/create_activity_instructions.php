@@ -32,7 +32,6 @@ class mod_emarking_activities_create_activity_instructions extends moodleform {
         global $CFG, $OUTPUT, $COURSE, $DB;
 
         $mform = $this->_form; // Don't forget the underscore!
-       
         //Paso 2 Instrucciones
         $mform->addElement('header', 'IA', 'Instrucciones para el estudiante', null);
         $mform->addElement('static', '', '','Cree las instrucciones que se entregarán a los estudiantes.');
@@ -50,7 +49,9 @@ class mod_emarking_activities_create_activity_instructions extends moodleform {
         $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'step', 3);
         $mform->setType('step', PARAM_INT);
-
+        $backUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php', array('id' => 35,'step'=>1));
+        $onclick="location.href='$backUrl'";
+        $mform->addElement('button', 'intro', 'Atrás',array('onclick'=>$onclick) );
         $this->add_action_buttons(false,'Siguiente');
 
             

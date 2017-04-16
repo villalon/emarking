@@ -75,8 +75,10 @@ function show_result($data) {
 	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
 			'id' => $data->id 
 	) );
+	$coursesOA = '<span>Curso: </span><br>';
+	$coursesOA .= '<span>OAs:</span><br>';
+	if(isset($activity->learningobjectives)&&$activity->learningobjectives!=null){
 	$oaComplete = explode ( "-", $data->learningobjectives );
-	$coursesOA = "";
 	foreach ( $oaComplete as $oaPerCourse ) {
 		
 		$firstSplit = explode ( "[", $oaPerCourse );
@@ -85,6 +87,7 @@ function show_result($data) {
 		
 		$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
 		$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
+	}
 	}
 	$userobject=$DB->get_record('user',array('id'=>$data->userid));
 	
@@ -724,19 +727,19 @@ return $tojson;
 
 }
 
-function insert_rubric($data){
-	GLOBAL $DB, $USER;
+function insert_rubric($data,$activityid){
+	GLOBAL $DB, $USER, $CFG;
 	$rubric = new stdClass ();
 	$rubric->name = $data ['rubricname'];
 	$rubric->description = $data ['rubricdescription'];
 	$rubric->usercreated = $USER->id;
 	$rubric->timecreated = time ();
-	$inssertrubric = $DB->insert_record ( 'emarking_rubrics', $rubric );
+	$rubricid = $DB->insert_record ( 'emarking_rubrics', $rubric );
 	if(isset($data ['criteria'])&& $criterias = $data ['criteria']){
 	foreach ( $criterias as $key => $criteria ) {
 
 		$crit = new stdClass ();
-		$crit->rubricid = $inssertrubric;
+		$crit->rubricid = $rubricid;
 		$crit->description = $criteria;
 		$inssertcriteria = $DB->insert_record ( 'emarking_rubrics_criteria', $crit );
 		if(isset($data ['level'])&& $levels = $data ['level']){
@@ -752,6 +755,11 @@ function insert_rubric($data){
 		}
 	}
 	}
+	$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
+	$activity->rubricid=$rubricid;
+	$DB->update_record('emarking_activities', $activity);
+	$activityUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activity->id));
+	redirect($activityUrl, 0);
 }
 function update_rubric($id,$data){
 	Global $USER,$DB;
@@ -841,7 +849,7 @@ function add_row($data,$type){
 }
 function add_new_activity_basic($fromform){
 	global $DB,$USER, $CFG;
-	require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+	require ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 	$genero = ( int ) $fromform->genre - 1;
 	
 	$oaCode=clean_oa_code($fromform);

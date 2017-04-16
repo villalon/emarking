@@ -24,6 +24,7 @@ require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/confi
 require_once ('locallib.php');
 global $PAGE, $DB, $USER, $CFG;
 $id = optional_param ( 'id',0 ,PARAM_INT );
+$activityid=required_param ( 'activityid', PARAM_INT );
 $PAGE->set_context ( context_system::instance () );
 $url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php' );
 $PAGE->set_url ( $url );
@@ -31,17 +32,22 @@ $PAGE->set_title ( 'escribiendo' );
 if (!isloggedin ()) {
 	die();
 }
+$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
+$id=$activity->rubricid;
+
 if (isset ( $_POST['submit'])) {
 	$data = $_POST;
-	if($id == 0){
-	insert_rubric($data);
-	}else{
+	if(isset($id) && $id != null){
 	update_rubric($id,$data);
+	}else{
+	insert_rubric($data,$activityid);
 	}
 }
+
+
 $rubricname="";
 $rubricdescription="";
-if($id!=0){
+if(isset($id) && $id != null){
 $rubricdetails=$DB->get_record('emarking_rubrics',array('id'=>$id));
 $rubricname=$rubricdetails->name;
 $rubricdescription=$rubricdetails->description;

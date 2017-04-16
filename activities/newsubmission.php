@@ -46,32 +46,44 @@ $gradingArea->contextid=$contextmodule->id;
 $gradingArea->component='mod_emarking';
 $gradingArea->areaname='attempt';
 $gradingArea->activemethod='rubric';
-$insert = $DB->insert_record('grading_areas', $gradingArea);
-$rubric= $DB->get_record('grading_definitions',array('id'=>$pdf['rubricid']));
-$rubricdefinition=$rubric->id;
-$rubric->copiedfromid=$pdf['rubricid'];
-$rubric->timecopied=time();
-$rubric->areaid=$insert;
-unset($rubric->id);
+$areaid = $DB->insert_record('grading_areas', $gradingArea);
+$activityRubric=$DB->get_record('emarking_rubrics',array('id'=>$activity->rubricid));
+
+$rubric=new stdClass ();
+$rubric->areaid=$areaid;
+$rubric->method='rubric';
+$rubric->name=$activityRubric->name;
+$rubric->description=$activityRubric->description;
+$rubric->descriptionformat=1;
+$rubric->status=20;
+$rubric->usercreated=$USER->id;
+$rubric->usermodified=$USER->id;
+$rubric->timecreated=time();
+$rubric->timemodified=time();
+$rubric->options='{"sortlevelsasc":"1","alwaysshowdefinition":"1","showdescriptionteacher":"1","showdescriptionstudent":"1","showscoreteacher":"1","showscorestudent":"1","enableremarks":"1","showremarksstudent":"1"}';
+
 $insertRubric = $DB->insert_record('grading_definitions', $rubric);
 
-$rubricCriterias= $DB->get_records('gradingform_rubric_criteria',array('definitionid'=>$rubricdefinition));
-
+$rubricCriterias= $DB->get_records('emarking_rubrics_criteria',array('rubricid'=>$activity->rubricid));
 foreach ($rubricCriterias as $rubricCriteria){
 	
+	$criteria=new stdClass ();
+	$criteria->definitionid=$insertRubric;
+	$criteria->sortorder=1;
+	$criteria->description=$rubricCriteria->description;
+	$criteria->descriptionformat=0;
 	
-	$rubricCriteria->definitionid=$insertRubric;
-	$rubricCriteriaid=$rubricCriteria->id;
-	
-	unset($rubricCriteria->id);
-	$insertRubricCriteria = $DB->insert_record('gradingform_rubric_criteria', $rubricCriteria);
-	
-	$rubricCriteriaLevels= $DB->get_records('gradingform_rubric_levels',array('criterionid'=>$rubricCriteriaid));
+	$insertRubricCriteria = $DB->insert_record('gradingform_rubric_criteria', $criteria);
+	$rubricCriteriaLevels= $DB->get_records('emarking_rubrics_levels',array('criterionid'=>$rubricCriteria->id));
+
 	foreach($rubricCriteriaLevels as $rubricCriteriaLevel){
-		unset($rubricCriteriaLevel->id);
 		
-		$rubricCriteriaLevel->criterionid=$insertRubricCriteria;
-		$insertRubricCriteriaLevels = $DB->insert_record('gradingform_rubric_levels', $rubricCriteriaLevel);
+		$level=new stdClass ();
+		$level->criterionid=$insertRubricCriteria;
+		$level->score=$rubricCriteriaLevel->score;
+		$level->definition=$rubricCriteriaLevel->definition;
+		$level->definitionformat=0;
+		$insertRubricCriteriaLevels = $DB->insert_record('gradingform_rubric_levels', $level);
 		
 	}
 	
