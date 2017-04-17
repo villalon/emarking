@@ -9,9 +9,9 @@
 						<br>
 						<p><?=$coursesOA?>
 						<hr>
-    Propósito Comunicativo: <?=$data->comunicativepurpose?><br>
-    Audiencia: <?= $data->audience?><br>
-    Tiempo estimado: <?=$data->estimatedtime?><br>
+					    Propósito Comunicativo: <?=$data->comunicativepurpose?><br>
+					    Audiencia: <?= $data->audience?><br>
+					    Tiempo estimado: <?=$data->estimatedtime?><br>
 						
 						
 						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>

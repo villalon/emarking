@@ -69,7 +69,8 @@ function show_rubric($id) {
 	
 	return $table;
 }
-function show_result($data) {
+
+function activities_show_result($data) {
 	GLOBAL $CFG, $DB;
 	
 	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
@@ -77,51 +78,48 @@ function show_result($data) {
 	) );
 	$coursesOA = '<span>Curso: </span><br>';
 	$coursesOA .= '<span>OAs:</span><br>';
-	if(isset($activity->learningobjectives)&&$activity->learningobjectives!=null){
-	$oaComplete = explode ( "-", $data->learningobjectives );
-	foreach ( $oaComplete as $oaPerCourse ) {
-		
-		$firstSplit = explode ( "[", $oaPerCourse );
-		$secondSplit = explode ( "]", $firstSplit [1] );
-		$course = $firstSplit [0];
-		
-		$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
-		$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
+	if( isset($activity->learningobjectives) && $activity->learningobjectives != null){
+		$oaComplete = explode ( "-", $data->learningobjectives );
+		foreach ( $oaComplete as $oaPerCourse ) {
+			
+			$firstSplit = explode ( "[", $oaPerCourse );
+			$secondSplit = explode ( "]", $firstSplit [1] );
+			$course = $firstSplit [0];
+			
+			$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
+			$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
+		}
 	}
-	}
-	$userobject=$DB->get_record('user',array('id'=>$data->userid));
+	$userobject = $DB->get_record('user', array('id' => $data->userid));
 	
 	//Busca toda la información de la comunidad en esta actividad
-	$communitysql = $DB->get_record('emarking_social', array('activityid'=>$data->id));
-	
-	if(!$communitysql){
-	
+	$communitysql = $DB->get_record('emarking_social', array('activityid' => $data->id));	
+	if( !$communitysql ){	
 		$communitysql=new stdClass ();
 		$communitysql->activityid 			= $data->id;
 		$communitysql->timecreated         	= time();
 		$communitysql->data					= null;
 		$DB->insert_record ( 'emarking_social', $communitysql );
-		$average=0;
+		$average = 0;
 	}
-	$countvotes=0;
-	$countcomments=0;
-	$average=0;
-	if(isset($communitysql->data)&& $communitysql->data!=null){
-		$recordcleaned=emarking_activities_clean_string_to_json($communitysql->data);
-		$decode=json_decode($recordcleaned);
-		$social=$decode->data;
-		$comments=$social->Comentarios;
-		$votes=$social->Vote;
-		$countvotes=count($votes);
-		$countcomments=count($comments);
+	$countvotes = 0;
+	$countcomments = 0;
+	$average = 0;
+	if( isset($communitysql->data) && $communitysql->data != null ){
+		$recordcleaned = emarking_activities_clean_string_to_json($communitysql->data);
+		$decode = json_decode($recordcleaned);
+		$social = $decode->data;
+		$comments = $social->Comentarios;
+		$votes = $social->Vote;
+		$countvotes = count($votes);
+		$countcomments = count($comments);
 		if($countvotes > 0){
-		$average=get_average($votes);
-		}
-		
+			$average = get_average($votes);
+		}		
 	}
 	include ($CFG->dirroot. '/mod/emarking/activities/views/showresult.php');
-	
 }
+
 /**
  * Creates a pdf from selected activity.
  *
