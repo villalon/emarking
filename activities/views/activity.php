@@ -108,12 +108,20 @@ $(function() {
 				<div class="panel panel-default">
 					<div class="panel-body">
 					<?php 
+						if ($message) {
+					?>
+						<div class="alert alert-danger">
+						  <strong>Atención!</strong> Usuario invalido para Adoptar la Actividad. Favor revisar si ha iniciado sesión correctamente.
+						</div>
+						
+					<?php
+						}								
 						if(isset($disabled) && $disabled!=null){
-						?>
-<div class="alert alert-warning">
-  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a>
-</div>
-<?php }?>
+					?>
+						<div class="alert alert-warning">
+						  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a>
+						</div>
+					<?php }?>
 						<h3 class="title_result">
 								<b><?=ucfirst(strtolower($activity->title));?></b>
 							</h3>
