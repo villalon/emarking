@@ -24,17 +24,22 @@ require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.
 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 global $PAGE, $DB, $USER, $CFG;
+
 $activityid = required_param ( 'id', PARAM_INT );
+// Mensaje que se muestra si hace clic en "Adoptar Actividad" y no esta aún logeado
+$message = optional_param ('message', 0 , PARAM_INT);
+$teacherroleid = 3;
+
+if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activityid))) {
+	print_error("ID de Actividad invalido");
+}
 
 $PAGE->set_context(context_system::instance());
-$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activityid));
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
-$teacherroleid = 3;
-$logged = false;
-$PAGE->set_context ( context_system::instance () );
-// Id of the exam to be deleted.
 
+$PAGE->set_context ( context_system::instance () );
 
 $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking.php', array (
 		'id' => $activityid
@@ -46,9 +51,7 @@ $editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivi
 		'activityid' => $activityid
 ) );
 
-
 if (isloggedin ()) {
-	$logged = true;
 	$courses = enrol_get_all_users_courses ( $USER->id );
 	$countcourses = count ( $courses );
 	foreach ( $courses as $course ) {
@@ -61,9 +64,7 @@ if (isloggedin ()) {
 		}
 	}
 }
-$activity = $DB->get_record ( 'emarking_activities', array (
-		'id' => $activityid
-) );
+
 $userobject = $DB->get_record ( 'user', array (
 		'id' => $activity->userid
 ) );
@@ -202,7 +203,7 @@ $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto"
 //print the header
 include 'views/header.php';
 
-
+// Display activity information
 include 'views/activity.php';
 
 //print the footer

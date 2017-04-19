@@ -18,6 +18,7 @@
  *
 * @package   mod_emarking
 * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
+* @copyright 2017 Hans Jeria (hansjeria@gmail.com)
 * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
@@ -26,17 +27,30 @@ global $PAGE, $DB, $USER, $CFG;
 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 
+$type = optional_param('type', 1, PARAM_INT);
+$oa = optional_param('oa', '', PARAM_TEXT);
+$pc = optional_param('pc', '', PARAM_TEXT);
+$genre = optional_param('genero', '', PARAM_TEXT);
+$search = optional_param('search', '', PARAM_TEXT);
+// Checkbox de la busqueda por Objetivo de aprendizaje, 2do formulario de busqueda
+$chekbox13 = optional_param('13', 0, PARAM_INT);
+$chekbox14  = optional_param('14', 0, PARAM_INT);
+$chekbox15  = optional_param('15', 0, PARAM_INT);
+$chekbox16  = optional_param('16', 0, PARAM_INT);
+$chekbox17  = optional_param('17', 0, PARAM_INT);
+$chekbox18  = optional_param('18', 0, PARAM_INT);
+$chekbox19  = optional_param('19', 0, PARAM_INT);
+$chekbox20  = optional_param('20', 0, PARAM_INT);
+$chekbox21  = optional_param('21', 0, PARAM_INT);
+$chekbox22  = optional_param('22', 0, PARAM_INT);
+
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/search.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
 
-
 $teacherroleid = 3;
-$logged = false;
-
 if (isloggedin ()) {
-	$logged = true;
 	$courses = enrol_get_all_users_courses ( $USER->id );
 	$countcourses = count ( $courses );
 	foreach ( $courses as $course ) {
@@ -51,72 +65,84 @@ if (isloggedin ()) {
 }
 
 include 'views/header.php';
+// Se incluye formulario para busqueda
 include_once $CFG->dirroot. '/mod/emarking/activities/forms/search.php';
-if ($_SERVER['REQUEST_METHOD'] == 'POST'){
-
-	switch ($_POST['type']){
-		case 1:
-			$search=$_POST['search'];
-			$sql="SELECT *
+switch ($type){
+	case 1:
+		$search = $DB->sql_like_escape($search);
+		$activitiessql = "SELECT *
 			FROM {emarking_activities}
 			WHERE parent IS NULL AND
-			(title like '%$search%' OR
-			description like '%$search%' OR
-			audience like '%$search%' OR
-			instructions like '%$search%' OR
-			teaching like '%$search%' OR
-			languageresources like '%$search%')
-			AND status=1";
-			$results = $DB->get_records_sql($sql);
-			break;
-		case 2;
-		$oa = str_replace("°", "", $_POST['oa']);
-		$sqlwhere ='WHERE parent IS NULL AND 
-				status=1 AND
-				learningobjectives like "'.$oa.'[%"';
-		if(isset($_POST['13'])){
+				(title LIKE '%$search%' OR
+				description LIKE '%$search%' OR
+				audience LIKE '%$search%' OR
+				instructions LIKE '%$search%' OR
+				teaching LIKE '%$search%' OR
+				languageresources LIKE '%$search%')
+				AND status = 1";
+		$results = $DB->get_records_sql($activitiessql);
+		break;
+	case 2;
+		$oa = str_replace("°", "", $oa);
+		$sqlwhere = 'WHERE parent IS NULL 
+				AND status = 1 
+				AND learningobjectives like "'.$oa.'[%"';
+		if($chekbox13){
 			$sqlwhere .= 'AND learningobjectives like "%13%"';
 		}
-		if(isset($_POST['14'])){
+		if($chekbox14){
 			$sqlwhere .= 'AND learningobjectives like "%14%"';
 		}
-		if(isset($_POST['15'])){
+		if($chekbox15){
 			$sqlwhere .= 'AND learningobjectives like "%15%"';
 		}
-		if(isset($_POST['16'])){
+		if($chekbox16){
 			$sqlwhere .= 'AND learningobjectives like "%16%"';
 		}
-		if(isset($_POST['17'])){
+		if($chekbox17){
 			$sqlwhere .= 'AND learningobjectives like "%17%"';
 		}
-		if(isset($_POST['18'])){
+		if($chekbox18){
 			$sqlwhere .= 'AND learningobjectives like "%18%"';
 		}
-		if(isset($_POST['19'])){
+		if($chekbox19){
 			$sqlwhere .= 'AND learningobjectives like "%19%"';
 		}
-		if(isset($_POST['20'])){
+		if($chekbox20){
 			$sqlwhere .= 'AND learningobjectives like "%20%"';
 		}
-		if(isset($_POST['21'])){
+		if($chekbox21){
 			$sqlwhere .= 'AND learningobjectives like "%21%"';
 		}
-		if(isset($_POST['22'])){
+		if($chekbox22){
 			$sqlwhere .= 'AND learningobjectives like "%22%"';
 		}
-		$sql="SELECT * FROM mdl_emarking_activities ".$sqlwhere;
-		$results = $DB->get_records_sql($sql);
+		$activitiessql = "SELECT *
+				FROM {emarking_activities} ".$sqlwhere;
+		$results = $DB->get_records_sql($activitiessql);
 		break;
-		case 3:
-			$results=$DB->get_records('emarking_activities',array('comunicativepurpose'=>$_POST['pc'],'parent'=>null,'status'=>1));
-			break;
-		case 4:
-			$results=$DB->get_records('emarking_activities',array('genre'=>$_POST['genero'],'parent'=>null,'status'=>1));
-
-			break;
-	}
-	$totalresults=count($results);
-
-	include 'views/results.php';
+	case 3:
+		$pc = $DB->sql_like_escape($pc);
+		$activitiessql = 'SELECT *
+				FROM {emarking_activities}
+				WHERE comunicativepurpose = ? AND parent IS NULL AND status = ?';
+		$results = $DB->get_records_sql($activitiessql, array(
+			$pc,
+			1
+		));
+		break;
+	case 4:
+		$genre = $DB->sql_like_escape($genre);
+		$activitiessql = 'SELECT *
+				FROM {emarking_activities}
+				WHERE genre = ? AND parent IS NULL AND status = ?';
+		$results = $DB->get_records_sql($activitiessql, array(
+			$genre,
+			1
+		));
+		break;
 }
+// Display results search
+include 'views/results.php';
+// The same footer to each pages
 include 'views/footer.html';

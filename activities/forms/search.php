@@ -1,38 +1,3 @@
-
-<?php
-$options ='';
-foreach($generos as $genero){
-	$options .='<option value="'.$genero.'">'.$genero.'</option>';		
-	
-}
-if(!isset($_POST['type'])){
-	$_POST['type']=1;
-}
-if(!isset($_POST['oa'])){
-	$_POST['oa']="";
-}
-if(!isset($_POST['pc'])){
-	$_POST['pc']="";
-}
-if(!isset($_POST['genero'])){
-	$_POST['genero']="";
-}
-$type=$_POST['type'];
-$oa=$_POST['oa'];
-$pc=$_POST['pc'];
-$genre=$_POST['genero'];
-$chekbox13 = (isset($_POST['13'])) ? 1 : 0;
-$chekbox14  = (isset($_POST['14'])) ? 1 : 0;
-$chekbox15  = (isset($_POST['15'])) ? 1 : 0;
-$chekbox16  = (isset($_POST['16'])) ? 1 : 0;
-$chekbox17  = (isset($_POST['17'])) ? 1 : 0;
-$chekbox18  = (isset($_POST['18'])) ? 1 : 0;
-$chekbox19  = (isset($_POST['19'])) ? 1 : 0;
-$chekbox20  = (isset($_POST['20'])) ? 1 : 0;
-$chekbox21  = (isset($_POST['21'])) ? 1 : 0;
-$chekbox22  = (isset($_POST['22'])) ? 1 : 0;
-
-?>
 <script>
 $(document).ready(function () {
 
@@ -154,7 +119,7 @@ $(document).ready(function () {
 			<div class="col-md-1 col-sm-0">
 			</div>
 			<div class="col-md-11">
-				<form method="post" action="" class="pure-form">
+				<form method="get" action="" class="pure-form">
 				<div class="row">
 				<div class="form-group">
 				<div class="col-md-8">
@@ -171,8 +136,8 @@ $(document).ready(function () {
 				
 					<div class="form-group">
 						<div class="col-md-8">
-						<?php if ($_SERVER['REQUEST_METHOD'] == 'POST' & $_POST['type']==1){
-					echo '<input type="text" class="form-control" name="search" value="'.$_POST['search'].'">';
+						<?php if ($type === 1) {
+							echo '<input type="text" class="form-control" name="search" value="'.$search.'">';
 						}else{
 							echo '<input class="form-control" type="text" name="search">';
 						}?>
@@ -229,7 +194,13 @@ $(document).ready(function () {
 						<div class="col-md-8">
 						 <select id="select_genre" name="genero" class="form-control">
 						<option value="">Seleccione un género</option>
-						<?php echo $options; ?>
+						<?php 
+							$options ='';
+							foreach($generos as $genero){
+								$options .='<option value="'.$genero.'">'.$genero.'</option>';
+							}					
+							echo $options; 
+						?>
   						</select>
 						</div>
 						<div class="col-md-3">
