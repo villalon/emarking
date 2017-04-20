@@ -136,6 +136,8 @@ $string['coloredrubricforced'] = 'Forzar rúbrica multicolor';
 $string['coloredrubricforced_help'] = 'Fuerza todas las actividades Emarking a utilizar rúbricas multicolor, ignorando la configuración del usuario';
 $string['formativefeedbackonly'] = 'Solo retroalimentación formativa';
 $string['formativefeedbackonly_help'] = 'No muestra retroalimentación sumativa (puntajes en la rúbrica o calificación final)';
+$string['rubriclevelsorting'] = 'Orden de niveles en la rúbrica';
+$string['rubriclevelsorting_help'] = 'Indica cómo se ordenarán los niveles de cada criterio en la rúbrica. Puede ser ascendente o descendente.';
 // GENERAL.
 $string ['criteria'] = 'Criterios';
 $string ['deleterow'] = 'Borrar fila';
