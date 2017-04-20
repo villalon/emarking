@@ -144,20 +144,13 @@ if ($usercangrade) {
 			get_string ( "sent", "mod_emarking" ),
 			emarking_time_ago ( $exam->timecreated ) 
 	);
-	$originals = $exam->totalpages + $exam->extrasheets;
-	$copies = $exam->totalstudents + $exam->extraexams;
-	$totalsheets = $originals * $copies;
+	$totalsheetsmessage = new stdClass();
+	$totalsheetsmessage->originals = $exam->totalpages + $exam->extrasheets;
+	$totalsheetsmessage->copies = $exam->totalstudents + $exam->extraexams;
+	$totalsheetsmessage->totalsheets = $totalsheetsmessage->originals * $totalsheetsmessage->copies;
 	$examstable->data [] = array (
-			get_string ( 'originals', 'mod_emarking' ),
-			$originals 
-	);
-	$examstable->data [] = array (
-			get_string ( 'copies', 'mod_emarking' ),
-			$copies 
-	);
-	$examstable->data [] = array (
-			get_string ( 'totalpagesprint', 'mod_emarking' ),
-			$totalsheets 
+			get_string ( 'totalpagesprint', 'mod_emarking'),
+			get_string ( 'totalpagesprintdetails', 'mod_emarking', $totalsheetsmessage)
 	);
 	$user = $DB->get_record ( "user", array (
 			"id" => $exam->requestedby 
@@ -228,7 +221,6 @@ if (has_capability("mod/emarking:downloadexam", $context)) {
         $directdownloadurl = new moodle_url('/mod/emarking/print/download.php', 
                 array(
                     'sesskey' => sesskey(),
-                    'token' => rand(10000, 99999),
                     'multi' => 0,
                     'incourse' => 1,
                     'examid' => $exam->id));

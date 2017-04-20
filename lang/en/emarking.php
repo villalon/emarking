@@ -762,6 +762,7 @@ $string ['statussubmitted'] = 'Uploaded';
 $string ['statuserror'] = 'Error';
 $string ['totalexams'] = 'Total exams';
 $string ['totalpagesprint'] = 'Total Pages to Print';
+$string ['totalpagesprintdetails'] = '{$a->totalsheets} = {$a->copies} copies of {$a->originals} pages.';
 $string ['usesms'] = 'Use Twilio.com to send SMS';
 $string ['usesms_help'] = 'Use SMS messaging  instead of sending email for EMarking security codes';
 $string ['viewsubmission'] = 'View exam';

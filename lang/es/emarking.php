@@ -767,6 +767,7 @@ $string ['statussubmitted'] = 'Subida';
 $string ['statuserror'] = 'Error';
 $string ['totalexams'] = 'Exámenes totales';
 $string ['totalpagesprint'] = 'Páginas totales a imprimir';
+$string ['totalpagesprintdetails'] = '{$a->totalsheets} = {$a->copies} copias de {$a->originals} páginas.';
 $string ['uploadexamfile'] = 'Archivo PDF';
 $string ['uploadinganswersheets'] = 'Subiendo respuestas de los estudiantes';
 $string ['usesms'] = 'Usar Twilio.com para enviar SMS';
