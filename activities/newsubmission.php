@@ -65,11 +65,12 @@ $rubric->options='{"sortlevelsasc":"1","alwaysshowdefinition":"1","showdescripti
 $insertRubric = $DB->insert_record('grading_definitions', $rubric);
 
 $rubricCriterias= $DB->get_records('emarking_rubrics_criteria',array('rubricid'=>$activity->rubricid));
+$criteriacount=1;
 foreach ($rubricCriterias as $rubricCriteria){
 	
 	$criteria=new stdClass ();
 	$criteria->definitionid=$insertRubric;
-	$criteria->sortorder=1;
+	$criteria->sortorder=$criteriacount;
 	$criteria->description=$rubricCriteria->description;
 	$criteria->descriptionformat=0;
 	
@@ -86,7 +87,7 @@ foreach ($rubricCriterias as $rubricCriteria){
 		$insertRubricCriteriaLevels = $DB->insert_record('gradingform_rubric_levels', $level);
 		
 	}
-	
+	$criteriacount++;
 }
 if($askMarking==1){
 	
