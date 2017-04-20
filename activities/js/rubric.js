@@ -1,4 +1,4 @@
-counter = 1;
+var counter = 1;
 $(document).ready(function () {
 	$(document).ready(function () {
 		$('#example').DataTable( {
@@ -29,11 +29,11 @@ $(document).ready(function () {
 	});
 	$("#addrow").on("click", function () {
 		add_row();
-		this.counter++;
+		add_counter();
 	});
 	$("table.rubric").on("click", ".ibtnDel", function (event) {
 		$(this).closest("tr").remove();       
-		this.counter -= 1
+		less_counter()
 	});
 
 	$("table.rubricSearch").on("click", ".ibtnAdd", function (event) {
@@ -47,13 +47,22 @@ $(document).ready(function () {
 			},
 			success:function(result){
 				add_row(result);
-				this.counter++;
+				add_counter();
 			}
 		});
 	});
 });
 
-
+function add_counter(){
+	var num=window.counter;
+	num++;
+	window.counter=num;
+}
+function less_counter(){
+	var num=window.counter;
+	num--;
+	window.counter=num;
+}
 
 
 function showinput(e){
@@ -93,7 +102,7 @@ function hideinput(e){
 }
 
 function add_row(result=null){
-	var num = this.counter;
+	var num = window.counter;
 	var newRow = $("<tr>");
 	var cols = "";
 	var obj = JSON.parse(result);
