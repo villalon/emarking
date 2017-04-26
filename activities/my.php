@@ -32,6 +32,7 @@ $PAGE->set_title('escribiendo');
 
 GLOBAL $USER, $CFG, $PAGE, $DB;
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
+require_once ($CFG->libdir . '/coursecatlib.php');
 require_once ($CFG->dirroot . "/mod/emarking/lib.php");require_login ();
 $PAGE->set_context ( context_system::instance () );
 $image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f1.jpg' );
@@ -72,16 +73,28 @@ if ($countActivities == 1) {
 	) );
 }
 $usercourses = enrol_get_users_courses ( $USER->id );
+if($categories =coursecat::make_categories_list('moodle/site:manageblocks')){
+	foreach ($categories as $key => $category){
+	$courses= $DB->get_records('course',array('category'=>$key));
+	foreach ($courses as $key => $course){
+		$coursesasteacher [] = $course;
+		$coursesarray[]=$course->id;
+	}
+	}
+}
 
 foreach ( $usercourses as $usercourse ) {
 
+	if(in_array($usercourse->id,$coursesarray)){
+		continue;
+	}
 	$coursecontext = context_course::instance ( $usercourse->id );
 
 	if (has_capability ( 'moodle/course:update', $coursecontext )) {
 		$coursesasteacher [] = $usercourse;
+		$coursesarray [] =$usercourse->id;
 	}
 }
-
 
 //print the header
 include 'views/header.php';

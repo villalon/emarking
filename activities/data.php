@@ -3,8 +3,11 @@
 
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
+require_once ($CFG->libdir . '/coursecatlib.php');
 GLOBAL $DB;
-get_rubrics(83);
+$categories =coursecat::make_categories_list('moodle/site:manageblocks');
+var_dump($categories);
+//get_criteria(83);
 /*$string='<p style="text-align: justify;"></p><h5><p style="text-align: justify;"></p><p style="text-align: justify;"><span>4.<span><span style="font-size:12.0pt;line-height:107%;
 font-family:&quot;Times New Roman&quot;,serif;
 color:#333333"></span></span></span></p><p style="margin-top:7.5pt;margin-right:0cm;margin-bottom:7.5pt;margin-left:36.0pt;text-indent:-18.0pt;line-height:115%;background:white"><span>1.<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
