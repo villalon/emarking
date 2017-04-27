@@ -43,7 +43,17 @@ if (isguestuser()) {
 }
 $url = new moodle_url('/mod/emarking/marking/publish.php', array(
     'id' => $cm->id));
-$PAGE->set_pagelayout('incourse');
+if (isset($CFG->emarking_pagelayouttype)) {
+    switch ($CFG->emarking_pagelayouttype) {
+        case EMARKING_PAGES_LAYOUT_STANDARD :
+            $layout = 'standard';
+            break;
+        case EMARKING_PAGES_LAYOUT_EMBEDDED :
+            $layout = 'embedded';
+            break;
+    }
+}
+$PAGE->set_pagelayout($layout);
 $PAGE->set_popup_notification_allowed(false);
 $PAGE->set_url($url);
 $PAGE->set_context($context);
@@ -103,7 +113,12 @@ $table->data [] = array(
     $totaldocumentsignored);
 echo "<br/>";
 echo html_writer::table($table);
-$continueurl = new moodle_url('/mod/emarking/view.php', array(
+if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+$continueurl = new moodle_url('/mod/emarking/activities/marking.php', array(
     'id' => $cm->id));
+}else{
+	$continueurl = new moodle_url('/mod/emarking/view.php', array(
+			'id' => $cm->id	));
+}
 echo $OUTPUT->continue_button($continueurl);
 echo $OUTPUT->footer();

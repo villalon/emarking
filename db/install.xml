@@ -447,7 +447,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="activityid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="data" TYPE="binary" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="data" TYPE="binary" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

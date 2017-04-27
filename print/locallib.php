@@ -322,7 +322,7 @@ function emarking_send_processanswers_notification($emarking, $course) {
         $eventdata->fullmessagehtml = $posthtml;
         $eventdata->smallmessage = $postsubject;
         $eventdata->notification = 1;
-        $eventdata->courseid = $course->id;
+        // $eventdata->courseid = $course->id;
         message_send($eventdata);
     }
     // Save the date of the digitization.
@@ -885,7 +885,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
     // Setup de directorios temporales.
     $tempdir = emarking_get_temp_dir_path($emarking->id);
     emarking_initialize_directory($tempdir, true);
-    $extension = pathinfo($filepath, PATHINFO_EXTENSION);
+    $extension = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
     $filename = pathinfo($filepath, PATHINFO_FILENAME);
     if($emarking->uploadtype == EMARKING_UPLOAD_FILE &&
         ($extension !== 'pdf' || $student == NULL)) {
@@ -926,7 +926,6 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;
-        var_dump($output);
             return array(
             false,
             $errormsg,
@@ -934,7 +933,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
             0
         );
         }
-    }
+    } else { throw new Exception('Invalid extension for file ' . $extension); }
     $totaldocumentsprocessed = 0;
     $totaldocumentsignored = 0;
     // Read full directory, then start processing.
@@ -975,7 +974,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         }
         $studentid = $parts[0];
         $courseid = $parts[1];
-        $pagenumber = $parts[2];
+         $pagenumber = $parts[2];
         // Now we process the files according to the emarking type.
         if ($emarking->type == EMARKING_TYPE_PRINT_ONLY ||
             $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||

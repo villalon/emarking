@@ -2117,14 +2117,21 @@ function emarking_markers_online($context) {
  * 
  * @param unknown $context            
  */
-function emarking_show_orphan_pages_link($context, $cm) {
+function emarking_show_orphan_pages_link($context, $cm, $layout=false) {
     global $OUTPUT;
     $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
     $numorphanpages = count($orphanpages);
     if ($numorphanpages > 0) {
-        $orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array(
+        
+    	$orphanpagesurl = new moodle_url('/mod/emarking/print/orphanpages.php', array(
             'id' => $cm->id
         ));
+    	if($layout == true){
+    		$orphanpagesurl = new moodle_url('/mod/emarking/activities/marking.php', array(
+    				'id' => $cm->id,
+    				'tab' => 6
+    		));
+    	}
         echo $OUTPUT->action_link($orphanpagesurl, get_string('thereareorphanpages', 'mod_emarking', $numorphanpages));
     }
 }

@@ -23,15 +23,10 @@
  */
 
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
+global $PAGE,$USER, $OUTPUT, $DB;
 require_login();
 
-// Print the header.
 
-
-
-
-$PAGE->set_pagelayout('embedded');
-require_login();
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/rubric.php');
 $PAGE->set_url($url);
@@ -39,16 +34,26 @@ $PAGE->set_pagelayout('embedded');
 $strplural = get_string("modulenameplural", "assign");
 $PAGE->set_title($strplural);
 $PAGE->navbar->add($strplural);
-$urlJquery = new moodle_url($CFG->wwwroot.'/lib/jquery/jquery-1.12.1.min.js');
-$PAGE->requires->js($urlJquery);
 
-global $PAGE,$USER, $OUTPUT, $DB;
+
 
 $action = optional_param('action',"create", PARAM_TEXT);
+//print the header
+include 'views/header.php'; 
 
 switch($action) {
     case "create":
-    include 'editrubric.php';
+    ?>
+    <div class="container">
+		<div class="row">
+		<h3></h3>
+		<h2>Crear una rúbrica</h2>
+		<div class="col-md-2"></div>
+		<div class="col-md-7">
+		<?php include 'forms/rubricform.php'; ?>
+		</div>			
+	</div>
+	<?php 
         break;
     case "update":
         break;
@@ -57,3 +62,6 @@ switch($action) {
     default:
         break;
 }
+
+//print the footer
+include 'views/footer.html';

@@ -93,16 +93,19 @@ list ( $canbedeleted, $multicourse ) = emarking_exam_get_parallels ( $exam );
 $examstable = new html_table ();
 // Table header.
 $examstable->head = array (
-		get_string ( "examdetails", "mod_emarking" ),
+		"Detalles de la actividad",
+		//get_string ( "examdetails", "mod_emarking" ),
 		"&nbsp;" 
 );
+	
 // CSS classes for each column in the table.
 $examstable->colclasses = array (
 		"exams_examname",
 		null 
 );
 $examstable->data [] = array (
-		get_string ( "examname", "mod_emarking" ),
+		"Nombre",
+		//get_string ( "examname", "mod_emarking" ),
 		$exam->name 
 );
 $details = html_writer::start_tag ( "div", array (
@@ -119,42 +122,35 @@ if ($exam->printrandom) {
 }
 $details .= emarking_enrolments_div ( $exam );
 $details .= html_writer::end_tag ( "div" );
-$examstable->data [] = array (
+/* $examstable->data [] = array (
 		get_string ( "examdate", "mod_emarking" ),
 		date ( "l jS F Y, g:ia", usertime ( $exam->examdate ) ) 
-);
+); */
 if ($usercangrade) {
 	$examstatus = emarking_exam_status_string ( $exam );
-	$examstable->data [] = array (
+	/*$examstable->data [] = array (
 			get_string ( "comment", "mod_emarking" ),
 			$exam->comment 
-	);
+	);*/
 	$examstable->data [] = array (
 			get_string ( "status", "mod_emarking" ),
 			$examstatus 
 	);
-	$examstable->data [] = array (
+	/*$examstable->data [] = array (
 			get_string ( "details", "mod_emarking" ),
 			$details 
-	);
+	);*/
 	$examstable->data [] = array (
 			get_string ( "sent", "mod_emarking" ),
 			emarking_time_ago ( $exam->timecreated ) 
 	);
-	$originals = $exam->totalpages + $exam->extrasheets;
-	$copies = $exam->totalstudents + $exam->extraexams;
-	$totalsheets = $originals * $copies;
+	$totalsheetsmessage = new stdClass();
+	$totalsheetsmessage->originals = $exam->totalpages + $exam->extrasheets;
+	$totalsheetsmessage->copies = $exam->totalstudents + $exam->extraexams;
+	$totalsheetsmessage->totalsheets = $totalsheetsmessage->originals * $totalsheetsmessage->copies;
 	$examstable->data [] = array (
-			get_string ( 'originals', 'mod_emarking' ),
-			$originals 
-	);
-	$examstable->data [] = array (
-			get_string ( 'copies', 'mod_emarking' ),
-			$copies 
-	);
-	$examstable->data [] = array (
-			get_string ( 'totalpagesprint', 'mod_emarking' ),
-			$totalsheets 
+			get_string ( 'totalpagesprint', 'mod_emarking'),
+			get_string ( 'totalpagesprintdetails', 'mod_emarking', $totalsheetsmessage)
 	);
 	$user = $DB->get_record ( "user", array (
 			"id" => $exam->requestedby 
@@ -163,10 +159,11 @@ if ($usercangrade) {
 			get_string ( 'requestedby', 'mod_emarking' ),
 			$user->firstname . ' ' . $user->lastname 
 	);
+	/*
 	$examstable->data [] = array (
 			get_string ( "multicourse", "mod_emarking" ),
 			$multicourse ? $multicourse : get_string ( "no" ) 
-	);
+	);*/
 }
 echo html_writer::table ( $examstable );
 // Show download button if the user has capability for downloading within
@@ -213,9 +210,8 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 }
 if (has_capability("mod/emarking:downloadexam", $context)) {
     $directdownload = isset($CFG->emarking_downloadsecurity) && $CFG->emarking_downloadsecurity == EMARKING_SECURITY_NO_VALIDATION;
-    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string('exam', 'mod_emarking') . ' ' .
-             core_text::strtolower(get_string('examstatusbeingprocessed', 'mod_emarking')) : get_string('downloadexam', 
-                    'mod_emarking');
+    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? "Actividad" . ' ' .
+             core_text::strtolower(get_string('examstatusbeingprocessed', 'mod_emarking')) : "Descargar actividad";
     $disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
     if (! $directdownload) {
         $downloadexambutton = "<input type='button' class='downloademarking btn btn-default' examid ='$exam->id' value='" . $buttontext .
@@ -225,7 +221,6 @@ if (has_capability("mod/emarking:downloadexam", $context)) {
         $directdownloadurl = new moodle_url('/mod/emarking/print/download.php', 
                 array(
                     'sesskey' => sesskey(),
-                    'token' => rand(10000, 99999),
                     'multi' => 0,
                     'incourse' => 1,
                     'examid' => $exam->id));

@@ -55,6 +55,15 @@ $settings->add(
 		new admin_setting_configselect('emarking_formativefeedbackonly',
 				get_string('formativefeedbackonly','mod_emarking'),
 				get_string('formativefeedbackonly_help','mod_emarking'), 0, $yesno));
+// Rubric levels sorting.
+$sortingoptions = array(
+		1 => get_string('sortlevelsasc1', 'gradingform_rubric'),
+		2 => get_string('sortlevelsasc0', 'gradingform_rubric')
+);
+$settings->add(
+		new admin_setting_configselect('emarking_rubriclevelsorting',
+				get_string('sortlevelsasc','gradingform_rubric'),
+				get_string('rubriclevelsorting_help','mod_emarking'), 1, $sortingoptions));
 // Print settings.
 $settings->add(
         new admin_setting_heading('emarking_basicsettings', get_string('printsettings', 'mod_emarking'),

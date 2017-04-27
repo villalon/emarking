@@ -136,6 +136,8 @@ $string['coloredrubricforced'] = 'Force colored rubric';
 $string['coloredrubricforced_help'] = 'Forces all Emarking activities to use colored rubrics and ignore user settings';
 $string['formativefeedbackonly'] = 'Formative feedback only';
 $string['formativefeedbackonly_help'] = 'Does not show any summative feedback (scores in rubric, final grade)';
+$string['rubriclevelsorting'] = 'Rubric levels sorting';
+$string['rubriclevelsorting_help'] = 'Indicates how levels in each criterion of the rubric will be sorted. It can be ascending or descending.';
 // GENERAL.
 $string ['criteria'] = 'Criteria';
 $string ['deleterow'] = 'Delete row';
@@ -762,6 +764,7 @@ $string ['statussubmitted'] = 'Uploaded';
 $string ['statuserror'] = 'Error';
 $string ['totalexams'] = 'Total exams';
 $string ['totalpagesprint'] = 'Total Pages to Print';
+$string ['totalpagesprintdetails'] = '{$a->totalsheets} = {$a->copies} copies of {$a->originals} pages.';
 $string ['usesms'] = 'Use Twilio.com to send SMS';
 $string ['usesms_help'] = 'Use SMS messaging  instead of sending email for EMarking security codes';
 $string ['viewsubmission'] = 'View exam';

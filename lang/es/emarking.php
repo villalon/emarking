@@ -136,6 +136,8 @@ $string['coloredrubricforced'] = 'Forzar rúbrica multicolor';
 $string['coloredrubricforced_help'] = 'Fuerza todas las actividades Emarking a utilizar rúbricas multicolor, ignorando la configuración del usuario';
 $string['formativefeedbackonly'] = 'Solo retroalimentación formativa';
 $string['formativefeedbackonly_help'] = 'No muestra retroalimentación sumativa (puntajes en la rúbrica o calificación final)';
+$string['rubriclevelsorting'] = 'Orden de niveles en la rúbrica';
+$string['rubriclevelsorting_help'] = 'Indica cómo se ordenarán los niveles de cada criterio en la rúbrica. Puede ser ascendente o descendente.';
 // GENERAL.
 $string ['criteria'] = 'Criterios';
 $string ['deleterow'] = 'Borrar fila';
@@ -344,7 +346,7 @@ $string ['uploadanswers_help'] = 'En esta página usted puede subir las respuest
 $string ['uploadanswersuccessful'] = 'Respuestas digitalizadas subidas exitosamente';
 $string ['digitizedfile'] = 'Digitized answers';
 $string ['digitizedfile_help'] = 'In this page you can upload the digitized answers from your students. The format can be a PDF file from a scanner, or a zip file containing two png files for each page a student has (one is the anonymous version). This file can be obtained using the EMarking desktop application that can be downloaded <a href="/mod/emarking/emarkingdesktop.zip">here</a>';
-$string ['uploadexamfile'] = 'Archivo ZIP';
+$string ['uploadexamfile'] = 'Archivo PDF';
 $string ['uploadexamfilepdf'] = 'Archivo PDF';
 $string ['uploadinganswersheets'] = 'Subiendo respuestas digitalizadas';
 $string ['enabledigitizedzipfile'] = 'Habilitar respuestas en formato zip';
@@ -767,7 +769,8 @@ $string ['statussubmitted'] = 'Subida';
 $string ['statuserror'] = 'Error';
 $string ['totalexams'] = 'Exámenes totales';
 $string ['totalpagesprint'] = 'Páginas totales a imprimir';
-$string ['uploadexamfile'] = 'Archivo Zip';
+$string ['totalpagesprintdetails'] = '{$a->totalsheets} = {$a->copies} copias de {$a->originals} páginas.';
+$string ['uploadexamfile'] = 'Archivo PDF';
 $string ['uploadinganswersheets'] = 'Subiendo respuestas de los estudiantes';
 $string ['usesms'] = 'Usar Twilio.com para enviar SMS';
 $string ['usesms_help'] = 'Usar mensaje SMS en vez de correo electrónico para verificar códigos de seguridad de EMarking';

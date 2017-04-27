@@ -55,7 +55,17 @@ $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
-$PAGE->set_pagelayout('incourse');
+if (isset($CFG->emarking_pagelayouttype)) {
+switch($CFG->emarking_pagelayouttype){
+	case EMARKING_PAGES_LAYOUT_STANDARD:
+		$PAGE->set_pagelayout('standard');
+		break;
+		
+	case EMARKING_PAGES_LAYOUT_EMBEDDED:
+		$PAGE->set_pagelayout('embedded');
+		break;
+}
+}
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 $PAGE->navbar->add(get_string('orphanpages', 'mod_emarking'));
 // Require jquery for modal.
@@ -83,6 +93,12 @@ if ($action === 'delete') {
             $anonymousfile->delete();
         }
     }
+    if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+    	$url = new moodle_url('/mod/emarking/activities/marking.php', array(
+    			'id' => $cm->id,
+    			'tab'=>6
+    	));
+    }
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 }
@@ -90,14 +106,21 @@ if ($action === 'rotate') {
     require_capability('mod/emarking:uploadexam', $context);
     $fileidtorotate = required_param('file', PARAM_INT);
     $newpath = emarking_rotate_image_file($fileidtorotate);
+    if (isset($CFG->emarking_pagelayouttype)&& $CFG->emarking_pagelayouttype== EMARKING_PAGES_LAYOUT_EMBEDDED) {
+    	$url = new moodle_url('/mod/emarking/activities/marking.php', array(
+    			'id' => $cm->id,
+    			'tab'=>6
+    	));
+    }
     redirect($url, get_string('transactionsuccessfull', 'mod_emarking'), 3);
     die();
 }
 // Display form for uploading zip file.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'orphanpages');
-?>
+if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), $tabname);
+}?>
 <style>
 <!--
 .fixorphanpage {

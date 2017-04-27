@@ -5,7 +5,7 @@ require_once($CFG->dirroot.'/mod/emarking/lib.php');
 require_once("locallib.php");
 require_once($CFG->dirroot.'/enrol/manual/locallib.php');
 require_once($CFG->dirroot.'/lib/accesslib.php');
-GLOBAL $USER;
+GLOBAL $DB,$USER;
 $activityid = required_param('id', PARAM_INT);
 $courseid = required_param('course', PARAM_INT);
 $askMarking = optional_param('askMarking',0, PARAM_INT);
@@ -15,6 +15,8 @@ $sections->instructions=1;
 $sections->planification=1;
 $sections->editing=1;
 $sections->writing=1;
+
+$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 
 $pdf=get_pdf_activity($activityid,false,$sections);
 $itemid=$pdf['itemid'];
@@ -108,5 +110,5 @@ if($askMarking==1){
 	
 }
 
-$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/views/view.php', array('id' => $data['cmid']));
+$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php', array('id' => $data['cmid'],'tab'=>1));
 redirect($forkUrl, 0);
