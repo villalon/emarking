@@ -91,8 +91,6 @@ YUI().use('io', 'json-parse', 'node', 'dump', 'console', 'datatable-mutable', 'p
 		currentButton = e.target;
 		currentButton.hide();
 		Y.io(url, callback);
-		//Y.config.win.open(url);
-		//loadingpanel.hide();
 	});
 	// Create the io callback/configuration.
 	var callback = {
