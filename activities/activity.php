@@ -151,8 +151,10 @@ if (isset ( $votes )) {
 $average=get_average($votes);
 }
 $votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
+
 if(isset($_POST['submit'])) {	
 
+	require_sesskey();
 
 	$comentario = new stdClass ();
 	$comentario->userid=$USER->id;

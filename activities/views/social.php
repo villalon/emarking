@@ -6,6 +6,8 @@
 <form action="/" id="commentForm">
 <textarea class="form-control" rows="5" id="comment" name="comment" placeholder="Comenta">
 </textarea>
+
+<input type="hidden" id="key" name="key" value="<?php echo sesskey();?>">
  <br>
  <button name="submit" class="btn btn-primary  pull-right"  value="Comentar">
  	<i class="fa fa-share"></i> 
@@ -23,6 +25,7 @@
 
 </div>
 <?php 
+
 if(isset($comments)&& $comments!=null){
 	krsort($comments);
 
@@ -84,9 +87,11 @@ foreach($comments as $comment){
 			data: {
 				'id': <?php echo $activity->id; ?>,
 				'submit':true,
+				'sesskey': $("#key").val(),
 				'comment': $("#comment").val()
 			},
 			success:function(result){
+
 				comment = JSON.parse(result);
 				printComment(comment.username, comment.date, comment.post, 0, 0);
 				$("#comment").val("");
