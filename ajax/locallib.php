@@ -1064,7 +1064,7 @@ function emarking_get_previous_comments($submission, $draft) {
 			FROM {emarking_submission} s
 			INNER JOIN {emarking_draft} d ON (s.emarking = :emarking AND d.submissionid = s.id)
 			INNER JOIN {emarking_comment} ec ON (ec.draft = d.id)
-			WHERE ec.textformat IN (1,2) AND LENGTH(rawtext) > 0
+			WHERE LENGTH(rawtext) > 0
 			UNION
 			SELECT  id,
 					text,

@@ -88,7 +88,7 @@ if ($issupervisor || is_siteadmin($USER)) {
 // Download Excel if it is the case.
 if ($exportcsv && $usercangrade && $issupervisor) {
     if ($exportcsv === 'grades') {
-        emarking_download_excel($emarking);
+        emarking_download_excel($emarking, $context);
     } else 
         if ($exportcsv === 'delphi') {
             emarking_download_excel_markers_training($emarking);

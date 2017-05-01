@@ -353,10 +353,25 @@ function emarking_publish_grade($draft) {
 /**
  * Exports all grades and scores in an exam in Excel format
  *
- * @param unknown $emarking
+ * @param unknown $emarking the emarking activity
+ * @param unknown $context the emarking course module context to get the rubric
  */
-function emarking_download_excel($emarking) {
-    global $DB;
+function emarking_download_excel($emarking, $context=null) {
+    global $DB, $CFG;
+    // Validate that we have a rubric associated
+    list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = 
+    	emarking_validate_rubric($context, false, false);
+    // Calculate levels indexes in forced formative feedback (no grades)
+    $levelsindex = array();
+    foreach($definition->rubric_criteria as $crit) {
+    	$total = count($crit['levels']);
+    	$current = 0;
+    	foreach($crit['levels'] as $lvl) {
+    		$current++;
+    		$levelsindex[$lvl['id']] = $total - $current + 1; 
+    	}
+    }
+    // Retrieve marking
     $csvsql = "
 		SELECT cc.fullname AS course,
 			e.name AS exam,
@@ -364,7 +379,9 @@ function emarking_download_excel($emarking) {
 			u.idnumber,
 			u.lastname,
 			u.firstname,
+			cr.id criterionid,
 			cr.description,
+			l.id levelid,
 			IFNULL(l.score, 0) AS score,
 			IFNULL(c.bonus, 0) AS bonus,
 			IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
@@ -375,21 +392,24 @@ function emarking_download_excel($emarking) {
         INNER JOIN {course} cc ON (cc.id = e.course)
 		INNER JOIN {user} u ON (s.student = u.id)
 		INNER JOIN {emarking_page} p ON (p.submission = s.id)
-		LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft)
+		LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
 		LEFT JOIN {gradingform_rubric_levels} l ON (c.levelid = l.id)
 		LEFT JOIN {gradingform_rubric_criteria} cr ON (cr.id = l.criterionid)
 		ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
     // Get data and generate a list of questions.
     $rows = $DB->get_recordset_sql($csvsql, array(
         'emarkingid' => $emarking->id));
+    // Make a list of all criteria
     $questions = array();
     foreach ($rows as $row) {
         if (array_search($row->description, $questions) === false && $row->description) {
             $questions [] = $row->description;
         }
     }
+    // Starting the loop
     $current = 0;
     $laststudent = 0;
+    // Basic headers that go everytime
     $headers = array(
         '00course' => get_string('course'),
         '01exam' => get_string('exam', 'mod_emarking'),
@@ -398,16 +418,21 @@ function emarking_download_excel($emarking) {
         '04firstname' => get_string('firstname'));
     $tabledata = array();
     $data = null;
+    // Get dataset again
     $rows = $DB->get_recordset_sql($csvsql, array(
         'emarkingid' => $emarking->id));
+    // Now iterate through students
     $studentname = '';
     $lastrow = null;
     foreach ($rows as $row) {
+    	// The index allows to sort final grade at the end (99grade)
         $index = 10 + array_search($row->description, $questions);
         $keyquestion = $index . "" . $row->description;
+        // If the index is not there yet we create it
         if (! isset($headers [$keyquestion]) && $row->description) {
             $headers [$keyquestion] = $row->description;
         }
+        // If we changed student
         if ($laststudent != $row->id) {
             if ($laststudent > 0) {
                 $tabledata [$studentname] = $data;
@@ -418,20 +443,33 @@ function emarking_download_excel($emarking) {
                 '01exam' => $row->exam,
                 '02idnumber' => $row->idnumber,
                 '03lastname' => $row->lastname,
-                '04firstname' => $row->firstname,
-                '99grade' => $row->grade);
+                '04firstname' => $row->firstname);
+            // If it's not formative feedback, add the grade as a final column
+            if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
+            	$data['99grade'] = $row->grade;
+            }
             $laststudent = intval($row->id);
             $studentname = $row->lastname . ',' . $row->firstname;
         }
+        // Store the score (including bonus) or level index in criterion
         if ($row->description) {
-            $data [$keyquestion] = $row->totalscore;
+        	if(isset($CFG->emarking_formativefeedbackonly) && $CFG->emarking_formativefeedbackonly) {
+        		$data [$keyquestion] = $levelsindex[$row->levelid];
+        	} else {
+        		$data [$keyquestion] = $row->totalscore;
+        	}
         }
         $lastrow = $row;
     }
+    // Add the last row
     $studentname = $lastrow->lastname . ',' . $lastrow->firstname;
     $tabledata [$studentname] = $data;
-    $headers ['99grade'] = get_string('grade');
+    // Add the grade if it's summative feedback
+    if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
+    	$headers ['99grade'] = get_string('grade');
+    }
     ksort($tabledata);
+    // Now pivot the table to form the Excel report
     $current = 0;
     $newtabledata = array();
     foreach ($tabledata as $data) {
@@ -446,7 +484,9 @@ function emarking_download_excel($emarking) {
         $newtabledata [] = $data;
     }
     $tabledata = $newtabledata;
+    // The file name of the report
     $excelfilename = clean_filename($emarking->name . "-grades.xls");
+    // Save the data to Excel
     emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
 }
 /**

@@ -93,8 +93,7 @@ list ( $canbedeleted, $multicourse ) = emarking_exam_get_parallels ( $exam );
 $examstable = new html_table ();
 // Table header.
 $examstable->head = array (
-		"Detalles de la actividad",
-		//get_string ( "examdetails", "mod_emarking" ),
+		get_string ( "examdetails", "mod_emarking" ),
 		"&nbsp;" 
 );
 	
@@ -210,8 +209,8 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 }
 if (has_capability("mod/emarking:downloadexam", $context)) {
     $directdownload = isset($CFG->emarking_downloadsecurity) && $CFG->emarking_downloadsecurity == EMARKING_SECURITY_NO_VALIDATION;
-    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? "Actividad" . ' ' .
-             core_text::strtolower(get_string('examstatusbeingprocessed', 'mod_emarking')) : "Descargar actividad";
+    $buttontext = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? get_string('exam', 'mod_emarking') . ' ' .
+             core_text::strtolower(get_string('examstatusbeingprocessed', 'mod_emarking')) : get_string('downloadexam', 'mod_emarking');
     $disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
     if (! $directdownload) {
         $downloadexambutton = "<input type='button' class='downloademarking btn btn-default' examid ='$exam->id' value='" . $buttontext .

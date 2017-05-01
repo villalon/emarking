@@ -21,6 +21,8 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// EXCEPTION DIGITIZING
+$string['qrextractorconfigrequired'] = 'ERROR FATAL: El archivo config.php en emarking/lib/qrextractor no se pudo encontrar. Imposible procesar respuestas digitalizadas.';
 // MARKING BUTTONS.
 $string['buttonrubric'] = 'Rúbrica';
 $string['buttoncomment'] = 'Comentario';

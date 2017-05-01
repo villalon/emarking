@@ -30,6 +30,7 @@ class process_digitized_answers extends \core\task\scheduled_task {
     public function execute() {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/mod/emarking/print/locallib.php');
+        emarking_verify_qrextractor_config();
         emarking_process_digitized_answers();
     }
 }
