@@ -1654,7 +1654,7 @@ function emarking_rotate_image_file($fileid) {
  *         $rubriccontroller)
  */
 function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
-    global $OUTPUT, $CFG, $COURSE;
+    global $OUTPUT, $CFG, $COURSE, $USER;
     require_once ($CFG->dirroot . '/grade/grading/lib.php');
     // Get rubric instance.
     $gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
@@ -1674,7 +1674,11 @@ function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
     // Validate that activity has a rubric ready.
     if ($gradingmethod !== 'rubric' || !$definition || $definition == null) {
         if ($showrubricbuttons) {
-            echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
+        	if(has_capability('mod/emarking:grade', $context)) {
+            	echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
+        	} else {
+        		echo $OUTPUT->notification('La actividad no está completamente configurada, por favor vuelva más tarde.', 'notifyproblem');
+        	}
             if (has_capability("mod/emarking:addinstance", $context)) {
                 echo "<table>";
                 echo "<tr><td>" . $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'), "GET") . "</td>";
@@ -1873,7 +1877,7 @@ function emarking_unenrol_student($userid, $courseid) {
  */
 function emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria) {
     global $OUTPUT;
-    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->uploadtype != EMARKING_UPLOAD_QR) {
         $missingpagesmessage = '';
     } else {
         // Add warning icon if there are missing pages in draft.

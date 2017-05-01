@@ -70,23 +70,30 @@ $PAGE->navbar->add ( get_string ( "print", "mod_emarking" ) );
 if (has_capability ( "mod/emarking:downloadexam", $context )) {
 	$PAGE->requires->js ( "/mod/emarking/js/printorders.js" );
 }
+// If there are no exams to show.
+$params = array (
+		"course" => $course->id,
+		"emarking" => $emarking->id
+);
+if (! $exam = $DB->get_record ( "emarking_exams", $params )) {
+	if($emarking->uploadtype == EMARKING_UPLOAD_QR) {
+		redirect ( new moodle_url ( "/course/modedit.php", array (
+				"update" => $cm->id,
+				"return" => "1"
+		) ) );
+		die ();
+	}
+}
 echo $OUTPUT->header ();
 // Heading and tabs if we are within a course module.
 echo $OUTPUT->heading ( $emarking->name );
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
 	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'myexams');
 }
-$params = array (
-		"course" => $course->id,
-		"emarking" => $emarking->id 
-);
-// If there are no exams to show.
-if (! $exam = $DB->get_record ( "emarking_exams", $params )) {
-	redirect ( new moodle_url ( "/course/modedit.php", array (
-			"update" => $cm->id,
-			"return" => "1" 
-	) ) );
-	die ( "" );
+if(!$exam && $emarking->uploadtype != EMARKING_UPLOAD_QR) {
+	echo $OUTPUT->notification('Files will be uploaded by students');
+	echo $OUTPUT->footer();
+	die();
 }
 list ( $canbedeleted, $multicourse ) = emarking_exam_get_parallels ( $exam );
 // Create a new html table.

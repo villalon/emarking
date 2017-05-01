@@ -80,7 +80,9 @@ class mod_emarking_mod_form extends moodleform_mod {
         // Upload types for submissions.
         $uploadtypes = $this->get_upload_types_available($emarking);
         // SUBMISSION UPLOAD TYPE.
-        $mform->addElement('select', 'uploadtype', get_string('uploadtype', 'mod_emarking'), $uploadtypes);
+        $mform->addElement('select', 'uploadtype', get_string('uploadtype', 'mod_emarking'), $uploadtypes,
+        		array(
+        				"onchange" => "show_full_form()"));
         $mform->addHelpButton('uploadtype', 'uploadtype', 'mod_emarking');
         $mform->setType('uploadtype', PARAM_INT);
         $mform->setDefault('uploadtype', EMARKING_UPLOAD_QR);
@@ -134,9 +136,10 @@ class mod_emarking_mod_form extends moodleform_mod {
                 $mform->disabledIf('exam_files', 'importemarking', 'neq', 0);
             }
             }
-        } else if($emarking && ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||
-            $emarking->type == EMARKING_TYPE_PRINT_ONLY ||
-            $emarking->type == EMARKING_TYPE_PRINT_SCAN)) {
+        } else if($emarking && $emarking->uploadtype == EMARKING_UPLOAD_QR &&
+        		($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING ||
+            	$emarking->type == EMARKING_TYPE_PRINT_ONLY ||
+            	$emarking->type == EMARKING_TYPE_PRINT_SCAN)) {
             $mform->addElement('hidden', 'examdate', $exam->examdate);
             $mform->setType('examdate', PARAM_RAW);
             // Add message explaining why they can't change files or dates anymore.
@@ -209,10 +212,6 @@ class mod_emarking_mod_form extends moodleform_mod {
             $mform->addHelpButton('enrolments', 'enrolments', 'mod_emarking');
             $mform->setAdvanced("enrolments");
         }
-        $mform->addElement('header', 'scan', get_string('scan', "mod_emarking"));
-        // Due date settings.
-        $mform->addElement('html', '<div id="scanisenabled">' . get_string('scanisenabled', 'mod_emarking') . '</div>');
-        $mform->addElement('html', '<div id="osmisenabled">' . get_string('osmisenabled', 'mod_emarking') . '</div>');
         // MARKERS TRAINING.
         $mform->addElement('header', 'markerstraining', get_string('type_markers_training', 'mod_emarking'));
         $mform->setExpanded('markerstraining');
@@ -349,25 +348,22 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->addHelpButton('regradesclosedate', 'regradesclosedate', 'mod_emarking');
         $mform->setAdvanced('regradesclosedate');
         $mform->disabledIf('regradesclosedate', 'regraderestrictdates');
+        // Quality control.
+        $mform->addElement('header', 'qualitycontrolheader', get_string("qualitycontrol", "mod_emarking"));
         // Get all users with permission to grade in emarking.
         $chkmarkers = $this->get_markers_checkboxes($mform, $ctx);
         if ($chkmarkers) {
-            // Due date settings.
-            $mform->addElement("static", "qualitycontroldescription", get_string("qualitycontrol", "mod_emarking"), 
-                    get_string("qualitycontroldescription", "mod_emarking"));
-            $mform->setAdvanced('qualitycontroldescription');
+            // Quality control enabled.
             $mform->addElement('checkbox', 'qualitycontrol', get_string('enablequalitycontrol', 'mod_emarking'));
             $mform->addHelpButton('qualitycontrol', 'enablequalitycontrol', 'mod_emarking');
-            $mform->setAdvanced('qualitycontrol');
             $mform->disabledIf('qualitycontrol', 'type', 'eq', '2');
             // Add markers group as checkboxes.
             $mform->addGroup($chkmarkers, 'markers', get_string('markersqualitycontrol', 'mod_emarking'), 
                     array(
-                        '<br />'), false);
+                        '<br />'), true);
             $mform->addHelpButton('markers', 'markersqualitycontrol', 'mod_emarking');
             $mform->setType('markers', PARAM_INT);
             $mform->disabledIf('markers', 'qualitycontrol');
-            $mform->setAdvanced('markers');
             $mform->disabledIf('markers', 'type', 'eq', '2');
         }
         // Add standard grading elements.
@@ -594,100 +590,130 @@ class mod_emarking_mod_form extends moodleform_mod {
                 }
             }
 	        function show_full_form() {
-	           var e = document.getElementById('id_type');
-               if(!e) {
+	           var emarkingType = document.getElementById('id_type');
+               if(!emarkingType) {
                   return;
                }
-               var strUser = e.options[e.selectedIndex].value;
-               console.log(strUser);
+               var eType = emarkingType.options[emarkingType.selectedIndex].value;
             // Print only.
-	           if (strUser == '0') {
-                    document.getElementById('id_print').style.display = 'block';
-                    document.getElementById('id_scan').style.display = 'none';
-                    document.getElementById('id_osm').style.display = 'none';
-                    document.getElementById('id_markerstraining').style.display = 'none';
-                    document.getElementById('id_modstandardgrade').style.display = 'none';
-                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
-                    document.getElementById('fitem_id_importemarking').style.display = 'none';
-                    document.getElementById('id_modstandardelshdr').style.display = 'block';
-                } else if (strUser == '1') {
+	           if (eType == '0') {
+                    emarking_show('id_print', 0);
+                    emarking_hide('id_osm', 0);
+        			emarking_hide('id_qualitycontrolheader', 0);
+                    emarking_hide('id_markerstraining', 0);
+                    emarking_hide('id_modstandardgrade', 0);
+                    emarking_hide('id_uploadtype');
+                    emarking_hide('id_importemarking');
+                    emarking_show('id_modstandardelshdr', 0);
+                } else if (eType == '1') {
             // On Screen Marking.
-                    document.getElementById('id_print').style.display = 'block';
-                    document.getElementById('id_scan').style.display = 'block';
-                    document.getElementById('scanisenabled').style.display = 'none';
-                    document.getElementById('osmisenabled').style.display = 'block';
-                    document.getElementById('id_osm').style.display = 'block';
-                    document.getElementById('id_markerstraining').style.display = 'none';
-                    document.getElementById('id_modstandardgrade').style.display = 'block';
-                    document.getElementById('id_modstandardelshdr').style.display = 'block';
+                    emarking_show('id_print', 0);
+                    emarking_show('id_osm', 0);
+        			emarking_show('id_qualitycontrolheader', 0);
+        			emarking_hide('id_markerstraining', 0);
+                    emarking_show('id_modstandardgrade', 0);
+                    emarking_show('id_modstandardelshdr', 0);
                     document.getElementById('id_headerqr').checked = true;
-                    document.getElementById('fitem_id_uploadtype').style.display = 'block';
-                    document.getElementById('fitem_id_importemarking').style.display = 'block';
-    } else if(strUser == '2') {
+                    emarking_show('id_uploadtype');
+                    emarking_show('id_importemarking');
+    } else if(eType == '2') {
             // Markers training.
-                    document.getElementById('id_print').style.display = 'none';
-	                document.getElementById('id_scan').style.display = 'none';
-                    document.getElementById('id_osm').style.display = 'block';
-                    document.getElementById('fitem_id_peervisibility').style.display = 'none';
-                    document.getElementById('fitem_id_justiceperception').style.display = 'none';
-                    document.getElementById('fitem_id_qualitycontrol').style.display = 'none';
-                    document.getElementById('fgroup_id_markers').style.display = 'none';
-                    document.getElementById('fitem_id_enableduedate').style.display = 'none';
-                    document.getElementById('fitem_id_markingduedate').style.display = 'none';
-                    document.getElementById('fitem_id_regraderestrictdates').style.display = 'none';
-                    document.getElementById('fitem_id_regradesopendate').style.display = 'none';
-                    document.getElementById('fitem_id_regradesclosedate').style.display = 'none';
-                    document.getElementById('id_markerstraining').style.display = 'block';
-                    document.getElementById('id_modstandardgrade').style.display = 'none';
-                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
-                    document.getElementById('id_modstandardelshdr').style.display = 'block';
-                    document.getElementById('fitem_id_importemarking').style.display = 'block';
-                } else if(strUser == '4') {
+                    emarking_hide('id_print', 0);
+                    emarking_show('id_osm', 0);
+        			emarking_hide('id_qualitycontrolheader', 0);
+        			emarking_hide('id_peervisibility');
+                    emarking_hide('id_justiceperception');
+                    emarking_hide('id_qualitycontrol');
+                    emarking_hide('fgroup_id_markers');
+                    emarking_hide('id_enableduedate');
+                    emarking_hide('id_markingduedate_day', 5);
+                    emarking_hide('id_regraderestrictdates');
+                    emarking_hide('id_regradesopendate_day', 5);
+                    emarking_hide('id_regradesclosedate_day', 5);
+                    emarking_show('id_markerstraining', 0);
+                    emarking_hide('id_modstandardgrade', 0);
+                    emarking_hide('id_uploadtype');
+                    emarking_show('id_modstandardelshdr', 0);
+                    emarking_show('id_importemarking');
+                } else if(eType == '4') {
             // Peer review.
-                    document.getElementById('id_print').style.display = 'block';
-	                document.getElementById('id_scan').style.display = 'none';
-                    document.getElementById('id_osm').style.display = 'block';
-                    document.getElementById('fitem_id_peervisibility').style.display = 'none';
-                    document.getElementById('fitem_id_justiceperception').style.display = 'none';
-                    document.getElementById('fitem_id_qualitycontrol').style.display = 'none';
-                    document.getElementById('fgroup_id_markers').style.display = 'none';
-                    document.getElementById('fitem_id_enableduedate').style.display = 'block';
-                    document.getElementById('fitem_id_markingduedate').style.display = 'none';
-                    document.getElementById('fitem_id_regraderestrictdates').style.display = 'none';
-                    document.getElementById('fitem_id_regradesopendate').style.display = 'none';
-                    document.getElementById('fitem_id_regradesclosedate').style.display = 'none';
-                    document.getElementById('id_markerstraining').style.display = 'none';
-                    document.getElementById('id_modstandardgrade').style.display = 'none';
-                    document.getElementById('id_modstandardelshdr').style.display = 'block';
-                    document.getElementById('fitem_id_uploadtype').style.display = 'block';
-                    document.getElementById('fitem_id_importemarking').style.display = 'block';
-            } else if(strUser == '5') {
+                    emarking_show('id_print', 0);
+                    emarking_show('id_osm', 0);
+        			emarking_hide('id_qualitycontrolheader', 0);
+        			emarking_hide('id_peervisibility');
+                    emarking_hide('id_justiceperception');
+                    emarking_hide('id_qualitycontrol');
+                    emarking_hide('fgroup_id_markers');
+                    emarking_show('id_enableduedate');
+                    emarking_hide('id_markingduedate_day', 5);
+                    emarking_hide('id_regraderestrictdates');
+                    emarking_hide('id_regradesopendate_day', 5);
+                    emarking_hide('id_regradesclosedate_day', 5);
+                    emarking_hide('id_markerstraining', 0);
+                    emarking_hide('id_modstandardgrade', 0);
+                    emarking_show('id_modstandardelshdr', 0);
+                    emarking_show('id_uploadtype');
+                    emarking_show('id_importemarking');
+            } else if(eType == '5') {
             // Print and scan.
-                    document.getElementById('id_print').style.display = 'block';
-	                document.getElementById('id_scan').style.display = 'block';
-                    document.getElementById('scanisenabled').style.display = 'block';
-                    document.getElementById('osmisenabled').style.display = 'none';
-                    document.getElementById('id_osm').style.display = 'none';
-                    document.getElementById('id_markerstraining').style.display = 'none';
-                    document.getElementById('id_modstandardgrade').style.display = 'none';
-                    document.getElementById('id_modstandardelshdr').style.display = 'block';
-                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
-                    document.getElementById('fitem_id_importemarking').style.display = 'none';
+                    emarking_show('id_print', 0);
+                    emarking_hide('id_osm', 0);
+        			emarking_hide('id_qualitycontrolheader', 0);
+        			emarking_hide('id_markerstraining', 0);
+                    emarking_hide('id_modstandardgrade', 0);
+                    emarking_show('id_modstandardelshdr', 0);
+                    emarking_hide('id_uploadtype');
+                    emarking_hide('id_importemarking');
                 } else {
                     console.log('Invalid type value ' + strUser);
-                    document.getElementById('id_print').style.display = 'none';
-                    document.getElementById('id_scan').style.display = 'none';
-                    document.getElementById('id_osm').style.display = 'none';
-                    document.getElementById('id_modstandardgrade').style.display = 'none';
-                    document.getElementById('id_modstandardelshdr').style.display = 'none';
-                    document.getElementById('fitem_id_uploadtype').style.display = 'none';
-                    document.getElementById('fitem_id_importemarking').style.display = 'none';
+                    emarking_hide('id_print', 0);
+                    emarking_hide('id_osm', 0);
+        			emarking_hide('id_qualitycontrolheader', 0);
+        			emarking_hide('id_modstandardgrade', 0);
+                    emarking_hide('id_modstandardelshdr', 0);
+                    emarking_hide('id_uploadtype');
+                    emarking_hide('id_importemarking');
                 }
-            document.getElementById('fitem_id_introeditor').style.display = 'none';
+            document.getElementById('id_introeditor').style.display = 'none';
             document.getElementById('id_submitbutton2').style.display = 'none';
-	       }
+	        var submissiontype = document.getElementById('id_uploadtype');
+               if(!submissiontype) {
+                  return;
+               }
+               var subtype = submissiontype.options[submissiontype.selectedIndex].value;
+               console.log(subtype);
+            // QR code.
+	           if (subtype == '10') {
+                    emarking_show('id_print', 0);
+                } else {
+                    emarking_hide('id_print', 0);
+                }
+        		
+    	}
             show_full_form();
-	        </script>";
+        		function emarking_hide(elementid, depth=2) {
+        			emarking_set_display(elementid, depth, 'none');
+    			}
+        		function emarking_show(elementid, depth=2) {
+        			emarking_set_display(elementid, depth, 'block');
+        		}
+        		function emarking_set_display(elementid, depth, display) {
+        			if(document.getElementById(elementid) == null) {
+        				console.log('Error trying to find element ' + elementid);
+        				return;
+        			}
+        			var element = document.getElementById(elementid);
+        			for(i=0;i<depth;i++) {
+        				element = element.parentElement;
+        			}
+        			if(element == null) {
+        				console.log('Error, no element in depth ' + depth + ' for ' + elementid);
+        				return;
+        			}
+        			element.style.display = display;
+    			}
+
+        		</script>";
         echo $this->extrascript;
     }
     private function get_types_available($emarking) {
@@ -738,6 +764,9 @@ class mod_emarking_mod_form extends moodleform_mod {
     private function get_exam_date_errors($data) {
         global $CFG;
         $errors = array();
+        if($data ['uploadtype'] != EMARKING_UPLOAD_QR) {
+        	return $errors;
+        }
         if(!isset($data ['examdate'])) {
             $a = new stdClass();
             $a->mindays = 2;
@@ -795,6 +824,9 @@ class mod_emarking_mod_form extends moodleform_mod {
         $importemarking = isset($data['importemarking']) && $data['importemarking'] > 0;
         if(!$this->_instance && $data['type'] == EMARKING_TYPE_PEER_REVIEW && $importemarking) {
             return $errors;
+        }
+        if($data['uploadtype'] != EMARKING_UPLOAD_QR) {
+        	return $errors;
         }
         // We get the draftid from the form.
         $draftid = file_get_submitted_draft_itemid('exam_files');
