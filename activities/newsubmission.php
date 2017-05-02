@@ -90,42 +90,19 @@ foreach ($rubricCriterias as $rubricCriteria){
 	$criteriacount++;
 }
 if($askMarking==1){
-	
-	$canenrol = has_capability('enrol/manual:enrol', $coursecontext);
-	$canunenrol = has_capability('enrol/manual:unenrol', $coursecontext);
-	if (!$canenrol and !$canunenrol) {
-		$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid,'create'=>1));
-		redirect($forkUrl, 0);
-	}
-	$instance = $DB->get_record('enrol', array('id'=>1, 'enrol'=>'manual'), '*', MUST_EXIST);
-	$roleid = $instance->roleid;
-	$course = $DB->get_record('course', array('id'=>$instance->courseid), '*', MUST_EXIST);
-	$timestart = $course->startdate;
-	$roles = get_assignable_roles($coursecontext);
-	if (!$enrol_manual = enrol_get_plugin('manual')) {
-		throw new coding_exception('Can not instantiate enrol_manual');
-	}
-	$instancename = $enrol_manual->get_instance_name($instance);
-	$markerCourse=$DB->get_record('course',array('shortname'=>'correctores'));
-	$markerscoursecontext = context_course::instance($markerCourse->id, MUST_EXIST);
-	
-	$markers=get_enrolled_users($markerscoursecontext);
-	$rand=array_rand ( $markers,1 );
-	$marker=$markers[$rand];
-	$editingteacherroleid=3;
-	$enrol_manual->enrol_user($instance, $marker->id, $roleid, $timestart, 0);
-	 	$ra = new stdClass();
-    	$ra->roleid       = $editingteacherroleid;
-    	$ra->contextid    = $coursecontext->id;
-   		$ra->userid       = $marker->id;
-    	$ra->component    = '';
-    	$ra->itemid       = 0;
-    	$ra->timemodified = 0;
-    	$ra->modifierid   = empty($USER->id) ? 0 : $USER->id;
-    	$ra->sortorder    = 0;
-    	$ra->id = $DB->insert_record('role_assignments', $ra);
-    	 
-	
+$sql="select rs.userid, rs.contextid, em.count as totalmarking
+FROM mdl_role_assignments as rs
+INNER JOIN mdl_role as r on (r.id=rs.roleid)
+LEFT JOIN (select count(*) as count, marker from  mdl_emarking_markers group by marker) as em on rs.userid=em.marker
+WHERE r.shortname=?
+ORDER BY totalmarking ASC
+LIMIT 1";
+$result = $DB->get_record_sql($sql, array('corrector'));
+$marker = new stdClass();
+$marker->emarking=$data['cmid'];
+$marker->marker = $result->userid;
+$marker->qualitycontrol=0;
+$DB->insert_record('emarking_markers', $marker);
 }
 
 $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php', array('id' => $data['cmid'],'tab'=>1));

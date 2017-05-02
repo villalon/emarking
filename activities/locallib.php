@@ -991,3 +991,32 @@ function clean_oa_code($fromform){
 	$oaCode = $OAC1 . $OAC2 . $OAC3;
 	return $oaCode;
 }
+
+function emarking_activity_send_notification($cm,$userto) {
+	global $CFG;
+	
+	$postsubject = 'Corrección asignada';
+	$url= new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/marking.php', 
+			array('id'=>$cm,
+					'tab'=>1
+			));
+	// Create the email to be sent.
+	$posthtml = '';
+	$posthtml='<p>Estimado corrector se le ha asignado una actividad por corregir, para seguir el estado de esta actividad porfavor seguir este link <a href="'.$url.'">'.$url.'</a></p>';
+	$posthtml .= '<p>Se le recuerda que tiene como plazo máximo 14 días</p>';
+	// Create the email to be sent.
+	$posttext = '';
+		$eventdata = new stdClass();
+		$eventdata->component = 'mod_emarking';
+		$eventdata->name = 'notification';
+		$eventdata->userfrom = $fromuser;
+		$eventdata->userto = $userto;
+		$eventdata->subject = $postsubject;
+		$eventdata->fullmessage = $posttext;
+		$eventdata->fullmessageformat = FORMAT_HTML;
+		$eventdata->fullmessagehtml = $thismessagehtml;
+		$eventdata->smallmessage = $postsubject;
+		$eventdata->notification = 1;
+		message_send($eventdata);
+	
+}

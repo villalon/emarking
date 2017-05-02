@@ -5,8 +5,8 @@ require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 require_once ($CFG->libdir . '/coursecatlib.php');
 GLOBAL $DB;
-$categories =coursecat::make_categories_list('moodle/site:manageblocks');
-var_dump($categories);
+//$categories =coursecat::make_categories_list('moodle/site:manageblocks');
+emarking_activity_send_notification(1,2);
 //get_criteria(83);
 /*$string='<p style="text-align: justify;"></p><h5><p style="text-align: justify;"></p><p style="text-align: justify;"><span>4.<span><span style="font-size:12.0pt;line-height:107%;
 font-family:&quot;Times New Roman&quot;,serif;
