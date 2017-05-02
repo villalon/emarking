@@ -874,3 +874,7 @@ $string['strongdate'] = '<strong>Fecha</strong>';
 $string['date'] = 'Fecha';
 $string['keywords'] = 'Palabras claves para Feedback';
 $string['keywords_help'] = 'Las palabras claves son utilizadas para la busqueda de material educativo en Open Learning Repositories para ayudar a la creación del feedback al corregir.';
+$string['enabled'] = 'Habilitado';
+$string['disabled'] = 'Deshabilitado';
+$string['changelog'] = 'Bitácora de cambios';
+$string['changelog_help'] = 'Permite a los estudiantes escribir una bitácora de cambios como actividad a continuación de revisar su retroalimentación.';

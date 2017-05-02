@@ -271,6 +271,14 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->addHelpButton('anonymous', 'anonymous', 'mod_emarking');
         $mform->setDefault('anonymous', 0);
         $mform->setType('anonymous', PARAM_INT);
+        // Allow students to write changelog.
+        $changelogoptions = array(
+        		0 => get_string('disabled', 'mod_emarking'),
+        		10 => get_string('enabled', 'mod_emarking'));
+        $mform->addElement('select', 'changelog', get_string('changelog', 'mod_emarking'), $changelogoptions);
+        $mform->addHelpButton('changelog', 'changelog', 'mod_emarking');
+        $mform->setDefault('changelog', 0);
+        $mform->setType('changelog', PARAM_INT);
         // Justice perception eMarking setting.
         $justiceoptions = array(
             EMARKING_JUSTICE_DISABLED => get_string('justicedisabled', 'mod_emarking'),

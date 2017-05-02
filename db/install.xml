@@ -45,6 +45,7 @@
         <FIELD NAME="copiedfromparent" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="If the copy process from the parent finished"/>
         <FIELD NAME="keywords" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="The keywords are use to create feedback."/>
         <FIELD NAME="uploadtype" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Emarking upload type (student uploads a pdf, QRs are scanned, etc.)"/>
+        <FIELD NAME="changelog" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Emarking activity allows students to write a change log when they review their feedback."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -269,6 +270,7 @@
         <FIELD NAME="teacher" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="sort" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="qualitycontrol" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="changelog" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timecorrectionstarted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>

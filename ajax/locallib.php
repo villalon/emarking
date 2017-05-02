@@ -96,6 +96,23 @@ function emarking_regrade($emarking, $draft) {
         'timemodified' => time());
     return $output;
 }
+function emarking_add_changelog($emarking, $draft) {
+	global $DB, $USER;
+	// Level id represents the level in the rubric.
+	$logtxt = required_param('txt', PARAM_RAW);
+	// Check the draft status to be at least published.
+	if ($draft->status < EMARKING_STATUS_PUBLISHED) {
+		emarking_json_error("Invalid draft status for adding a changelog");
+	}
+	$draft->changelog = $logtxt;
+	$draft->timemodified = time();
+	$DB->update_record('emarking_draft', $draft);
+	// Send the output.
+	$output = array(
+			'error' => '',
+			'timemodified' => time());
+	return $output;
+}
 /**
  * Marks a draft as finished
  *
