@@ -125,7 +125,7 @@ $(document).ready(function () {
 				<div class="col-md-8">
 				<label><input type="radio" id="radio1" name="type" value="1"> Palabras claves</label>
        			 <label><input type="radio" id="radio2" name="type" value="2"> Objetivo de aprendizaje</label>
-       			 <label><input type="radio" id="radio3" name="type" value="3"> Propósito comunicativo</label>
+       			<!-- <label><input type="radio" id="radio3" name="type" value="3"> Propósito comunicativo</label>-->
         		<label><input type="radio" id="radio4" name="type" value="4"> Género</label>
         		
 				</div>
