@@ -1747,5 +1747,28 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017041300, 'emarking');
     }
+    if ($oldversion < 2017050100) {
+    
+    	// Adding changelog as configuration for emarking activities.
+    	$table = new xmldb_table('emarking');
+    	$field = new xmldb_field('changelog', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'uploadtype');
+    
+    	// Conditionally launch add field.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	 
+    	// Adding the changelog text to the drafts.
+    	$table = new xmldb_table('emarking_draft');
+    	$field = new xmldb_field('changelog', XMLDB_TYPE_TEXT, null, null, null, null, null, 'qualitycontrol');
+    	
+    	// Conditionally launch add field.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	 // Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017050100, 'emarking');
+    }
     return true;
 }

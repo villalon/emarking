@@ -21,6 +21,8 @@
  * @copyright 2012-onwards Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// EXCEPTION DIGITIZING
+$string['qrextractorconfigrequired'] = 'ERROR FATAL: El archivo config.php en emarking/lib/qrextractor no se pudo encontrar. Imposible procesar respuestas digitalizadas.';
 // MARKING BUTTONS.
 $string['buttonrubric'] = 'Rúbrica';
 $string['buttoncomment'] = 'Comentario';
@@ -872,3 +874,7 @@ $string['strongdate'] = '<strong>Fecha</strong>';
 $string['date'] = 'Fecha';
 $string['keywords'] = 'Palabras claves para Feedback';
 $string['keywords_help'] = 'Las palabras claves son utilizadas para la busqueda de material educativo en Open Learning Repositories para ayudar a la creación del feedback al corregir.';
+$string['enabled'] = 'Habilitado';
+$string['disabled'] = 'Deshabilitado';
+$string['changelog'] = 'Bitácora de cambios';
+$string['changelog_help'] = 'Permite a los estudiantes escribir una bitácora de cambios como actividad a continuación de revisar su retroalimentación.';

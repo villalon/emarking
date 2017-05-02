@@ -96,6 +96,23 @@ function emarking_regrade($emarking, $draft) {
         'timemodified' => time());
     return $output;
 }
+function emarking_add_changelog($emarking, $draft) {
+	global $DB, $USER;
+	// Level id represents the level in the rubric.
+	$logtxt = required_param('txt', PARAM_RAW);
+	// Check the draft status to be at least published.
+	if ($draft->status < EMARKING_STATUS_PUBLISHED) {
+		emarking_json_error("Invalid draft status for adding a changelog");
+	}
+	$draft->changelog = $logtxt;
+	$draft->timemodified = time();
+	$DB->update_record('emarking_draft', $draft);
+	// Send the output.
+	$output = array(
+			'error' => '',
+			'timemodified' => time());
+	return $output;
+}
 /**
  * Marks a draft as finished
  *
@@ -1064,7 +1081,7 @@ function emarking_get_previous_comments($submission, $draft) {
 			FROM {emarking_submission} s
 			INNER JOIN {emarking_draft} d ON (s.emarking = :emarking AND d.submissionid = s.id)
 			INNER JOIN {emarking_comment} ec ON (ec.draft = d.id)
-			WHERE ec.textformat IN (1,2) AND LENGTH(rawtext) > 0
+			WHERE LENGTH(rawtext) > 0
 			UNION
 			SELECT  id,
 					text,

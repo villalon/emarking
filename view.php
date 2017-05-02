@@ -67,10 +67,10 @@ $scan = $emarking->type == EMARKING_TYPE_PRINT_SCAN;
 // We set a variable to indicate the emarking type is for marking
 $emarkingisstudentmarking = $emarking->type == EMARKING_TYPE_PRINT_ONLY || $emarking->type == EMARKING_TYPE_PRINT_SCAN || $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING;
 // Get the associated exam.
-if ((!$exam = $DB->get_record("emarking_exams", array(
-    "emarking" => $emarking->id
-))) && $emarkingisstudentmarking) {
-    print_error(get_string("emarkingwithnoexam", 'mod_emarking'));
+$exam = $DB->get_record("emarking_exams", array("emarking" => $emarking->id));
+// If the submission type includes a QR, we require a printed exam.
+if($emarking->uploadtype == EMARKING_UPLOAD_QR && !$exam) {
+	print_error(get_string("emarkingwithnoexam", 'mod_emarking'));
 }
 // If we have a print only emarking we send the user to the exam view.
 if ($emarking->type == EMARKING_TYPE_PRINT_ONLY) {
@@ -88,7 +88,7 @@ if ($issupervisor || is_siteadmin($USER)) {
 // Download Excel if it is the case.
 if ($exportcsv && $usercangrade && $issupervisor) {
     if ($exportcsv === 'grades') {
-        emarking_download_excel($emarking);
+        emarking_download_excel($emarking, $context);
     } else 
         if ($exportcsv === 'delphi') {
             emarking_download_excel_markers_training($emarking);
@@ -165,7 +165,7 @@ if ($reassignpeers && $usercangrade && $issupervisor && $numdraftsgrading == 0) 
 list ($gradingmanager, $gradingmethod, $rubriccriteria, $rubriccontroller) =
     emarking_validate_rubric(
         $context,
-        ($emarkingisstudentmarking && !$scan) || $emarking->type == EMARKING_TYPE_PEER_REVIEW, // Die if no rubric.
+        ($emarkingisstudentmarking && !$scan) || $emarking->type == EMARKING_TYPE_PEER_REVIEW || $emarking->uploadtype != EMARKING_UPLOAD_QR, // Die if no rubric.
         !$scan); // Show rubric creation button.
 // If there are no students enrolled in the course, then no .
 $students = get_enrolled_users($context, 'mod/emarking:submit');

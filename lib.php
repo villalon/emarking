@@ -224,6 +224,9 @@ function emarking_add_instance(stdClass $data, mod_emarking_mod_form $mform = nu
 			$DB->insert_record ( 'emarking_markers', $marker );
 		}
 	}
+	if ($data->uploadtype != EMARKING_UPLOAD_QR) {
+		return $id;
+	}
 	$context = context_course::instance ( $COURSE->id );
 	$examid = 0;
 	// If there's no previous exam to associate, and we are creating a new
@@ -402,7 +405,7 @@ function emarking_copy_to_cm($originalemarking, $destinationcourse) {
  */
 function emarking_update_instance(stdClass $emarking, mod_emarking_mod_form $mform = null) {
 	global $DB, $CFG, $COURSE;
-	if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
+	if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING && $emarking->uploadtype == EMARKING_UPLOAD_QR) {
 		// If there is NO exam for the emarking activity and the user selected she
 		// wouldn't use a previous exam there is something wrong.
 		if ((! $exam = $DB->get_record ( "emarking_exams", array (

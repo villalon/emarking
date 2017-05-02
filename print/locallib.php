@@ -864,6 +864,12 @@ function emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course,
     }
 }
 
+function emarking_verify_qrextractor_config() {
+	global $CFG;
+	if(!file_exists($CFG->dirroot . '/mod/emarking/lib/qrextractor/config.php')) {
+		throw new Exception(get_string('qrextractorconfigrequired', 'mod_emarking'));
+	}
+}
 /**
  * Uploads a PDF or ZIP file as digitized answers from students.
  * @param unknown $emarking the Emarking activity
