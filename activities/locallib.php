@@ -373,7 +373,7 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 	$mod->module = $emarkingmod->id;
 	$mod->instance = $data->id;
 	$mod->section = 0;
-	$mod->visible = 0; // Hide the forum.
+	$mod->visible = 1; // Hide the forum.
 	$mod->visibleold = 0; // Hide the forum.
 	$mod->groupmode = 0;
 	$mod->grade = 100;

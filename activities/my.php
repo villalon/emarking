@@ -73,6 +73,7 @@ if ($countActivities == 1) {
 	) );
 }
 $usercourses = enrol_get_users_courses ( $USER->id );
+$coursesarray=array();
 if($categories =coursecat::make_categories_list('moodle/site:manageblocks')){
 	foreach ($categories as $key => $category){
 	$courses= $DB->get_records('course',array('category'=>$key));
@@ -90,10 +91,8 @@ foreach ( $usercourses as $usercourse ) {
 	}
 	$coursecontext = context_course::instance ( $usercourse->id );
 
-	if (has_capability ( 'moodle/course:update', $coursecontext )) {
-		$coursesasteacher [] = $usercourse;
-		$coursesarray [] =$usercourse->id;
-	}
+	$coursesasteacher [] = $usercourse;
+	$coursesarray [] =$usercourse->id;
 }
 
 //print the header
