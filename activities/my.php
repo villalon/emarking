@@ -74,7 +74,7 @@ if ($countActivities == 1) {
 }
 $usercourses = enrol_get_users_courses ( $USER->id );
 $coursesarray=array();
-if($categories =coursecat::make_categories_list('moodle/site:manageblocks')){
+if($categories =coursecat::make_categories_list('mod/emarking:downloadexam')){
 	foreach ($categories as $key => $category){
 	$courses= $DB->get_records('course',array('category'=>$key));
 	foreach ($courses as $key => $course){

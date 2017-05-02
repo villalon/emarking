@@ -97,14 +97,18 @@ if (! $totalsubmissions || $totalsubmissions == 0) {
 				
 					<li <?= $activeOne ?>><a href="<?= $markingUrl ?>">Información del	curso</a></li>
 					<?php 
-					if(has_capability('mod/emarking:uploadexam', $context)){
+					if(has_capability('mod/emarking:downloadexam', $context)){
 					?>
 					<li <?= $activeTwo ?>><a href="<?= $downloadUrl ?>">Descargar</a></li>
+					<?php 
+					}
+					if(has_capability('mod/emarking:uploadexam', $context)){
+					?>
 					<li <?= $activeThree ?>><a href="<?= $uploadUrl ?>">Digitalizar</a></li>
-					<li <?= $activefour ?> <?= $disabled ?>><a	href="<?= $reportsUrl ?>">Reportes</a></li>
 					<?php 
 					}
 					?>
+					<li <?= $activefour ?> <?= $disabled ?>><a	href="<?= $reportsUrl ?>">Reportes</a></li>
 					</ul>
 						
 						
