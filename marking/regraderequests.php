@@ -49,7 +49,7 @@ $PAGE->requires->jquery_plugin('ui-css');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
 echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades");
-list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, false, false);
+list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, true, true);
 $sqlfilter = $filteruser ? " AND u.id = $USER->id" : "";
 $sql = "select
 			rg.*,
@@ -190,7 +190,8 @@ foreach ($records as $record) {
 }
 $table->data = $data;
 echo html_writer::table($table);
-if (count($definition->rubric_criteria) > $totalregrades && $filteruser) {
+$submission = $DB->get_record('emarking_submission', array('student'=>$USER->id, 'emarking'=>$emarking->id));
+if (count($definition->rubric_criteria) > $totalregrades && $filteruser && $submission) {
     echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array(
         "id" => $cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
 }

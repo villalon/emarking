@@ -95,7 +95,7 @@ $sql = "SELECT
     INNER JOIN {gradingform_rubric_levels} l ON (a.id = l.criterionid)
     LEFT JOIN {emarking_comment} c ON (c.levelid = l.id)
     GROUP BY s.id, a.id, l.id
-    ORDER BY a.sortorder ASC, l.score ASC";
+    ORDER BY a.sortorder ASC, l.score DESC";
 $emarkingstats = $DB->get_recordset_sql($sql, array('definitionid'=>$definition->id, 'emarkingid'=>$emarking->id));
 $definition = array();
 foreach($emarkingstats as $stat) {
@@ -211,10 +211,11 @@ function emarking_table_from_criterion($criterion, $cm) {
     $levelstable->data [2] = array();
     $levelstable->size = array();
     $levelstable->colclasses = array();
-    
-    $current = 1;
+
+    $levels = array();
+    $numlevels=0;
     foreach ($criterion as $lid => $level) {
-        if($lid === 'name') {
+    	if($lid === 'name') {
             $criterionname = $level;
             continue;
         }
@@ -222,7 +223,13 @@ function emarking_table_from_criterion($criterion, $cm) {
             $total = $level;
             continue;
         }
-        $popupurl = new moodle_url('/mod/emarking/reports/preview.php', array('id'=>$cm->id, 'filter'=>'level', 'fids'=>$lid));
+        $levels[intval($level->score * -1)] = $level;
+        $numlevels++;
+    }
+    ksort($levels, SORT_DESC | SORT_NUMERIC);
+    $current = $numlevels;
+    foreach($levels as $score => $level) {
+    	$popupurl = new moodle_url('/mod/emarking/reports/preview.php', array('id'=>$cm->id, 'filter'=>'level', 'fids'=>$level->lid));
         $percentage = $total > 0 ? round($level->students / $total * 100,0) : 0;
         $levelstable->data [0] [] = html_writer::div(
         		'Nivel ' . $current
@@ -245,7 +252,7 @@ function emarking_table_from_criterion($criterion, $cm) {
         ))) : '&nbsp;';
         $levelstable->size [] = round(100 / (count($criterion) - 1), 1) . '%';
         $levelstable->colclasses [] = 'level';
-        $current++;
+        $current--;
     }
     $levelstable->rowclasses[0] = null;
     return $levelstable;

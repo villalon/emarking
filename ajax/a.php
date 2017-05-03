@@ -188,7 +188,8 @@ if ($action === 'ping') {
                 'readonly' => $readonly,
                 'supervisor' => $issupervisor,
                 'markingtype' => $emarking->type,
-                'totalTests' => $totaltest,
+            	'changelog' => $emarking->changelog,
+            	'totalTests' => $totaltest,
                 'inProgressTests' => $inprogesstest,
                 'publishedTests' => $publishtest,
                 'heartbeat' => $emarking->heartbeatenabled,
@@ -226,13 +227,20 @@ switch ($action) {
         $output = emarking_add_mark($submission, $draft, $emarking, $context);
         emarking_json_array($output);
         break;
-    case 'addregrade' :
+    case 'addchangelog' :
         emarking_check_add_regrade_permission($ownsubmission, $draft, $context);
         // Add to Moodle log so some auditing can be done.
         \mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
-        $output = emarking_regrade($emarking, $draft);
+        $output = emarking_add_changelog($emarking, $draft);
         emarking_json_array($output);
         break;
+    case 'addregrade' :
+        	emarking_check_add_regrade_permission($ownsubmission, $draft, $context);
+        	// Add to Moodle log so some auditing can be done.
+        	\mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
+        	$output = emarking_regrade($emarking, $draft);
+        	emarking_json_array($output);
+        	break;
     case 'clickcollaborativebuttons' :
         $output = emarking_add_action_collaborativebutton();
         emarking_json_array($output);
@@ -295,6 +303,7 @@ switch ($action) {
         $output->rubric = $results;
         $results = emarking_get_answerkeys_submission($submission);
         $output->answerkeys = $results;
+        $output->changelog = $draft->changelog;
         emarking_json_array($output);
         break;
     case 'getchathistory' :

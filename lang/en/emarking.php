@@ -21,6 +21,8 @@
  * @copyright 2012-2015 Jorge Villalon <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+// EXCEPTION DIGITIZING
+$string['qrextractorconfigrequired'] = 'FATAL ERROR: config.php file in emarking/lib/qrextractor is required to digitize answers';
 // MARKING BUTTONS.
 $string['buttonrubric'] = 'Rubric';
 $string['buttoncomment'] = 'Comment';
@@ -867,3 +869,7 @@ $string['strongdate'] = '<strong>Date</strong>';
 $string['date'] = 'Date';
 $string['keywords'] = 'Keywords for Feedback';
 $string['keywords_help'] = 'The keywords are used for search educational material in Open Learning Repositories to help the creation of feedback at grade.';
+$string['enabled'] = 'Enabled';
+$string['disabled'] = 'Disabled';
+$string['changelog'] = 'Change log';
+$string['changelog_help'] = 'Allows students to write a change log as a follow up activity after reviewing their feedback.';
