@@ -151,49 +151,120 @@ $pdf->SetPrintFooter(false);
 $pdf->SetFont('times', '', 12);
 
 // set auto page breaks
-$pdf->SetAutoPageBreak(TRUE, 50);
+$pdf->SetAutoPageBreak(TRUE, 44);
 $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
 $pdf->SetTopMargin(40);
 $pdf->SetRightMargin(25);
 $pdf->SetLeftMargin(25);
 // Add a page
 // This method has several options, check the source code documentation for more information.
-
-if(isset($sections->instructions)&&$sections->instructions==1){
 $pdf->AddPage();
-$pdf->writeHTML('<h1>Instrucciones</h1> ', true, false, false, false, '');
+$css='
+
+<style>
+   body {
+        font-family:Arial, Helvetica, sans-serif;
+    }
+	p{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	}
+	
+	h3{
+	font-family:Arial, Helvetica, sans-serif;	
+	}
+	table {
+    border-collapse: collapse;
+}
+	table, td, th {
+    border: 1px solid black;
+
+}
+    </style>
+   ';
+$html =$css;
+if(isset($sections->instructions)&&$sections->instructions==1){
+
+//$pdf->writeHTML('<h3 style="font-family:Arial, Helvetica, sans-serif">Instrucciones</h3> ', true, false, false, false, '');
+$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Instrucciones</h3>';
 $instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
 $instructionshtml=emarking__activities_clean_html_to_print($instructionshtml);
-$pdf->writeHTML($instructionshtml, true, false, false, false, '');
+$html .= $instructionshtml;
+//$pdf->writeHTML($instructionshtml, true, false, false, false, '');
 
 }
 
 if(isset($sections->planification)&&$sections->planification==1){
-$pdf->AddPage();
+
 $planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
-$pdf->writeHTML('<h1>Planificación</h1>', true, false, false, false, '');
+//$pdf->writeHTML('<h3 style="font-family:Arial, Helvetica, sans-serif">Planificación</h3>', true, false, false, false, '');
+$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Planificación</h3>';
 $planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
-$pdf->writeHTML($planificationhtml, true, false, false, false, '');
+$html .=$planificationhtml;
+//$pdf->writeHTML($planificationhtml, true, false, false, false, '');
 }
 
 if(isset($sections->writing)&&$sections->writing==1){
-$pdf->AddPage();
+
 $writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
-$pdf->writeHTML('<h1>Escritura</h1>', true, false, false, false, '');
 $writinghtml=emarking__activities_clean_html_to_print($writinghtml);
-$pdf->writeHTML($writinghtml, true, false, false, false, '');
+
+$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Escritura</h3>';
+$html .=$writinghtml;
+$html .='
+      <table width="510px" height="350px" border="0" cellspacing="1" cellpadding="1">
+        <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+      <tr>
+        <td valign="top" width="90%" height="29px"></td>
+      </tr>
+  </table>';
+
+//$pdf->writeHTML($table, true, false, false, false, '');
 }
 
 if(isset($sections->editing)&&$sections->editing==1){
-$pdf->AddPage();
-$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
-$pdf->writeHTML('<h1>Revisión y edición</h1>', true, false, false, false, '');
-$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
-$pdf->writeHTML($editinghtml, true, false, false, false, '');
-}
 
+$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
+$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Revisión y edición</h3>';
+$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
+$html .=$editinghtml;
+//$pdf->writeHTML($editinghtml, true, false, false, false, '');
+}
+$pdf->writeHTML($html, true, false, false, false, '');
 if(isset($sections->teaching)&&$sections->teaching==1){
-$pdf->AddPage();
+
 $teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
 $pdf->writeHTML('<h1>Sugerencias didácticas</h1>', true, false, false, false, '');
 $teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
@@ -201,7 +272,7 @@ $pdf->writeHTML($teachinghtml, true, false, false, false, '');
 }
 
 if(isset($sections->resources)&&$sections->resources==1){
-$pdf->AddPage();
+
 $languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
 $pdf->writeHTML('<h1>Recursos del lenguaje</h1>', true, false, false, false, '');
 $languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
