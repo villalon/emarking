@@ -30,6 +30,9 @@ $activityid = required_param ( 'id', PARAM_INT );
 $message = optional_param ('message', 0 , PARAM_INT);
 $teacherroleid = 3;
 
+$dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
+$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+
 if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activityid))) {
 	print_error("ID de Actividad invalido");
 }
@@ -148,7 +151,11 @@ if (isset ( $votes )) {
 $average=get_average($votes);
 }
 $votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
-if(isset($_POST['submit'])) {
+
+if(isset($_POST['submit'])) {	
+
+	require_sesskey();
+
 	$comentario = new stdClass ();
 	$comentario->userid=$USER->id;
 	$comentario->username=$USER->firstname.' '.$USER->lastname;
@@ -170,6 +177,11 @@ if(isset($_POST['submit'])) {
 	$communitysql->data=$datajson;
 
 	$DB->update_record('emarking_social', $communitysql);
+
+	$comentario->date = $dias[date('w',$comentario->timecreated)]." ".date('d',$comentario->timecreated)." de ".$meses[date('n',$comentario->timecreated)-1]. " del ".date('Y',$comentario->timecreated) ;
+
+	echo json_encode($comentario, JSON_UNESCAPED_UNICODE);
+	die();
 	header("Refresh:0");
 }
 }else{
@@ -198,8 +210,7 @@ if(isset($_POST['submit'])) {
 		
   }
 }
-$dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
-$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+
 //print the header
 include 'views/header.php';
 
