@@ -1178,15 +1178,13 @@ function emarking_update_comment($submission, $draft, $emarking, $context) {
         		'commentid' => $commentid));  	
     	// Inserte current feedback
     	$insertfeedback = array();
-    	$arrayfeedback = explode("__separador__", $feedback);
-    	//TODO: validar que el split por @@separador@@ contenga 3 objetos de lo contrario el insert fallara
-    	for($count = 0; $count < count($arrayfeedback); $count++){
-    		$fields = explode("@@separador@@", $arrayfeedback[$count]);
+    	$arrayfeedback = json_decode($feedback);
+    	foreach ($arrayfeedback as $updatefeedback) {
     		$row = new stdClass();
     		$row->commentid = $commentid;
-    		$row->oer = $fields[0];
-    		$row->name = $fields[1];
-    		$row->link = $fields[2];
+    		$row->oer = $updatefeedback[0];
+    		$row->name = $updatefeedback[1];
+    		$row->link = $updatefeedback[2];
     		$row->timecreated = time();
     		$insertfeedback[] = $row;
     	}
@@ -1248,9 +1246,11 @@ function emarking_get_resources_ocwmit($keywords){
 	$results = $xml->RES->R;
 	$output = array();
 	foreach ($results as $row){
-		$output [] = array("resource" => $row->S."_separador_".$row->U);
-	}
-	
+		$output [] = array(
+				"name" => trim(strip_tags($row->S), "\t\n\r\0\x0B"),
+				"link" => $row->U
+		);
+	}	
 	return $output;
 }
 
@@ -1275,9 +1275,11 @@ function emarking_get_resources_merlot($keywords){
 		// $parts[0] = /merlot/viewMaterial.htm?id=424478
 		// $parts[1] = trash to reconstructed the url
 		$parts = explode("&", $result->href);
-		$output [] = array("resource" => $result->innertext."_separador_https://www.merlot.org".$parts[0]);
+		$output [] = array(
+				"name" => preg_replace("/(\t|\n|\v|\f|\r| |\xC2\x85|\xc2\xa0|\xe1\xa0\x8e|\xe2\x80[\x80-\x8D]|\xe2\x80\xa8|\xe2\x80\xa9|\xe2\x80\xaF|\xe2\x81\x9f|\xe2\x81\xa0|\xe3\x80\x80|\xef\xbb\xbf)+/", " ", strip_tags($result->innertext)), 
+				"link" => "https://www.merlot.org".$parts[0]
+		);
 	}
-
 	return $output;
 }
 
@@ -1293,9 +1295,11 @@ function emarking_get_courseresources($course){
 	foreach ($resources as $resource){
 		$name = $resource->name." ".strip_tags($resource->intro);
 		$url = "$CFG->wwwroot/mod/resource/view.php?id=".$resource->cm;
-		$output [] = array("resource" => $name."_separador_".$url);
+		$output [] = array(
+				"name" => $name,
+				"link" => $url
+		);
 	}
-
 	return $output;
 }
 
@@ -1316,14 +1320,10 @@ function emarking_get_chat_history() {
     if(!$results) {
         $results = array();
     }else{
-
-
         foreach ($results as $obj){
             $obj->url=$CFG->wwwroot."/mod/emarking/marking/index.php";
             $output[]=$obj;
         }
-
     }
-
     return $results;
 }
