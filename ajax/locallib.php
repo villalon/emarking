@@ -437,17 +437,14 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     // Insert the record.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
     if($feedback){    	
-    	//TODO: validar que el split por @@separador@@ contenga 3 objetos de lo contrario el insert fallara
     	$insertfeedback = array();
-    	$arrayfeedback = explode("__separador__", $feedback);
-    	//var_dump($arrayfeedback);
-    	for($count = 0; $count < count($arrayfeedback); $count++){
-    		$fields = explode("@@separador@@", $arrayfeedback[$count]);
+    	$arrayfeedback = json_decode($feedback);
+    	foreach ($arrayfeedback as $updatefeedback) {
     		$row = new stdClass();
-    		$row->commentid = $commentid;
-    		$row->oer = $fields[0];
-    		$row->name = $fields[1];
-    		$row->link = $fields[2];
+      		$row->commentid = $commentid;
+    		$row->oer = $updatefeedback[0];
+			$row->name = $updatefeedback[1];
+			$row->link = $updatefeedback[2];
     		$row->timecreated = time();
     		$insertfeedback[] = $row;
     	}
