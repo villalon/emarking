@@ -69,7 +69,7 @@ $emarkingisstudentmarking = $emarking->type == EMARKING_TYPE_PRINT_ONLY || $emar
 // Get the associated exam.
 $exam = $DB->get_record("emarking_exams", array("emarking" => $emarking->id));
 // If the submission type includes a QR, we require a printed exam.
-if($emarking->uploadtype == EMARKING_UPLOAD_QR && !$exam) {
+if(($emarking->uploadtype == EMARKING_UPLOAD_QR && $emarking->type != EMARKING_TYPE_MARKER_TRAINING) && !$exam) {
 	print_error(get_string("emarkingwithnoexam", 'mod_emarking'));
 }
 // If we have a print only emarking we send the user to the exam view.
