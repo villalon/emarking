@@ -44,10 +44,17 @@ $(function() {
 						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
 							<span class="glyphicon glyphicon-paperclip"></span> Crear Rúbrica
 						</button></a>
-						</div>
-						
+						</div>						
 						<?php
 						$canuse="#myModalCantUse";
+						} elseif ($usercaneditrubric) {
+						?>
+						<div class="activity_buttons">
+						<a href="<?=$importrubricUrl?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Importar Rúbrica
+						</button></a>
+						</div>
+						<?php
 						}
 						?>
 						<div class="activity_buttons">
@@ -119,7 +126,7 @@ $(function() {
 						if(isset($disabled) && $disabled!=null){
 					?>
 						<div class="alert alert-warning">
-						  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a>
+						  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a> o <a href="<?=$importrubricUrl?>">Importar Rúbrica</a>
 						</div>
 					<?php }?>
 						<h3 class="title_result">
