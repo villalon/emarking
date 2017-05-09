@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 global $PAGE, $CFG;
 require_once $CFG->dirroot . '/mod/emarking/lib.php';
+require_once ($CFG->libdir . '/coursecatlib.php');
 // Marking settings.
 $settings->add(
         new admin_setting_heading('emarking_markingsettings', get_string('markingsettings', 'mod_emarking'),
