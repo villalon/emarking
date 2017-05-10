@@ -46,68 +46,63 @@ $gradingArea->contextid=$contextmodule->id;
 $gradingArea->component='mod_emarking';
 $gradingArea->areaname='attempt';
 $gradingArea->activemethod='rubric';
-$insert = $DB->insert_record('grading_areas', $gradingArea);
-$rubric= $DB->get_record('grading_definitions',array('id'=>$pdf['rubricid']));
-$rubricdefinition=$rubric->id;
-$rubric->copiedfromid=$pdf['rubricid'];
-$rubric->timecopied=time();
-$rubric->areaid=$insert;
-unset($rubric->id);
+$areaid = $DB->insert_record('grading_areas', $gradingArea);
+$activityRubric=$DB->get_record('emarking_rubrics',array('id'=>$activity->rubricid));
+
+$rubric=new stdClass ();
+$rubric->areaid=$areaid;
+$rubric->method='rubric';
+$rubric->name=$activityRubric->name;
+$rubric->description=$activityRubric->description;
+$rubric->descriptionformat=1;
+$rubric->status=20;
+$rubric->usercreated=$USER->id;
+$rubric->usermodified=$USER->id;
+$rubric->timecreated=time();
+$rubric->timemodified=time();
+$rubric->options='{"sortlevelsasc":"1","alwaysshowdefinition":"1","showdescriptionteacher":"1","showdescriptionstudent":"1","showscoreteacher":"1","showscorestudent":"1","enableremarks":"1","showremarksstudent":"1"}';
+
 $insertRubric = $DB->insert_record('grading_definitions', $rubric);
 
-$rubricCriterias= $DB->get_records('gradingform_rubric_criteria',array('definitionid'=>$rubricdefinition));
-
+$rubricCriterias= $DB->get_records('emarking_rubrics_criteria',array('rubricid'=>$activity->rubricid));
+$criteriacount=1;
 foreach ($rubricCriterias as $rubricCriteria){
 	
+	$criteria=new stdClass ();
+	$criteria->definitionid=$insertRubric;
+	$criteria->sortorder=$criteriacount;
+	$criteria->description=$rubricCriteria->description;
+	$criteria->descriptionformat=0;
 	
-	$rubricCriteria->definitionid=$insertRubric;
-	$rubricCriteriaid=$rubricCriteria->id;
-	
-	unset($rubricCriteria->id);
-	$insertRubricCriteria = $DB->insert_record('gradingform_rubric_criteria', $rubricCriteria);
-	
-	$rubricCriteriaLevels= $DB->get_records('gradingform_rubric_levels',array('criterionid'=>$rubricCriteriaid));
+	$insertRubricCriteria = $DB->insert_record('gradingform_rubric_criteria', $criteria);
+	$rubricCriteriaLevels= $DB->get_records('emarking_rubrics_levels',array('criterionid'=>$rubricCriteria->id));
+
 	foreach($rubricCriteriaLevels as $rubricCriteriaLevel){
-		unset($rubricCriteriaLevel->id);
 		
-		$rubricCriteriaLevel->criterionid=$insertRubricCriteria;
-		$insertRubricCriteriaLevels = $DB->insert_record('gradingform_rubric_levels', $rubricCriteriaLevel);
+		$level=new stdClass ();
+		$level->criterionid=$insertRubricCriteria;
+		$level->score=$rubricCriteriaLevel->score;
+		$level->definition=$rubricCriteriaLevel->definition;
+		$level->definitionformat=0;
+		$insertRubricCriteriaLevels = $DB->insert_record('gradingform_rubric_levels', $level);
 		
 	}
-	
+	$criteriacount++;
 }
 if($askMarking==1){
-	
-	$canenrol = has_capability('enrol/manual:enrol', $coursecontext);
-	$canunenrol = has_capability('enrol/manual:unenrol', $coursecontext);
-	if (!$canenrol and !$canunenrol) {
-		$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid,'create'=>1));
-		redirect($forkUrl, 0);
-	}
-	$instance = $DB->get_record('enrol', array('id'=>1, 'enrol'=>'manual'), '*', MUST_EXIST);
-	
-	$roleid = $instance->roleid;
-	$course = $DB->get_record('course', array('id'=>$instance->courseid), '*', MUST_EXIST);
-	$timestart = $course->startdate;
-	$roles = get_assignable_roles($coursecontext);
-	if (!$enrol_manual = enrol_get_plugin('manual')) {
-		throw new coding_exception('Can not instantiate enrol_manual');
-	}
-	$instancename = $enrol_manual->get_instance_name($instance);
-	
-	$enrol_manual->enrol_user($instance, 3, $roleid, $timestart, 0);
-	 	$ra = new stdClass();
-    	$ra->roleid       = 5;
-    	$ra->contextid    = $coursecontext->id;
-   		$ra->userid       = 3;
-    	$ra->component    = '';
-    	$ra->itemid       = 0;
-    	$ra->timemodified = 0;
-    	$ra->modifierid   = empty($USER->id) ? 0 : $USER->id;
-    	$ra->sortorder    = 0;
-    	$ra->id = $DB->insert_record('role_assignments', $ra);
-    	 
-	
+$sql="select rs.userid, rs.contextid, em.count as totalmarking
+FROM mdl_role_assignments as rs
+INNER JOIN mdl_role as r on (r.id=rs.roleid)
+LEFT JOIN (select count(*) as count, marker from  mdl_emarking_markers group by marker) as em on rs.userid=em.marker
+WHERE r.shortname=?
+ORDER BY totalmarking ASC
+LIMIT 1";
+$result = $DB->get_record_sql($sql, array('corrector'));
+$marker = new stdClass();
+$marker->emarking=$data['cmid'];
+$marker->marker = $result->userid;
+$marker->qualitycontrol=0;
+$DB->insert_record('emarking_markers', $marker);
 }
 
 $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php', array('id' => $data['cmid'],'tab'=>1));

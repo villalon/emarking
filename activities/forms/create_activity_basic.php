@@ -26,12 +26,12 @@ require_once ($CFG->libdir . '/formslib.php');
 require_once ($CFG->dirroot . '/course/lib.php');
 
 
-class local_ciae_create_activity extends moodleform {
+class mod_emarking_activities_create_activity_basic extends moodleform {
 
     public function definition() {
         global $CFG, $OUTPUT, $COURSE, $DB;
         
-       require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+        require ($CFG->dirroot. '/mod/emarking/activities/generos.php');
        array_unshift($generos, "Seleccione un género");
        $result = $DB->get_records_sql('
          SELECT gd.id,
@@ -158,58 +158,34 @@ class local_ciae_create_activity extends moodleform {
         $buttonar[]=$mform->createElement('button', 'less', '-', array('onclick'=>'hideDiv()','style'=>'display:none;'));
         $mform->addGroup($buttonar, 'buttonarr');
         
-        
-        
         // Propósito comunicativo
         $mform->addElement('select', 'comunicativepurpose', 'Propósito Comunicativo', $pc);
-        $mform->addRule('comunicativepurpose', get_string('required'), 'required'); 
+        $mform->addRule('comunicativepurpose', get_string('required'), 'required');
         $mform->setType('comunicativepurpose', PARAM_TEXT);
-       // $mform->addHelpButton('comunicativepurpose', 'pc','ciae');
+        // $mform->addHelpButton('comunicativepurpose', 'pc','ciae');
         // Género
         $mform->addElement('select', 'genre', 'Género', $generos);
-        $mform->addRule('genre', get_string('required'), 'required'); 
+        $mform->addRule('genre', get_string('required'), 'required');
         $mform->setType('genre', PARAM_TEXT);
         //$mform->addHelpButton('genre', 'genero','ciae');
         // Audiencia
-        $mform->addElement('text', 'audience','Audiencia'); 
+        $mform->addElement('text', 'audience','Audiencia');
         $mform->setType('audience', PARAM_TEXT);
         //$mform->addHelpButton('audience', 'audiencia','ciae');
         // Tiempo estimado
         $tiempoEstimado=array('45'=>'45 minutos','90'=>'90 minutos','135'=>'135 minutos','180'=>'180 minutos');
         $mform->addElement('select', 'estimatedtime', 'Tiempo Estimado', $tiempoEstimado);
         $mform->addRule('estimatedtime', get_string('required'), 'required');
-        $mform->setType('estimatedtime', PARAM_TEXT);      
-
-        //Paso 2 Instrucciones
-        $mform->addElement('header', 'IA', 'Instrucciones para el estudiante', null);
-        $mform->addElement('static', '', '','Cree las instrucciones que se entregarán a los estudiantes.');
-        $systemcontext = context_system::instance();
-        $editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES, 'context'=>$systemcontext);
-        $mform->addElement('editor', 'instructions', 'Instrucciones',null,$editoroptions);
-        $mform->setType('instructions', PARAM_RAW);
-        $mform->addElement('editor', 'planification', 'Planificación',null,$editoroptions);
-        $mform->setType('planification', PARAM_RAW);
-        $mform->addElement('editor', 'writing', 'Escritura',null,$editoroptions);
-        $mform->setType('writing', PARAM_RAW);
-        $mform->addElement('editor', 'editing', 'Edición',null,$editoroptions);
-        $mform->setType('editing', PARAM_RAW);
-
+        $mform->setType('estimatedtime', PARAM_TEXT);
+        $mform->addElement('hidden', 'step', 2);
+        $mform->setType('step', PARAM_INT);
+        $mform->addElement('hidden', 'id', 0);
+        $mform->setType('id', PARAM_INT);
+        $mform->addElement('hidden', 'editing', 0);
+        $mform->setType('editing', PARAM_INT);
         
-        
-        //Paso 3 Didáctica
-        $mform->addElement('header', 'DI', 'Didáctica', null);
-        $mform->addElement('editor', 'teaching', 'Sugerencias',null,$editoroptions);
-        $mform->setType('teaching', PARAM_RAW);
-        //$mform->setAdvanced('teachingsuggestions');
-        $mform->addElement('editor', 'languageresources', 'Recursos del Lenguaje',null,$editoroptions);
-        $mform->setType('languageresources', PARAM_RAW);
-        //$mform->setAdvanced('languageresources');
 
-        //Paso 4 Rúbrica
-        $mform->addElement('header', 'RUB', 'Evaluación', null);
-        $mform->addElement('select', 'rubricid', 'Evaluación', $rubrics);
-        
-        $this->add_action_buttons(false,'enviar');
+        $this->add_action_buttons(false,'Siguiente');
 
             
         ?>

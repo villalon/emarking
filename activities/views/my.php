@@ -19,8 +19,8 @@
 					echo '<h4>Miembro nivel 5</h4>';
 					echo '<p>' . $countActivities . ' Actividade(s) Publicada(s)</p>';
 					echo '<p>' . $countRubrics . ' Rúbricas Publicadas</p>';
-					echo '<p>15 Opiniones</p>';
-					echo '<p>25 Votos</p>';
+					echo '<p>0 Opiniones</p>';
+					echo '<p>0 Votos</p>';
 					
 					echo $userData->description;
 					echo '<a href="' . $editProfileUrl . '">Editar perfil</a>';

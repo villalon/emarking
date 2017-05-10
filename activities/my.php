@@ -23,17 +23,16 @@
 */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 global $PAGE, $DB, $USER, $CFG;
-
+require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
+require_once ($CFG->libdir . '/coursecatlib.php');
+require_once ($CFG->dirroot . "/mod/emarking/lib.php");
+require_login ();
 
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
 
-GLOBAL $USER, $CFG, $PAGE, $DB;
-require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
-require_once ($CFG->dirroot . "/mod/emarking/lib.php");require_login ();
-$PAGE->set_context ( context_system::instance () );
 $image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f1.jpg' );
 $createActivity = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/crear.php/' );
 $userData = $DB->get_record ( 'user', array (
@@ -72,16 +71,27 @@ if ($countActivities == 1) {
 	) );
 }
 $usercourses = enrol_get_users_courses ( $USER->id );
-
-foreach ( $usercourses as $usercourse ) {
-
-	$coursecontext = context_course::instance ( $usercourse->id );
-
-	if (has_capability ( 'moodle/course:update', $coursecontext )) {
-		$coursesasteacher [] = $usercourse;
+$coursesarray=array();
+if($categories =coursecat::make_categories_list('mod/emarking:downloadexam')){
+	foreach ($categories as $key => $category){
+	$courses= $DB->get_records('course',array('category'=>$key));
+	foreach ($courses as $key => $course){
+		$coursesasteacher [] = $course;
+		$coursesarray[]=$course->id;
+	}
 	}
 }
 
+foreach ( $usercourses as $usercourse ) {
+
+	if(in_array($usercourse->id,$coursesarray)){
+		continue;
+	}
+	$coursecontext = context_course::instance ( $usercourse->id );
+
+	$coursesasteacher [] = $usercourse;
+	$coursesarray [] =$usercourse->id;
+}
 
 //print the header
 include 'views/header.php';

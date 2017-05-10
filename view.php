@@ -43,6 +43,7 @@ $urlemarking = new moodle_url('/mod/emarking/view.php', array(
     'id' => $cm->id
 ));
 // If it was an import.
+
 if($emarking->parent > 0 && $emarking->copiedfromparent == 0) {
     $srcemarking = $DB->get_record('emarking', array('id'=>$emarking->parent));
     emarking_copy_peer_review($srcemarking, $emarking);
@@ -69,7 +70,8 @@ $emarkingisstudentmarking = $emarking->type == EMARKING_TYPE_PRINT_ONLY || $emar
 // Get the associated exam.
 $exam = $DB->get_record("emarking_exams", array("emarking" => $emarking->id));
 // If the submission type includes a QR, we require a printed exam.
-if($emarking->uploadtype == EMARKING_UPLOAD_QR && !$exam) {
+if(($emarking->uploadtype == EMARKING_UPLOAD_QR && $emarking->type != EMARKING_TYPE_MARKER_TRAINING) && !$exam) {
+
 	print_error(get_string("emarkingwithnoexam", 'mod_emarking'));
 }
 // If we have a print only emarking we send the user to the exam view.
