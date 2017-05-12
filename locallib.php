@@ -1507,7 +1507,6 @@ function emarking_rotate_image($pageno, $submission, $context) {
     // If the page does not exist return false.
     if (!$page = $DB->get_record('emarking_page', array(
         'submission' => $submission->id,
-        'student' => $submission->student,
         'page' => $pageno
     ))) {
         return false;
