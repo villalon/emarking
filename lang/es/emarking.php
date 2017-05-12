@@ -872,8 +872,14 @@ $string['ciclestackedstatuses'] = 'Ciclo de pruebas Emarking';
 $string['ciclemarkerscorrections'] = 'Correcciones por día';
 $string['strongdate'] = '<strong>Fecha</strong>';
 $string['date'] = 'Fecha';
+// Enhanced Feedback
 $string['keywords'] = 'Palabras claves para Feedback';
 $string['keywords_help'] = 'Las palabras claves son utilizadas para la busqueda de material educativo en Open Learning Repositories para ayudar a la creación del feedback al corregir.';
+$string['oersources'] = 'Nombre de las fuentes OER';
+$string['oersources_help'] = 'En general usar mit,merlot. También esta implementada cs50.';
+$string['evaluatefeedback'] = 'Formulario para que usuario evalue la retroalimentación entregada por el corrector';
+$string['evaluatefeedback_help'] = 'Los aspectos a evaluar son: 1. Complejidad. 2. Indica el corrector la brecha entre lo esperado y lo realizado. 3. Personalización de la información entregada.';
+
 $string['enabled'] = 'Habilitado';
 $string['disabled'] = 'Deshabilitado';
 $string['changelog'] = 'Bitácora de cambios';

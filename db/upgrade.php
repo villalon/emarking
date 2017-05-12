@@ -1847,7 +1847,35 @@ function xmldb_emarking_upgrade($oldversion) {
     	 
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017050100, 'emarking');
-    }  
-
+    } 
+    if ($oldversion < 2017051201) {
+    
+    	// Define field oersources to be added to emarking.
+    	$table = new xmldb_table('emarking');
+    	$field = new xmldb_field('oersources', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'changelog');
+    
+    	// Conditionally launch add field oersources.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017051201, 'emarking');
+    }
+    if ($oldversion < 2017051202) {
+    
+    	// Define field evaluatefeedback to be added to emarking.
+    	$table = new xmldb_table('emarking');
+    	$field = new xmldb_field('evaluatefeedback', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'oersources');
+    
+    	// Conditionally launch add field evaluatefeedback.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017051202, 'emarking');
+    } 
+	
     return true;
 }

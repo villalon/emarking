@@ -867,8 +867,14 @@ $string['ciclestackedstatuses'] = 'Tests status cicle';
 $string['ciclemarkerscorrections'] = 'Daily corrections';
 $string['strongdate'] = '<strong>Date</strong>';
 $string['date'] = 'Date';
+// Enhanced Feedback
 $string['keywords'] = 'Keywords for Feedback';
 $string['keywords_help'] = 'The keywords are used for search educational material in Open Learning Repositories to help the creation of feedback at grade.';
+$string['oersources'] = 'Names of the OER sources';
+$string['oersources_help'] = 'In general use mit,merlot. cs50 was also implemented.';
+$string['evaluatefeedback'] = 'Form to student evaluate the feedback delivered by the marker';
+$string['evaluatefeedback_help'] = 'The aspects to evaluate are: 1. Complexity. 2. The marker indicates the gap between the expected and the realized. 3. Personalization of the information delivered.';
+
 $string['enabled'] = 'Enabled';
 $string['disabled'] = 'Disabled';
 $string['changelog'] = 'Change log';
