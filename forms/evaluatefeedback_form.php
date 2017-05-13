@@ -19,7 +19,7 @@
  * @package mod
  * @subpackage emarking
  * @copyright 2017 Hans Jeria (hansjeria@gmail.com)
- *@license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once($CFG->libdir . '/formslib.php');
 class evaluatefeedback_form extends moodleform {
@@ -109,7 +109,8 @@ class evaluatefeedback_form extends moodleform {
 				array(
 						'rows' => 3,
 						'cols' => 90,
-						'class' => 'smalltext'));
+						'class' => 'smalltext'
+		));
 		$mform->addRule('optionalcomment', get_string('maximumchars', '', 1000), 'maxlength', 1000, 'client');
 		$mform->setType('optionalcomment', PARAM_TEXT);
 		
