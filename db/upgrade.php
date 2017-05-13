@@ -1875,7 +1875,36 @@ function xmldb_emarking_upgrade($oldversion) {
     
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017051202, 'emarking');
-    } 
+    }
+    if ($oldversion < 2017051203) {
+    
+    	// Define table emarking_evaluatefeedback to be created.
+    	$table = new xmldb_table('emarking_evaluatefeedback');
+    
+    	// Adding fields to table emarking_evaluatefeedback.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('userid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('submissionid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('complexity', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('relevant', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('personalization', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('lastmodified', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('optionalcomment', XMLDB_TYPE_CHAR, '1000', null, null, null, null);
+    
+    	// Adding keys to table emarking_evaluatefeedback.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    	$table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+    	$table->add_key('submissionid', XMLDB_KEY_FOREIGN, array('submissionid'), 'emarking_submission', array('id'));
+    
+    	// Conditionally launch create table for emarking_evaluatefeedback.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017051203, 'emarking');
+    }
 	
     return true;
 }
