@@ -576,6 +576,7 @@ if ($emarking->evaluatefeedback && count($drafts) == 1   ) {
 		$evaluatefeedback->display();
 	}
 }
+$drafts->close();
 ?>
 <style>
 .scol, .generaltable td {
