@@ -50,6 +50,9 @@ $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking
 $rubricUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php', array (
 		'activityid' => $activityid
 ) );
+$importrubricUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/importrubric.php', array (
+		'id' => $activityid
+) );
 $editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivity.php', array (
 		'activityid' => $activityid
 ) );
@@ -67,6 +70,8 @@ if (isloggedin ()) {
 		}
 	}
 }
+
+$usercaneditrubric = $USER->id == $activity->userid || is_siteadmin();
 
 $userobject = $DB->get_record ( 'user', array (
 		'id' => $activity->userid
