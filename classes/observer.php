@@ -35,10 +35,9 @@ class mod_emarking_observer {
         $unenrolleduserid = $event->relateduserid;
         $enroltype = $event->get_data()['other']['enrol'];
         $courseid = $event->courseid;
-        if (! emarking_unenrol_student($unenrolleduserid, $courseid)) {
-            error_log("Error updating drafts from $unenrolleduserid in course $courseid");
+        if (! emarking_unenrol_user($unenrolleduserid, $courseid)) {
+            error_log("Error updating drafts when user $unenrolleduserid was unenrolled in course $courseid");
         }
-        error_log(print_r($event->get_data(), true));
     }
     public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
         global $DB;
@@ -49,7 +48,9 @@ class mod_emarking_observer {
             'uid' => $unenrolleduserid,
             'enrol' => $enroltype,
             'course' => $courseid);
-        error_log(print_r($data, true));
+        if (! emarking_enrol_user($unenrolleduserid, $courseid)) {
+        	error_log("Error updating drafts when user $unenrolleduserid was enrolled in course $courseid");
+        }
     }
     public static function user_enrolment_updated(\core\event\user_enrolment_updated $event) {
         global $DB;
@@ -60,6 +61,5 @@ class mod_emarking_observer {
             'uid' => $unenrolleduserid,
             'enrol' => $enroltype,
             'course' => $courseid);
-        error_log(print_r($data, true));
     }
 }
