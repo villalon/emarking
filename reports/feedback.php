@@ -172,8 +172,12 @@ $stopwords = array('algún','alguna','algunas','alguno','algunos','ambos','ample
         height: 16pt;
         background-color: white;
         border: 1px solid #8e8e8e;
-        border-radius: 5px;
-    }
+        border-radius: 5px;      
+      }
+      .lastrow .level {
+		text-align: center;
+	  }
+    
 </style>
 <script type="text/javascript">
       var word_list = [

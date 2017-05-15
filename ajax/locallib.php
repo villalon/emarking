@@ -156,6 +156,30 @@ function emarking_finish_marking($emarking, $submission, $draft, $user, $context
     return $output;
 }
 /**
+ * Update a draft's general feedback
+ *
+ * @param unknown $draft
+ * @return Ambigous <multitype:string , multitype:string unknown Ambigous <multitype:boolean , NULL, multitype:number NULL Ambigous
+ *         > >
+ */
+function emarking_update_general_feedback($draft) {
+    global $DB;
+    // General feedback to include in the marking.
+    $generalfeedback = required_param('feedback', PARAM_RAW_TRIMMED);
+    $draft->generalfeedback = $generalfeedback;
+    $draft->timemodified = time();
+    $output = array(
+    		'error' => '',
+    		'message' => 'General feedback updated successfully',
+    		'timemodified' => $draft->timemodified
+    );
+    // We update the draft.
+    if (!$DB->update_record('emarking_draft', $draft)) {
+    	$output['error'] = 'Error updating draft ' . $draft->id;
+    }
+    return $output;
+}
+/**
  * 
  * @param unknown $draft
  * @param unknown $levelid

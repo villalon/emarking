@@ -195,6 +195,7 @@ if ($action === 'ping') {
                 'heartbeat' => $emarking->heartbeatenabled,
                 'coloredrubric' => $linkrubric,
                 'coloredrubricforced' => (isset($CFG->emarking_coloredrubricforced) && $CFG->emarking_coloredrubricforced) ? 1 : 0,
+            	'debugging' => (isset($CFG->debugdisplay) && $CFG->debugdisplay) ? 1 : 0,
             	'rubriclevelsorting' => (isset($CFG->emarking_rubriclevelsorting) && $CFG->emarking_rubriclevelsorting == 2) ? 2 : 1,
             	'formativeonly' => (isset($CFG->emarking_formativefeedbackonly) && $CFG->emarking_formativefeedbackonly) ? 1 : 0,
                 'buttons' => $CFG->emarking_markingbuttonsenabled,
@@ -364,6 +365,13 @@ switch ($action) {
                     'newgrade' => $newgrade,
                     'timemodified' => time()));
         break;
+    case 'updgeneralfeedback' :
+        	emarking_check_grade_permission($readonly, $draft, $context);
+        	// Add to Moodle log so some auditing can be done.
+        	\mod_emarking\event\emarking_graded::create_from_draft($draft, $submission, $context)->trigger();
+        	$output = emarking_update_general_feedback($draft);
+        	emarking_json_array($output);
+        	break;
     default :
         emarking_json_error('Invalid action!');
 }
