@@ -1324,6 +1324,23 @@ function emarking_get_courseresources($course){
 	return $output;
 }
 
+function emarking_get_resources_cs50() {
+	global $CFG;
+	
+	$pathcsv = "cs50.csv";
+	$output = array();
+	$file = fopen($pathcsv,"r");
+	while(! feof($file)) {
+		$row = fgetcsv($file, 1000, ',', '"');
+		$output [] = array(
+				"name" => $row[0],
+				"link" => $row[1]
+		);
+	}
+
+	return $output;
+}
+
 function emarking_get_chat_history() {
     global $DB;
 
