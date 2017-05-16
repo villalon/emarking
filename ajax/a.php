@@ -247,6 +247,10 @@ switch ($action) {
         $output = emarking_add_action_collaborativebutton();
         emarking_json_array($output);
         break;
+    case 'cs' :
+    	$output = emarking_get_resources_cs50();
+    	emarking_json_array($output);
+    	break;
     case 'deletecomment' :
         $output = emarking_delete_comment();
         emarking_json_array($output);

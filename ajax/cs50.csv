@@ -1,0 +1,14 @@
+Scratch vs C y primer Hello en C,http://docs.cs50.net/2016/fall/notes/1/week1.html#scratch-vs-c
+"Tipos de datos: bool, char, double, float, int, long long y string.",http://docs.cs50.net/2016/fall/notes/1/week1.html#data-types
+"Librerias CS50: get_char, get_double, get_float, get_int, get_long_long, get_string, string.c ",http://docs.cs50.net/2016/fall/notes/1/week1.html#the-cs50-library
+Criptografía explicando funciones con ejercicios paso a paso,http://docs.cs50.net/2016/fall/notes/2/week2.html#cryptography
+Explicación de los argumentos pasados por linea de comando. Incluye emplos paso a paso,http://docs.cs50.net/2016/fall/notes/2/week2.html#command-line-arguments
+"Clasificación (Sorting), explicación de paso logicos. Luego, ejecución del algoritmo y, finalmente, el código en C explicado con ejemplos de cómo es la implementación.",http://docs.cs50.net/2016/fall/notes/3/week3.html#sorting
+"String, ejemplos de comparación, copia e intercambio de posición. Todo explicado con código",http://docs.cs50.net/2016/fall/notes/4/week4.html#strings
+Explicación de la memoria y como se gestiona la memoria del sistema operativo hacia los programas,http://docs.cs50.net/2016/fall/notes/4/week4.html#memory
+"Punteros, ejemplos de código trabajando con punteros hacia las variables",http://docs.cs50.net/2016/fall/notes/4/week4.html#pointers
+Aplicación de punteros manipulando imágenes.,http://docs.cs50.net/2016/fall/notes/4/week4.html#images
+"Lista enlazada (Linked list), explicación de cómo funciona dicha estructura de datos y su diferencia con un array",http://docs.cs50.net/2016/fall/notes/5/week5.html#linked-lists
+"Pila y colas (Stacks and Queues), explicación de la estructura y caso de uso, cuando elegir la estructura.",http://docs.cs50.net/2016/fall/notes/5/week5.html#stacks-and-queues
+"Árbol, estructura de datos creada a partir de punteros.",http://docs.cs50.net/2016/fall/notes/5/week5.html#trees
+"Tablas Hash, explicación de la estructura",http://docs.cs50.net/2016/fall/notes/5/week5.html#hash-tables-and-tries

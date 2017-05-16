@@ -460,7 +460,7 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     $emarkingcomment->textformat = 2;
     // Insert the record.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
-    if($feedback){    	
+    if($feedback){
     	$insertfeedback = array();
     	$arrayfeedback = json_decode($feedback);
     	foreach ($arrayfeedback as $updatefeedback) {
@@ -468,7 +468,13 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
       		$row->commentid = $commentid;
     		$row->oer = $updatefeedback[0];
 			$row->name = $updatefeedback[1];
-			$row->link = $updatefeedback[2];
+			if ($updatefeedback[0] === "CS50") {
+				$linkcs50 = emarking_get_resources_cs50();
+				$aux = array_search($updatefeedback[1], array_column($linkcs50, "name"));
+				$row->link = $linkcs50["$aux"]["link"];
+			}else {
+				$row->link = $updatefeedback[2];
+			}			
     		$row->timecreated = time();
     		$insertfeedback[] = $row;
     	}
@@ -1321,6 +1327,23 @@ function emarking_get_courseresources($course){
 				"link" => $url
 		);
 	}
+	return $output;
+}
+
+function emarking_get_resources_cs50() {
+	global $CFG;
+	
+	$pathcsv = "cs50.csv";
+	$output = array();
+	$file = fopen($pathcsv,"r");
+	while(! feof($file)) {
+		$row = fgetcsv($file, 1000, ',', '"');
+		$output [] = array(
+				"name" => $row[0],
+				"link" => $row[1]
+		);
+	}
+
 	return $output;
 }
 
