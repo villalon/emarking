@@ -458,6 +458,7 @@ $sqldrafts .= $orderby;
 // Run the query on the database.
 $drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
 $unpublishedsubmissions = 0;
+$countdraft = 0;
 // Prepare data for the table.
 foreach($drafts as $draft) {
     // Student info.
@@ -530,11 +531,12 @@ foreach($drafts as $draft) {
     $data[] = $actions;
     $data[] = $selectdraft;
     $showpages->add_data($data, $draft->answerkey ? "alert-success" : "");
+    $countdraf++;
 }
 $showpages->finish_html();
 
 // Used in conjunction with enhanced feedback
-if ($emarking->evaluatefeedback && count($drafts) == 1   ) {
+if ($emarking->evaluatefeedback && $countdraft == 1   ) {
 	if($ispublished >= EMARKING_STATUS_PUBLISHED){
 		require_once ($CFG->dirroot . '/mod/emarking/forms/evaluatefeedback_form.php');	
 		
