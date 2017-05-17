@@ -531,7 +531,7 @@ foreach($drafts as $draft) {
     $data[] = $actions;
     $data[] = $selectdraft;
     $showpages->add_data($data, $draft->answerkey ? "alert-success" : "");
-    $countdraf++;
+    $countdraft++;
 }
 $showpages->finish_html();
 
