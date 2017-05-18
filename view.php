@@ -458,6 +458,7 @@ $sqldrafts .= $orderby;
 // Run the query on the database.
 $drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
 $unpublishedsubmissions = 0;
+$countdraft = 0;
 // Prepare data for the table.
 foreach($drafts as $draft) {
     // Student info.
@@ -480,8 +481,14 @@ foreach($drafts as $draft) {
     foreach($submissiondrafts as $d) {
         $pctmarked .= emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria);
         if ($emarking->evaluatefeedback) {
-	        $ispublished = $d->status;
-	        $submissionid = $d->id;
+        	// Save status even with other submission mark as guideline
+        	if (!isset($ispublished)) {
+        		$ispublished = $d->status;
+        		$submissionid = $d->id;
+        	}else if($ispublished < $d->status) {
+        		$ispublished = $d->status;
+        		$submissionid = $d->id;
+        	}
         }
        // $finalgrade .= emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking);
         $actions .= emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $usercanpublishgrades, $numcriteria, $scan, $cm, $rubriccriteria);
@@ -530,12 +537,13 @@ foreach($drafts as $draft) {
     $data[] = $actions;
     $data[] = $selectdraft;
     $showpages->add_data($data, $draft->answerkey ? "alert-success" : "");
+    $countdraft++;
 }
 $showpages->finish_html();
 
 // Used in conjunction with enhanced feedback
-if ($emarking->evaluatefeedback && count($drafts) == 1   ) {
-	if($ispublished >= EMARKING_STATUS_PUBLISHED){
+if ($emarking->evaluatefeedback && $countdraft < $countstudents) {
+	if($ispublished >= EMARKING_STATUS_PUBLISHED) {
 		require_once ($CFG->dirroot . '/mod/emarking/forms/evaluatefeedback_form.php');	
 		
 		$evaluatefeedback = new evaluatefeedback_form(null, array('submissionid' => $submissionid, 'id' => $cm->id));

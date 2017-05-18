@@ -1275,9 +1275,9 @@ function emarking_get_resources_ocwmit($keywords){
 	foreach ($results as $row){
 		$output [] = array(
 				"name" => trim(strip_tags($row->S), "\t\n\r\0\x0B"),
-				"link" => $row->U
+				"link" => (String) $row->U
 		);
-	}	
+	}
 	return $output;
 }
 
@@ -1295,7 +1295,6 @@ function emarking_get_resources_merlot($keywords){
 	}
 
 	$merloturl .= $extraparams;
-
 	$page = file_get_html($merloturl);
 	$output = array();
 	foreach ($page->find("a.materialLink") as $result){
@@ -1304,7 +1303,7 @@ function emarking_get_resources_merlot($keywords){
 		$parts = explode("&", $result->href);
 		$output [] = array(
 				"name" => preg_replace("/(\t|\n|\v|\f|\r| |\xC2\x85|\xc2\xa0|\xe1\xa0\x8e|\xe2\x80[\x80-\x8D]|\xe2\x80\xa8|\xe2\x80\xa9|\xe2\x80\xaF|\xe2\x81\x9f|\xe2\x81\xa0|\xe3\x80\x80|\xef\xbb\xbf)+/", " ", strip_tags($result->innertext)), 
-				"link" => "https://www.merlot.org".$parts[0]
+				"link" => (String) "https://www.merlot.org".$parts[0]
 		);
 	}
 	return $output;
