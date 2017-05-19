@@ -56,6 +56,15 @@ $(function() {
 						</div>
 						<?php
 						}
+						if ($usercaneditrubric) {
+						?>
+						<div class="activity_buttons">
+						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Ver instrucciones
+						</button></a>
+						</div>
+						<?php
+						}
 						?>
 						<div class="activity_buttons">
 						<button type="button" class="btn  btn-success" data-toggle="modal"

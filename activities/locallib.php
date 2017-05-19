@@ -151,11 +151,10 @@ $pdf->SetPrintFooter(false);
 $pdf->SetFont('times', '', 12);
 
 // set auto page breaks
-$pdf->SetAutoPageBreak(TRUE, 44);
-$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+$pdf->SetAutoPageBreak(TRUE, 10);
 $pdf->SetTopMargin(40);
-$pdf->SetRightMargin(25);
-$pdf->SetLeftMargin(25);
+$pdf->SetRightMargin(10);
+$pdf->SetLeftMargin(10);
 // Add a page
 // This method has several options, check the source code documentation for more information.
 $pdf->AddPage();
@@ -163,104 +162,62 @@ $css='
 
 <style>
    body {
-        font-family:Arial, Helvetica, sans-serif;
+        font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
     }
-	p{
-	font-family:Arial, Helvetica, sans-serif;
-	font-size: 12px;
+	p {
+		font-size: 12pt;
 	}
-	
-	h3{
-	font-family:Arial, Helvetica, sans-serif;	
+	h3, p {
+		margin-top: 1px;
+		margin-bottom: 1px;
 	}
 	table {
-    border-collapse: collapse;
-}
-	table, td, th {
-    border: 1px solid black;
-
-}
+    	border: 1px solid black;
+	}
+	td {
+		width: 100%;
+		border-bottom: 1px dotted #999;
+		height: 10px;
+	}
     </style>
    ';
 $html =$css;
+
+$pdf->writeHTML($css, true, false, false, false, '');
 if(isset($sections->instructions)&&$sections->instructions==1){
-
-//$pdf->writeHTML('<h3 style="font-family:Arial, Helvetica, sans-serif">Instrucciones</h3> ', true, false, false, false, '');
-$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Instrucciones</h3>';
-$instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
-$instructionshtml=emarking__activities_clean_html_to_print($instructionshtml);
-$html .= $instructionshtml;
-//$pdf->writeHTML($instructionshtml, true, false, false, false, '');
-
+	$pdf->writeHTML('<h3>Instrucciones</h3> ', true, false, false, false, '');
+	$instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
+	$instructionshtml=emarking__activities_clean_html_to_print($instructionshtml);
+	$pdf->writeHTML($instructionshtml, true, false, false, false, '');
 }
 
-if(isset($sections->planification)&&$sections->planification==1){
-
-$planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
-//$pdf->writeHTML('<h3 style="font-family:Arial, Helvetica, sans-serif">Planificación</h3>', true, false, false, false, '');
-$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Planificación</h3>';
-$planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
-$html .=$planificationhtml;
-//$pdf->writeHTML($planificationhtml, true, false, false, false, '');
+if(isset($sections->planification)&&$sections->planification==1) {
+	$planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
+	$pdf->writeHTML('<h3>Planificación</h3>', true, false, false, false, '');
+	$planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
+	$pdf->writeHTML($planificationhtml, true, false, false, false, '');
 }
 
-if(isset($sections->writing)&&$sections->writing==1){
+if(isset($sections->writing)&&$sections->writing==1) {
+	$writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
+	$writinghtml=emarking__activities_clean_html_to_print($writinghtml);
 
-$writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
-$writinghtml=emarking__activities_clean_html_to_print($writinghtml);
+	$pdf->writeHTML('<h3>Escritura</h3>', true, false, false, false, '');
+	$pdf->writeHTML($writinghtml, true, false, false, false, '');
 
-$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Escritura</h3>';
-$html .=$writinghtml;
-$html .='
-      <table width="510px" height="350px" border="0" cellspacing="1" cellpadding="1">
-        <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-      <tr>
-        <td valign="top" width="90%" height="29px"></td>
-      </tr>
-  </table>';
-
-//$pdf->writeHTML($table, true, false, false, false, '');
+	emarking_pdf_fill_writing_table($pdf);	
+	$pdf->AddPage();
+	
+	emarking_pdf_fill_writing_table($pdf);	
+	$pdf->AddPage();
 }
 
 if(isset($sections->editing)&&$sections->editing==1){
 
 $editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
-$html .='<h3 style="font-family:Arial, Helvetica, sans-serif">Revisión y edición</h3>';
-$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
-$html .=$editinghtml;
-//$pdf->writeHTML($editinghtml, true, false, false, false, '');
+$editinghtml ='<h3>Revisión y edición</h3>';
+$editinghtml.=emarking__activities_clean_html_to_print($editinghtml);
+$pdf->writeHTML($editinghtml, true, false, false, false, '');
 }
 $pdf->writeHTML($html, true, false, false, false, '');
 if(isset($sections->teaching)&&$sections->teaching==1){
@@ -336,6 +293,58 @@ return array (
 		'rubricid'=>$activity->rubricid
 			);
 }
+}
+function emarking_pdf_fill_writing_table(TCPDF $pdf) {
+	$footermargin = $pdf->getFooterMargin();
+	$pdf->SetAutoPageBreak(false);
+	$linewidth = emarking_pdf_linewidth($pdf);
+	$lineheight = 8;
+	$spaceleft = emarking_pdf_spaceleft($pdf);
+	
+	$rows = $spaceleft / ($lineheight + 1);
+	for($i=0; $i<$rows; $i++) {
+		if($i==0)
+			$pdf->Cell($linewidth, $lineheight,' ',
+					array(
+							'TRL'=>
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)),
+							'B'=>
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 1, 'color' => array(200, 200, 200))
+					)
+					,1);
+			elseif($i<$rows-1)
+			$pdf->Cell($linewidth, $lineheight,' ',
+					array(
+							'RL'=>
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)),
+							'B'=>
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 1, 'color' => array(200, 200, 200))
+					)
+					,1);
+			else
+				$pdf->Cell($linewidth, $lineheight,' ',
+						array(
+								'BRL'=>
+								array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0))
+						)
+						,1);
+	}
+	$pdf->SetAutoPageBreak(true, $footermargin);
+}
+
+function emarking_pdf_spaceleft(TCPDF $pdf) {
+	$currentY = $pdf->GetY();
+	$fmargin = $pdf->getFooterMargin();
+	$height = $pdf->getPageHeight();
+	$spaceleft = $height - $fmargin - $currentY;
+	return $spaceleft;
+}
+function emarking_pdf_linewidth(TCPDF $pdf) {
+	$lmargin = $pdf->getMargins()['left'];
+	$rmargin = $pdf->getMargins()['right'];
+	$width = $pdf->getPageWidth();
+	$linewidth = $width - $lmargin - $rmargin;
+	return $linewidth;
 }
 /**
  * Creates a new instance of emarking, with the data obteined in 

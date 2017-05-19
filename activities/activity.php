@@ -53,6 +53,11 @@ $rubricUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.p
 $importrubricUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/importrubric.php', array (
 		'id' => $activityid
 ) );
+$printpdfUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/pdfcreator.php', array (
+		'id' => $activityid,
+		'instructions' => 1,
+		'writing' => 1,
+) );
 $editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivity.php', array (
 		'activityid' => $activityid
 ) );
