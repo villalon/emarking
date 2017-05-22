@@ -21,9 +21,7 @@
  * 
  * @package mod
  * @subpackage emarking
- * @copyright 2011 Jorge Villalón
- * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
- * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
+ * @copyright 2011-onwards Jorge Villalón
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
