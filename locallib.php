@@ -16,7 +16,7 @@
 
 /**
  *
- * @package mod
+ * @package mod 
  * @subpackage emarking
  * @copyright 2012-2016 Jorge Villalon <villalon@gmail.com>
  * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
@@ -1507,7 +1507,6 @@ function emarking_rotate_image($pageno, $submission, $context) {
     // If the page does not exist return false.
     if (!$page = $DB->get_record('emarking_page', array(
         'submission' => $submission->id,
-        'student' => $submission->student,
         'page' => $pageno
     ))) {
         return false;
@@ -1826,7 +1825,19 @@ function emarking_get_categories_childs($idcategory) {
  * @param unknown $userid            
  * @param unknown $courseid            
  */
-function emarking_unenrol_student($userid, $courseid) {
+function emarking_enrol_user($userid, $courseid) {
+    global $DB;
+}
+
+/**
+ * When a user is unenrolled from a course, we set all her submissions
+ * to ABSENT state, so they are not considered in reports and remain
+ * hidden from the interfaces until the user is enroled again.
+ *
+ * @param unknown $userid            
+ * @param unknown $courseid            
+ */
+function emarking_unenrol_user($userid, $courseid) {
     global $DB;
     if (!$emarkingactivities = $DB->get_records('emarking', array(
         'course' => $courseid

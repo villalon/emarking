@@ -156,6 +156,30 @@ function emarking_finish_marking($emarking, $submission, $draft, $user, $context
     return $output;
 }
 /**
+ * Update a draft's general feedback
+ *
+ * @param unknown $draft
+ * @return Ambigous <multitype:string , multitype:string unknown Ambigous <multitype:boolean , NULL, multitype:number NULL Ambigous
+ *         > >
+ */
+function emarking_update_general_feedback($draft) {
+    global $DB;
+    // General feedback to include in the marking.
+    $generalfeedback = required_param('feedback', PARAM_RAW_TRIMMED);
+    $draft->generalfeedback = $generalfeedback;
+    $draft->timemodified = time();
+    $output = array(
+    		'error' => '',
+    		'message' => 'General feedback updated successfully',
+    		'timemodified' => $draft->timemodified
+    );
+    // We update the draft.
+    if (!$DB->update_record('emarking_draft', $draft)) {
+    	$output['error'] = 'Error updating draft ' . $draft->id;
+    }
+    return $output;
+}
+/**
  * 
  * @param unknown $draft
  * @param unknown $levelid
@@ -436,18 +460,21 @@ function emarking_add_mark($submission, $draft, $emarking, $context) {
     $emarkingcomment->textformat = 2;
     // Insert the record.
     $commentid = $DB->insert_record('emarking_comment', $emarkingcomment);
-    if($feedback){    	
-    	//TODO: validar que el split por @@separador@@ contenga 3 objetos de lo contrario el insert fallara
+    if($feedback){
     	$insertfeedback = array();
-    	$arrayfeedback = explode("__separador__", $feedback);
-    	//var_dump($arrayfeedback);
-    	for($count = 0; $count < count($arrayfeedback); $count++){
-    		$fields = explode("@@separador@@", $arrayfeedback[$count]);
+    	$arrayfeedback = json_decode($feedback);
+    	foreach ($arrayfeedback as $updatefeedback) {
     		$row = new stdClass();
-    		$row->commentid = $commentid;
-    		$row->oer = $fields[0];
-    		$row->name = $fields[1];
-    		$row->link = $fields[2];
+      		$row->commentid = $commentid;
+    		$row->oer = $updatefeedback[0];
+			$row->name = $updatefeedback[1];
+			if ($updatefeedback[0] === "CS50") {
+				$linkcs50 = emarking_get_resources_cs50();
+				$aux = array_search($updatefeedback[1], array_column($linkcs50, "name"));
+				$row->link = $linkcs50["$aux"]["link"];
+			}else {
+				$row->link = $updatefeedback[2];
+			}			
     		$row->timecreated = time();
     		$insertfeedback[] = $row;
     	}
@@ -1248,9 +1275,9 @@ function emarking_get_resources_ocwmit($keywords){
 	foreach ($results as $row){
 		$output [] = array(
 				"name" => trim(strip_tags($row->S), "\t\n\r\0\x0B"),
-				"link" => $row->U
+				"link" => (String) $row->U
 		);
-	}	
+	}
 	return $output;
 }
 
@@ -1268,7 +1295,6 @@ function emarking_get_resources_merlot($keywords){
 	}
 
 	$merloturl .= $extraparams;
-
 	$page = file_get_html($merloturl);
 	$output = array();
 	foreach ($page->find("a.materialLink") as $result){
@@ -1277,7 +1303,7 @@ function emarking_get_resources_merlot($keywords){
 		$parts = explode("&", $result->href);
 		$output [] = array(
 				"name" => preg_replace("/(\t|\n|\v|\f|\r| |\xC2\x85|\xc2\xa0|\xe1\xa0\x8e|\xe2\x80[\x80-\x8D]|\xe2\x80\xa8|\xe2\x80\xa9|\xe2\x80\xaF|\xe2\x81\x9f|\xe2\x81\xa0|\xe3\x80\x80|\xef\xbb\xbf)+/", " ", strip_tags($result->innertext)), 
-				"link" => "https://www.merlot.org".$parts[0]
+				"link" => (String) "https://www.merlot.org".$parts[0]
 		);
 	}
 	return $output;
@@ -1300,6 +1326,23 @@ function emarking_get_courseresources($course){
 				"link" => $url
 		);
 	}
+	return $output;
+}
+
+function emarking_get_resources_cs50() {
+	global $CFG;
+	
+	$pathcsv = "cs50.csv";
+	$output = array();
+	$file = fopen($pathcsv,"r");
+	while(! feof($file)) {
+		$row = fgetcsv($file, 1000, ',', '"');
+		$output [] = array(
+				"name" => $row[0],
+				"link" => $row[1]
+		);
+	}
+
 	return $output;
 }
 

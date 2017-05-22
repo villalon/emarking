@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/emarking/db" VERSION="20170410" COMMENT="XMLDB file for Moodle mod/emarking"
+<XMLDB PATH="mod/emarking/db" VERSION="20170512" COMMENT="XMLDB file for Moodle mod/emarking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -46,6 +46,8 @@
         <FIELD NAME="keywords" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false" COMMENT="The keywords are use to create feedback."/>
         <FIELD NAME="uploadtype" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Emarking upload type (student uploads a pdf, QRs are scanned, etc.)"/>
         <FIELD NAME="changelog" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Emarking activity allows students to write a change log when they review their feedback."/>
+        <FIELD NAME="oersources" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="OER names to find educational material"/>
+        <FIELD NAME="evaluatefeedback" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Field to enable/disable user form to evaluate received feedback"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -427,13 +429,13 @@
         <FIELD NAME="genre" TYPE="char" LENGTH="500" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="audience" TYPE="char" LENGTH="500" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="estimatedtime" TYPE="int" LENGTH="5" NOTNULL="true" SEQUENCE="false" COMMENT="in minutes"/>
-        <FIELD NAME="instructions" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="instructions for students"/>
-        <FIELD NAME="teaching" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="instructions" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="instructions for students"/>
+        <FIELD NAME="teaching" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="languageresources" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="rubricid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="rubricid" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="parent" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="status" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
         <FIELD NAME="writing" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
@@ -482,6 +484,59 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="draftid" TYPE="foreign" FIELDS="draftid" REFTABLE="emarking_draft" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_rubrics" COMMENT="rubric resources for activities bank">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="250" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="char" LENGTH="500" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="usercreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_rubrics_criteria" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="rubricid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_rubrics_levels" COMMENT="Default comment for the table, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="criterionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="score" TYPE="int" LENGTH="3" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="definition" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="emarking_evaluatefeedback" COMMENT="Table to save user opinion about the feedback generated by the markers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="submissionid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="complexity" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="relevant" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="personalization" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="lastmodified" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="optionalcomment" TYPE="char" LENGTH="1000" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="submissionid" TYPE="foreign" FIELDS="submissionid" REFTABLE="emarking_submission" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

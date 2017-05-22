@@ -421,3 +421,9 @@ min-height:100%;
  .gradingform_rubric .criteria {
   height: auto;
 }
+ .score {
+ display: none;
+ }
+ .options{
+ display: none;
+ }

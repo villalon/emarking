@@ -7,8 +7,8 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4 class="modal-title">Usar actividad</h4>
 			</div>
-			<div class="modal-body">
-		 <form role="form" action="newsubmission.php">
+				<div class="modal-body">
+		 		<form role="form" action="newsubmission.php">
 									<br> <br> <select class="form-control" name="course">
 										<option>Seleccione el curso</option>
  									 <?php

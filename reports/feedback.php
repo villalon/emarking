@@ -172,8 +172,12 @@ $stopwords = array('algún','alguna','algunas','alguno','algunos','ambos','ample
         height: 16pt;
         background-color: white;
         border: 1px solid #8e8e8e;
-        border-radius: 5px;
-    }
+        border-radius: 5px;      
+      }
+      .levels .lastrow .level {
+		text-align: center;
+	  }
+    
 </style>
 <script type="text/javascript">
       var word_list = [
@@ -238,10 +242,11 @@ function emarking_table_from_criterion($criterion, $cm) {
                 $level->definition
                 , 'definition');
         $levelstable->data [2] [] = html_writer::div(
-                html_writer::div($percentage . '%', 'progress-bar progress-bar-info progress-bar-striped',
+                html_writer::div($percentage > 0 ? $percentage . '%' : '',
+                		'progress-bar progress-bar-info progress-bar-striped',
                         array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'title'=> $level->students . ' ' . get_string('students'), 'aria-valuemin'=>0, 'aria-valuemax'=>100, 'style'=>'width:'.$percentage.'%')), 'progress');
         $levelstable->data [3] [] = $level->students > 0 ? $OUTPUT->action_link(
-                $popupurl, $OUTPUT->pix_icon('t/preview', get_string('viewfeedback','mod_emarking')),
+                $popupurl, $OUTPUT->single_button('#', get_string('viewfeedback','mod_emarking')),
                 new popup_action('click', $popupurl, 'emarking' . $cm->id, array(
                         'menubar' => 'no',
                         'titlebar' => 'no',

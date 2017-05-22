@@ -46,8 +46,9 @@ require_login($course->id);
 if (isguestuser()) {
     die();
 }
-if (! is_siteadmin($USER) &&
-         (! has_capability('mod/emarking:supervisegrading', $context) || ! has_capability('mod/emarking:grade', $context))) {
+if (!is_siteadmin($USER)
+		&& !has_capability('mod/emarking:supervisegrading', $context)
+		&& !has_capability('mod/emarking:grade', $context)) {
     print_error('Invalid access, this will be notified!');
 }
 $url = new moodle_url('/mod/emarking/marking/updatesubmission.php',

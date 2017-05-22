@@ -70,9 +70,11 @@ $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 list($enrolledmarkers, $userismarker) = emarking_get_markers_in_training($emarking->id, $context, true);
 $markersnames = array();
 $markerspictures = array();
+$markersinitials = array();
 foreach ($enrolledmarkers as $enrolledmarker) {
     $markersnames [$enrolledmarker->id] = $enrolledmarker->firstname . " " . $enrolledmarker->lastname;
     $markerspictures [$enrolledmarker->id] = $OUTPUT->user_picture($enrolledmarker);
+    $markersinitials [$enrolledmarker->id] = core_text::strtoupper(substr($enrolledmarker->firstname,0,1) . substr($enrolledmarker->lastname, 0, 1));
 }
 $sqldata = "
 SELECT
@@ -213,8 +215,9 @@ foreach ($agreements as $agree) {
         // EMarking popup url.
         $popupurl = new moodle_url('/mod/emarking/marking/index.php', array(
             'id' => $drafts [$i]));
-        $label = $issupervisor ? $markerspictures[$markerids[$i]]:
+        $label = $issupervisor ? $markersinitials[$markerids[$i]] . '&nbsp;&nbsp;&nbsp;':
             get_string("viewsubmission", "mod_emarking") . " " . $agree->submission;
+        $title = $markersnames[$markerids[$i]];
         $popup .= $OUTPUT->action_link($popupurl, $label,
                 new popup_action('click', $popupurl, 'emarking' . $agree->student,
                         array(
@@ -223,7 +226,8 @@ foreach ($agreements as $agree) {
                             'status' => 'no',
                             'toolbar' => 'no',
                             'width' => 860,
-                            'height' => 600)));
+                            'height' => 600)),
+        		array('title'=>$title));
         if ($userismarker && $markerids [$i] == $USER->id) {
             $link = new moodle_url('/mod/emarking/marking/modify.php',
                     array(

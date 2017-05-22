@@ -5,6 +5,7 @@ $createactivityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/
 $myUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $loginUrl = new moodle_url ( $CFG->wwwroot . '/login/index.php' );
+$needMarkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/needmarking.php' );
 if (isloggedin ()) {
 	$logoutUrl = new moodle_url ( $CFG->wwwroot . '/login/logout.php', array (
 			'sesskey' => $USER->sesskey 
@@ -17,7 +18,7 @@ if (isloggedin ()) {
 <!-- CSS Font, Bootstrap, style de la página y auto-complete  -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <link href="css/style_escribiendo.css" rel="stylesheet">
-
+<link href="css/dataTables.bootstrap.min.css" rel="stylesheet">
 
 <!-- Fin CSS -->
 <!-- Importar  Scripts Javascript -->
@@ -30,8 +31,8 @@ if (isloggedin ()) {
 $fixed="";
 $fix=false;
 if(!isset($tab)){
-	echo '<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script	src="js/jquery.dataTables.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>';
 }else{
 	$fixed="navbar-fixed-top";
@@ -135,7 +136,10 @@ $(function() {
 						<ul class="dropdown-menu">
 							<!--- <li><a href="<?= $myUrl ?>">Mi perfil</a></li> --->
 							<li><a href="<?= $myUrl ?>">Mis cursos</a></li>
-							<li><a href="<?= $myUrl ?>">Mis actividades</a></li>
+						<?php	if($marker=$DB->get_records('emarking_markers',array('marker'=>$USER->id))){ ?>
+						<li><a href="<?= $needMarkingUrl ?>">Corregir</a></li>
+						<?php } ?>
+							
 							<li><a href="<?= $createactivityUrl ?>">Crear actividad</a></li>
 							<li class="divider"></li>
 							<li>

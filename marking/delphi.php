@@ -240,9 +240,9 @@ emarking_show_export_buttons($issupervisor, $definition, $cm, $emarking, $numdra
 echo $OUTPUT->heading(get_string('agreement', 'mod_emarking'), 4);
 echo html_writer::start_tag('table', array('class'=>'agreementtable'));
 echo html_writer::start_tag('tr');
-echo html_writer::tag('td', html_writer::table($firststagetable));
-echo html_writer::tag('td', html_writer::table($secondstagetable));
-echo html_writer::tag('td', html_writer::table($thirdstagetable));
+echo html_writer::tag('td', html_writer::table($firststagetable), array('style'=>'min-width: 200px;'));
+echo html_writer::tag('td', html_writer::table($secondstagetable), array('style'=>'min-width: 200px;'));
+echo html_writer::tag('td', html_writer::table($thirdstagetable), array('style'=>'min-width: 200px;'));
 echo html_writer::end_tag('tr');
 echo html_writer::end_tag('table');
 echo $OUTPUT->footer();

@@ -288,7 +288,8 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->setDefault('justiceperception', 0);
         $mform->setType('justiceperception', PARAM_INT);
         $mform->disabledIf('justiceperception', 'type', 'eq', '2');
-        // Feedback
+        // Enhanced Feedback
+        // Keywords to find open educational resources
         $mform->addElement('textarea', 'keywords', get_string('keywords', 'mod_emarking'), 
                 array(
                     'rows' => 5,
@@ -298,7 +299,19 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->setDefault('keywords', 'keyword1,keyword2,sentence1');
         $mform->setType('keywords', PARAM_TEXT);
         $mform->disabledIf('keywords', 'type', 'eq', '2');
-        
+        // Name to active open educational resources
+        $mform->addElement('textarea', 'oersources', get_string('oersources', 'mod_emarking'),
+        		array(
+        				'rows' => 1,
+        				'cols' => 100,
+        				'class' => 'smalltext'));
+        $mform->addHelpButton('oersources', 'oersources', 'mod_emarking');
+        $mform->setType('oersources', PARAM_TEXT);
+        $mform->disabledIf('oersources', 'type', 'eq', '2');
+        // Enable/Disable user form to evaluate received feedback
+        $mform->addElement('checkbox', 'evaluatefeedback', get_string('evaluatefeedback', 'mod_emarking'));
+        $mform->addHelpButton('evaluatefeedback', 'evaluatefeedback', 'mod_emarking');
+
         $mform->addElement('checkbox', 'linkrubric', get_string('linkrubric', 'mod_emarking'));
         $mform->addHelpButton('linkrubric', 'linkrubric', 'mod_emarking');
         $mform->addElement('checkbox', 'collaborativefeatures', get_string('collaborativefeatures', 'mod_emarking'));

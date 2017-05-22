@@ -43,6 +43,7 @@ $urlemarking = new moodle_url('/mod/emarking/view.php', array(
     'id' => $cm->id
 ));
 // If it was an import.
+
 if($emarking->parent > 0 && $emarking->copiedfromparent == 0) {
     $srcemarking = $DB->get_record('emarking', array('id'=>$emarking->parent));
     emarking_copy_peer_review($srcemarking, $emarking);
@@ -69,7 +70,8 @@ $emarkingisstudentmarking = $emarking->type == EMARKING_TYPE_PRINT_ONLY || $emar
 // Get the associated exam.
 $exam = $DB->get_record("emarking_exams", array("emarking" => $emarking->id));
 // If the submission type includes a QR, we require a printed exam.
-if($emarking->uploadtype == EMARKING_UPLOAD_QR && !$exam) {
+if(($emarking->uploadtype == EMARKING_UPLOAD_QR && $emarking->type != EMARKING_TYPE_MARKER_TRAINING) && !$exam) {
+
 	print_error(get_string("emarkingwithnoexam", 'mod_emarking'));
 }
 // If we have a print only emarking we send the user to the exam view.
@@ -378,8 +380,6 @@ if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMA
         $USER->id
     );
 }
-// Run the query on the database.
-$drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
 // Counting students for pagination.
 $allstudents = emarking_get_students_for_printing($cm->course);
 $countstudents = 0;
@@ -458,6 +458,7 @@ $sqldrafts .= $orderby;
 // Run the query on the database.
 $drafts = $DB->get_recordset_sql($sqldrafts, $params, $page * $perpage, $perpage);
 $unpublishedsubmissions = 0;
+$countdraft = 0;
 // Prepare data for the table.
 foreach($drafts as $draft) {
     // Student info.
@@ -479,6 +480,16 @@ foreach($drafts as $draft) {
     $selectdraft = '';
     foreach($submissiondrafts as $d) {
         $pctmarked .= emarking_get_draft_status_info($exam, $d, $numcriteria, $numcriteriauser, $emarking, $rubriccriteria);
+        if ($emarking->evaluatefeedback) {
+        	// Save status even with other submission mark as guideline
+        	if (!isset($ispublished)) {
+        		$ispublished = $d->status;
+        		$submissionid = $d->id;
+        	}else if($ispublished < $d->status) {
+        		$ispublished = $d->status;
+        		$submissionid = $d->id;
+        	}
+        }
        // $finalgrade .= emarking_get_finalgrade($d, $usercangrade, $issupervisor, $draft, $rubricscores, $emarking);
         $actions .= emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $issupervisor, $usercanpublishgrades, $numcriteria, $scan, $cm, $rubriccriteria);
         $feedback .= strlen($d->feedback) > 0 ? $d->feedback : '';
@@ -526,8 +537,54 @@ foreach($drafts as $draft) {
     $data[] = $actions;
     $data[] = $selectdraft;
     $showpages->add_data($data, $draft->answerkey ? "alert-success" : "");
+    $countdraft++;
 }
 $showpages->finish_html();
+
+// Used in conjunction with enhanced feedback
+if ($emarking->evaluatefeedback && $countdraft < $countstudents) {
+	if($ispublished >= EMARKING_STATUS_PUBLISHED) {
+		require_once ($CFG->dirroot . '/mod/emarking/forms/evaluatefeedback_form.php');	
+		
+		$evaluatefeedback = new evaluatefeedback_form(null, array('submissionid' => $submissionid, 'id' => $cm->id));
+		
+		if ($creationdata = $evaluatefeedback->get_data()) {
+			if ($prevevaluate = $DB->get_record('emarking_evaluatefeedback', array('userid' => $USER->id, 'submissionid' => $submissionid))) {
+				$prevevaluate->complexity = $creationdata->complexity;
+				$prevevaluate->relevant = $creationdata->relevant;
+				$prevevaluate->personalization = $creationdata->personalization;
+				$prevevaluate->lastmodified = time();
+				$prevevaluate->optionalcomment = $creationdata->optionalcomment;
+				
+				$DB->update_record('emarking_evaluatefeedback', $prevevaluate);
+				echo $OUTPUT->notification(get_string('updateevaluate', 'mod_emarking'), 'notifysuccess');
+			}else {
+				$record = new stdClass();
+				$record->userid = $USER->id;
+				$record->submissionid = $submissionid;
+				$record->complexity = $creationdata->complexity;
+				$record->relevant = $creationdata->relevant;
+				$record->personalization = $creationdata->personalization;
+				$record->timecreated = time();
+				$record->lastmodified = time();
+				$record->optionalcomment = $creationdata->optionalcomment;
+				
+				$DB->insert_record('emarking_evaluatefeedback', $record);
+				echo $OUTPUT->notification(get_string('createevaluate', 'mod_emarking'), 'notifysuccess');
+			}
+		}
+		if ($prevevaluate = $DB->get_record('emarking_evaluatefeedback', array('userid' => $USER->id, 'submissionid' => $submissionid))) {
+			$previus = new stdClass();
+			$previus->complexity = $prevevaluate->complexity;
+			$previus->relevant = $prevevaluate->relevant;
+			$previus->personalization = $prevevaluate->personalization;
+			$previus->optionalcomment = $prevevaluate->optionalcomment;
+			$evaluatefeedback->set_data($previus);
+		}				
+		$evaluatefeedback->display();
+	}
+}
+$drafts->close();
 ?>
 <style>
 .scol, .generaltable td {
@@ -723,9 +780,10 @@ if ($emarking->justiceperception == EMARKING_JUSTICE_PER_CRITERION) {
         $mform->display();
     }
 
-}else {
-	echo $OUTPUT->footer();
 }
+
+echo $OUTPUT->footer();
+
 function emarking_get_userinfo($draft, $course, $emarking) {
     global $OUTPUT, $USER;
     $profileurl = new moodle_url('/user/view.php', array(

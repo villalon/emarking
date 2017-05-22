@@ -73,56 +73,9 @@ class local_ciae_rubric_form extends moodleform {
 		
 		?>
 		<script>
-            $( document).ready(function(){
-                //document.getElementById("page").style.width = "990px";
-               
-                Y.one('.col-md-2').hide();
-				Y.one('.col-md-7').setAttribute("style","width:100%");
-
-				Y.one('.gradingform_rubric').setAttribute("style","max-width:100%");
-
-				Y.all('textarea').each(function(element){
-					element.setAttribute("style","width:745px");
-				});
-
-				Y.one('#rubric-rubric').append('<input type="submit" name="rubric[criteria][searchcriterion]" id="rubric-criteria-searchcriterion" value="Search criterion">');
-
-				$("#rubric-criteria").on("DOMNodeInserted",function(){
-
-					Y.all(".criterion").each(function(element){
-						element.setAttribute("style","height:200px");
-					});
-
-					Y.all("textarea").each(function(element){
-						element.setAttribute("rows",9);
-					});
-
-					Y.all('.level').each(function(element){
-						element.setAttribute("style","width:300px");
-					});
-
-					
-					Y.all('.duplicate').each(function(element){
-						element.hide();
-					});
-					Y.all('.score').each(function(element){
-						element.hide();
-					});
-					
-					Y.all('table tbody tr').each(function(element){
-						x = 0;
-						element.all('td').each(function(e){
-							x++; 
-						});
-						console.log(x);
-						
-					});
-
-					
-	
-				});
-                
-            });
+		$(document).ready(function(){
+			$("#options").hide();
+		});
 
         </script>
 

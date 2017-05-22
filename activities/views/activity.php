@@ -28,8 +28,7 @@ $(function() {
 						<h3>Ficha técnica</h3>
 
 						<p><?=$coursesOA?>
-						
-   
+
 						<hr>
 						 Género: <?php echo $activity->genre; ?><br>
     Propósito comunicativo: <?=$activity->comunicativepurpose?><br>
@@ -38,15 +37,44 @@ $(function() {
 
 						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
 						<hr>
+						<?php 
+						if(isset($disabled) && $disabled!=null){
+						?>
+						<div class="activity_buttons">
+						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Crear Rúbrica
+						</button></a>
+						</div>						
+						<?php
+						$canuse="#myModalCantUse";
+						} elseif ($usercaneditrubric) {
+						?>
+						<div class="activity_buttons">
+						<a href="<?=$importrubricUrl?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Importar Rúbrica
+						</button></a>
+						</div>
+						<?php
+						}
+						if ($usercaneditrubric) {
+						?>
+						<div class="activity_buttons">
+						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Ver instrucciones
+						</button></a>
+						</div>
+						<?php
+						}
+						?>
 						<div class="activity_buttons">
 						<button type="button" class="btn  btn-success" data-toggle="modal"
-							data-target="#myModalUse" <?=$disabled?>>
+							data-target="<?=$canuse?>" >
 							<span class="glyphicon glyphicon-floppy-disk"></span> Usar
 							Actividad
 						</button>
 						</div>
 						<div class="activity_buttons">
-						<a href="<?=$forkingUrl?>"><button type="button" class="btn btn-primary" <?=$disabled?>>
+						<a href="<?=$forkingUrl?>"><button type="button" class="btn btn-primary">
 							<span class="glyphicon glyphicon-floppy-disk"></span> Adaptar
 							Actividad
 						</button></a>
@@ -95,6 +123,21 @@ $(function() {
 			<div class="col-md-9">
 				<div class="panel panel-default">
 					<div class="panel-body">
+					<?php 
+						if ($message) {
+					?>
+						<div class="alert alert-danger">
+						  <strong>Atención!</strong> Usuario invalido para Adoptar la Actividad. Favor revisar si ha iniciado sesión correctamente.
+						</div>
+						
+					<?php
+						}								
+						if(isset($disabled) && $disabled!=null){
+					?>
+						<div class="alert alert-warning">
+						  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a> o <a href="<?=$importrubricUrl?>">Importar Rúbrica</a>
+						</div>
+					<?php }?>
 						<h3 class="title_result">
 								<b><?=ucfirst(strtolower($activity->title));?></b>
 							</h3>
@@ -186,29 +229,40 @@ $(function() {
 									<thead>
 										<tr>
 											<td></td>
-     				    <?php
-													for($i = 1; $i <= $col; $i ++) {
-														echo "<th>Nivel $i</th>";
-													}
+<?php
+$i = $maxlevel;
+while($i>0) {
+	echo "<th>Nivel $i</th>";
+	$i--;
+}
+
 													?>
      				   
      					</tr>
 									</thead>
 									<tbody>
 
-   				    	<?php
-												foreach ( $table as $key => $value ) {
-													echo "<tr>";
-													
-													echo "<th>$key</th>";
-													foreach ( $value as $level => $score ) {
-														echo "<th>$level</th>";
-													}
-													
-													echo "</tr>";
-												}
+<?php 
+   				    	
+foreach ( $table as $key => $value ) {
+echo "<tr>";
+echo "<th>$key</th>";
+if (!array_key_exists(1, $value) && $maxlevel >= 1)
+	$value[1]="";
+if (!array_key_exists(2, $value) && $maxlevel >= 2)
+	$value[2]="";
+if (!array_key_exists(3, $value) && $maxlevel >= 3)
+	$value[3]="";
+if (!array_key_exists(4, $value) && $maxlevel >= 4)
+	$value[4]="";
+krsort($value);
+foreach ( $value as $score => $level ) {
+echo "<th>$level</th>";
+}
+echo "</tr>";
+}
 												
-												?>
+?>
    				    	
 
    				    </tbody>
@@ -243,6 +297,7 @@ $(function() {
 <?php
 include "modals/downloadactivity.php";
 include "modals/useactivity.php";
+include "modals/cantuseactivity.php";
 ?>
 <script>
 

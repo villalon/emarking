@@ -24,28 +24,45 @@ require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.
 require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 global $PAGE, $DB, $USER, $CFG;
+
 $activityid = required_param ( 'id', PARAM_INT );
+// Mensaje que se muestra si hace clic en "Adoptar Actividad" y no esta aún logeado
+$message = optional_param ('message', 0 , PARAM_INT);
+$teacherroleid = 3;
+
+$dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
+$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+
+if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activityid))) {
+	print_error("ID de Actividad invalido");
+}
 
 $PAGE->set_context(context_system::instance());
-$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activityid));
+$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
-$teacherroleid = 3;
-$logged = false;
-$PAGE->set_context ( context_system::instance () );
-// Id of the exam to be deleted.
 
+$PAGE->set_context ( context_system::instance () );
 
 $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking.php', array (
 		'id' => $activityid
+) );
+$rubricUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php', array (
+		'activityid' => $activityid
+) );
+$importrubricUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/importrubric.php', array (
+		'id' => $activityid
+) );
+$printpdfUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/pdfcreator.php', array (
+		'id' => $activityid,
+		'instructions' => 1,
+		'writing' => 1,
 ) );
 $editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivity.php', array (
 		'activityid' => $activityid
 ) );
 
-
 if (isloggedin ()) {
-	$logged = true;
 	$courses = enrol_get_all_users_courses ( $USER->id );
 	$countcourses = count ( $courses );
 	foreach ( $courses as $course ) {
@@ -58,36 +75,35 @@ if (isloggedin ()) {
 		}
 	}
 }
-$activity = $DB->get_record ( 'emarking_activities', array (
-		'id' => $activityid
-) );
+
+$usercaneditrubric = $USER->id == $activity->userid || is_siteadmin();
+
 $userobject = $DB->get_record ( 'user', array (
 		'id' => $activity->userid
 ) );
-
-$rubric = $DB->get_records_sql ( "SELECT grl.id,
-									 gd.description as des,
-									 grc.id as grcid,
-									 grl.score,
-									 grl.definition,
-									 grc.description,
-									 grc.sortorder,
-									 gd.name as name
-							  FROM {gradingform_rubric_levels} as grl,
-	 							   {gradingform_rubric_criteria} as grc,
-    							   {grading_definitions} as gd
-							  WHERE gd.id=? AND grc.definitionid=gd.id AND grc.id=grl.criterionid
-							  ORDER BY grcid, grl.id", array (
+$sql="SELECT rl.*, rc.description as criteria, r.id as rubricid, r.name, r.description,rc.description as criteriondescription, i.max
+FROM mdl_emarking_rubrics_levels as rl
+INNER JOIN mdl_emarking_rubrics_criteria rc ON (rc.id = rl.criterionid )
+INNER JOIN mdl_emarking_rubrics r ON (r.id = rc.rubricid )
+LEFT JOIN (select criterionid, max(score) as max FROM mdl_emarking_rubrics_levels as rl group by criterionid) as i on (i.criterionid=rl.criterionid)
+where r.id=?
+ORDER BY rl.criterionid ASC, rl.score DESC";
+$rubric = $DB->get_records_sql ( $sql, array (
 							  		$activity->rubricid
 							  ) );
+
 $disabled="disabled";
+$canuse="#myModalUse";
 if(isset($rubric)&& $rubric!=null){
-foreach ( $rubric as $data ) {
+	foreach ( $rubric as $data ) {
+		
 	$disabled=null;
-	$table [$data->description] [$data->definition] = $data->score;
-	$rubricdescription = $data->des;
+	$table [$data->criteriondescription] [$data->score] = $data->definition;
+	$rubricdescription = $data->description;
 	$rubricname = $data->name;
+	$maxlevel=$data->max;
 }
+
 $col = 0;
 foreach ( $table as $calc ) {
 
@@ -98,8 +114,10 @@ foreach ( $table as $calc ) {
 }
 $row = sizeof ( $table );
 }
+$coursesOA = '<span>Curso: </span><br>';
+$coursesOA .= '<span>OAs:</span><br>';
+if(isset($activity->learningobjectives)&&$activity->learningobjectives!=null){
 $oaComplete = explode ( "-", $activity->learningobjectives );
-$coursesOA = "";
 
 foreach ( $oaComplete as $oaPerCourse ) {
 
@@ -107,10 +125,10 @@ foreach ( $oaComplete as $oaPerCourse ) {
 	$secondSplit = explode ( "]", $firstSplit [1] );
 	$course = $firstSplit [0];
 
-	$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
+	$coursesOA = '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
 	$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
 }
-
+}
 //Busca toda la información de la comunidad en esta actividad
 $communitysql = $DB->get_record('emarking_social', array('activityid'=>$activityid));
 
@@ -143,7 +161,11 @@ if (isset ( $votes )) {
 $average=get_average($votes);
 }
 $votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
-if(isset($_POST['submit'])) {
+
+if(isset($_POST['submit'])) {	
+
+	require_sesskey();
+
 	$comentario = new stdClass ();
 	$comentario->userid=$USER->id;
 	$comentario->username=$USER->firstname.' '.$USER->lastname;
@@ -165,6 +187,11 @@ if(isset($_POST['submit'])) {
 	$communitysql->data=$datajson;
 
 	$DB->update_record('emarking_social', $communitysql);
+
+	$comentario->date = $dias[date('w',$comentario->timecreated)]." ".date('d',$comentario->timecreated)." de ".$meses[date('n',$comentario->timecreated)-1]. " del ".date('Y',$comentario->timecreated) ;
+
+	echo json_encode($comentario, JSON_UNESCAPED_UNICODE);
+	die();
 	header("Refresh:0");
 }
 }else{
@@ -193,12 +220,11 @@ if(isset($_POST['submit'])) {
 		
   }
 }
-$dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
-$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+
 //print the header
 include 'views/header.php';
 
-
+// Display activity information
 include 'views/activity.php';
 
 //print the footer
