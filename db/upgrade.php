@@ -1748,7 +1748,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2017041300, 'emarking');
     }
 
-    if ($oldversion < 2017041400) {
+    if ($oldversion < 2017052200) {
     //creating table rubrics
     	// Define table emarking_rubrics to be created.
     	$table = new xmldb_table('emarking_rubrics');
@@ -1803,11 +1803,6 @@ function xmldb_emarking_upgrade($oldversion) {
     		$dbman->create_table($table);
     	}
     	 
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2017041400, 'emarking');
-    }
-    if ($oldversion < 2017041603) {
-    
     	// Changing nullability of field instructions on table emarking_activities to not null.
     	$table = new xmldb_table('emarking_activities');
     	$field = new xmldb_field('instructions', XMLDB_TYPE_TEXT, null, null, null, null, null, 'estimatedtime');
@@ -1821,12 +1816,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	$field = new xmldb_field('teaching', XMLDB_TYPE_TEXT, null, null, null, null, null, 'estimatedtime');
     	// Launch change of nullability for field instructions.
     	$dbman->change_field_notnull($table, $field);
-    	
-    	
-    	upgrade_mod_savepoint(true, 2017041603, 'emarking');
-    }
-    if ($oldversion < 2017050100) {
-    
+    	    	
     	// Adding changelog as configuration for emarking activities.
     	$table = new xmldb_table('emarking');
     	$field = new xmldb_field('changelog', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'uploadtype');
@@ -1845,11 +1835,6 @@ function xmldb_emarking_upgrade($oldversion) {
     		$dbman->add_field($table, $field);
     	}
     	 
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2017050100, 'emarking');
-    } 
-    if ($oldversion < 2017051201) {
-    
     	// Define field oersources to be added to emarking.
     	$table = new xmldb_table('emarking');
     	$field = new xmldb_field('oersources', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'changelog');
@@ -1859,11 +1844,6 @@ function xmldb_emarking_upgrade($oldversion) {
     		$dbman->add_field($table, $field);
     	}
     
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2017051201, 'emarking');
-    }
-    if ($oldversion < 2017051202) {
-    
     	// Define field evaluatefeedback to be added to emarking.
     	$table = new xmldb_table('emarking');
     	$field = new xmldb_field('evaluatefeedback', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'oersources');
@@ -1872,11 +1852,6 @@ function xmldb_emarking_upgrade($oldversion) {
     	if (!$dbman->field_exists($table, $field)) {
     		$dbman->add_field($table, $field);
     	}
-    
-    	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2017051202, 'emarking');
-    }
-    if ($oldversion < 2017051203) {
     
     	// Define table emarking_evaluatefeedback to be created.
     	$table = new xmldb_table('emarking_evaluatefeedback');
@@ -1903,7 +1878,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	}
     
     	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2017051203, 'emarking');
+    	upgrade_mod_savepoint(true, 2017052200, 'emarking');
     }
 	
     return true;

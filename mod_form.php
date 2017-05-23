@@ -156,8 +156,7 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->setDefault('comment', '');
         $mform->setType('comment', PARAM_TEXT);
         // Personalized header (using QR).
-        $mform->addElement('checkbox', 'headerqr', get_string('headerqr', 'mod_emarking'), null, array(
-                        'onChange' => 'check_qr();'));
+        $mform->addElement('checkbox', 'headerqr', get_string('headerqr', 'mod_emarking'), null);
         $mform->setType('headerqr', PARAM_BOOL);
         $mform->addHelpButton('headerqr', 'headerqr', 'mod_emarking');
         $mform->setDefault('headerqr', true);
@@ -369,12 +368,12 @@ class mod_emarking_mod_form extends moodleform_mod {
         $mform->addHelpButton('regradesclosedate', 'regradesclosedate', 'mod_emarking');
         $mform->setAdvanced('regradesclosedate');
         $mform->disabledIf('regradesclosedate', 'regraderestrictdates');
-        // Quality control.
-        $mform->addElement('header', 'qualitycontrolheader', get_string("qualitycontrol", "mod_emarking"));
         // Get all users with permission to grade in emarking.
         $chkmarkers = $this->get_markers_checkboxes($mform, $ctx);
         if ($chkmarkers) {
-            // Quality control enabled.
+        	// Quality control.
+        	$mform->addElement('header', 'qualitycontrolheader', get_string("qualitycontrol", "mod_emarking"));
+        	// Quality control enabled.
             $mform->addElement('checkbox', 'qualitycontrol', get_string('enablequalitycontrol', 'mod_emarking'));
             $mform->addHelpButton('qualitycontrol', 'enablequalitycontrol', 'mod_emarking');
             $mform->disabledIf('qualitycontrol', 'type', 'eq', '2');
@@ -593,29 +592,18 @@ class mod_emarking_mod_form extends moodleform_mod {
         return $enrolavailables;
     }
     public function display() {
-        parent::display();
+    	global $CFG;
+    	parent::display();
+    	// Terrible hack for backward compatibility.
+    	$jsdatepeth = $CFG->version > 2016120500.05 ? 5 : 4;
         echo "<script>
-                function check_qr() {
-                var e = document.getElementById('id_headerqr');
-                var f = document.getElementById('id_printdoublesided');
-	           var g = document.getElementById('id_type');
-                if(!e || !f || !g) {
-                  return;
-               }
-               var type = e.options[e.selectedIndex].value;
-               var qrchecked = e.checked;
-               var doublesidechecked = f.checked;
-                if(type == '1' && !qrchecked) {
-                  alert('Personalized header is required for On Screen Marking');
-                  document.getElementById('id_headerqr').checked = true;
-                }
-            }
 	        function show_full_form() {
 	           var emarkingType = document.getElementById('id_type');
                if(!emarkingType) {
                   return;
                }
                var eType = emarkingType.options[emarkingType.selectedIndex].value;
+			   var datedepth = $jsdatepeth;
             // Print only.
 	           if (eType == '0') {
                     emarking_show('id_print', 0);
@@ -647,10 +635,10 @@ class mod_emarking_mod_form extends moodleform_mod {
                     emarking_hide('id_qualitycontrol');
                     emarking_hide('fgroup_id_markers');
                     emarking_hide('id_enableduedate');
-                    emarking_hide('id_markingduedate_day', 5);
+                    emarking_hide('id_markingduedate_day', datedepth);
                     emarking_hide('id_regraderestrictdates');
-                    emarking_hide('id_regradesopendate_day', 5);
-                    emarking_hide('id_regradesclosedate_day', 5);
+                    emarking_hide('id_regradesopendate_day', datedepth);
+                    emarking_hide('id_regradesclosedate_day', datedepth);
                     emarking_show('id_markerstraining', 0);
                     emarking_hide('id_modstandardgrade', 0);
                     emarking_hide('id_uploadtype');
@@ -666,10 +654,10 @@ class mod_emarking_mod_form extends moodleform_mod {
                     emarking_hide('id_qualitycontrol');
                     emarking_hide('fgroup_id_markers');
                     emarking_show('id_enableduedate');
-                    emarking_hide('id_markingduedate_day', 5);
+                    emarking_hide('id_markingduedate_day', datedepth);
                     emarking_hide('id_regraderestrictdates');
-                    emarking_hide('id_regradesopendate_day', 5);
-                    emarking_hide('id_regradesclosedate_day', 5);
+                    emarking_hide('id_regradesopendate_day', datedepth);
+                    emarking_hide('id_regradesclosedate_day', datedepth);
                     emarking_hide('id_markerstraining', 0);
                     emarking_hide('id_modstandardgrade', 0);
                     emarking_show('id_modstandardelshdr', 0);
@@ -1066,6 +1054,7 @@ class mod_emarking_mod_form extends moodleform_mod {
             $chkmarkers [] = $mform->createElement('checkbox', 'marker-' . $marker->id, null, 
                     $marker->firstname . " " . $marker->lastname);
         }
-        return $chkmarkers;
+        if(count($chkmarkers) > 0) var_dump($chkmarkers);
+        return count($chkmarkers) > 0 ? $chkmarkers : false;
     }
 }

@@ -21,13 +21,11 @@
  * 
  * @package mod
  * @subpackage emarking
- * @copyright 2011 Jorge Villalón
- * @copyright 2014 Nicolas Perez <niperez@alumnos.uai.cl>
- * @copyright 2014 Carlos Villarroel <cavillarroel@alumnos.uai.cl>
+ * @copyright 2011-onwards Jorge Villalón
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017051203; // The current module version (Date: YYYYMMDDXX).
+$plugin->version = 2017052200; // The current module version (Date: YYYYMMDDXX).
 $plugin->requires = 2013110500; // Requires this Moodle version.
 $plugin->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place.
