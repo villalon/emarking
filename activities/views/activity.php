@@ -54,6 +54,11 @@ $(function() {
 							<span class="glyphicon glyphicon-paperclip"></span> Importar Rúbrica
 						</button></a>
 						</div>
+						<div class="activity_buttons">
+						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Editar Rúbrica
+						</button></a>
+						</div>
 						<?php
 						}
 						if ($usercaneditrubric) {
