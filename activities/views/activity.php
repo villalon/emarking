@@ -59,8 +59,8 @@ $(function() {
 						if ($usercaneditrubric) {
 						?>
 						<div class="activity_buttons">
-						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-warning">
-							<span class="glyphicon glyphicon-paperclip"></span> Ver instrucciones
+						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
+							<span class="glyphicon glyphicon-print"></span> Vista previa instrucciones
 						</button></a>
 						</div>
 						<?php
@@ -158,8 +158,16 @@ $(function() {
 
 						<div class="tab-content">
 							<div id="home" class="tab-pane fade in active">
+<?php 						if ($usercaneditrubric) {
+	?>
 
+						<div class="activity_buttons">
+						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
+							<span class="glyphicon glyphicon-print"></span> Vista previa instrucciones
+						</button></a>
+						</div>
 
+<?php } ?>								
 								<div class="panel panel-default">
 									<div class="panel-body">
 										<h4 style="text-align: left;">Instrucciones</h4>
@@ -197,6 +205,16 @@ $(function() {
 
 							<div id="menu1" class="tab-pane fade">
 								<h3 style="text-align: left;">Didáctica</h3>
+<?php 						if ($usercaneditrubric) {
+	?>
+
+						<div class="activity_buttons">
+						<a href="<?=$printteachingpdfUrl?>"><button type="button" class="btn btn-info">
+							<span class="glyphicon glyphicon-print"></span> Imprimir didáctica
+						</button></a>
+						</div>
+
+<?php } ?>								
 
 								<div class="panel panel-default">
 									<div class="panel-body">

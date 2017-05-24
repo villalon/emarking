@@ -37,6 +37,7 @@ require_login ();
 if (isguestuser ()) {
 	die ();
 }
+$action=optional_param('action', 'view', PARAM_ALPHA);
 $courseid = $cm->course;
 list($issupervisor, $usercangrade) = emarking_get_grading_permissions($emarking, $context);
 // URL for current page.
@@ -82,7 +83,18 @@ if (! $exam = $DB->get_record ( "emarking_exams", $params )) {
 				"return" => "1"
 		) ) );
 		die ();
+	} else {
+		print_error('Invalid exam id');
 	}
+}
+if($action==='reprocess' && is_siteadmin()) {
+	$exam->status = EMARKING_EXAM_UPLOADED;
+	$DB->update_record('emarking_exams', $exam);
+	// Filesystem.
+	$fs = get_file_storage();
+	$fs->delete_area_files($context->id, 'mod_emarking', 'examstoprint', $exam->emarking);
+	redirect($url, get_string('changessaved', 'mod_emarking'),2);
+	die();
 }
 echo $OUTPUT->header ();
 // Heading and tabs if we are within a course module.
@@ -249,6 +261,17 @@ if ($issupervisor) {
 	} else if ($emarking->type == EMARKING_TYPE_PRINT_SCAN) {
 		echo $OUTPUT->single_button ( $urlosm, get_string ( "enableosm", "mod_emarking" ), 'GET', array('class'=>'form-submit') );
 	}
+	echo html_writer::end_tag ( 'div' );
+}
+if (is_siteadmin() && $exam->status > EMARKING_EXAM_UPLOADED) {
+	// Reprocess exam.
+	$urlreprocess = new moodle_url ( "/mod/emarking/print/exam.php", array (
+	"id" => $cm->id,
+	"action" => 'reprocess'
+	) );
+	echo html_writer::tag('br', '');
+	echo html_writer::start_tag ( 'div' );
+	echo $OUTPUT->single_button ( $urlreprocess, get_string ( "reprocessexam", "mod_emarking" ), 'GET', array('class'=>'form-submit') );
 	echo html_writer::end_tag ( 'div' );
 }
 echo $OUTPUT->footer ();

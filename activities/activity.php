@@ -57,6 +57,14 @@ $printpdfUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/pdfcre
 		'id' => $activityid,
 		'instructions' => 1,
 		'writing' => 1,
+		'planification' => 1,
+		'editing' => 1
+) );
+$printteachingpdfUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/pdfcreator.php', array (
+		'id' => $activityid,
+		'teaching' => 1,
+		'resources' => 1,
+		'header'=>1
 ) );
 $editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivity.php', array (
 		'activityid' => $activityid
