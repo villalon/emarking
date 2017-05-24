@@ -12,10 +12,12 @@ $generos = Array('Afiche',
 'Diario de vida',
 'Ensayo',
 'Historietas (cómic)',
+'Informe',
 'Instrucciones',
 'Libreto y diálogo',
+'Meme',
 'Noticia',
 'Poema',
 'Recado',
-'Reporte de una experiencia'
+'Relato de hechos y experiencias personales'
 		);
