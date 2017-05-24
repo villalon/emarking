@@ -37,7 +37,7 @@ $string['markingsettings'] = 'Marking settings';
 $string['markingsettings_help'] = 'Site wide settings for marking';
 // DOWNLOAD SECURITY.
 $string['downloadsecurity'] = 'Download security level';
-$string['downloadsecurity_help'] = 'You can define here the level of security required to download an exam. No validation allows any user withe the downloadexam capability to directly download an exam. Other options are using a token sent to the user\'s emailo or using a token sent to the user\'s mobile phone.';
+$string['downloadsecurity_help'] = 'You can define here the level of security required to download an exam. No validation allows any user with the downloadexam capability to directly download an exam. Other options are using a token sent to the user\'s emailo or using a token sent to the user\'s mobile phone.';
 $string['security_novalidation'] = 'No validation';
 $string['security_tokenemail'] = 'Token sent by email';
 $string['security_tokensms'] = 'Token sent by SMS';
@@ -170,6 +170,8 @@ $string['emarking:view'] = 'View activity';
 $string['emarking:viewcostreport'] = 'View cost reports';
 $string['emarking:viewemarkingcycle'] = 'View marking cycle';
 $string['emarking:viewpeerstatistics'] = 'View peer statistics';
+// NOTIFICATIONS.
+$string['messageprovider:notification'] = 'Emarking notifications';
 // SMS SECURITY.
 $string ['download'] = 'Download';
 $string ['cancel'] = 'Cancel';
@@ -202,6 +204,7 @@ $string ['examstatuserrorprinting'] = 'Error printing';
 $string ['examstatuserrorprocessing'] = 'Error processing';
 $string ['examstatusprocessed'] = 'Processed';
 $string ['downloadexam'] = 'Download exam';
+$string ['reprocessexam'] = 'Reprocess exam';
 $string ['comment_help'] = 'Comment for the printing staff.';
 // JUSTICE PERCEPTION.
 $string ['er-4'] = '-4 (much worse than I deserved)';

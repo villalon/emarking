@@ -170,6 +170,8 @@ $string['emarking:view'] = 'Ver actividad';
 $string['emarking:viewcostreport'] = 'View cost reports';
 $string['emarking:viewemarkingcycle'] = 'View marking cycle';
 $string['emarking:viewpeerstatistics'] = 'Ver estadísticas de pares';
+// NOTIFICATIONS.
+$string['messageprovider:notification'] = 'Notificaciones de Emarking';
 // SMS SECURITY.
 $string ['download'] = 'Descargar';
 $string ['cancel'] = 'Cancelar';
@@ -202,6 +204,7 @@ $string ['examstatuserrorprinting'] = 'Error al imprimir';
 $string ['examstatuserrorprocessing'] = 'Error al procesar';
 $string ['examstatusprocessed'] = 'Procesada';
 $string ['downloadexam'] = 'Descargar prueba';
+$string ['reprocessexam'] = 'Reprocesar prueba';
 $string ['comment_help'] = 'Comentario para hacer llegar a la impresión.';
 // JUSTICE PERCEPTION.
 $string ['er-4'] = '-4 (mucho peor de lo que merecía)';
