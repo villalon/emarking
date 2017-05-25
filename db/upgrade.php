@@ -1880,6 +1880,27 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017052200, 'emarking');
     }
-	
+    if ($oldversion < 2017052400) {
+    
+    	// Define table emarking_activities_genres to be created.
+    	$table = new xmldb_table('emarking_activities_genres');
+    
+    	// Adding fields to table emarking_activities_genres.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('name', XMLDB_TYPE_CHAR, '250', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    
+    	// Adding keys to table emarking_activities_genres.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    
+    	// Conditionally launch create table for emarking_activities_genres.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    
+    	 	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017052400, 'emarking');
+    }
+    
     return true;
 }
