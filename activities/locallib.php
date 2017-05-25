@@ -76,9 +76,9 @@ function activities_show_result($data) {
 	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
 			'id' => $data->id 
 	) );
-	$coursesOA = '<span>Curso: </span><br>';
-	$coursesOA .= '<span>OAs:</span><br>';
-	if( isset($activity->learningobjectives) && $activity->learningobjectives != null){
+	$coursesOA="";
+	if( isset($data->learningobjectives) && $data->learningobjectives != null){
+		
 		$oaComplete = explode ( "-", $data->learningobjectives );
 		foreach ( $oaComplete as $oaPerCourse ) {
 			
@@ -89,6 +89,9 @@ function activities_show_result($data) {
 			$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
 			$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
 		}
+	}else{
+		$coursesOA .= '<span>Curso: </span><br>';
+		$coursesOA .= '<span>OAs:</span><br>';
 	}
 	$userobject = $DB->get_record('user', array('id' => $data->userid));
 	

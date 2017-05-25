@@ -72,7 +72,7 @@ if ($countActivities == 1) {
 }
 $usercourses = enrol_get_users_courses ( $USER->id );
 $coursesarray=array();
-if($categories =coursecat::make_categories_list('mod/emarking:downloadexam')){
+if($categories =coursecat::make_categories_list('mod/emarking:viewcourses')){
 	foreach ($categories as $key => $category){
 	$courses= $DB->get_records('course',array('category'=>$key));
 	foreach ($courses as $key => $course){
@@ -87,6 +87,10 @@ foreach ( $usercourses as $usercourse ) {
 	if(in_array($usercourse->id,$coursesarray)){
 		continue;
 	}
+	if($usercourse->visible == 0){
+		continue;
+	}
+
 	$coursecontext = context_course::instance ( $usercourse->id );
 
 	$coursesasteacher [] = $usercourse;
