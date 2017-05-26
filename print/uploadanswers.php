@@ -187,6 +187,7 @@ echo $OUTPUT->heading($emarking->name);
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
 	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'uploadanswers');
 }
+$totalbeingprocessed = 0;
 $digitizedanswersfiles = emarking_get_digitized_answer_files($emarking);
 if (count($digitizedanswersfiles) == 0) {
     echo $OUTPUT->notification(get_string('nodigitizedanswerfiles', 'mod_emarking'), 'notifymessage');
@@ -231,6 +232,7 @@ if (count($digitizedanswersfiles) == 0) {
             $actions[] = $OUTPUT->action_icon($processurl, new pix_icon('i/reload', 'reload', null, array(
                 'style' => 'width:1.5em;'
             )));
+            $totalbeingprocessed++;
         }
         $mimetype = $file->mimetype;
         $table->data[] = array(
@@ -252,5 +254,12 @@ $orphanpages = emarking_get_digitized_answer_orphan_pages($context);
 emarking_show_orphan_pages_link($context, $cm);
 if(has_capability('mod/emarking:uploadexam', $context)) {
     $mform->display();
+}
+if($totalbeingprocessed > 0) {
+	echo '<script>
+setTimeout(function(){
+	window.location.reload(1);
+}, 5000);
+		</script>';
 }
 echo $OUTPUT->footer();

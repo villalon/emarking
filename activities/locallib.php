@@ -140,50 +140,7 @@ $usercontext=context_user::instance($USER->id);
 $fs = get_file_storage();
 // create new PDF document
 
-$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-// set document information
-$pdf->SetCreator($USER->firstname.' '.$USER->lastname);
-$pdf->SetAuthor($user_object->firstname.' '.$user_object->lastname);
-$pdf->SetTitle($activity->title);
-$pdf->SetPrintHeader(false);
-$pdf->SetPrintFooter(false);
-$pdf->SetFont('times', '', 12);
-
-// set auto page breaks
-$pdf->SetAutoPageBreak(TRUE, 10);
-$pdf->SetTopMargin(40);
-$pdf->SetRightMargin(10);
-$pdf->SetLeftMargin(10);
-// Add a page
-// This method has several options, check the source code documentation for more information.
-$pdf->AddPage();
-$css='
-
-<style>
-   body {
-        font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
-    }
-	p {
-		font-size: 12pt;
-	}
-	h3, p {
-		margin-top: 1px;
-		margin-bottom: 1px;
-	}
-	table {
-    	border: 1px solid black;
-	}
-	td {
-		width: 100%;
-		border-bottom: 1px dotted #999;
-		height: 10px;
-	}
-    </style>
-   ';
-$html =$css;
-
-$pdf->writeHTML($css, true, false, false, false, '');
+$pdf = emarking_create_activity_pdf($user_object, $activity);
 
 if(isset($sections->header) && $sections->header == 1) {
 	$pdf->writeHTML('<h1>'.$activity->title.'</h1> ', true, false, false, false, '');
@@ -212,40 +169,45 @@ if(isset($sections->writing)&&$sections->writing==1) {
 	emarking_pdf_fill_writing_table($pdf);	
 	$pdf->AddPage();
 	
-	emarking_pdf_fill_writing_table($pdf);	
+	$height = 0;
+	if(isset($sections->editing) && $sections->editing==1){
+		$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
+		$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
+		$pdf2 = emarking_create_activity_pdf($user_object, $activity);
+		$height = $pdf2->GetY();
+		$pdf2->writeHTML('<h3>Revisión y edición</h3>', true, false, false, false, '');
+		$pdf2->writeHTML($editinghtml, true, false, false, false, '');
+		$height = $pdf2->getY() - $height;
+		$pdf2->Close();
+		$pdf2 = null;
+		emarking_pdf_fill_writing_table($pdf, $height);
+		$pdf->writeHTML('<h3>Revisión y edición</h3>', true, false, false, false, '');
+		$pdf->writeHTML($editinghtml, true, false, false, false, '');
+	} else {
+		emarking_pdf_fill_writing_table($pdf);	
+	}
+}
+
+if(isset($sections->teaching) && $sections->teaching==1) {
+	$teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
+	$pdf->writeHTML('<h3>Sugerencias didácticas</h3>', true, false, false, false, '');
+	$teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
+	$pdf->writeHTML($teachinghtml, true, false, false, false, '');
+}
+
+if(isset($sections->resources) && $sections->resources==1) {
+	$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
+	$pdf->writeHTML('<h3>Recursos del lenguaje</h3>', true, false, false, false, '');
+	$languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
+	$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
+}
+
+if(isset($sections->rubric) && $sections->rubric==1) {
 	$pdf->AddPage();
-}
-
-if(isset($sections->editing) && $sections->editing==1){
-
-$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
-$editinghtml ='<h3>Revisión y edición</h3>';
-$editinghtml.=emarking__activities_clean_html_to_print($editinghtml);
-$pdf->writeHTML($editinghtml, true, false, false, false, '');
-}
-// $pdf->writeHTML($html, true, false, false, false, '');
-if(isset($sections->teaching) && $sections->teaching==1){
-
-$teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
-$pdf->writeHTML('<h3>Sugerencias didácticas</h3>', true, false, false, false, '');
-$teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
-$pdf->writeHTML($teachinghtml, true, false, false, false, '');
-}
-
-if(isset($sections->resources) && $sections->resources==1){
-
-$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
-$pdf->writeHTML('<h3>Recursos del lenguaje</h3>', true, false, false, false, '');
-$languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
-$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
-}
-
-if(isset($sections->rubric)&&$sections->rubric==1){
-$pdf->AddPage();
-$rubrichtml=show_rubric($activity->rubricid);
-$pdf->writeHTML('<h3>Evaluación</h3>', true, false, false, false, '');
-$rubrichtml=emarking__activities_clean_html_to_print($rubrichtml);
-$pdf->writeHTML($rubrichtml, true, false, false, false, '');
+	$rubrichtml=show_rubric($activity->rubricid);
+	$pdf->writeHTML('<h3>Evaluación</h3>', true, false, false, false, '');
+	$rubrichtml=emarking__activities_clean_html_to_print($rubrichtml);
+	$pdf->writeHTML($rubrichtml, true, false, false, false, '');
 }
 
 if($download==true){
@@ -297,12 +259,63 @@ return array (
 			);
 }
 }
-function emarking_pdf_fill_writing_table(TCPDF $pdf) {
+
+function emarking_create_activity_pdf($user_object, $activity) {
+	global $USER;
+	
+	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+	
+	// set document information
+	$pdf->SetCreator($USER->firstname.' '.$USER->lastname);
+	$pdf->SetAuthor($user_object->firstname.' '.$user_object->lastname);
+	$pdf->SetTitle($activity->title);
+	$pdf->SetPrintHeader(false);
+	$pdf->SetPrintFooter(false);
+	$pdf->SetFont('times', '', 12);
+	
+	// set auto page breaks
+	$pdf->SetAutoPageBreak(TRUE, 10);
+	$pdf->SetTopMargin(40);
+	$pdf->SetRightMargin(10);
+	$pdf->SetLeftMargin(10);
+	// Add a page
+	// This method has several options, check the source code documentation for more information.
+	$pdf->AddPage();
+	$css='
+	
+<style>
+   body {
+        font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+    }
+	p {
+		font-size: 12pt;
+	}
+	h3, p {
+		margin-top: 1px;
+		margin-bottom: 1px;
+	}
+	table {
+    	border: 1px solid black;
+	}
+	td {
+		width: 100%;
+		border-bottom: 1px dotted #999;
+		height: 10px;
+	}
+    </style>
+   ';
+	$html =$css;
+	
+	$pdf->writeHTML($css, true, false, false, false, '');
+	
+	return $pdf;
+}
+function emarking_pdf_fill_writing_table(TCPDF $pdf, $saveHeight = 0) {
 	$footermargin = $pdf->getFooterMargin();
 	$pdf->SetAutoPageBreak(false);
 	$linewidth = emarking_pdf_linewidth($pdf);
 	$lineheight = 8;
-	$spaceleft = emarking_pdf_spaceleft($pdf);
+	$spaceleft = emarking_pdf_spaceleft($pdf) - $saveHeight;
 	
 	$rows = $spaceleft / ($lineheight + 1);
 	for($i=0; $i<$rows; $i++) {

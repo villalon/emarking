@@ -274,4 +274,11 @@ if (is_siteadmin() && $exam->status > EMARKING_EXAM_UPLOADED) {
 	echo $OUTPUT->single_button ( $urlreprocess, get_string ( "reprocessexam", "mod_emarking" ), 'GET', array('class'=>'form-submit') );
 	echo html_writer::end_tag ( 'div' );
 }
+if($exam->status < EMARKING_EXAM_BEING_PROCESSED) {
+	echo '<script>
+setTimeout(function(){
+	window.location.reload(1);
+}, 5000);
+		</script>';
+}
 echo $OUTPUT->footer ();

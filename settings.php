@@ -90,6 +90,10 @@ $settings->add(
         new admin_setting_configselect('emarking_minimumdaysbeforeprinting',
                 get_string('minimumdaysbeforeprinting', 'mod_emarking'),
                 get_string('minimumdaysbeforeprinting_help', 'mod_emarking'), 0, $choices));
+// Include or not a second QR at the bottom of the page for extra recognition.
+$settings->add(
+		new admin_setting_configcheckbox('emarking_bottomqr', get_string('bottomqr', 'mod_emarking'),
+				get_string('bottomqr_help', 'mod_emarking'), 1, PARAM_BOOL));
 // Include or not the logo in the personalized header.
 $settings->add(
         new admin_setting_configcheckbox('emarking_includelogo', get_string('includelogo', 'mod_emarking'),
