@@ -43,7 +43,7 @@ class mod_emarking_activities_create_activity_instructions extends moodleform {
         $mform->setType('planification', PARAM_RAW);
         $mform->addElement('editor', 'writing', 'Escritura',null,$editoroptions);
         $mform->setType('writing', PARAM_RAW);
-        $mform->addElement('editor', 'editing', 'Edición',null,$editoroptions);
+        $mform->addElement('editor', 'editing', 'Revisión y Edición',null,$editoroptions);
         $mform->setType('editing', PARAM_RAW);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);

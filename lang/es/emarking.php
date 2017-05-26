@@ -170,6 +170,8 @@ $string['emarking:view'] = 'Ver actividad';
 $string['emarking:viewcostreport'] = 'View cost reports';
 $string['emarking:viewemarkingcycle'] = 'View marking cycle';
 $string['emarking:viewpeerstatistics'] = 'Ver estadísticas de pares';
+$string['emarking:viewcourses'] = 'Ver cursos en categoría';
+$string['emarking:markingincategory'] = 'Corregir en categoría';
 // NOTIFICATIONS.
 $string['messageprovider:notification'] = 'Notificaciones de Emarking';
 // SMS SECURITY.
