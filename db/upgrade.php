@@ -1880,7 +1880,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017052200, 'emarking');
     }
-    if ($oldversion < 2017052400) {
+    if ($oldversion < 2017052600) {
     
     	// Define table emarking_activities_genres to be created.
     	$table = new xmldb_table('emarking_activities_genres');
@@ -1899,7 +1899,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	}
     
     	 	// Emarking savepoint reached.
-    	upgrade_mod_savepoint(true, 2017052400, 'emarking');
+    	upgrade_mod_savepoint(true, 2017052600, 'emarking');
     }
     
     return true;
