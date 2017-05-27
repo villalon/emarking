@@ -83,7 +83,7 @@ foreach($comments as $comment){
 
 		$.ajax({
 			url:"activity.php", //the page containing php script
-			type: "POST", //request type
+			type: "GET", //request type
 			data: {
 				'id': <?php echo $activity->id; ?>,
 				'submit':true,
