@@ -25,13 +25,36 @@ require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 global $PAGE, $DB, $USER, $CFG;
 
-$activityid = required_param ( 'id', PARAM_INT );
+$activityid = required_param('id', PARAM_INT);
 // Mensaje que se muestra si hace clic en "Adoptar Actividad" y no esta aún logeado
-$message = optional_param ('message', 0 , PARAM_INT);
+$message = optional_param('message', 0 , PARAM_INT);
+$submit = optional_param('submit', 'empty' , PARAM_TEXT);
+$comment = optional_param('comment', '' , PARAM_TEXT);
 $teacherroleid = 3;
 
-$dias = array("Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sábado");
-$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+$dias = array(
+		"Domingo",
+		"Lunes",
+		"Martes",
+		"Miercoles",
+		"Jueves",
+		"Viernes",
+		"Sábado"		
+);
+$meses = array(
+		"Enero",
+		"Febrero",
+		"Marzo",
+		"Abril",
+		"Mayo",
+		"Junio",
+		"Julio",
+		"Agosto",
+		"Septiembre",
+		"Octubre",
+		"Noviembre",
+		"Diciembre"
+);
 
 if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activityid))) {
 	print_error("ID de Actividad invalido");
@@ -86,147 +109,141 @@ if (isloggedin ()) {
 
 $usercaneditrubric = $USER->id == $activity->userid || is_siteadmin();
 
-$userobject = $DB->get_record ( 'user', array (
-		'id' => $activity->userid
-) );
-$sql="SELECT rl.*, rc.description as criteria, r.id as rubricid, r.name, r.description,rc.description as criteriondescription, i.max
-FROM mdl_emarking_rubrics_levels as rl
-INNER JOIN mdl_emarking_rubrics_criteria rc ON (rc.id = rl.criterionid )
-INNER JOIN mdl_emarking_rubrics r ON (r.id = rc.rubricid )
-LEFT JOIN (select criterionid, max(score) as max FROM mdl_emarking_rubrics_levels as rl group by criterionid) as i on (i.criterionid=rl.criterionid)
-where r.id=?
-ORDER BY rl.criterionid ASC, rl.score DESC";
-$rubric = $DB->get_records_sql ( $sql, array (
-							  		$activity->rubricid
-							  ) );
+$userobject = $DB->get_record('user', array('id' => $activity->userid));
+
+$sql = "SELECT rl.*, rc.description AS criteria, r.id AS rubricid, r.name, r.description, rc.description AS criteriondescription, i.max
+		FROM {emarking_rubrics_levels} AS rl
+		INNER JOIN {emarking_rubrics_criteria} AS rc ON (rc.id = rl.criterionid )
+		INNER JOIN {emarking_rubrics} AS r ON (r.id = rc.rubricid )
+		LEFT JOIN (SELECT criterionid, max(score) AS max 
+			FROM {emarking_rubrics_levels} AS rl GROUP BY criterionid) AS i ON (i.criterionid = rl.criterionid)
+		WHERE r.id = ?
+		ORDER BY rl.criterionid ASC, rl.score DESC";
+$rubric = $DB->get_records_sql($sql, array ($activity->rubricid));
 
 $disabled="disabled";
 $canuse="#myModalUse";
 if(isset($rubric)&& $rubric!=null){
 	foreach ( $rubric as $data ) {
-		
-	$disabled=null;
-	$table [$data->criteriondescription] [$data->score] = $data->definition;
-	$rubricdescription = $data->description;
-	$rubricname = $data->name;
-	$maxlevel=$data->max;
-}
-
-$col = 0;
-foreach ( $table as $calc ) {
-
-	$actualcol = sizeof ( $calc );
-	if ($col < $actualcol) {
-		$col = $actualcol;
+		$disabled=null;
+		$table [$data->criteriondescription] [$data->score] = $data->definition;
+		$rubricdescription = $data->description;
+		$rubricname = $data->name;
+		$maxlevel = $data->max;
 	}
-}
-$row = sizeof ( $table );
+
+	$col = 0;
+	foreach ($table as $calc) {	
+		$actualcol = sizeof ($calc);
+		if ($col < $actualcol) {
+			$col = $actualcol;
+		}
+	}
+	$row = sizeof($table);
 }
 $coursesOA = '<span>Curso: </span><br>';
 $coursesOA .= '<span>OAs:</span><br>';
-if(isset($activity->learningobjectives)&&$activity->learningobjectives!=null){
-$oaComplete = explode ( "-", $activity->learningobjectives );
-
-foreach ( $oaComplete as $oaPerCourse ) {
-
-	$firstSplit = explode ( "[", $oaPerCourse );
-	$secondSplit = explode ( "]", $firstSplit [1] );
-	$course = $firstSplit [0];
-
-	$coursesOA = '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
-	$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
-}
+if (isset($activity->learningobjectives) && $activity->learningobjectives != null) {
+	$oaComplete = explode("-", $activity->learningobjectives );
+	
+	foreach ( $oaComplete as $oaPerCourse ) {	
+		$firstSplit = explode ( "[", $oaPerCourse );
+		$secondSplit = explode ( "]", $firstSplit [1] );
+		$course = $firstSplit [0];
+	
+		$coursesOA = '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
+		$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
+	}
 }
 //Busca toda la información de la comunidad en esta actividad
 $communitysql = $DB->get_record('emarking_social', array('activityid'=>$activityid));
+if(!$communitysql){	
+	$communitysql = new stdClass ();
+	$communitysql->activityid = $activityid;
+	$communitysql->timecreated = time();
+	$communitysql->data	= null;				
+	$DB->insert_record('emarking_social', $communitysql);
+	$average = 0;
+}
 
-if(!$communitysql){
+$average = 0;
+$countVotes = 0;
+$vote = 0;
+if(isset($communitysql->data) && $communitysql->data != null) {
+	$recordcleaned = emarking_activities_clean_string_to_json($communitysql->data);
+	$decode = json_decode($recordcleaned);
+	$social = $decode->data;
+	$comments = $social->Comentarios;
+	$votes = $social->Vote;
 	
-	$communitysql=new stdClass ();
-	$communitysql->activityid 			= $activityid;
-	$communitysql->timecreated         	= time();
-	$communitysql->data					= null;				
-	$DB->insert_record ( 'emarking_social', $communitysql );
-	$average=0;
-}
-$average=0;
-$countVotes=0;
-$vote=0;
-if(isset($communitysql->data)&& $communitysql->data!=null){
-$recordcleaned=emarking_activities_clean_string_to_json($communitysql->data);
-$decode=json_decode($recordcleaned);
-$social=$decode->data;
-$comments=$social->Comentarios;
-$votes=$social->Vote;
-
-if (isset ( $votes )) {
-	$countVotes=count ( $votes );
-		if ($countVotes == 1) {
-			if ($vote=if_user_has_voted ( $votes [0], $USER->id ));			
-		} else {
-			if ($vote= if_user_has_voted ( $votes, $USER->id ));
-		}
-$average=get_average($votes);
-}
-$votesjson=json_encode($votes, JSON_UNESCAPED_UNICODE);
-
-if(isset($_POST['submit'])) {	
-
-	require_sesskey();
-
-	$comentario = new stdClass ();
-	$comentario->userid=$USER->id;
-	$comentario->username=$USER->firstname.' '.$USER->lastname;
-	$comentario->timecreated=time();
-	$comentario->post=$_POST['comment'];
-	$comentario->likes=array();
-	$comentario->dislikes=array();
-	$comments[]=$comentario;
-	$commentjson=json_encode($comments, JSON_UNESCAPED_UNICODE);
-	$newdata = Array(
-			"Vote"=>$votes,
-			"Comentarios"=>$commentjson
-				
-			);
+	if (isset ( $votes )) {
+		$countVotes=count ( $votes );
+			if ($countVotes == 1) {
+				if ($vote=if_user_has_voted($votes [0], $USER->id ));			
+			} else {
+				if ($vote= if_user_has_voted($votes, $USER->id ));
+			}
+		$average = get_average($votes);
+	}
+	$votesjson = json_encode($votes, JSON_UNESCAPED_UNICODE);
 	
-	$dataarray=Array("data"=>$newdata);
-
-	$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
-	$communitysql->data=$datajson;
-
-	$DB->update_record('emarking_social', $communitysql);
-
-	$comentario->date = $dias[date('w',$comentario->timecreated)]." ".date('d',$comentario->timecreated)." de ".$meses[date('n',$comentario->timecreated)-1]. " del ".date('Y',$comentario->timecreated) ;
-
-	echo json_encode($comentario, JSON_UNESCAPED_UNICODE);
-	die();
-	header("Refresh:0");
-}
-}else{
-	if(isset($_POST['submit'])) {
-		$comentario=array(
-				array(	"userid"=>$USER->id,
-						"username"=>$USER->firstname.' '.$USER->lastname,
-						"timecreated"=>time(),
-						"post"=>$_POST['comment'],
-						"likes"=>array(),
-						"dislikes"=>array())
-		);
-		
-	$commentjson=json_encode($comentario, JSON_UNESCAPED_UNICODE);
-	$data = Array(
-				"Vote"=>null,
+	if ($submit != 'empty') {	
+		require_sesskey();
+	
+		$comentario = new stdClass ();
+		$comentario->userid = $USER->id;
+		$comentario->username = $USER->firstname.' '.$USER->lastname;
+		$comentario->timecreated = time();
+		$comentario->post = $comment;
+		$comentario->likes = array();
+		$comentario->dislikes = array();
+		$comments[] = $comentario;
+		$commentjson = json_encode($comments, JSON_UNESCAPED_UNICODE);
+		$newdata = array(
+				"Vote"=>$votes,
 				"Comentarios"=>$commentjson
 					
 				);
 		
-		$dataarray=Array("data"=>$data);
-		$datajson=json_encode($dataarray, JSON_UNESCAPED_UNICODE);
-		$communitysql->data=$datajson;
+		$dataarray = array("data" => $newdata);
+	
+		$datajson = json_encode($dataarray, JSON_UNESCAPED_UNICODE);
+		$communitysql->data = $datajson;
+	
 		$DB->update_record('emarking_social', $communitysql);
+	
+		$comentario->date = $dias[date('w',$comentario->timecreated)]
+					." ".date('d',$comentario->timecreated)
+					." de ".$meses[date('n',$comentario->timecreated)-1]
+					. " del ".date('Y',$comentario->timecreated) ;
+	
+		echo json_encode($comentario, JSON_UNESCAPED_UNICODE);
+		die();
 		header("Refresh:0");
+	}
+}else{
+	if ($submit != 'empty') {
+		$comentario = array(
+				array(	"userid" => $USER->id,
+						"username" => $USER->firstname.' '.$USER->lastname,
+						"timecreated" => time(),
+						"post" => $comment,
+						"likes" => array(),
+						"dislikes" => array())
+		);
 		
-  }
+		$commentjson=json_encode($comentario, JSON_UNESCAPED_UNICODE);
+		$data = array(
+					"Vote" => null,
+					"Comentarios" => $commentjson
+		);
+			
+		$dataarray = array("data"=>$data);
+		$datajson = json_encode($dataarray, JSON_UNESCAPED_UNICODE);
+		$communitysql->data = $datajson;
+		$DB->update_record('emarking_social', $communitysql);
+		header("Refresh:0");		
+ 	}
 }
 
 //print the header

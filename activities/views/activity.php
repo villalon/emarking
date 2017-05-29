@@ -30,10 +30,10 @@ $(function() {
 						<p><?=$coursesOA?>
 
 						<hr>
-						 Género: <?php echo $activity->genre; ?><br>
-    Propósito comunicativo: <?=$activity->comunicativepurpose?><br>
-    Audiencia: <?= $activity->audience?><br>
-    Tiempo estimado: <?=$activity->estimatedtime?><br>
+						Género: <?php echo $activity->genre; ?><br>
+					    Propósito comunicativo: <?=$activity->comunicativepurpose?><br>
+					    Audiencia: <?= $activity->audience?><br>
+					    Tiempo estimado: <?=$activity->estimatedtime?><br>
 
 						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
 						<hr>
