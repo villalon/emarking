@@ -321,30 +321,32 @@ function emarking_pdf_fill_writing_table(TCPDF $pdf, $saveHeight = 0) {
 	$spaceleft = emarking_pdf_spaceleft($pdf) - $saveHeight;
 	
 	$rows = $spaceleft / ($lineheight + 1);
+	$bordercolorrgb = array(0, 0, 0);
+	$linecolorrgb = array(0, 0, 0);
 	for($i=0; $i<$rows; $i++) {
 		if($i==0)
 			$pdf->Cell($linewidth, $lineheight,' ',
 					array(
 							'TRL'=>
-							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)),
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $bordercolorrgb),
 							'B'=>
-							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 1, 'color' => array(200, 200, 200))
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 1, 'color' => $linecolorrgb)
 					)
 					,1);
 			elseif($i<$rows-1)
 			$pdf->Cell($linewidth, $lineheight,' ',
 					array(
 							'RL'=>
-							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)),
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $bordercolorrgb),
 							'B'=>
-							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 1, 'color' => array(200, 200, 200))
+							array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 1, 'color' => $linecolorrgb)
 					)
 					,1);
 			else
 				$pdf->Cell($linewidth, $lineheight,' ',
 						array(
 								'BRL'=>
-								array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0))
+								array('width' => 0.1, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $bordercolorrgb)
 						)
 						,1);
 	}
