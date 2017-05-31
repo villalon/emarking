@@ -946,8 +946,7 @@ function add_row($data,$type){
 }
 function add_new_activity_basic($fromform){
 	global $DB,$USER, $CFG;
-	require ($CFG->dirroot. '/mod/emarking/activities/generos.php');
-	$genero = ( int ) $fromform->genre - 1;
+
 	
 	$oaCode=clean_oa_code($fromform);
 	
@@ -956,7 +955,7 @@ function add_new_activity_basic($fromform){
 	$record->description = $fromform->description;
 	$record->learningobjectives = $oaCode;
 	$record->comunicativepurpose = $fromform->comunicativepurpose;
-	$record->genre = $generos [$genero];
+	$record->genre = $fromform->genre;
 	$record->audience = $fromform->audience;
 	$record->estimatedtime = $fromform->estimatedtime;
 	$record->timecreated = time ();
@@ -973,8 +972,6 @@ function add_new_activity_basic($fromform){
 }
 function edit_activity_basic($fromform,$activityid){
 	global $DB,$CFG,$USER;
-	require ($CFG->dirroot. '/mod/emarking/activities/generos.php');
-	$genero = ( int ) $fromform->genre - 1;
 	$oaCode=clean_oa_code($fromform);
 	
 	$record=$DB->get_record('emarking_activities',array('id'=>$activityid));
@@ -982,7 +979,7 @@ function edit_activity_basic($fromform,$activityid){
 	$record->description = $fromform->description;
 	$record->learningobjectives = $oaCode;
 	$record->comunicativepurpose = $fromform->comunicativepurpose;
-	$record->genre = $generos [$genero];
+	$record->genre = $fromform->genre;
 	$record->audience = $fromform->audience;
 	$record->estimatedtime = $fromform->estimatedtime;
 	$DB->update_record('emarking_activities', $record);

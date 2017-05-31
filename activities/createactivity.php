@@ -26,7 +26,6 @@ global $PAGE, $DB, $USER, $CFG, $OUTPUT;
 require_once ('forms/create_activity_basic.php');
 require_once ('forms/create_activity_instructions.php');
 require_once ('forms/create_activity_teaching.php');
-require ($CFG->dirroot. '/mod/emarking/activities/generos.php');
 require_once ('locallib.php');
 require_login ();
 $step = optional_param ( 'step',1 ,PARAM_INT );
@@ -50,15 +49,8 @@ file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instru
 // print the header
 ?>
 
-<div class="container">
+<div class="container" style="padding-top: 150px;">
 	<div class="row">
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
-			<br>
 		<h2>Crear una actividad</h2>
 
 		<div class="col-md-12">
@@ -70,11 +62,11 @@ $teaching = new mod_emarking_activities_create_activity_teaching ();
 if($step == 1){
 	if($activityid!=0){
 		$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-		$keyofgenre = array_search($activity->genre, $generos) + 1;
+		
 		$area->title 						= $activity->title;
 		$area->description 					= $activity->description;
 		$area->comunicativepurpose 			= $activity->comunicativepurpose;
-		$area->genre 						= $keyofgenre;
+		$area->genre 						= $activity->genre;
 		$area->audience 					= $activity->audience;
 		$area->estimatedtime 				= $activity->estimatedtime;
 		$area->id							= $activityid;
@@ -82,7 +74,7 @@ if($step == 1){
 		$basic->set_data ( $area );
 		
 	}
-	$area->estimatedtime 				= $generos;
+	$area->estimatedtime 				= $activity->estimatedtime;
 	$basic->set_data ( $area );
 	$basic->display ();
 }elseif($step == 2){

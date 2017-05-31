@@ -32,9 +32,11 @@ class local_ciae_edit_activity extends moodleform {
         global $CFG, $OUTPUT, $COURSE, $DB;
         
 
-     include ($CFG->dirroot .'/mod/emarking/activities/generos.php');
-     
-       array_unshift($generos, "Seleccione un género");
+        $genres = $DB->get_records('emarking_activities_genres',null,'name ASC');
+        $genrearray[0]="Seleccione un género";
+        foreach ($genres as $genre){
+        	$genrearray[$genre->name]=$genre->name;
+        }
        $result = $DB->get_records_sql('
          SELECT gd.id,
                 gd.name,
@@ -171,7 +173,7 @@ class local_ciae_edit_activity extends moodleform {
         $mform->setType('comunicativepurpose', PARAM_TEXT);
        // $mform->addHelpButton('comunicativepurpose', 'pc','ciae');
         // Género
-        $mform->addElement('select', 'genre', 'Género', $generos);
+        $mform->addElement('select', 'genre', 'Género', $genrearray);
         $mform->addRule('genre', get_string('required'), 'required'); 
         $mform->setType('genre', PARAM_TEXT);
         //$mform->addHelpButton('genre', 'genero','ciae');
