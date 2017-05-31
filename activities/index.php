@@ -23,12 +23,12 @@
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 global $PAGE, $DB, $USER, $CFG;
 
-
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
-$query = "SELECT id, genre, description, title FROM mdl_emarking_activities
+$query = "SELECT id, genre, description, title
+		FROM {emarking_activities}
 		WHERE status = 1 AND parent IS NULL	
 		ORDER BY RAND()
 			LIMIT 4"; 

@@ -129,138 +129,136 @@ function activities_show_result($data) {
  * @param unknown $activityid        	
  * @return boolean|multitype:unknown NULL Ambigous <boolean, number>
  */
-function get_pdf_activity($activityid,$download = false,$sections = null) {
+function emarking_get_pdf_activity($activity, $download = false, $sections = null) {
 	GLOBAL $USER,$CFG, $DB;
 	require_once ($CFG->libdir . '/pdflib.php');
-	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
+	require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");	
 	
+	$user_object = $DB->get_record('user', array('id' => $activity->userid));
 	
-$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-$user_object = $DB->get_record('user', array('id'=>$activity->userid));
-
-$usercontext=context_user::instance($USER->id);
-
-$fs = get_file_storage();
-// create new PDF document
-
-$pdf = emarking_create_activity_pdf($user_object, $activity);
-
-if(isset($sections->header) && $sections->header == 1) {
-	$pdf->writeHTML('<h1>'.$activity->title.'</h1> ', true, false, false, false, '');
-}
-if(isset($sections->instructions)&&$sections->instructions==1){
-	$pdf->writeHTML('<h3>Instrucciones</h3> ', true, false, false, false, '');
-	$instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
-	$instructionshtml=emarking__activities_clean_html_to_print($instructionshtml);
-	$pdf->writeHTML($instructionshtml, true, false, false, false, '');
-}
-
-if(isset($sections->planification)&&$sections->planification==1) {
-	$planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
-	$pdf->writeHTML('<h3>Planificación</h3>', true, false, false, false, '');
-	$planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
-	$pdf->writeHTML($planificationhtml, true, false, false, false, '');
-}
-
-if(isset($sections->writing)&&$sections->writing==1) {
-	$writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
-	$writinghtml=emarking__activities_clean_html_to_print($writinghtml);
-
-	$pdf->writeHTML('<h3>Escritura</h3>', true, false, false, false, '');
-	$pdf->writeHTML($writinghtml, true, false, false, false, '');
-
-	emarking_pdf_fill_writing_table($pdf);	
-	$pdf->AddPage();
+	$usercontext=context_user::instance($USER->id);
 	
-	$height = 0;
-	if(isset($sections->editing) && $sections->editing==1){
-		$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
-		$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
-		$pdf2 = emarking_create_activity_pdf($user_object, $activity);
-		$height = $pdf2->GetY();
-		$pdf2->writeHTML('<h3>Revisión y edición</h3>', true, false, false, false, '');
-		$pdf2->writeHTML($editinghtml, true, false, false, false, '');
-		$height = $pdf2->getY() - $height;
-		$pdf2->Close();
-		$pdf2 = null;
-		emarking_pdf_fill_writing_table($pdf, $height);
-		$pdf->writeHTML('<h3>Revisión y edición</h3>', true, false, false, false, '');
-		$pdf->writeHTML($editinghtml, true, false, false, false, '');
-	} else {
+	$fs = get_file_storage();
+	// create new PDF document
+	
+	$pdf = emarking_create_activity_pdf($user_object, $activity);
+	
+	if(isset($sections->header) && $sections->header == 1) {
+		$pdf->writeHTML('<h1>'.$activity->title.'</h1> ', true, false, false, false, '');
+	}
+	if(isset($sections->instructions)&&$sections->instructions==1){
+		$pdf->writeHTML('<h3>Instrucciones</h3> ', true, false, false, false, '');
+		$instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
+		$instructionshtml=emarking__activities_clean_html_to_print($instructionshtml);
+		$pdf->writeHTML($instructionshtml, true, false, false, false, '');
+	}
+	
+	if(isset($sections->planification)&&$sections->planification==1) {
+		$planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
+		$pdf->writeHTML('<h3>Planificación</h3>', true, false, false, false, '');
+		$planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
+		$pdf->writeHTML($planificationhtml, true, false, false, false, '');
+	}
+	
+	if(isset($sections->writing)&&$sections->writing==1) {
+		$writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
+		$writinghtml=emarking__activities_clean_html_to_print($writinghtml);
+	
+		$pdf->writeHTML('<h3>Escritura</h3>', true, false, false, false, '');
+		$pdf->writeHTML($writinghtml, true, false, false, false, '');
+	
 		emarking_pdf_fill_writing_table($pdf);	
+		$pdf->AddPage();
+		
+		$height = 0;
+		if(isset($sections->editing) && $sections->editing==1){
+			$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
+			$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
+			$pdf2 = emarking_create_activity_pdf($user_object, $activity);
+			$height = $pdf2->GetY();
+			$pdf2->writeHTML('<h3>Revisión y edición</h3>', true, false, false, false, '');
+			$pdf2->writeHTML($editinghtml, true, false, false, false, '');
+			$height = $pdf2->getY() - $height;
+			$pdf2->Close();
+			$pdf2 = null;
+			emarking_pdf_fill_writing_table($pdf, $height);
+			$pdf->writeHTML('<h3>Revisión y edición</h3>', true, false, false, false, '');
+			$pdf->writeHTML($editinghtml, true, false, false, false, '');
+		} else {
+			emarking_pdf_fill_writing_table($pdf);	
+		}
 	}
-}
-
-if(isset($sections->teaching) && $sections->teaching==1) {
-	$teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
-	$pdf->writeHTML('<h3>Sugerencias didácticas</h3>', true, false, false, false, '');
-	$teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
-	$pdf->writeHTML($teachinghtml, true, false, false, false, '');
-}
-
-if(isset($sections->resources) && $sections->resources==1) {
-	$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
-	$pdf->writeHTML('<h3>Recursos del lenguaje</h3>', true, false, false, false, '');
-	$languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
-	$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
-}
-
-if(isset($sections->rubric) && $sections->rubric==1) {
-	$pdf->AddPage();
-	$rubrichtml=show_rubric($activity->rubricid);
-	$pdf->writeHTML('<h3>Evaluación</h3>', true, false, false, false, '');
-	$rubrichtml=emarking__activities_clean_html_to_print($rubrichtml);
-	$pdf->writeHTML($rubrichtml, true, false, false, false, '');
-}
-
-if($download==true){
-	$pdf->Output($activity->title.'.pdf', 'D');
 	
-} else{
-	$tempdir = emarking_get_temp_dir_path($activity->id);
-	if (!file_exists($tempdir)) {
-		emarking_initialize_directory($tempdir, true);
+	if(isset($sections->teaching) && $sections->teaching==1) {
+		$teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
+		$pdf->writeHTML('<h3>Sugerencias didácticas</h3>', true, false, false, false, '');
+		$teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
+		$pdf->writeHTML($teachinghtml, true, false, false, false, '');
 	}
-$pdffilename=$activity->title.'.pdf';
-	$pathname = $tempdir . '/' . $pdffilename;
-	if (@file_exists($pathname)) {
-		unlink($pathname);
-	}
-	$numpages = $pdf->getNumPages();
-	 $pdf->Output($pathname, 'F');
 	
-$itemid=rand(1,32767);
-	 $filerecord = array(
-	 		'contextid' => $usercontext->id,
-	 		'component' => 'user',
-	 		'filearea' => 'exam_files',
-	 		'itemid' => $itemid,
-	 		'filepath' => '/',
-	 		'filename' => $pdffilename,
-	 		'timecreated' => time(),
-	 		'timemodified' => time(),
-	 		'author' =>'pepito',
-	 		'license' => 'allrightsreserved'
-	 );
-	 // Si el archivo ya existía entonces lo borramos.
-	 if ($fs->file_exists($usercontext->id, 'mod_emarking', 'user', $itemid, '/', $pdffilename)) {
-	 	$contents = $file->get_content();
-	 }
-	 $fileinfo = $fs->create_file_from_pathname($filerecord, $pathname);
-
-	 $filedata [] = array(
-	 		'pathname' => $pathname,
-	 		'filename' => $pdffilename
-	 );
-	 
-return array (
-		'itemid'=>$itemid,
-		'numpages'=>$numpages,
-		'filedata'=>$filedata,
-		'activitytitle'=>$activity->title,
-		'rubricid'=>$activity->rubricid
-			);
-}
+	if(isset($sections->resources) && $sections->resources==1) {
+		$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
+		$pdf->writeHTML('<h3>Recursos del lenguaje</h3>', true, false, false, false, '');
+		$languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
+		$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
+	}
+	
+	if(isset($sections->rubric) && $sections->rubric==1) {
+		$pdf->AddPage();
+		$rubrichtml=show_rubric($activity->rubricid);
+		$pdf->writeHTML('<h3>Evaluación</h3>', true, false, false, false, '');
+		$rubrichtml=emarking__activities_clean_html_to_print($rubrichtml);
+		$pdf->writeHTML($rubrichtml, true, false, false, false, '');
+	}
+	
+	if($download==true){
+		$pdf->Output($activity->title.'.pdf', 'D');
+		
+	} else{
+		$tempdir = emarking_get_temp_dir_path($activity->id);
+		if (!file_exists($tempdir)) {
+			emarking_initialize_directory($tempdir, true);
+		}
+		$pdffilename=$activity->title.'.pdf';
+		$pathname = $tempdir . '/' . $pdffilename;
+		if (@file_exists($pathname)) {
+			unlink($pathname);
+		}
+		$numpages = $pdf->getNumPages();
+		 $pdf->Output($pathname, 'F');
+		
+		$itemid=rand(1,32767);
+		$filerecord = array(
+		 		'contextid' => $usercontext->id,
+		 		'component' => 'user',
+		 		'filearea' => 'exam_files',
+		 		'itemid' => $itemid,
+		 		'filepath' => '/',
+		 		'filename' => $pdffilename,
+		 		'timecreated' => time(),
+		 		'timemodified' => time(),
+		 		'author' =>'pepito',
+		 		'license' => 'allrightsreserved'
+		 );
+		 // Si el archivo ya existía entonces lo borramos.
+		 if ($fs->file_exists($usercontext->id, 'mod_emarking', 'user', $itemid, '/', $pdffilename)) {
+		 	$contents = $file->get_content();
+		 }
+		 $fileinfo = $fs->create_file_from_pathname($filerecord, $pathname);
+	
+		 $filedata [] = array(
+		 		'pathname' => $pathname,
+		 		'filename' => $pdffilename
+		 );
+		 
+		return array (
+			'itemid' => $itemid,
+			'numpages' => $numpages,
+			'filedata' => $filedata,
+			'activitytitle' => $activity->title,
+			'rubricid' => $activity->rubricid
+		);
+	}
 }
 
 function emarking_create_activity_pdf($user_object, $activity) {
