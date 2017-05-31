@@ -60,12 +60,11 @@ if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activ
 	print_error("ID de Actividad invalido");
 }
 
-$PAGE->set_context(context_system::instance());
+$PAGE->set_context ( context_system::instance () );
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
 
-$PAGE->set_context ( context_system::instance () );
 
 $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking.php', array (
 		'id' => $activityid

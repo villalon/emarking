@@ -18,8 +18,16 @@
 							?>
   								</select>
   								<br> <label><input type="checkbox" name="askMarking"
-										value=1>Corrección experta</label> <input type="hidden"
+										value=1>Solicitar corrección experta</label> <input type="hidden"
 										value="<?php echo $activityid; ?>" name="id"> <br>
+  								<br> <label><input type="checkbox" name="printteaching"
+										value=1>Incluir didáctica en impresión</label><br>
+  								<br> <label><input type="checkbox" name="changelog"
+										value=1>Estudiantes pueden reescribir en línea</label><br>
+  								<br> <label>Recolección de textos<br/><select name="submissiontype">
+  												<option value="1">Respuestas de estudiantes son digitalizadas</option>
+  												<option value="2">Estudiantes suben documento PDF</option>
+  											</select></label><br>
 								<div style="text-align: right">
 								<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
   				

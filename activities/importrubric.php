@@ -47,11 +47,14 @@ if (isguestuser()) {
 $context = context_system::instance();
 $PAGE->set_url($url);
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('admin');
+$PAGE->set_pagelayout('embedded');
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
-$PAGE->navbar->add($activity->title, $urlactivity);
-$PAGE->navbar->add(get_string('importrubric', 'mod_emarking'));
-echo $OUTPUT->header();
+// $PAGE->navbar->add($activity->title, $urlactivity);
+// $PAGE->navbar->add(get_string('importrubric', 'mod_emarking'));
+
+include 'views/header.php';
+
+//echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('importrubric', 'mod_emarking') . ' actividad:' . $activity->title);
 // Form Display.
 $importrubricform = new emarking_import_excel_form(null, array(
@@ -169,11 +172,23 @@ if ($importrubricform->get_data()) {
         echo '<style>.hidden #fitem_id_ {display:none;}</style>';
     }
 } else {
+	$seesample = '';
+	list($lang, $langshort, $langspecific) = emarking_get_user_lang();
+	$samplerubric = '/mod/emarking/img/rubric_formative.xlsx';
+	if (file_exists($CFG->dirroot . $samplerubric)) {
+		$rubricurl = new moodle_url($samplerubric);
+		$seesample = 'Descargar plantilla para rúbrica ' .
+				html_writer::link($rubricurl, $OUTPUT->pix_icon('f/spreadsheet', 'Descargar plantilla para rúbrica'));
+	}
+	echo $OUTPUT->box('Importar rúbrica copiando y pegando desde una planilla Excel. ' . $seesample, null, null,
+			array(
+					'style' => 'margin-bottom:10px;'));
     // Action buttons.
     $importrubricform->add_action_buttons(true, get_string('submit'));
     $importrubricform->display();
 }
-echo $OUTPUT->footer();
+//echo $OUTPUT->footer();
+include 'views/footer.html';
 function emarking_table_from_line($line) {
     $levelstable = new html_table();
     $levelstable->attributes ['class'] = 'none';
