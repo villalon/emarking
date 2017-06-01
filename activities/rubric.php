@@ -49,6 +49,8 @@ if (isset ( $_POST['submit'])) {
 	$data = $_POST;
 	if(isset($id) && $id != null){
 		update_rubric($id,$data);
+		//die();
+		
 	}else{
 		insert_rubric($data,$activityid);
 	}

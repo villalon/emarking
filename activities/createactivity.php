@@ -57,8 +57,8 @@ file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instru
 		
 <?php
 $basic = new mod_emarking_activities_create_activity_basic ();
-$instructions = new mod_emarking_activities_create_activity_instructions ();
-$teaching = new mod_emarking_activities_create_activity_teaching ();
+$instructions = new mod_emarking_activities_create_activity_instructions (null,array('id'=>$activityid));
+$teaching = new mod_emarking_activities_create_activity_teaching (null,array('id'=>$activityid));
 if($step == 1){
 	if($activityid!=0){
 		$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
@@ -82,11 +82,13 @@ if($step == 1){
 	//if is creating or editing a rubric
 	if($fromformbasic->editing==0){
 	$activityid=add_new_activity_basic ( $fromformbasic);
+	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php', array('id' => $activityid, 'step' => 2));
+	redirect($forkUrl, 0);
 	}else{
 		edit_activity_basic ( $fromformbasic,$activityid);
 	}
+	}
 	$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-	
 	$area->instructions = array (
 			'text' => $activity->instructions,
 			'',
@@ -109,9 +111,10 @@ if($step == 1){
 	);
 	$area->id 	= $activityid;
 	$instructions->set_data ( $area );
+	
 	$instructions->display ();
-	}
 }elseif ($step == 3){
+	
 	if ($fromforminstructions = $instructions->get_data ()) {
 	add_new_activity_instructions ( $fromforminstructions,$activityid,$context );
 	$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
@@ -127,8 +130,9 @@ if($step == 1){
 	);
 	$area->id 	= $activityid;
 	$teaching->set_data ( $area );
+	
+	}
 	$teaching->display();
-	}	
 }
 elseif ($step == 4){
 	if ($fromformteaching = $teaching->get_data ()) {
