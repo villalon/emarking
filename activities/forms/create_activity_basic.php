@@ -30,9 +30,14 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 
     public function definition() {
         global $CFG, $OUTPUT, $COURSE, $DB;
-        
-        require ($CFG->dirroot. '/mod/emarking/activities/generos.php');
-       array_unshift($generos, "Seleccione un género");
+       
+
+       $genres = $DB->get_records('emarking_activities_genres',null,'name ASC');       
+       $genrearray[0]="Seleccione un género";
+       foreach ($genres as $genre){
+      	$genrearray[$genre->id]=$genre->name;
+       }
+       
        $result = $DB->get_records_sql('
          SELECT gd.id,
                 gd.name,
@@ -164,7 +169,7 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
         $mform->setType('comunicativepurpose', PARAM_TEXT);
         // $mform->addHelpButton('comunicativepurpose', 'pc','ciae');
         // Género
-        $mform->addElement('select', 'genre', 'Género', $generos);
+        $mform->addElement('select', 'genre', 'Género', $genrearray);
         $mform->addRule('genre', get_string('required'), 'required');
         $mform->setType('genre', PARAM_TEXT);
         //$mform->addHelpButton('genre', 'genero','ciae');

@@ -22,14 +22,14 @@ $sections->teaching=$printteaching == 0 ? 0 : 1;
 
 $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
 
-$pdf=get_pdf_activity($activityid,false,$sections);
+$pdf=emarking_get_pdf_activity($activity,false,$sections);
 $itemid=$pdf['itemid'];
 $numpages=$pdf['numpages'];
 $filedata=$pdf['filedata'];
 
 $emarking = new stdClass();
 $emarking->course = $courseid;
-$emarking->name = $pdf['activitytitle'];;
+$emarking->name = $pdf['activitytitle'];
 $emarking->intro = "";
 $emarking->custommarks = "";
 $emarking->markingduedate = time();

@@ -46,7 +46,7 @@ class mod_emarking_activities_create_activity_teaching extends moodleform {
         $mform->setType('step', PARAM_INT);
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
-        $backUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php', array('id' =>35,'step'=>2));
+        $backUrl = 'createactivity.php?id='.$this->_customdata['id'].'&step=2';
         $onclick="location.href='$backUrl'";
         $mform->addElement('button', 'intro', 'Atrás',array('onclick'=>$onclick) );
 

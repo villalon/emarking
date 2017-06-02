@@ -195,9 +195,16 @@ $(document).ready(function () {
 						 <select id="select_genre" name="genero" class="form-control">
 						<option value="">Seleccione un género</option>
 						<?php 
-							$options ='';
-							foreach($generos as $genero){
-								$options .='<option value="'.$genero.'">'.$genero.'</option>';
+						
+						$genres = $DB->get_records('emarking_activities_genres',null,'name ASC');
+						$options ='';
+						foreach($genres as $genre){
+							$selected='';
+							if($genre->id == $genero){
+								$selected='selected';
+							}
+							
+							$options .='<option value="'.$genre->id.'" '.$selected.'>'.$genre->name.'</option>';
 							}					
 							echo $options; 
 						?>

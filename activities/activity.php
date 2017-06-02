@@ -21,7 +21,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
-require_once ($CFG->dirroot. '/mod/emarking/activities/generos.php');
+
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 global $PAGE, $DB, $USER, $CFG;
 
@@ -56,9 +56,11 @@ $meses = array(
 		"Diciembre"
 );
 
+
 if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activityid))) {
 	print_error("ID de Actividad invalido");
 }
+$genre = $DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
 
 $PAGE->set_context ( context_system::instance () );
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));

@@ -25,7 +25,7 @@
 						style="text-align: left">
 						<div id="descripcion" class="panel-body">
 
-							<span style="font-size: 16px;">Género: <?=$data->genre?></span>
+							<span style="font-size: 16px;">Género: <?=$genre->name?></span>
 							<h3 class="title_result">
 								<b><?=ucfirst(strtolower($data->title));?></b>
 							</h3>
