@@ -93,6 +93,7 @@ function activities_show_result($data) {
 		$coursesOA .= '<span>Curso: </span><br>';
 		$coursesOA .= '<span>OAs:</span><br>';
 	}
+	$genre = $DB->get_record('emarking_activities_genres',array('id'=>$data->genre));
 	$userobject = $DB->get_record('user', array('id' => $data->userid));
 	
 	//Busca toda la información de la comunidad en esta actividad

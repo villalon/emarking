@@ -30,7 +30,7 @@ require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 $type = optional_param('type', 1, PARAM_INT);
 $oa = optional_param('oa', '', PARAM_TEXT);
 $pc = optional_param('pc', '', PARAM_TEXT);
-$genre = optional_param('genero', '', PARAM_TEXT);
+$genero = optional_param('genero', '', PARAM_TEXT);
 $search = optional_param('search', '', PARAM_TEXT);
 
 // Checkbox de la busqueda por Objetivo de aprendizaje, 2do formulario de busqueda
@@ -133,12 +133,12 @@ switch ($type){
 		));
 		break;
 	case 4:
-		$genre = $DB->sql_like_escape($genre->name);
+		$genero= $DB->sql_like_escape($genero);
 		$activitiessql = 'SELECT *
 				FROM {emarking_activities}
 				WHERE genre = ? AND parent IS NULL AND status = ?';
 		$results = $DB->get_records_sql($activitiessql, array(
-			$genre,
+			$genero,
 			1
 		));
 		break;
