@@ -30,7 +30,7 @@ $(function() {
 						<p><?=$coursesOA?>
 
 						<hr>
-						Género: <?php echo $activity->genre; ?><br>
+						Género: <?php echo $genre->name; ?><br>
 					    Propósito comunicativo: <?=$activity->comunicativepurpose?><br>
 					    Audiencia: <?= $activity->audience?><br>
 					    Tiempo estimado: <?=$activity->estimatedtime?><br>

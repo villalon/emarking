@@ -37,6 +37,9 @@ class mod_emarking_activities_new_genre extends moodleform {
 		$mform->addElement('text', 'genre','Género');
 		$mform->setType('genre', PARAM_TEXT);
 		$mform->addRule('genre', get_string('required'), 'required');
+		$Url = 'genres.php?sync=1';
+		$onclick="location.href='$Url'";
+		$mform->addElement('button', 'intro', 'Sincronizar generos',array('onclick'=>$onclick) );
 
 		
 	}

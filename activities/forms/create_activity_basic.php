@@ -35,7 +35,7 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
        $genres = $DB->get_records('emarking_activities_genres',null,'name ASC');       
        $genrearray[0]="Seleccione un género";
        foreach ($genres as $genre){
-      	$genrearray[$genre->name]=$genre->name;
+      	$genrearray[$genre->id]=$genre->name;
        }
        
        $result = $DB->get_records_sql('

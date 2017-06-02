@@ -198,7 +198,7 @@ $(document).ready(function () {
 						$genres = $DB->get_records('emarking_activities_genres',null,'name ASC');
 						$options ='';
 						foreach($genres as $genre){
-							$options .='<option value="'.$genre->name.'">'.$genre->name.'</option>';
+							$options .='<option value="'.$genre->id.'">'.$genre->name.'</option>';
 							}					
 							echo $options; 
 						?>

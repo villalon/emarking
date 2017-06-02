@@ -56,9 +56,11 @@ $meses = array(
 		"Diciembre"
 );
 
+
 if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activityid))) {
 	print_error("ID de Actividad invalido");
 }
+$genre = $DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
 
 $PAGE->set_context ( context_system::instance () );
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));

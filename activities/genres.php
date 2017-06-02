@@ -33,6 +33,7 @@ require_once ($CFG->dirroot. '/mod/emarking/activities/forms/new_genre.php');
 // Action var is needed to change the action wished to perfomr: list, create, edit, delete.
 $action = optional_param('action', 'list', PARAM_TEXT);
 $genreid = optional_param('genreid', 0, PARAM_INT);
+$sync= optional_param('sync', '0', PARAM_INT);
 // Emarking URL.
 
 $url = new moodle_url('/mod/emarking/activities/genres.php');
@@ -40,7 +41,32 @@ require_login();
 if (isguestuser()) {
     die();
 }
-
+if($sync==1){
+	require_once 'generos.php';
+	foreach ($generos as $genero){
+		if($fromDB=$DB->get_record('emarking_activities_genres',array('name'=>$genero))){
+			$genreid=$fromDB->id;
+		}else{
+			$newgenre=new stdClass();
+			$newgenre->name= $genero;
+			$newgenre->timecreated=time();
+			$genreid=$DB->insert_record('emarking_activities_genres', $newgenre);
+		}
+		if($activities=$DB->get_records('emarking_activities',array('genre'=>$genero))){
+			foreach ($activities as $activity){
+				$activity->genre=$genreid;
+				$DB->update_record('emarking_activities', $activity);
+			}
+		}
+	}
+	$result = $DB->get_records_sql('SELECT * FROM {emarking_activities} WHERE genre*0 = genre AND genre != 0');
+	foreach($result as $activity){
+		$activity->genre=0;
+		$DB->update_record('emarking_activities', $activity);
+	}
+	echo $OUTPUT->notification('Sincronización exitosa', 'notifysuccess');
+	$action = "list";
+}
 $systemcontext = context_system::instance();
 $PAGE->set_url($url);
 $PAGE->set_context($systemcontext);
@@ -90,14 +116,14 @@ if ($action == 'list') {
                     'action' => 'delete',
                     'genreid' => $genre->id));
         $deleteigenre = new pix_icon('t/delete', get_string('delete'));
-        $deleteactiongenre = $OUTPUT->action_icon($deleteurlcomment, $deleteigenre,
+        $deleteactiongenre = $OUTPUT->action_icon($deleteurlcomment,$deleteigenre,
                 new confirm_action(get_string('questiondeletecomment', 'mod_emarking')));
         
         $table->data [] = array(
             $genre->name,
         	$deleteactiongenre);
     }
-   
+
         // Showing table.
         echo html_writer::table($table);
         // Action buttons.
