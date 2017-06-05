@@ -104,19 +104,7 @@ if ($exportcsv && $usercangrade && $issupervisor) {
 $PAGE->set_url($urlemarking);
 $PAGE->set_context($context);
 $PAGE->set_course($course);
-$layout = 'incourse';
-if (isset($CFG->emarking_pagelayouttype)) {
-    switch ($CFG->emarking_pagelayouttype) {
-        case EMARKING_PAGES_LAYOUT_STANDARD :
-            $layout = 'standard';
-            break;
-        case EMARKING_PAGES_LAYOUT_EMBEDDED :
-            $layout = 'embedded';
-            break;
-    }
-}
-
-$PAGE->set_pagelayout($layout);
+$PAGE->set_pagelayout(emarking_get_layout());
 $PAGE->set_cm($cm);
 $PAGE->set_title(get_string('emarking', 'mod_emarking'));
 // Require jquery for modal.
@@ -830,13 +818,8 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
     $popupurl = new moodle_url('/mod/emarking/marking/index.php', array(
         'id' => $d->id
     ));
-    if($emarking->type == EMARKING_TYPE_PEER_REVIEW && $owndraft && $d->status < EMARKING_STATUS_PUBLISHED) {
-        return null;
-    }
-    // EMarking button.
-    if (($usercangrade && $d->status >= EMARKING_STATUS_SUBMITTED && $numcriteria > 0) || $d->status >= EMARKING_STATUS_PUBLISHED || ($emarking->type == EMARKING_TYPE_PRINT_SCAN && $d->status >= EMARKING_STATUS_SUBMITTED)) {
-        $label = ($usercangrade && !$scan) ? get_string('annotatesubmission', 'mod_emarking') : get_string('viewsubmission', 'mod_emarking');
-        $actionsarray[] = $OUTPUT->action_link($popupurl, $label, new popup_action('click', $popupurl, 'emarking' . $d->id, array(
+    $label = ($usercangrade && !$scan) ? get_string('annotatesubmission', 'mod_emarking') : get_string('viewsubmission', 'mod_emarking');
+    $markactionlink = $OUTPUT->action_link($popupurl, $label, new popup_action('click', $popupurl, 'emarking' . $d->id, array(
             'menubar' => 'no',
             'titlebar' => 'no',
             'status' => 'no',
@@ -844,7 +827,11 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
             'width' => 860,
             'height' => 600
         )));
+    if($emarking->type == EMARKING_TYPE_PEER_REVIEW && $owndraft && $d->status < EMARKING_STATUS_PUBLISHED) {
+        return null;
     }
+    // EMarking button.
+    $actionsarray[] = $markactionlink;
     // Mark draft as absent/sent.
     if ((($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING && $d->qc == 0) || ($emarking->type == EMARKING_TYPE_PEER_REVIEW && $d->qc == 1)) && (is_siteadmin($USER) || ($issupervisor && $usercangrade)) && $d->status > EMARKING_STATUS_MISSING) {
         if($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING && $d->qc == 0) {
@@ -873,6 +860,9 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
         if($d->status < EMARKING_STATUS_SUBMITTED) {
             $actionsarray[] = $OUTPUT->action_link($uploadanswerurl, get_string('uploadsubmission', 'mod_emarking'));
         } else if($owndraft) {
+        	if($d->comments == 0) {
+        		
+        	}
             $printversionurl = new moodle_url('/mod/emarking/marking/printversion.php', array(
                 'id' => $cm->id,
                 'did' => $d->id

@@ -64,6 +64,7 @@ if (! $totalsubmissions || $totalsubmissions == 0) {
 	$reportsUrl = '#';
 }
 // print the header
+include 'views/header.php';
 
 ?>
 <div class="container"
@@ -144,7 +145,6 @@ switch ($tab) {
 </div>
 <?php
 // print the footer
-include 'views/header.php';
 include 'views/footer.html';
 ?>
 

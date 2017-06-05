@@ -2151,6 +2151,20 @@ function emarking_show_orphan_pages_link($context, $cm, $layout=false) {
     }
 }
 
+/**
+ * Return the layout for the module according to its URI
+ * @return string
+ */
+function emarking_get_layout() {
+	$uri = $_SERVER['REQUEST_URI'];
+	if(!$uri) {
+		return 'standard';
+	} elseif(core_text::strpos($uri, '/activities/') > 0) {
+		return 'embedded';
+	} else {
+		return 'incourse';
+	}
+}
 
 function emarking_get_hue_color($sequence) {
     // We pick a sequence based on Golden Ratio of the 360 values of HUE
