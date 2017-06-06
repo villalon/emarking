@@ -834,7 +834,7 @@ function emarking_get_regrade_motives() {
  *            The course module (emarking activity)
  * @return multitype:tabobject
  */
-function emarking_tabs($context, $cm, $emarking) {
+function emarking_tabs($context, $cm, $emarking, $draft=null) {
     global $CFG, $USER;
     $usercangrade = has_capability("mod/emarking:grade", $context);
     $issupervisor = has_capability("mod/emarking:supervisegrading", $context);
@@ -857,17 +857,18 @@ function emarking_tabs($context, $cm, $emarking) {
     // Grade tab.
     $markingtab = new tabobject("grade", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string('onscreenmarking', 'mod_emarking'));
     $markingtab->subtree[] = new tabobject("mark", $CFG->wwwroot . "/mod/emarking/view.php?id={$cm->id}", get_string("marking", 'mod_emarking'));
+    $regradestab = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
     if (!$usercangrade) {
         if ($emarking->peervisibility) {
             $markingtab->subtree[] = new tabobject("ranking", $CFG->wwwroot . "/mod/emarking/reports/ranking.php?id={$cm->id}", get_string("ranking", 'mod_emarking'));
             $markingtab->subtree[] = new tabobject("viewpeers", $CFG->wwwroot . "/mod/emarking/reports/viewpeers.php?id={$cm->id}", get_string("reviewpeersfeedback", 'mod_emarking'));
         }
-        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-            $markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+        if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING && $draft != null && $draft->status >= EMARKING_STATUS_PUBLISHED) {
+            $markingtab->subtree[] = $regradestab;
         }
     } else {
         if (has_capability('mod/emarking:regrade', $context) && $emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-            $markingtab->subtree[] = new tabobject("regrades", $CFG->wwwroot . "/mod/emarking/marking/regraderequests.php?id={$cm->id}", get_string("regrades", 'mod_emarking'));
+            $markingtab->subtree[] = $regradestab;
         }
     }
     // Settings tab.

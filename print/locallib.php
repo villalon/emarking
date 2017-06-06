@@ -82,6 +82,8 @@ function emarking_generate_personalized_exams($category = NULL) {
                 $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
                 $DB->update_record('emarking_exams', $exam);
             }
+            $filedir = $CFG->dataroot . "/temp/emarking/$exam->id";
+            emarking_initialize_directory($filedir, true);
         } catch (Exception $e) {
             $message = 'exception printing';
             // Update the exam status to error.
@@ -885,11 +887,8 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
     global $CFG, $DB;
     require_once $CFG->dirroot . '/mod/emarking/lib/qrextractor/config.php';
     $context = context_module::instance($cm->id);
-    $exam = $DB->get_record('emarking_exams', array(
-        'emarking' => $emarking->id
-    ));
     // Setup de directorios temporales.
-    $tempdir = emarking_get_temp_dir_path($emarking->id);
+    $tempdir = emarking_get_temp_dir_path('up'.$emarking->id);
     emarking_initialize_directory($tempdir, true);
     $extension = strtolower(pathinfo($filepath, PATHINFO_EXTENSION));
     $filename = pathinfo($filepath, PATHINFO_FILENAME);
@@ -902,16 +901,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
             0
         );
     }
-    if($extension === 'zip') {
-    if (!emarking_unzip($filepath, $tempdir . "/") || !$exam) {
-        return array(
-            false,
-            get_string('errorprocessingextraction', 'mod_emarking'),
-            0,
-            0
-        );
-    }
-    } elseif ($extension === 'pdf') {
+    if ($extension === 'pdf') {
         if($emarking->uploadtype != EMARKING_UPLOAD_FILE) {
             $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
                 . '--url ' . $CFG->wwwroot . '/ --user ' . $CFG->emarking_qr_user . ' --pwd '
@@ -932,6 +922,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
             $errormsg = $lastline;
+            emarking_initialize_directory($tempdir, true);
             return array(
             false,
             $errormsg,
@@ -957,7 +948,8 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
     }
     $total = count($pngfiles);
     if ($total == 0) {
-        return array(
+    	emarking_rrmdir($tempdir);
+    	 return array(
             false,
             get_string('nopagestoprocess', 'mod_emarking'),
             0,
@@ -1049,7 +1041,8 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         if (emarking_submit($emarking, $context, $tempdir, $file, $student, $pagenumber, NULL)) {
             $totaldocumentsprocessed++;
         } else {
-            return array(
+        	emarking_rrmdir($tempdir);
+        	 return array(
                 false,
                 get_string('invalidzipnoanonymous', 'mod_emarking'),
                 $totaldocumentsprocessed,
@@ -1062,11 +1055,15 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
             echo "Error assigning peers";
         }
     }
-    if ($exam->usebackside == 0 && $doubleside) {
+    $exam = $DB->get_record('emarking_exams', array(
+    		'emarking' => $emarking->id
+    ));
+    if ($exam != null && $exam->usebackside == 0 && $doubleside) {
         $exam->usebackside = 1;
         $result = $DB->update_record('emarking_exams', $exam);
     }
     emarking_send_processanswers_notification($emarking, $course);
+    emarking_rrmdir($tempdir);
     return array(
         true,
         get_string('invalidpdfnopages', 'mod_emarking'),
@@ -1610,7 +1607,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
     }
     // Parameters for PDF generation.
     $iconsize = 5;
-    $tempdir = emarking_get_temp_dir_path($emarking->id);
+    $tempdir = emarking_get_temp_dir_path('re'.$emarking->id);
     if (!file_exists($tempdir)) {
         emarking_initialize_directory($tempdir, true);
     }
@@ -1755,6 +1752,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
         $previousfile->delete();
     }
     $fileinfo = $fs->create_file_from_pathname($filerecord, $pathname);
+    emarking_rrmdir($tempdir);
     return true;
 }
 
@@ -1809,7 +1807,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     // Convert enrolments to array.
     $enrolincludes = explode(",", $enrolincludes);
     // Produce all PDFs first separatedly.
-    $filedir = $CFG->dataroot . "/temp/emarking/$context->id";
+    $filedir = $CFG->dataroot . "/temp/emarking/$examid";
     $fileimg = $filedir . "/qr";
     $userimgdir = $filedir . "/u";
     $pdfdir = $filedir . "/pdf";
@@ -2320,12 +2318,12 @@ function emarking_create_anonymous_page_from_storedfile(stored_file $file, $stud
     return $fileinfo;
 }
 /**
- * Erraces all the content of a directory, then ir creates te if they don't exist.
+ * Creates directory it if it doesn't exist, optionally deletes all content in the directory.
  *
  * @param unknown $dir
- *            Directorio
+ *            Directory
  * @param unknown $delete
- *            Borrar archivos previamente
+ *            Delete content
  */
 function emarking_initialize_directory($dir, $delete) {
     if ($delete) {
@@ -2349,6 +2347,11 @@ function emarking_initialize_directory($dir, $delete) {
  * @param unknown_type $dir            
  */
 function emarking_rrmdir($dir) {
+	global $CFG;
+	// Protect from unwanted deletion. 
+	if($dir == null || strlen($dir) < strlen($CFG->dataroot) || substr($dir, 0, strlen($CFG->dataroot)) !== $CFG->dataroot) {
+		throw new Exception('Fatal error invalid directory for temp files in Emarking');
+	}
     foreach(glob($dir . '/*') as $file) {
         if (is_dir($file)) {
             emarking_rrmdir($file);
@@ -2360,7 +2363,7 @@ function emarking_rrmdir($dir) {
 }
 
 /**
- * Sends an sms message using UAI's service with infobip.com.
+ * Sends an sms message using Twilio's service.
  * Returns true if successful, false otherwise.
  *
  * @param string $message
@@ -2522,5 +2525,6 @@ function emarking_process_digitized_answers() {
         $DB->update_record('emarking_digitized_answers', $digitizedanswerfile);
         mtrace($msg);
     }
+    emarking_initialize_directory($tempdir, true);
     mtrace("A total of $totalfiles were processed.");
 }

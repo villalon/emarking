@@ -33,6 +33,8 @@ require_login($course, true);
 $usercangrade = has_capability('mod/emarking:grade', $context);
 $usercanregrade = has_capability('mod/emarking:regrade', $context);
 $issupervisor = has_capability('mod/emarking:supervisegrading', $context) || is_siteadmin($USER);
+$ownsubmission = $DB->get_record('emarking_submission', array('student'=>$USER->id, 'emarking'=>$emarking->id));
+$owndraft = $ownsubmission? $DB->get_record('emarking_draft', array('submissionid'=>$ownsubmission->id, 'qualitycontrol'=>0)) : null;
 $filteruser = ! $issupervisor && ! $usercangrade;
 $url = new moodle_url("/mod/emarking/marking/regraderequests.php", array(
     "id" => $cm->id));
@@ -48,7 +50,7 @@ $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
-echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "regrades");
+echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking, $owndraft), "regrades");
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) = emarking_validate_rubric($context, true, true);
 $sqlfilter = $filteruser ? " AND u.id = $USER->id" : "";
 $sql = "select
@@ -190,8 +192,7 @@ foreach ($records as $record) {
 }
 $table->data = $data;
 echo html_writer::table($table);
-$submission = $DB->get_record('emarking_submission', array('student'=>$USER->id, 'emarking'=>$emarking->id));
-if (count($definition->rubric_criteria) > $totalregrades && $filteruser && $submission) {
+if (count($definition->rubric_criteria) > $totalregrades && $filteruser && $ownsubmission) {
     echo $OUTPUT->single_button(new moodle_url("/mod/emarking/marking/regrades.php", array(
         "id" => $cm->id)), get_string("regraderequest", "mod_emarking"), "GET");
 }
