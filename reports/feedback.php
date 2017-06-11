@@ -206,7 +206,7 @@ foreach($words as $w => $f) {
 <div id="my_favorite_latin_words" style="width: 95%; height: 250px; border: 1px solid #ccc;"></div>
 <?php echo $OUTPUT->footer();
 function emarking_table_from_criterion($criterion, $cm) {
-    global $OUTPUT;
+    global $OUTPUT, $CFG;
     $levelstable = new html_table();
     $levelstable->attributes ['class'] = 'none';
     $levelstable->data = array();
@@ -239,7 +239,7 @@ function emarking_table_from_criterion($criterion, $cm) {
         		'Nivel ' . $current
         		, 'definition');
         $levelstable->data [1] [] = html_writer::div(
-                $level->definition
+                format_text($level->definition)
                 , 'definition');
         $levelstable->data [2] [] = html_writer::div(
                 html_writer::div($percentage > 0 ? $percentage . '%' : '',

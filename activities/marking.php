@@ -63,8 +63,6 @@ if (! $totalsubmissions || $totalsubmissions == 0) {
 	$disabled = 'class="disabled disabledTab"';
 	$reportsUrl = '#';
 }
-// print the header
-include 'views/header.php';
 
 ?>
 <div class="container"
@@ -144,6 +142,10 @@ switch ($tab) {
 	</div>
 </div>
 <?php
+
+// print the header
+include 'views/header.php';
+
 // print the footer
 include 'views/footer.html';
 ?>

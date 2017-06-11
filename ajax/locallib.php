@@ -955,7 +955,7 @@ function emarking_get_rubric_submission($submission, $draft, $cm, $readonly, $is
         }
         $level = new stdClass();
         $level->id = $rd->levelid;
-        $level->description = $rd->definition;
+        $level->description = format_text($rd->definition);
         $level->score = $rd->score;
         $level->commentid = $rd->commentid;
         $level->commenttext = $rd->commenttext;
