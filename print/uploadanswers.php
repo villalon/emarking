@@ -259,7 +259,7 @@ if($totalbeingprocessed > 0) {
 	echo '<script>
 setTimeout(function(){
 	window.location.reload(1);
-}, 5000);
+}, 40000);
 		</script>';
 }
 echo $OUTPUT->footer();
