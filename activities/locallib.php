@@ -1119,3 +1119,40 @@ function emarking_activity_send_notification($cm,$userto) {
 		message_send($eventdata);
 	
 }
+
+function emarking_activity_get_num_criteria($context) {
+	Global $CFG;
+	require_once ($CFG->dirroot . '/grade/grading/lib.php');
+	
+	$gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
+	$gradingmethod = $gradingmanager->get_active_method();
+	$definition = null;
+	$rubriccontroller = null;
+	if ($gradingmethod !== 'rubric') {
+		$gradingmanager->set_active_method('rubric');
+		$gradingmethod = $gradingmanager->get_active_method();
+	}
+	$rubriccontroller = $gradingmanager->get_controller($gradingmethod);
+	$definition = $rubriccontroller->get_definition();
+	if ($definition) {
+		$numcriteria = count($definition->rubric_criteria);
+	}
+	
+	return $numcriteria;
+}
+function emarking_activity_get_num_criteria_comments($emarkingid) {
+	Global $DB;
+	
+	$sql = "SELECT SUM(IFNULL(c.count,0)) as totalcomments
+FROM mdl_emarking as e
+LEFT JOIN mdl_emarking_draft as ed on (e.id=ed.emarkingid)
+LEFT JOIN (select draft, count(*) as count
+			from mdl_emarking_comment
+			where textformat=2
+			group by draft) as c on (c.draft=ed.id)
+WHERE e.id=?";
+	$numcomments=$DB->get_record_sql ( $sql, array (
+			$emarkingid
+	) );
+	return $numcomments->totalcomments;
+}
