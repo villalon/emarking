@@ -103,13 +103,7 @@ if ($action == 'list') {
 		$data->timecreated = time ();
 		$DB->insert_record ( 'emarking_activities_genres', $data );
 	}
-	
-	// Create button url.
-	$urlcreate = new moodle_url ( '/mod/emarking/marking/predefinedcomments.php', array (
-			'id' => $cm->id,
-			'action' => 'create' 
-	) );
-	$genres = $DB->get_records ( 'emarking_activities_genres', null, 'name ASC' );
+ 	$genres = $DB->get_records ( 'emarking_activities_genres', null, 'name ASC' );
 	// Creating list.
 	$table = new html_table ();
 	$table->head = array (

@@ -77,6 +77,7 @@ if ($action == "edit") {
 		$action = "list";
 		$markerupdate=$DB->get_record('emarking_markers',array('id'=>$fromform->id));
 		$markerupdate->marker = $fromform->marker;
+		$markerupdate->timeassignation=time();
 		$DB->update_record('emarking_markers', $markerupdate);
 		echo $OUTPUT->notification ( 'El corrector ha sido asignado correctamente', 'notifysuccess' );
 	} else {
@@ -98,6 +99,7 @@ if ($action == 'list') {
 			'Curso',
 			'Corrector',
 			'Progreso',
+			'Fecha asignación',
 			get_string ( 'actions', 'mod_emarking' ) 
 	);
 	foreach ( $markers as $marker ) {
@@ -132,11 +134,16 @@ if ($action == 'list') {
 			) );
 			$username = $markerobj->firstname . ' ' . $markerobj->lastname;
 		}
+		$date='';
+		if($marker->timeassignation){
+			$date=date("d/m/y",$marker->timeassignation);
+		}
 		$table->data [] = array (
 				$emarkikngLink,
 				$course->fullname,
 				$username,
 				emarking_get_progress_circle ( $markingprogress ),
+				$date,
 				$editactionassignation 
 		);
 	}
