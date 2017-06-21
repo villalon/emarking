@@ -15,6 +15,7 @@ body {
 
 .pageheader {
 	background-color: #00547C;
+	
 }
 
 .row_caract {
@@ -26,6 +27,7 @@ body {
 
 /*CSS Header*/
 .navbar{
+	max-height:none;
 	margin-bottom: 0px;
 
 }

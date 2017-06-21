@@ -6,6 +6,9 @@ $myUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $loginUrl = new moodle_url ( $CFG->wwwroot . '/login/index.php' );
 $needMarkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/needmarking.php' );
+$genresUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/genres.php' );
+$moodleUrl = new moodle_url ( $CFG->wwwroot . '/my' );
+$markerAssignationUrl = new moodle_url ( '/mod/emarking/activities/assignmarker.php' );
 if (isloggedin ()) {
 	$logoutUrl = new moodle_url ( $CFG->wwwroot . '/login/logout.php', array (
 			'sesskey' => $USER->sesskey 
@@ -34,12 +37,8 @@ if(!isset($tab)){
 	echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 		<script	src="js/jquery.dataTables.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>';
-}else{
-	$fixed="navbar-fixed-top";
-	$fix=true;
-}
-?>
-<script>
+	?>
+	<script>
 $(function() {
 	var width=$( window ).width();
 	var height=$( window ).height();
@@ -81,6 +80,13 @@ $(function() {
 	  }
 	}); 
 </script>
+	<?php
+}else{
+	$fixed="navbar-fixed-top";
+	$fix=true;
+}
+?>
+
 
 <!-- Script para filtro de genero -->
 <header class="pageheader">
@@ -131,15 +137,23 @@ $(function() {
 														?>
           
                    <li class="dropdown txt text_nav"><a class="dropdown-toggle"
-						data-toggle="dropdown" href="#"><?=$USER->firstname;?> <span
-							class="caret"></span></a>
+						data-toggle="dropdown" href="#"><?=$USER->firstname;?> </a>
 						<ul class="dropdown-menu">
 							<!--- <li><a href="<?= $myUrl ?>">Mi perfil</a></li> --->
 							<li><a href="<?= $myUrl ?>">Mis cursos</a></li>
 						<?php	if($marker=$DB->get_records('emarking_markers',array('marker'=>$USER->id))){ ?>
 						<li><a href="<?= $needMarkingUrl ?>">Corregir</a></li>
 						<?php } ?>
-							
+						<?php	if(is_siteadmin()){ ?>
+						<li><a href="<?= $markerAssignationUrl?>">Asignar Corrector</a></li>
+						<li><a href="<?= $genresUrl ?>">Géneros</a></li>
+						<li><a href="<?= $moodleUrl ?>">Moodle</a></li>
+						
+						<?php } ?>
+						
+						
+						
+							 
 							<li><a href="<?= $createactivityUrl ?>">Crear actividad</a></li>
 							<li class="divider"></li>
 							<li>

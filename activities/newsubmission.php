@@ -105,7 +105,7 @@ LIMIT 1";
 $result = $DB->get_record_sql($sql, array('corrector'));
 $marker = new stdClass();
 $marker->emarking=$data['cmid'];
-$marker->marker = $result->userid;
+$marker->marker =0;
 $marker->qualitycontrol=0;
 $DB->insert_record('emarking_markers', $marker);
 }
