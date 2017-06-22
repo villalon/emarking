@@ -32,12 +32,19 @@ require_once ($CFG->dirroot . '/mod/emarking/activities/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/activities/forms/assign_marker.php');
 
+// Action var is needed to change the action wished to perfomr: list, create, edit, delete.
+$action = optional_param ( 'action', 'list', PARAM_TEXT );
+$id = optional_param ( 'id', '0', PARAM_TEXT );
+$markerid = optional_param ( 'marker', 0, PARAM_INT );
+$activityid = optional_param ( 'activity', 0, PARAM_INT );
+// Emarking URL.
 
-$url = new moodle_url ( '/mod/emarking/activities/needmarking.php' );
+$url = new moodle_url ( '/mod/emarking/activities/assignmarker.php' );
 require_login ();
 if (isguestuser ()) {
 	die ();
 }
+
 $systemcontext = context_system::instance ();
 $PAGE->set_url ( $url );
 $PAGE->set_context ( $systemcontext );
@@ -53,15 +60,47 @@ echo $OUTPUT->header ();
 		<div class="col-md-12">
 
 <?php
-
-
-	$markers = $DB->get_records ( 'emarking_markers', array('marker'=>$USER->id), 'marker ASC' );
+// Action on edit.
+if ($action == "edit") {
+	// Geting previous data, so we can reuse it.
+	if (! $editingassignation = $DB->get_record ( 'emarking_markers', array (
+			'id' => $id 
+	) )) {
+		print_error ( get_string ( 'invalidid', 'mod_emarking' ) );
+	}
+	// Creating new form and giving the var it needs to pass.
+	$editassignationform = new mod_emarking_activities_assign_marker ();
+	// Condition of form cancelation.
+	if ($editassignationform->is_cancelled ()) {
+		$action = "list";
+	} else if ($fromform = $editassignationform->get_data ()) {
+		$action = "list";
+		$markerupdate=$DB->get_record('emarking_markers',array('id'=>$fromform->id));
+		$markerupdate->marker = $fromform->marker;
+		$markerupdate->timeassignation=time();
+		$DB->update_record('emarking_markers', $markerupdate);
+		echo $OUTPUT->notification ( 'El corrector ha sido asignado correctamente', 'notifysuccess' );
+	} else {
+		$data = new stdClass ();
+		$data->id=$id;
+		$data->marker=$markerid;
+		$data->action=$action;
+		$editassignationform->set_data($data);
+		$editassignationform->display ();
+	}
+}
+// Action actions on "list".
+if ($action == 'list') {
+	$markers = $DB->get_records ( 'emarking_markers', null, 'marker ASC' );
 	// Creating list.
 	$table = new html_table ();
 	$table->head = array (
 			'Activitdad',
+			'Curso',
+			'Corrector',
 			'Progreso',
-			'Fecha asignación'
+			'Fecha asignación',
+			get_string ( 'actions', 'mod_emarking' ) 
 	);
 	foreach ( $markers as $marker ) {
 		$editurlassignation = new moodle_url ( '', array (
@@ -101,15 +140,17 @@ echo $OUTPUT->header ();
 		}
 		$table->data [] = array (
 				$emarkikngLink,
+				$course->fullname,
+				$username,
 				emarking_get_progress_circle ( $markingprogress ),
-				$date
-
+				$date,
+				$editactionassignation 
 		);
 	}
 	
 	// Showing table.
 	echo html_writer::table ( $table );
-
+}
 echo $OUTPUT->footer ();
 ?>
 </div>

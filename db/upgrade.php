@@ -1901,6 +1901,20 @@ function xmldb_emarking_upgrade($oldversion) {
     	 	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017052600, 'emarking');
     }
+    if ($oldversion < 2017062100) {
+    	
+    	// Define field timeassignation to be added to emarking_markers.
+    	$table = new xmldb_table('emarking_markers');
+    	$field = new xmldb_field('timeassignation', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'qualitycontrol');
+    	
+    	// Conditionally launch add field timeassignation.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017062100, 'emarking');
+    }
     
     return true;
 }
