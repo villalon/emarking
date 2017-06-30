@@ -43,15 +43,7 @@ $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-switch($CFG->emarking_pagelayouttype){
-	case EMARKING_PAGES_LAYOUT_STANDARD:
-		$PAGE->set_pagelayout('standard');
-		break;
-		
-	case EMARKING_PAGES_LAYOUT_EMBEDDED:
-		$PAGE->set_pagelayout('embedded');
-		break;
-}
+$PAGE->set_pagelayout(emarking_get_layout());
 $PAGE->navbar->add(get_string('feedbackreport', 'mod_emarking'));
 // Require jquery for modal.
 $PAGE->requires->jquery();
