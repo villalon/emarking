@@ -1915,6 +1915,19 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017062100, 'emarking');
     }
-    
+    if ($oldversion < 2017070500) {
+    	
+    	// Define field markingfeedback to be added to emarking.
+    	$table = new xmldb_table('emarking');
+    	$field = new xmldb_field('markingfeedback', XMLDB_TYPE_TEXT, null, null, null, null, null, null);
+    	
+    	// Conditionally launch add field predefined.
+    	if (! $dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017070500, 'emarking');
+    }
     return true;
 }
