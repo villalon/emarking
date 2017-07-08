@@ -95,6 +95,7 @@ header('Content-Type: text/html; charset=utf-8');
 <!-- This script loads your compiled module.   -->
 <!-- If you add any GWT meta tags, they must   -->
 <!-- be added before this line.                -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/jax/output/HTML-CSS/jax.js?V=2.7.1"></script>
 <script type="text/javascript"
 	src="<?php echo $emarkingdir?>/emarkingweb.nocache.js"></script>
 </head>

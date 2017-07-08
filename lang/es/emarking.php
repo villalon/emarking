@@ -392,7 +392,8 @@ $string ['statuspercriterion'] = 'Avance por pregunta';
 $string ['feedbackreport'] = 'Reporte de retroalimentación';
 $string ['feedback'] = 'Retroalimentación';
 $string ['viewfeedback'] = 'Ver estudiantes';
-$string['feedbackwordcloud'] = 'Nube de palabras de retroalimentación';
+$string ['feedbackwordcloud'] = 'Nube de palabras de retroalimentación';
+$string ['markingfeedback'] = 'Retroalimentación de corrección';
 // EMARKING COST REPORT.
 $string ['period'] = 'Periodo';
 $string ['subcategoryname'] = 'Nombre de la sub-categoría';

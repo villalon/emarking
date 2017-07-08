@@ -2006,32 +2006,36 @@ function emarking_get_progress_circle($progress, $color = '', $onclick = '', $ti
  * @param unknown $numdraftsgrading            
  */
 function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading) {
-    global $OUTPUT;
+    global $OUTPUT, $CFG;
     if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW || $emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {} else {
         echo $OUTPUT->heading(get_string('students'), 4);
     }
     echo html_writer::start_div('exportbuttons');
     if ($numdraftsgrading > 1 && $emarking->type != EMARKING_TYPE_MARKER_TRAINING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
-        echo html_writer::tag("input", null, array(
+    	if (isset($CFG->emarking_pagelayouttype)&&$CFG->emarking_pagelayouttype!=EMARKING_PAGES_LAYOUT_EMBEDDED ) {
+    	echo html_writer::tag("input", null, array(
             "id" => "searchInput",
             'value' => get_string("filter")
         ));
+    	}
     }
     // Show export to Excel button if supervisor and there are students to export.
     echo "<table style='float:right;'><tr><td>";
     if ($issupervisor && $rubriccriteria) {
         if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
-            $csvurl = new moodle_url('view.php', array(
+        	$csvurl = new moodle_url($CFG->wwwroot.'/mod/emarking/view.php', array(
                 'id' => $cm->id,
                 'exportcsv' => 'grades'
             ));
             echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
             echo "</td><td>";
-            $csvurl = new moodle_url('view.php', array(
+            $csvurl = new moodle_url($CFG->wwwroot.'/mod/emarking/view.php', array(
                 'id' => $cm->id,
                 'enrolment' => 'true'
             ));
+            if (isset($CFG->emarking_pagelayouttype)&&$CFG->emarking_pagelayouttype!=EMARKING_PAGES_LAYOUT_EMBEDDED ) {
             echo $OUTPUT->single_button($csvurl, get_string('showunenrolled', 'mod_emarking'), 'GET');
+            }
             echo "</td><td>";
         }
     }

@@ -218,9 +218,9 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 }
 // Show export buttons when grades are available
 if($usercangrade) {
-	if (isset($CFG->emarking_pagelayouttype)&&$CFG->emarking_pagelayouttype!=EMARKING_PAGES_LAYOUT_EMBEDDED ) {
+	
 	emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
-	}
+	
 }
 if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);
@@ -390,28 +390,24 @@ if (has_capability("mod/emarking:supervisegrading", $context) && !$scan && $rubr
     $actionsheader .= $usercangrade ? '<input type="checkbox" id="select_all" title="' . get_string('selectall', 'mod_emarking') . '">' : '';
 }
 $headers = array();
-$headers[] = get_string('names', 'mod_emarking');
-if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || ($emarking->type == EMARKING_TYPE_PEER_REVIEW && $issupervisor)) {
-    $headers[] = get_string('marker', 'mod_emarking');
-}
-if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-   if( isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED){
-	$headers[] = get_string('grade', 'mod_emarking');
-   }
-}
-$headers[] = get_string('status', 'mod_emarking');
-$headers[] = get_string('actions', 'mod_emarking');
-$headers[] = $actionsheader;
 $columns = array();
+$headers[] = get_string('names', 'mod_emarking');
 $columns[] = 'lastname';
 if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || ($emarking->type == EMARKING_TYPE_PEER_REVIEW && $issupervisor)) {
+    $headers[] = get_string('marker', 'mod_emarking');
     $columns[] = 'marker';
 }
 if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PEER_REVIEW) {
-    $columns[] = 'grade';
+    if( isset($CFG->emarking_pagelayouttype) && $CFG->emarking_pagelayouttype != EMARKING_PAGES_LAYOUT_EMBEDDED){
+		$headers[] = get_string('grade', 'mod_emarking');
+		$columns[] = 'grade';
+    }
 }
+$headers[] = get_string('status', 'mod_emarking');
 $columns[] = 'status';
+$headers[] = get_string('actions', 'mod_emarking');
 $columns[] = 'actions';
+$headers[] = $actionsheader;
 $columns[] = 'select';
 // Define flexible table (can be sorted in different ways).
 $showpages = new flexible_table('emarking-view-' . $cm->id);

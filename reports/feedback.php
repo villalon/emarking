@@ -25,6 +25,7 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot . '/mod/emarking/locallib.php');
 require_once('forms/gradereport_form.php');
+require_once('forms/feedback_form.php');
 global $DB, $USER;
 // Obtains basic data from cm id.
 list($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
@@ -38,20 +39,14 @@ if (isguestuser()) {
 }
 // Validate the user has grading capabilities.
 require_capability('mod/emarking:grade', $context);
+// Obtain user permissions for grading and supervising.
+list ($issupervisor, $usercangrade) = emarking_get_grading_permissions($emarking, $context);
 // Page settings (URL, breadcrumbs and title).
 $PAGE->set_context($context);
 $PAGE->set_course($course);
 $PAGE->set_cm($cm);
 $PAGE->set_url($url);
-switch($CFG->emarking_pagelayouttype){
-	case EMARKING_PAGES_LAYOUT_STANDARD:
-		$PAGE->set_pagelayout('standard');
-		break;
-		
-	case EMARKING_PAGES_LAYOUT_EMBEDDED:
-		$PAGE->set_pagelayout('embedded');
-		break;
-}
+$PAGE->set_pagelayout(emarking_get_layout());
 $PAGE->navbar->add(get_string('feedbackreport', 'mod_emarking'));
 // Require jquery for modal.
 $PAGE->requires->jquery();
@@ -59,6 +54,16 @@ $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($emarking->name);
+$form = new emarking_feedback_form(null, array('cmid'=>$cm->id));
+if($form->get_data()) {
+	$emarking->markingfeedback = $form->get_data()->markingfeedback;
+	$DB->update_record('emarking', $emarking);
+	echo $OUTPUT->notification(get_string('changessaved', 'mod_emarking'), 'success');
+} else {
+	$emarkingdefault = new stdClass();
+	$emarkingdefault->markingfeedback = $emarking->markingfeedback;
+	$form->set_data($emarkingdefault);
+}
 // Print eMarking tabs.
 if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
 	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'feedback');
@@ -202,7 +207,15 @@ foreach($words as $w => $f) {
 	        $("#my_favorite_latin_words").jQCloud(word_list);
 	  });
 </script>
-<?php echo $OUTPUT->heading(get_string('feedbackwordcloud', 'mod_emarking')); ?>
+<?php
+if($issupervisor) {
+	$form->display();
+} else {
+	echo $OUTPUT->heading(get_string('markingfeedback', 'mod_emarking'));
+	echo format_text($emarking->markingfeedback);
+}
+echo $OUTPUT->heading(get_string('feedbackwordcloud', 'mod_emarking'));
+?>
 <div id="my_favorite_latin_words" style="width: 95%; height: 250px; border: 1px solid #ccc;"></div>
 <?php echo $OUTPUT->footer();
 function emarking_table_from_criterion($criterion, $cm) {

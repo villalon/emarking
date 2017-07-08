@@ -158,7 +158,7 @@ if ($numorphanpages == 0) {
     }
     $options = array();
     $options[0] = get_string('choose');
-    $totalpages = $exam->totalpages * (1 + $exam->usebackside);
+    $totalpages = ($exam->totalpages + 5) * (1 + $exam->usebackside);
     for($i = 1; $i <= $totalpages; $i++) {
         $options[$i] = $i;
     }

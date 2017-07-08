@@ -48,6 +48,7 @@
         <FIELD NAME="changelog" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Emarking activity allows students to write a change log when they review their feedback."/>
         <FIELD NAME="oersources" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="OER names to find educational material"/>
         <FIELD NAME="evaluatefeedback" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Field to enable/disable user form to evaluate received feedback"/>
+        <FIELD NAME="markingfeedback" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="General feedback on the marking process"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
