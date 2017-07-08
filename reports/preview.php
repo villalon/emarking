@@ -34,6 +34,7 @@ $filter = required_param('filter', PARAM_ALPHA);
 $fids = required_param('fids', PARAM_RAW_TRIMMED);
 if($filter === 'tag') {
     $fids = urldecode($fids);
+    $fids = preg_replace('/\W/i', '', $fids);
     $title = get_string('viewfeedback', 'mod_emarking') . ' ' . $fids;
 } elseif($filter === 'level') {
     $fids = intval($fids);

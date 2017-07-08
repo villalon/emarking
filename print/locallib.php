@@ -32,7 +32,7 @@ function emarking_get_temp_dir_path($postfix) {
  * @param unknown $category            
  */
 function emarking_generate_personalized_exams($category = NULL) {
-    global $DB;
+    global $DB, $CFG;
     
     $categoryfilter = '';
     if ($category) {
