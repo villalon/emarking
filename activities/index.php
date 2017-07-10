@@ -36,9 +36,10 @@ $activities = $DB->get_records_sql($query);
 $activityArray=array();
 foreach ($activities as $activity){
 	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activity->id));
+	$genre=$DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
 	$activityArray[]=array(
 			'title'=>$activity->title,
-			'genre'=>$activity->genre,
+			'genre'=>$genre->name,
 			'description'=>$activity->description,
 			'link'=>$url
 	);

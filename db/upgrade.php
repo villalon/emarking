@@ -1929,5 +1929,30 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017070500, 'emarking');
     }
+    if ($oldversion < 2017071000) {
+    	
+    	// Define table emarking_used_activities to be created.
+    	$table = new xmldb_table('emarking_used_activities');
+    	
+    	// Adding fields to table emarking_used_activities.
+    	$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+    	$table->add_field('emarkingid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('activityid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+    	$table->add_field('printrubric', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+    	$table->add_field('printteaching', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+    	$table->add_field('onlinerewrite', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+    	$table->add_field('uploadingtype', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+    	
+    	// Adding keys to table emarking_used_activities.
+    	$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+    	
+    	// Conditionally launch create table for emarking_used_activities.
+    	if (!$dbman->table_exists($table)) {
+    		$dbman->create_table($table);
+    	}
+    	
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017071000, 'emarking');
+    }
     return true;
 }

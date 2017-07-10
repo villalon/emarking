@@ -784,7 +784,7 @@ function get_average($array) {
 	return round($average);
 }
 
-function get_criteria($id,$bool=false){
+function get_criteria($id,$bool=false,$need_in_json=true){
 	GLOBAL $DB,$USER;
 $sql="SELECT rl.*, rc.description as criterion, i.max
 FROM mdl_emarking_rubrics_levels as rl
@@ -820,8 +820,11 @@ if($bool){
 $criteriaarray['levelids']=$levelidarray;
 }
 $criteriaarray['bool']=$bool;
-$tojson=json_encode($criteriaarray);
-return $tojson;
+if($need_in_json){
+	$tojson=json_encode($criteriaarray);
+	return $tojson;
+}
+return $criteriaarray;
 
 }
 
