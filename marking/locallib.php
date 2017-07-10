@@ -368,7 +368,8 @@ function emarking_download_excel($emarking, $context=null) {
     	$current = 0;
     	foreach($crit['levels'] as $lvl) {
     		$current++;
-    		$levelsindex[$lvl['id']] = $total - $current + 1; 
+    		$levelsindex[$lvl['id']] = $current; 
+    		
     	}
     }
     // Retrieve marking

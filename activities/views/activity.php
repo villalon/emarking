@@ -155,14 +155,14 @@ $(function() {
 
 						<!-- Aqui agregue el cambio para las tabs -->
 						<ul class="nav nav-tabs active_tab">
-							<li class="active"><a data-toggle="tab" href="#home">Para el
+						<li class="active"><a data-toggle="tab" href="#teaching">Didáctica</a></li>
+							<li><a data-toggle="tab" href="#tostudent">Para el
 									estudiante</a></li>
-							<li><a data-toggle="tab" href="#menu1">Didáctica</a></li>
-							<li><a data-toggle="tab" href="#menu2">Evaluación</a></li>
+							<li><a data-toggle="tab" href="#evaluation">Evaluación</a></li>
 						</ul>
 
 						<div class="tab-content">
-							<div id="home" class="tab-pane fade in active">
+							<div id="tostudent" class="tab-pane fade">
 <?php 						if ($usercaneditrubric) {
 	?>
 
@@ -208,7 +208,7 @@ $(function() {
 							</div>
 
 
-							<div id="menu1" class="tab-pane fade">
+							<div id="teaching" class="tab-pane fade  in active">
 								<h3 style="text-align: left;">Didáctica</h3>
 <?php 						if ($usercaneditrubric) {
 	?>
@@ -243,7 +243,7 @@ $(function() {
 
 							</div>
 
-							<div id="menu2" class="tab-pane fade">
+							<div id="evaluation" class="tab-pane fade">
 								<h3 style="text-align: left;">Evaluación</h3>
 	<?php if(isset($rubric)&& $rubric!=null){?>
 								<h4 style="text-align: left;"><?php echo $rubricname?></h4>
