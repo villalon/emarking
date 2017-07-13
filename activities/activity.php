@@ -143,7 +143,7 @@ if(isset($rubric)&& $rubric!=null){
 	$row = sizeof($table);
 }
 $coursesOA = '<span>Curso: </span><br>';
-$coursesOA .= '<span>OAs:</span><br>';
+$coursesOA .= '<span>OA:</span><br>';
 if (isset($activity->learningobjectives) && $activity->learningobjectives != null) {
 	$oaComplete = explode("-", $activity->learningobjectives );
 	
@@ -153,7 +153,7 @@ if (isset($activity->learningobjectives) && $activity->learningobjectives != nul
 		$course = $firstSplit [0];
 	
 		$coursesOA = '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
-		$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
+		$coursesOA .= '<span>OA: ' . $secondSplit [0] . '</span><br>';
 	}
 }
 //Busca toda la información de la comunidad en esta actividad
