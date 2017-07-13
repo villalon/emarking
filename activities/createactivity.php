@@ -71,11 +71,11 @@ if($step == 1){
 		$area->estimatedtime 				= $activity->estimatedtime;
 		$area->id							= $activityid;
 		$area->editing						= 1;
+		$area->estimatedtime 				= $activity->estimatedtime;
 		$basic->set_data ( $area );
-		
+			
 	}
-	$area->estimatedtime 				= $activity->estimatedtime;
-	$basic->set_data ( $area );
+
 	$basic->display ();
 }elseif($step == 2){
 	if ($fromformbasic = $basic->get_data ()) {
