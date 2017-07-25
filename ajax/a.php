@@ -334,6 +334,10 @@ switch ($action) {
         $results = emarking_get_previous_comments($submission, $draft);
         emarking_json_resultset($results);
         break;
+    case 'addprevcomment' :
+        	$results = emarking_add_previous_comment($emarking);
+        	emarking_json_resultset($results);
+        	break;
     case 'rotatepage' :
         if (! $issupervisor) {
             emarking_json_error('Invalid access');

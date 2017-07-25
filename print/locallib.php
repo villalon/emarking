@@ -33,12 +33,12 @@ function emarking_get_temp_dir_path($postfix) {
  */
 function emarking_generate_personalized_exams($category = NULL) {
     global $DB, $CFG;
-    
+    // Create category filter SQL when a category was given.
     $categoryfilter = '';
     if ($category) {
         $categoryfilter = ' AND c.category = ' . $category->id;
     }
-    
+    // Get all exams that need to be generated (UPLOADED status).
     $exams = $DB->get_records_sql('
         SELECT e.*, c.fullname, c.shortname, c.id AS courseid, c.category
         FROM {emarking_exams} e
@@ -47,6 +47,7 @@ function emarking_generate_personalized_exams($category = NULL) {
         ' . $categoryfilter, array(
         'status' => EMARKING_EXAM_UPLOADED
     ));
+    // Generate each exam.
     $i = 0;
     foreach($exams as $exam) {
         $examname = "[$exam->id] $exam->fullname $exam->name";
@@ -1668,14 +1669,19 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
         // Set the starting point for the page content.
         $pdf->setPageMark();
         $dimensions = $pdf->getPageDimensions();
+        $current=0;
         if (isset($commentsperpage[$page->page])) {
             foreach($commentsperpage[$page->page] as $comment) {
-                $content = $comment->rawtext;
+            	$current++;
+            	$content = $comment->rawtext;
                 $posx = (int) (((float) $comment->posx) * 210);
                 $posy = (int) (((float) $comment->posy) * 297);
                 if ($comment->textformat == 1) {
                     // Text annotation.
-                    $pdf->Annotation($posx, $posy, 6, 6, $content, array(
+                	$style = array('width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => '0', 'color' => array(255, 0, 0));
+                	$pdf->Text($posx, $posy, $current);
+                    $pdf->Line($posx, $posy, $posx + 100, $posy, $style);
+                    /*$pdf->Annotation($posx, $posy, 6, 6, $content, array(
                         'Subtype' => 'Text',
                         'StateModel' => 'Review',
                         'State' => 'None',
@@ -1688,7 +1694,7 @@ function emarking_create_response_pdf($draft, $student, $context, $cmid) {
                             0,
                             255
                         )
-                    ));
+                    ));*/
                     $pdf->Bookmark(get_string('comment', 'mod_emarking') . ' ' . $comment->id, 0, $posy);
                 } else 
                     if ($comment->textformat == 2) {
@@ -1976,50 +1982,6 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
         return true;
     }
     $examfilename = emarking_clean_filename($course->shortname, true) . '_' . emarking_clean_filename($downloadexam->name, true);
-    $zipdebugmsg = '';
-    if ($multiplepdfs) {
-        $zip = new ZipArchive();
-        $zipfilename = $filedir . "/" . $examfilename . ".zip";
-        if ($zip->open($zipfilename, ZipArchive::CREATE) !== true) {
-            throw new Exception('Could not create zip file');
-        }
-        // Check if we have to print the students list.
-        if ($downloadexam->printlist == 1) {
-            $zip->addFile($studentlistpdffile);
-        }
-        // Add every student PDF to zip file.
-        $currentstudent = 0;
-        foreach($studentinfo as $stinfo) {
-            $currentstudent++;
-            if ($pbar != null) {
-                $pbar->update($currentstudent, count($studentinfo), get_string('printing', 'mod_emarking') . ' ' . $stinfo->name);
-            }
-            if (!isset($stinfo->examfile) || !file_exists($stinfo->examfile)) {
-                continue;
-            }
-            if (!$zip->addFile($stinfo->examfile, $stinfo->pdffilename . '.pdf')) {
-                $zipdebugmsg .= "Problems adding $stinfo->examfile to ZIP file using name $stinfo->pdffilename <hr>";
-            }
-        }
-        $zip->close();
-        if ($CFG->debug || $debugprinting) {
-            echo $zipdebugmsg;
-        }
-        // Notify everyone that the exam was downloaded.
-        emarking_send_examdownloaded_notification($downloadexam, $course, $USER);
-        $downloadexam->status = EMARKING_EXAM_SENT_TO_PRINT;
-        $downloadexam->printdate = time();
-        $DB->update_record('emarking_exams', $downloadexam);
-        // Add to Moodle log so some auditing can be done.
-        \mod_emarking\event\exam_downloaded::create_from_exam($downloadexam, $context)->trigger();
-        // Read zip file from disk and send to the browser.
-        $filename = basename($zipfilename);
-        header("Content-Type: application/zip");
-        header("Content-Disposition: attachment; filename=" . $examfilename . ".zip");
-        header("Content-Length: " . filesize($zipfilename));
-        readfile($zipfilename);
-        exit();
-    }
     // We create the final big PDF file.
     $pdf = new FPDI();
     $pdf->SetPrintHeader(false);

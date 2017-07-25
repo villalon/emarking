@@ -1074,6 +1074,27 @@ function emarking_get_comments_submission($draft, $pageno) {
     return $results;
 }
 /**
+ * 
+ * @param unknown $emarking
+ */
+function emarking_add_previous_comment($emarking) {
+    global $DB, $USER;
+    $comment = required_param('comment', PARAM_RAW_TRIMMED);
+    $isfavorite = required_param('favorite', PARAM_BOOLEAN);
+    $previous = $DB->get_record('emarking_predefined_comment', array('text'=>$comment, 'emarkingid'=>$emarking->id));
+    if(!$previous) {
+    	$previous = new stdClass();
+    	$previous->text = $comment;
+    	$previous->emarkingid = $emarking->id;
+    	$previous->markerid = $USER->id;
+    	$previous->favorite = $isfavorite ? 1 : 0;
+    	$previous->id = $DB->insert_record('emarking_predefined_comment', $previous);
+    } else {
+    	$previous->favorite = $isfavorite ? 1 : 0;
+    	$DB->update_record('emarking_predefined_comment', $previous);
+    }
+}
+/**
  *
  * @param unknown $submission
  * @param unknown $draft
