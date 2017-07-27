@@ -308,6 +308,7 @@ switch ($action) {
         $output->answerkeys = $results;
         $output->changelog = $draft->changelog;
         $output->hidemarks = ($ownsubmission  || (!$ownsubmission && !$usercangrade)) && $draft->status < EMARKING_STATUS_PUBLISHED;
+        $output->emarkingactivities = emarking_get_user_emarking_activities();
         emarking_json_array($output);
         break;
     case 'getchathistory' :

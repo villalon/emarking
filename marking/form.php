@@ -57,6 +57,7 @@ class EditCommentForm extends moodleform {
         $mform = $this->_form; // Don't forget the underscore!
         $instance = $this->_customdata;
         $commenttext = $instance ['text'];
+        $commentisfav = $instance ['favorite'];
         $cmid = $instance ['cmid'];
         $commentid = $instance ['commentid'];
         $mform->addElement('editor', 'comment', get_string('formeditcomment', 'mod_emarking'));
@@ -64,6 +65,9 @@ class EditCommentForm extends moodleform {
         $mform->setDefault('comment', array(
             'text' => $commenttext));
         $mform->addRule('comment', get_string('editcomment', 'mod_emarking'), 'required');
+        $mform->addElement('checkbox', 'favorite', get_string('favorite', 'mod_emarking'));
+        $mform->setType('favorite', PARAM_BOOL);
+        $mform->setDefault('favorite', $commentisfav);
         $mform->addElement('hidden', 'action', 'edit');
         $mform->setType('action', PARAM_TEXT);
         $mform->addElement('hidden', 'id', $cmid);

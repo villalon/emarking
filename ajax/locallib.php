@@ -863,6 +863,10 @@ function emarking_get_markers_configuration($context, $emarking) {
     }
     return $results;
 }
+function emarking_get_user_emarking_activities() {
+	global $USER;
+	return array();
+}
 /**
  *
  * @param unknown $submission
@@ -1080,8 +1084,8 @@ function emarking_get_comments_submission($draft, $pageno) {
 function emarking_add_previous_comment($emarking) {
     global $DB, $USER;
     $comment = required_param('comment', PARAM_RAW_TRIMMED);
-    $isfavorite = required_param('favorite', PARAM_BOOLEAN);
-    $previous = $DB->get_record('emarking_predefined_comment', array('text'=>$comment, 'emarkingid'=>$emarking->id));
+    $isfavorite = required_param('favorite', PARAM_BOOL);
+    $previous = $DB->get_record_sql("SELECT * FROM {emarking_predefined_comment} WHERE text = '".$comment."' AND emarkingid=?", array($emarking->id));
     if(!$previous) {
     	$previous = new stdClass();
     	$previous->text = $comment;
@@ -1093,6 +1097,7 @@ function emarking_add_previous_comment($emarking) {
     	$previous->favorite = $isfavorite ? 1 : 0;
     	$DB->update_record('emarking_predefined_comment', $previous);
     }
+    return array();
 }
 /**
  *
@@ -1114,7 +1119,8 @@ function emarking_get_previous_comments($submission, $draft) {
             GROUP_CONCAT(T.page SEPARATOR '-') as pages,
             GROUP_CONCAT(T.id SEPARATOR '-') as commentids,
             GROUP_CONCAT(T.criterionid SEPARATOR '-') as criteria,
-            GROUP_CONCAT(T.draftid SEPARATOR '-') as drafts
+            GROUP_CONCAT(T.draftid SEPARATOR '-') as drafts,
+    		SUM(favorite) as favorites
 			FROM (
 			SELECT ec.id AS id,
 			ec.rawtext AS text,
@@ -1125,12 +1131,13 @@ function emarking_get_previous_comments($submission, $draft) {
             ec.criterionid,
             ec.draft AS draftid,
             CASE WHEN ec.markerid = :user THEN 1 ELSE 0 END AS owncomment,
-            CASE WHEN ec.draft = :draft THEN ec.pageno ELSE 0 END AS page
+            CASE WHEN ec.draft = :draft THEN ec.pageno ELSE 0 END AS page,
+    		0 as favorite
 			FROM {emarking_submission} s
 			INNER JOIN {emarking_draft} d ON (s.emarking = :emarking AND d.submissionid = s.id)
 			INNER JOIN {emarking_comment} ec ON (ec.draft = d.id)
 			WHERE LENGTH(rawtext) > 0
-			UNION
+			UNION ALL
 			SELECT  id,
 					text,
 					1,
@@ -1140,8 +1147,9 @@ function emarking_get_previous_comments($submission, $draft) {
 					0,
                     0,
                     0,
-                    0
-			from {emarking_predefined_comment}
+                    0,
+    				IFNULL(favorite,0) favorite
+			FROM {emarking_predefined_comment}
 			WHERE emarkingid = :emarking2) AS T
 			GROUP BY text
 			ORDER BY text",

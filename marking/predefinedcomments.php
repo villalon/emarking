@@ -75,7 +75,9 @@ if ($action == "edit") {
             array(
                 'text' => $editingcomment->text,
                 'cmid' => $cm->id,
-                'commentid' => $commentid));
+                'commentid' => $commentid,
+            	'favorite' => $editingcomment->favorite
+            ));
     // Condition of form cancelation.
     if ($editcommentform->is_cancelled()) {
         $action = "list";
@@ -83,6 +85,7 @@ if ($action == "edit") {
         // Setup of var record to update record in moodle DB.
         $editingcomment->text = $fromform->comment ['text'];
         $editingcomment->markerid = $USER->id;
+        $editingcomment->favorite = $fromform->favorite;
         // Updating the record.
         $DB->update_record('emarking_predefined_comment', $editingcomment);
         echo $OUTPUT->notification(get_string('changessaved', 'mod_emarking'), 'notifysuccess');
@@ -104,7 +107,8 @@ if ($action == 'list') {
     $table = new html_table();
     $table->head = array(
         get_string('comment', 'mod_emarking'),
-        get_string('creator', 'mod_emarking'),
+    	get_string('favorite', 'mod_emarking'),
+    	get_string('creator', 'mod_emarking'),
         get_string('actions', 'mod_emarking'));
     foreach ($predefinedcomments as $predefinedcomment) {
         $deleteurlcomment = new moodle_url('',
@@ -126,6 +130,7 @@ if ($action == 'list') {
             'id' => $predefinedcomment->markerid));
         $table->data [] = array(
             $predefinedcomment->text,
+        	$predefinedcomment->favorite ? get_string('yes') : get_string('no'),
             $creatorname->username,
             $editactioncomment . $deleteactioncomment);
     }
@@ -176,7 +181,7 @@ if ($action == 'list') {
                 $columns);
             echo html_writer::table($table);
             $predefinedform->add_action_buttons(true, get_string('confirm'));
-            $predefinedform->display();
+            //$predefinedform->display();
         }
     } else {
         // Showing table.

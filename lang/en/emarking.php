@@ -250,6 +250,7 @@ $string ['secondstagedate_help'] = 'Maximum date for markers to reach agreement'
 $string ['mustseefeedbackbeforejustice'] = 'You must review your exam feedback before you can give your opinion.';
 $string ['reviewpeersfeedback'] = 'Review peers';
 // PREDEFINED COMMENTS.
+$string ['favorite'] = 'Favorite';
 $string ['datahasheaders'] = 'Ignore first row';
 $string ['predefinedcomments'] = 'Predefined comments';
 $string ['predefinedcomments_help'] = 'Paste a column from Excel (with or without a header) to import all the rows as predefined comments.';
