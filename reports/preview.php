@@ -148,8 +148,9 @@ foreach($pages as $file => $stat) {
             style="background:url('.$CFG->wwwroot.'/pluginfile.php/'.$fileinfo->get_contextid().'/mod_emarking/pages/'.$fileinfo->get_itemid().'/'.$fileinfo->get_filename().'?r='.random_string(5).'); background-size:cover;"></canvas>';
     foreach($stat as $text) {
     $feedback = $text->levelid > 0 ?
-        html_writer::div($text->description, 'description') . html_writer::div($text->definition, 'definition') . html_writer::div($text->rawtext, 'feedback') :
-        html_writer::div($text->rawtext, 'feedback');
+        html_writer::div(format_text($text->description), 'description') . html_writer::div(format_text($text->definition), 'definition') .
+        html_writer::div(format_text($text->rawtext), 'feedback') :
+        html_writer::div(format_text($text->rawtext), 'feedback');
     $posx = round($width * $text->posx,0);
     $posy = round($height * $text->posy,0);
     $imagehtml .= html_writer::div($feedback, 'feedbackmarker', array('style'=>'position:absolute;top:'.$posy.'px;left:'.$posx.'px;'));

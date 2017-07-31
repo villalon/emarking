@@ -250,6 +250,7 @@ $string ['secondstagedate_help'] = 'Fecha límite en la que los correctores debe
 $string ['mustseefeedbackbeforejustice'] = 'Debes revisar la corrección de tu prueba antes de entregar tu opinión.';
 $string ['reviewpeersfeedback'] = 'Revisar compañeros';
 // PREDEFINED COMMENTS.
+$string ['favorite'] = 'Favorito';
 $string ['datahasheaders'] = 'Ignorar primera fila';
 $string ['predefinedcomments'] = 'Comentarios predefinidos';
 $string ['predefinedcomments_help'] = 'Pegue una columna de comentarios desde Excel (con o sin encabezado), cada fila se creará como un comentario predefinido.';

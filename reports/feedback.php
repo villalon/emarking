@@ -148,12 +148,32 @@ foreach($comments as $comment) {
     $s = preg_split('/\s/', $s);
     foreach($s as $ss) {
         $token = core_text::strtolower($ss);
+        if(strlen($token) <= 1) {
+        	continue;
+        }
         if(!isset($words[$token]))
             $words[$token] = 0;
         $words[$token]++;
     }
 }
+var_dump($words);
 $stopwords = array('algún','alguna','algunas','alguno','algunos','ambos','ampleamos','ante','antes','aquel','aquellas','aquellos','aqui','arriba','atras','bajo','bastante','bien','cada','cierta','ciertas','cierto','ciertos','como','con','conseguimos','conseguir','consigo','consigue','consiguen','consigues','cual','cuando','dentro','desde','donde','dos','el','ellas','ellos','empleais','emplean','emplear','empleas','empleo','en','encima','entonces','entre','era','eramos','eran','eras','eres','es','esta','estaba','estado','estais','estamos','estan','estoy','fin','fue','fueron','fui','fuimos','gueno','ha','hace','haceis','hacemos','hacen','hacer','haces','hago','incluso','intenta','intentais','intentamos','intentan','intentar','intentas','intento','ir','la','largo','las','lo','los','mientras','mio','modo','muchos','muy','nos','nosotros','otro','para','pero','podeis','podemos','poder','podria','podriais','podriamos','podrian','podrias','por','por qué','porque','primero','puede','pueden','puedo','quien','sabe','sabeis','sabemos','saben','saber','sabes','ser','si','siendo','sin','sobre','sois','solamente','solo','somos','soy','su','sus','también','teneis','tenemos','tener','tengo','tiempo','tiene','tienen','todo','trabaja','trabajais','trabajamos','trabajan','trabajar','trabajas','trabajo','tras','tuyo','ultimo','un','una','unas','uno','unos','usa','usais','usamos','usan','usar','usas','uso','va','vais','valor','vamos','van','vaya','verdad','verdadera','verdadero','vosotras','vosotros','voy','yo');
+arsort($words);
+$total = 0;
+$cleanwords = array();
+foreach($words as $w => $f) {
+	if(strlen($w) < 2 || array_search($w, $stopwords))
+		continue;
+		$total++;
+		$wurl = urlencode($w);
+		$popupurl = $CFG->wwwroot . '/mod/emarking/reports/preview.php' . '?id=' . $cm->id . '&filter=tag&fids='.$wurl;
+		$thisword = array();
+		$thisword['w'] = $w;
+		$thisword['f'] = $f;
+		$thisword['popupurl'] = $popupurl;
+		$cleanwords[] = $thisword;
+}
+
 ?>
 <script src="<?php echo $CFG->wwwroot . '/mod/emarking/lib/jqcloud' ?>/jqcloud-1.0.4.min.js"></script>
 <link rel="stylesheet" href="<?php echo $CFG->wwwroot . '/mod/emarking/lib/jqcloud' ?>/jqcloud.css">
@@ -187,20 +207,9 @@ $stopwords = array('algún','alguna','algunas','alguno','algunos','ambos','ample
 <script type="text/javascript">
       var word_list = [
 <?php
-arsort($words);
-$total = 0;
-foreach($words as $w => $f) {
-    if(strlen($w) < 2 || array_search($w, $stopwords))
-        continue;
-    $total++;
-    $vertical = '';
-    if($total % 2 != 0) {
-        // $vertical = ', html: {"class": "vertical"}';
-    }
-    $wurl = urlencode($w);
-    $popupurl = $CFG->wwwroot . '/mod/emarking/reports/preview.php' . '?id=' . $cm->id . '&filter=tag&fids='.$wurl;
-    echo "{text: \"$w\", weight:$f, link: \"$popupurl\"$vertical},";
-}
+	foreach($cleanwords as $cword) {
+		echo "{text: \"".$cword['w']."\", weight:".$cword['f'].", link: \"".$cword['popupurl']."\"},";
+	}
 ?>
 ];
       $(function() {

@@ -308,6 +308,7 @@ switch ($action) {
         $output->answerkeys = $results;
         $output->changelog = $draft->changelog;
         $output->hidemarks = ($ownsubmission  || (!$ownsubmission && !$usercangrade)) && $draft->status < EMARKING_STATUS_PUBLISHED;
+        $output->emarkingactivities = emarking_get_user_emarking_activities();
         emarking_json_array($output);
         break;
     case 'getchathistory' :
@@ -334,6 +335,10 @@ switch ($action) {
         $results = emarking_get_previous_comments($submission, $draft);
         emarking_json_resultset($results);
         break;
+    case 'addprevcomment' :
+        	$results = emarking_add_previous_comment($emarking);
+        	emarking_json_resultset($results);
+        	break;
     case 'rotatepage' :
         if (! $issupervisor) {
             emarking_json_error('Invalid access');

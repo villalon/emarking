@@ -26,6 +26,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017071700; // The current module version (Date: YYYYMMDDXX).
+
+$plugin->version = 2017073100; // The current module version (Date: YYYYMMDDXX).
+
 $plugin->requires = 2013110500; // Requires this Moodle version.
 $plugin->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place.
