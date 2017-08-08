@@ -59,6 +59,16 @@ function ajax_get_criterion($criterionid){
 	global $DB;
 	return $DB->get_record("emarking_rubrics_criteria", array("id"=>$criterionid));
 }
+function ajax_get_next_criterion($rubricid,$sortorder){
+	global $DB;
+	$sortorder = $sortorder + 1;
+	return $DB->get_record("emarking_rubrics_criteria", array("rubricid"=>$rubricid, "sortorder"=>$sortorder));
+}
+function ajax_get_before_criterion($rubricid,$sortorder){
+	global $DB;
+	$sortorder = $sortorder - 1;
+	return $DB->get_record("emarking_rubrics_criteria", array("rubricid"=>$rubricid, "sortorder"=>$sortorder));
+}
 
 function ajax_update_criterion($criteriondata){
 	global $DB;

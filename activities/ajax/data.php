@@ -11,6 +11,7 @@ $levelid = optional_param( "levelid", 0, PARAM_INT);
 $criterionid = optional_param( "criterionid", 0, PARAM_INT);
 $leveltext = optional_param( "leveltext",null, PARAM_TEXT );
 $criteriontext = optional_param( "criteriontext",null, PARAM_TEXT );
+$activityid = optional_param( "levelid", 0, PARAM_INT);
 
 // Callback para from webpage
 $callback = optional_param ( "callback", null, PARAM_RAW_TRIMMED );
@@ -142,6 +143,42 @@ switch ($action) {
 					"values" => "ok"
 			);
 		
+		break;
+	case 'moveCriterionDown':
+		$criterion = ajax_get_criterion($criterionid);
+		if($nextcriterion = ajax_get_next_criterion($criterion->rubricid,$criterion->sortorder)){
+			$criterionsortorder = $criterion->sortorder;
+			$nextcriterionsortorder = $nextcriterion->sortorder;
+			
+			$criterion->sortorder = $nextcriterionsortorder;
+			$nextcriterion->sortorder = $criterionsortorder;
+			
+			ajax_update_criterion($criterion);
+			ajax_update_criterion($nextcriterion);
+			
+		}
+		$jsonOutputs = array (
+				"error" => "",
+				"values" => "ok"
+		);
+		break;
+	case 'moveCriterionUp':
+		$criterion = ajax_get_criterion($criterionid);
+		if($beforecriterion = ajax_get_before_criterion($criterion->rubricid,$criterion->sortorder)){
+			$criterionsortorder = $criterion->sortorder;
+			$beforecriterionsortorder = $beforecriterion->sortorder;
+			
+			$criterion->sortorder = $beforecriterionsortorder;
+			$beforecriterion->sortorder = $criterionsortorder;
+			
+			ajax_update_criterion($criterion);
+			ajax_update_criterion($beforecriterion);
+			
+		}
+		$jsonOutputs = array (
+				"error" => "",
+				"values" => "ok"
+		);
 		break;
 			
 }
