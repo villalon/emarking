@@ -33,15 +33,7 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		foreach ( $genres as $genre ) {
 			$genrearray [$genre->id] = $genre->name;
 		}
-		
-		// pc= Proposito comunicativo, obtenidos de la agencia de calidad
-		$pc = array (
-				'0' => 'Seleccione un propósito comunicativo',
-				'Argumentar' => 'Argumentar',
-				'Informar' => 'Informar',
-				'Narrar' => 'Narrar' 
-		);
-		
+				
 		$mform = $this->_form; // Don't forget the underscore!
 		                       // Paso 1 Información básica
 		$mform->addElement ( 'header', 'db', 'Información Básica', null );
@@ -162,8 +154,8 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		) );
 		$mform->addGroup ( $buttonar, 'buttonarr' );
 		
-		// Propósito comunicativo
-		$mform->addElement ( 'select', 'comunicativepurpose', 'Propósito Comunicativo', $pc );
+		// Propósito comunicativo, en un futuro este campo debe ser de autocompletar
+		$mform->addElement ( 'text', 'comunicativepurpose', 'Propósito Comunicativo' );
 		$mform->addRule ( 'comunicativepurpose', get_string ( 'required' ), 'required' );
 		$mform->setType ( 'comunicativepurpose', PARAM_TEXT );
 		// $mform->addHelpButton('comunicativepurpose', 'pc','ciae');

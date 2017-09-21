@@ -1975,6 +1975,7 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017071001, 'emarking');
     }
+
     if ($oldversion < 2017071901) {
     	 
     	// Define field timeassignation to be added to emarking_markers.
@@ -1988,6 +1989,20 @@ function xmldb_emarking_upgrade($oldversion) {
     	 
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017071901, 'emarking');
+    }
+    if ($oldversion < 2017073100) {
+    	
+    	// Define field sortorder to be added to emarking_rubrics_criteria.
+    	$table = new xmldb_table('emarking_rubrics_criteria');
+    	$field = new xmldb_field('sortorder', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'description');
+    	
+    	// Conditionally launch add field sortorder.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017073100, 'emarking');
     }
     return true;
 }

@@ -87,11 +87,11 @@ function activities_show_result($data) {
 			$course = $firstSplit [0];
 			
 			$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
-			$coursesOA .= '<span>OAs: ' . $secondSplit [0] . '</span><br>';
+			$coursesOA .= '<span>OA: ' . $secondSplit [0] . '</span><br>';
 		}
 	}else{
 		$coursesOA .= '<span>Curso: </span><br>';
-		$coursesOA .= '<span>OAs:</span><br>';
+		$coursesOA .= '<span>OA:</span><br>';
 	}
 	$genre = $DB->get_record('emarking_activities_genres',array('id'=>$data->genre));
 	$userobject = $DB->get_record('user', array('id' => $data->userid));
