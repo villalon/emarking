@@ -902,6 +902,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
             0
         );
     }
+   
     if ($extension === 'pdf') {
         if($emarking->uploadtype != EMARKING_UPLOAD_FILE) {
             $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
@@ -931,7 +932,18 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
             0
         );
         }
+    }elseif($extension === 'zip'){
+    
+    	$zip = new ZipArchive;
+    	$res = $zip->open($filepath);
+    	if ($res === TRUE) {
+    		// extract it to the path we determined above
+    		$zip->extractTo($tempdir);
+    		$zip->close();
+    	} else { throw new Exception('Cant open the file ' . $filepath);  }	
+    	
     } else { throw new Exception('Invalid extension for file ' . $extension); }
+    
     $totaldocumentsprocessed = 0;
     $totaldocumentsignored = 0;
     // Read full directory, then start processing.

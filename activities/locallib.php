@@ -771,7 +771,7 @@ function if_user_has_voted($array, $userid) {
 			return $object->rating;
 		}
 	}
-	return true;
+	return false;
 }
 function get_average($array) {
 	$sum = 0;
@@ -1139,6 +1139,7 @@ function emarking_activity_get_num_criteria($context) {
 	$definition = $rubriccontroller->get_definition();
 	if ($definition) {
 		$numcriteria = count($definition->rubric_criteria);
+		//var_dump($numcriteria);
 	}
 	
 	return $numcriteria;

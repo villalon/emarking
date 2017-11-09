@@ -15,6 +15,8 @@ if (isloggedin ()) {
 	) );
 	$image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f2.jpg' );
 }
+$testMarkingnUrl = new moodle_url ( '/mod/emarking/activities/testmarking.php' );
+
 ?>
 <meta charset="UTF-8">
 <title>Escribiendo online</title>
@@ -141,10 +143,16 @@ $(function() {
 						<ul class="dropdown-menu">
 							<!--- <li><a href="<?= $myUrl ?>">Mi perfil</a></li> --->
 							<li><a href="<?= $myUrl ?>">Mis cursos</a></li>
-						<?php	if($marker=$DB->get_records('emarking_markers',array('marker'=>$USER->id))){ ?>
+						<?php	if($DB->get_records_sql('Select * from mdl_emarking_fondef_marking where marker =? or secondmarker = ?',array($USER->id,$USER->id))){ ?>
+						<li><a href="<?= $testMarkingnUrl ?>">Corrección Tests</a></li>
+						<?php  } 
+							
+						if($marker=$DB->get_records('emarking_markers',array('marker'=>$USER->id))){ ?>
 						<li><a href="<?= $needMarkingUrl ?>">Corregir</a></li>
-						<?php } ?>
-						<?php	if(is_siteadmin()){ ?>
+						
+						<?php } 
+						
+							if(is_siteadmin()){ ?>
 						<li><a href="<?= $markerAssignationUrl?>">Asignar Corrector</a></li>
 						<li><a href="<?= $genresUrl ?>">Géneros</a></li>
 						<li><a href="<?= $moodleUrl ?>">Moodle</a></li>
