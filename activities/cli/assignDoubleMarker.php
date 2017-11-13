@@ -13,9 +13,9 @@ global $PAGE, $DB, $USER;
 
 set_time_limit(0);
 
-$firstMarker=1;
-$secondMarker=2;
-$thirdMarker=3;
+$firstMarker=33;
+$secondMarker=32;
+$thirdMarker=35;
 
 $tests=$DB->get_records('emarking_double_marking');
 
@@ -66,8 +66,10 @@ inner join mdl_emarking_submission as es on (ed.submissionid=es.id)
 inner join ( 
 select ed.id as id, es.student as student ,es.emarking as emarking from mdl_emarking_submission  as es
 inner join mdl_emarking_draft as ed on(es.id=ed.submissionid)) as da on (da.emarking=? AND da.student=es.student)
-where es.id=?;';
+where ed.id=?';
 $seconddraft = $DB->get_record_sql($sqldos,array($emarking_two,$draftid));
+var_dump($seconddraft);
+die();
 $markerArray=array(1=>$firstMarker,2=>$secondMarker,3=>$thirdMarker);
 unset($markerArray[$j]);
 
