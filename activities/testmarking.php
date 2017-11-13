@@ -77,11 +77,13 @@ echo $OUTPUT->header ();
 			$draftid=$test->seconddraft;
 		}
 		$draft=$DB->get_record("emarking_draft",array('id'=>$draftid));
-		
-		$cm=get_coursemodule_from_id('emarking', $draft->emarkingid);
-		list ( $cm, $emarking, $course, $context ) = emarking_get_cm_course_instance_by_id ($cm->module);
+$sqlcm="select cm.id,cm.instance
+from mdl_course_modules as cm
+INNER Join mdl_modules as m on (m.name='emarking' AND m.id=cm.module)
+where cm.instance=?";
+		$cm=$DB->get_record_sql($sqlcm,array($draft->emarkingid));
+		$context = context_module::instance($cm->id);
 		$numcriteria = emarking_activity_get_num_criteria ( $context );
-		
 		$numcomments=$DB->get_record_sql('select count(*) as count from mdl_emarking_comment where draft=? and textformat=?',	array($draftid, 2));
 		$numcomments=$numcomments->count;
 
@@ -102,7 +104,7 @@ echo $OUTPUT->header ();
 					'width' => 860,
 					'height' => 600
 			)));
-		//$emarkikngLink = '<a href="' . $emarkingurl . '" target="_blank">Correccion '.$count.'</a>';
+		
 		
 		$table->data [] = array (
 				$markactionlink,
