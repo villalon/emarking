@@ -16,6 +16,7 @@ if (isloggedin ()) {
 	$image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f2.jpg' );
 }
 $testMarkingnUrl = new moodle_url ( '/mod/emarking/activities/testmarking.php' );
+$testMarkingDatanUrl = new moodle_url ( '/mod/emarking/activities/testmarkingdata.php' );
 
 ?>
 <meta charset="UTF-8">
@@ -156,6 +157,8 @@ $(function() {
 						<li><a href="<?= $markerAssignationUrl?>">Asignar Corrector</a></li>
 						<li><a href="<?= $genresUrl ?>">Géneros</a></li>
 						<li><a href="<?= $moodleUrl ?>">Moodle</a></li>
+						<li><a href="<?= $testMarkingDatanUrl?>">Seguimiento correctores</a></li>
+						
 						
 						<?php } ?>
 						
