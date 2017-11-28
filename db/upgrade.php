@@ -2044,5 +2044,36 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017110700, 'emarking');
     }
+    if ($oldversion < 2017112700) {
+    	
+    	// Define field emarking to be added to emarking_fondef_marking.
+    	$table = new xmldb_table('emarking_fondef_marking');
+    	$field = new xmldb_field('emarking', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0', 'marker');
+    	
+    	// Conditionally launch add field emarking.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	$table = new xmldb_table('emarking_fondef_marking');
+    	$field = new xmldb_field('secondemarking', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0', 'secondmarker');
+    	
+    	// Conditionally launch add field secondemarking.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	// Define field stage to be added to emarking_fondef_marking.
+    	$table = new xmldb_table('emarking_fondef_marking');
+    	$field = new xmldb_field('stage', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'secondemarking');
+    	
+    	// Conditionally launch add field stage.
+    	if (!$dbman->field_exists($table, $field)) {
+    		$dbman->add_field($table, $field);
+    	}
+    	
+    	// Emarking savepoint reached.
+    	upgrade_mod_savepoint(true, 2017112700, 'emarking');
+    }
     return true;
 }
