@@ -103,9 +103,7 @@ where ed.id=?';
 			$contador ++;
 		}
 		
-		if (! $DB->get_record ( 'emarking_fondef_marking', array (
-				'draft' => $draftid 
-		) )) {
+	
 			
 			
 			if($stageCount % $maxDia == 0 AND $stageCount!=0){
@@ -113,11 +111,15 @@ where ed.id=?';
 				$stageCount =0;
 			}
 			$data->stage=$stage;
+			if (! $DB->get_record ( 'emarking_fondef_marking', array (
+					'draft' => $draftid
+			) )) {
 			 $DB->insert_record ( 'emarking_fondef_marking', $data );
+			}
 			$stageCount++;
 			if($data->secondemarking > 0 AND $stageCount % $maxDia != 0){
 				$stageCount++;
-			}
+			
 			var_dump($data);
 			
 		}
