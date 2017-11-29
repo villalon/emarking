@@ -30,13 +30,13 @@ require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/confi
 global $USER, $OUTPUT, $DB, $CFG, $PAGE, $USER;
 require_once ($CFG->dirroot . '/mod/emarking/activities/locallib.php');
 require_once ($CFG->dirroot . '/mod/emarking/locallib.php');
-
+$stage = optional_param('stage', 1, PARAM_INT);
 $url = new moodle_url ( '/mod/emarking/activities/testmarking.php' );
 require_login ();
 if (isguestuser ()) {
 	die ();
 }
-$categoryid = optional_param ( 'categoryid', 0, PARAM_INT );
+$categoryid = optional_param ( 'categoryid', 3, PARAM_INT );
 $systemcontext = context_system::instance ();
 $PAGE->set_url ( $url );
 $PAGE->set_context ( $systemcontext );
@@ -45,6 +45,10 @@ $PAGE->set_pagelayout ( 'embedded' );
 echo $OUTPUT->header ();
 include 'views/header.php';
 $totalniveles = 3;
+$stagesql="stage > 0";
+if($stage!=99){
+	$stagesql="stage =$stage";
+}
 ?>
 <div class="container" style="">
 	<div class="row">
@@ -71,6 +75,21 @@ $totalniveles = 3;
 				"method" => "get" 
 		) );
 		echo $form;
+		
+		?>
+		<ul class="nav nav-tabs active_tab">
+
+						<li  class="<?php if($stage==1) echo "active";?>"><a  href="testmarkingdata.php?stage=1&categoryid=3">Día 1</a></li>
+						<li class="<?php if($stage==2) echo "active";?>"><a  href="testmarkingdata.php?stage=2&categoryid=3">Día 2</a></li>
+						<li class="<?php if($stage==3) echo "active";?>"><a  href="testmarkingdata.php?stage=3&categoryid=3">Día 3</a></li>
+						<li class="<?php if($stage==4) echo "active";?>"><a href="testmarkingdata.php?stage=4&categoryid=3">Día 4</a></li>
+						<li class="<?php if($stage==5) echo "active";?>"><a  href="testmarkingdata.php?stage=5&categoryid=3">Día 5</a></li>
+						<li class="<?php if($stage==6) echo "active";?>"><a href="testmarkingdata.php?stage=6&categoryid=3">Día 6</a></li>
+						<li class="<?php if($stage==7) echo "active";?>"><a  href="testmarkingdata.php?stage=7&categoryid=3">Día 7</a></li>
+						<li class="<?php if($stage==8) echo "active";?>"><a  href="testmarkingdata.php?stage=8&categoryid=3">Día 8</a></li>
+						<li class="<?php if($stage==99) echo "active";?>"><a  href="testmarkingdata.php?stage=99&categoryid=3">Consolidado</a></li>	
+						</ul>
+		<?php
 		if ($categoryid != 0) {
 			$table = new html_table ();
 			$table->head = array (
@@ -82,17 +101,20 @@ $totalniveles = 3;
 			$tableKappa->head = array (
 					'Corrector 1',
 					'Corrector 2',
-					'Criterio 1',
-					'Criterio 2' 
-			
+					'Texto informativo',
+					'Po',
+					'Texto narrativo', 
+					'Po'			
 			);
 			$tableCorreccion = new html_table ();
 			$tableCorreccion->head = array (
+					'',
 					'Corrector 1',
 					'Corrector 2',
-					'Criterio ',
+					'Texto ',
 					'Level 1',
-					'level 2' 
+					'level 2',
+					''
 			
 			);
 			
@@ -112,28 +134,36 @@ where ra.contextid = ?";
 			foreach ( $markers as $marker ) {
 				$markersArray [] = $marker->userid;
 			}
+			$doblecorreccionArray=Array();
+			$agregados=array();
+			$kappaagregados=array();
 			foreach ( $markers as $marker ) {
 				
-				$sql = "select sum(total.commentcount) as comments, sum(total.criteriacount) as criterias from 
-(select ec.id,count(ec.levelid) as commentcount, cc.count as criteriacount from mdl_emarking_comment as ec
-inner join mdl_gradingform_rubric_criteria as grc on (ec.criterionid =grc.id)
-left join( select definitionid, count(*) as count from mdl_gradingform_rubric_criteria as grc group by definitionid) as cc on (cc.definitionid =grc.definitionid)
+				
+				
+				
+				$sql = "select count(ec.levelid) as count from mdl_emarking_comment as ec
 where ec.draft in (select if(marker=?,draft,seconddraft) as draft
-from mdl_emarking_fondef_marking
-where marker =? Or secondmarker =?) AND ec.textformat = ?
-group by ec.draft) as total";
-				$count = $DB->get_record_sql ( $sql, array (
+from {emarking_fondef_marking}
+where $stagesql AND (marker =? Or secondmarker =?)) AND ec.textformat = ?";
+				$commentsCount = $DB->get_record_sql ( $sql, array (
 						$marker->userid,
 						$marker->userid,
 						$marker->userid,
 						2 
 				) );
 				
+				$sql="select count(*) as count from mdl_emarking_fondef_marking where $stagesql AND (marker =? Or secondmarker =?)";
+				$draftsCount = $DB->get_record_sql ( $sql, array (
+						$marker->userid,
+						$marker->userid
+				) );
+				$criteriaCount=$draftsCount->count * 2;
 				$user = $DB->get_record ( 'user', array (
 						"id" => $marker->userid 
 				) );
 				
-				$percentage = $count->comments * 100 / $count->criterias;
+				$percentage = $commentsCount->count * 100 / $criteriaCount;
 				$table->data [] = array (
 						$user->firstname . " " . $user->lastname,
 						emarking_get_progress_circle ( $percentage ) 
@@ -145,17 +175,21 @@ group by ec.draft) as total";
 					$kappaSecondCriteriaArray = Array ();
 					
 					if ($markersArray [$i] != $marker->userid) {
+						$str =$marker->userid."#".$markersArray [$i];
+						if(!in_array($str, $kappaagregados)){
+						
 						$sql = "select if(marker=?,draft,seconddraft) as mydrafts, if(marker!=?,draft,seconddraft) as otherdrafts
 from mdl_emarking_fondef_marking
-where marker in(?,?) AND secondmarker in (?,?)";
+where marker in(?,?) AND secondmarker in (?,?) AND $stagesql";
 						$drafts = $DB->get_records_sql ( $sql, array (
 								$marker->userid,
 								$marker->userid,
 								$marker->userid,
 								$markersArray [$i],
 								$marker->userid,
-								$markersArray [$i] 
+								$markersArray [$i]
 						) );
+						
 						
 						for($k = 0; $k < $totalniveles; $k ++) {
 							for($h = 0; $h < $totalniveles; $h ++) {
@@ -247,6 +281,7 @@ where ec.draft = ? and ec.textformat = 2 ORDER BY criterionid";
 							for($h = 0; $h < $totalniveles; $h ++) {
 								
 								$totalPC = $totalPC + $kappaFirstCriterialArray [$k] [$h];
+								
 								$totalfilaPC = $totalfilaPC + $kappaFirstCriterialArray [$k] [$h];
 								$totalcolumnaPC = $totalcolumnaPC + $kappaFirstCriterialArray [$h] [$k];
 								
@@ -269,9 +304,11 @@ where ec.draft = ? and ec.textformat = 2 ORDER BY criterionid";
 						
 						$kappaPC = 0;
 						$kappaSC = 0;
+						
 						if ($totalPC != 0) {
 							$poPC = $totalDigonalPC / $totalPC;
 							$pePC = 0;
+							
 							for($k = 0; $k < count ( $totalfilasPC ); $k ++) {
 								if ($totalfilasPC [$k] != 0 && $totalColumnasPC [$k] != 0) {
 									$pePC = $pePC + ($totalfilasPC [$k] / $totalPC) * ($totalColumnasPC [$k] / $totalPC);
@@ -291,6 +328,7 @@ where ec.draft = ? and ec.textformat = 2 ORDER BY criterionid";
 								
 								if ($totalfilasSC [$k] != 0 && $totalColumnasSC [$k] != 0) {
 									$peSC = $peSC + ($totalfilasSC [$k] / $totalSC) * ($totalColumnasSC [$k] / $totalSC);
+									
 								}
 							}
 							
@@ -311,20 +349,28 @@ where ec.draft = ? and ec.textformat = 2 ORDER BY criterionid";
 								$firstMarker->firstname . " " . $firstMarker->lastname,
 								$secondMarker->firstname . " " . $secondMarker->lastname,
 								$kappaPC,
-								$kappaSC 
+								round($poPC,1),
+								$kappaSC,
+								round($poSC,1)
 						
 						);
+						$kappaagregados[]=$marker->userid."#".$markersArray [$i];
+						$kappaagregados[]=$markersArray [$i]."#".$marker->userid;
+						}
 					}
 				}
 			}
-			
+			$contador=1;
 			foreach ( $doblecorreccionArray as $data ) {
+				$comb =$data->marker ."#".$data->secondmarker."#".$data->draft."#". $data->seconddraft."#".$data->criterion;
+				if(!in_array($comb, $agregados)){
 				$firstMarker = $DB->get_record ( 'user', array (
 						"id" => $data->marker 
 				) );
 				$secondMarker = $DB->get_record ( 'user', array (
 						"id" => $data->secondmarker 
 				) );
+				
 				$level = $data->level + 1;
 				$Slevel = $data->secondlevel + 1;
 				$popupurl = new moodle_url('/mod/emarking/marking/index.php', array(
@@ -351,14 +397,31 @@ where ec.draft = ? and ec.textformat = 2 ORDER BY criterionid";
 						'width' => 860,
 						'height' => 600
 				)));
+				$warning="";
+				$resta=abs($data->level - $data->secondlevel);
+				if($resta > 1){ 
+					$warning="Alerta";
+				}
+				if($data->criterion==1){
+					$criterio="Informativo";
+				}else{
+					$criterio="Narrativo";
+				}
 				
 				$tableCorreccion->data [] = array (
+						$contador,
 						$firstMarker->firstname . " " . $firstMarker->lastname,
 						$secondMarker->firstname . " " . $secondMarker->lastname,
-						$data->criterion,
+						$criterio,
 						$markactionlink,
-						$markactionlinkS
+						$markactionlinkS,
+						$warning
 				);
+				$agregados[]=$data->marker ."#".$data->secondmarker."#".$data->draft."#". $data->seconddraft."#".$data->criterion;
+				$agregados[]=$data->secondmarker."#".$data->marker."#".$data->seconddraft."#". $data->draft."#".$data->criterion;
+				$contador++;
+				}
+				
 			}
 			
 			// Showing table.
