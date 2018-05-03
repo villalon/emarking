@@ -187,7 +187,7 @@ if ($cm->groupmode == SEPARATEGROUPS && ($emarking->type == EMARKING_TYPE_ON_SCR
 				SELECT groupid
 				FROM {groups_members} gm
 				INNER JOIN {groups} g on (gm.groupid = g.id)
-				WHERE gm.userid = $USER->id AND g.courseid = e.courseid
+				WHERE gm.userid = $USER->id AND g.courseid = $COURSE->id
 							)
 					)";
 }
