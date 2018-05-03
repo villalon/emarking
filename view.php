@@ -178,7 +178,7 @@ if (!$usercangrade) {
         }
 // Check if activity is configured with separate groups to filter users.
 if ($cm->groupmode == SEPARATEGROUPS && ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PRINT_SCAN) &&
-         $usercangrade && ! is_siteadmin($USER) && ! $issupervisor) {
+         $usercangrade && ! is_siteadmin($USER)) {
     $userfilter .= "
 		AND u.id in (
 			SELECT userid
