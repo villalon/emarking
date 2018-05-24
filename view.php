@@ -176,6 +176,21 @@ if (!$usercangrade) {
         if ($emarking->type == EMARKING_TYPE_PEER_REVIEW && !$issupervisor && !is_siteadmin($USER->id)) {
             $userfilter .= 'AND (um.id = ' . $USER->id . ' OR u.id = ' . $USER->id . ')';
         }
+// Check if activity is configured with separate groups to filter users.
+if ($cm->groupmode == SEPARATEGROUPS && ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING || $emarking->type == EMARKING_TYPE_PRINT_SCAN) &&
+         $usercangrade && ! is_siteadmin($USER)) {
+    $userfilter .= "
+		AND u.id in (
+			SELECT userid
+			FROM {groups_members}
+			WHERE groupid in (
+				SELECT groupid
+				FROM {groups_members} gm
+				INNER JOIN {groups} g on (gm.groupid = g.id)
+				WHERE gm.userid = $USER->id AND g.courseid = $COURSE->id
+							)
+					)";
+}
 $qcfilter = ' AND d.qualitycontrol = 0';
 if ($emarking->qualitycontrol && ($DB->count_records('emarking_markers', array(
     'emarking' => $emarking->id,
