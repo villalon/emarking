@@ -160,40 +160,9 @@
 				</p>
 			</div>
 
-			<div class="col-xs-12 col-sm-3 col-md-2 col-lg-2 tit_blue"
+			<div class="col-xs-12 col-sm-9 col-md-6 col-lg-6 tit_blue"
 				align="center">
-				<h4>Profesores</h4>
-				<img src="img/index/img_profesor.jpg">
-				<p class="text_grey" align="justify">Los profesores que participan de la comunidad
-					pueden crear un perfil, inscribir sus cursos, crear actividades,
-					videos y pautas de evaluación, y usar la corrección en línea o
-					enviar los textos de sus estudiantes para evaluación experta.
-					También pueden comentar y modificar las actividades de otros
-					profesores y convertirse en correctores expertos.</p>
-				<br>
-			</div>
-
-			<div class="col-xs-12 col-sm-3 col-md-2 col-lg-2 tit_blue"
-				align="center">
-				<h4>Correctores</h4>
-				<img src="img/index/img_ayudante.png">
-				<p class="text_grey" align="justify">Los correctores en línea son profesores que se
-					han capacitado en las rúbricas y pautas de evaluación para llevar a
-					cabo una evaluación experta de los textos subidos a la plataforma
-					por otros profesores.</p>
-			</div>
-
-			<div class="col-xs-12 col-sm-3 col-md-2 col-lg-2 tit_blue"
-				align="center">
-				<h4>Estudiantes</h4>
-				<img src="img/index/img_student.png">
-				<p class="text_grey" align="justify">Los estudiantes pueden participar de la
-					plataforma invitados por sus profesores. En esta pueden revisar la
-					retroalimentación que su profesor les entregó, así como participar
-					en evaluaciones entre pares con sus compañeros de curso.</p>
-				<br>
-
-			</div>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/CAKj1hkuJIo" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>			</div>
 		</div>
 
 	</div>
