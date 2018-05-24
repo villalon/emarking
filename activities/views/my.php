@@ -11,8 +11,8 @@
 			<div class="row">
 				<h2></h2>
 				<div class="col-md-3">
-					<div class="panel panel-default">
-						<div class="panel-body">
+					<div class="card border-secondary mb-3">
+						<div class="card-body">
 					<?php
 					echo "<h3>$USER->firstname $USER->lastname</h3>";
 					echo '<img src="' . $image . '" alt="Smiley face" height="100"	width="100">';
@@ -33,8 +33,8 @@
 				<div class="col-md-9">
 					
 						
-						<div class="panel panel-default">
-							<div class="panel-body">
+						<div class="card border-secondary mb-3">
+							<div class="card-body">
 					<h1>Mis Cursos</h1>
 					<?php
 					
@@ -42,8 +42,8 @@
 					foreach ( $coursesasteacher as $course ) {
 						
 						
-						echo '<div class="panel panel-default">';
-						echo '<div class="panel-body" >';
+						echo '<div class="card border-secondary mb-3">';
+						echo '<div class="card-body" >';
 $sql="select cm.id as coursemodule, e.*
 from mdl_course_modules as cm
 INNER JOIN mdl_emarking as e ON e.id=cm.instance
