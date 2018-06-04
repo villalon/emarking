@@ -30,7 +30,8 @@ require_once ('locallib.php');
 require_login ();
 $step = optional_param ( 'step',1 ,PARAM_INT );
 $activityid = optional_param ( 'id',0 ,PARAM_INT );
-$PAGE->set_pagelayout ( 'embedded' );
+
+$PAGE->set_pagelayout ( 'standard' );
 $context = context_system::instance ();
 $PAGE->set_context ( $context );
 $url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php' );
@@ -49,11 +50,9 @@ file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instru
 // print the header
 ?>
 
-<div class="container" style="padding-top: 150px;">
-	<div class="row">
+
 		<h2>Crear una actividad</h2>
 
-		<div class="col-md-12">
 		
 <?php
 $basic = new mod_emarking_activities_create_activity_basic ();
@@ -146,8 +145,5 @@ elseif ($step == 4){
 
 }
 echo $OUTPUT->footer ();
-echo " 	</div>
-	</div>";
-include 'views/headermoodle.php';
 
-include 'views/footer.html';
+

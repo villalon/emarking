@@ -50,6 +50,7 @@ $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/search.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
 
+echo $OUTPUT->header ();
 $teacherroleid = 3;
 if (isloggedin ()) {
 	$courses = enrol_get_all_users_courses ( $USER->id );
@@ -65,7 +66,7 @@ if (isloggedin ()) {
 	}
 }
 
-include 'views/header.php';
+
 // Se incluye formulario para busqueda
 include_once $CFG->dirroot. '/mod/emarking/activities/forms/search.php';
 switch ($type){
@@ -145,5 +146,5 @@ switch ($type){
 }
 // Display results search
 include 'views/results.php';
-// The same footer to each pages
-include 'views/footer.html';
+
+echo $OUTPUT->footer ();

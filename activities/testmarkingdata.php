@@ -40,10 +40,10 @@ $categoryid = optional_param ( 'categoryid', 3, PARAM_INT );
 $systemcontext = context_system::instance ();
 $PAGE->set_url ( $url );
 $PAGE->set_context ( $systemcontext );
-$PAGE->set_pagelayout ( 'embedded' );
+$PAGE->set_pagelayout ( 'standard' );
 
 echo $OUTPUT->header ();
-include 'views/header.php';
+
 $totalniveles = 3;
 $stagesql="stage > 0";
 if($stage!=99){
@@ -439,4 +439,3 @@ where ec.draft = ? and ec.textformat = 2 ORDER BY criterionid";
 </div>
 <?php
 
-include 'views/footer.html';
