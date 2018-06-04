@@ -34,6 +34,14 @@ require_once ($CFG->dirroot . '/mod/emarking/activities/forms/new_genre.php');
 $action = optional_param ( 'action', 'list', PARAM_TEXT );
 $genreid = optional_param ( 'genreid', 0, PARAM_INT );
 $sync = optional_param ( 'sync', '0', PARAM_INT );
+$PAGE->set_pagelayout ( 'standard' );
+$context = context_system::instance ();
+$PAGE->set_context ( $context );
+$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/genres.php' );
+$PAGE->set_url ( $url );
+$PAGE->set_title ( 'escribiendo' );
+
+echo $OUTPUT->header ();
 // Emarking URL.
 
 $url = new moodle_url ( '/mod/emarking/activities/genres.php' );
@@ -76,9 +84,9 @@ $PAGE->set_url ( $url );
 $PAGE->set_context ( $systemcontext );
 $PAGE->set_pagelayout ( 'embedded' );
 
-echo $OUTPUT->header ();
+
 ?>
-<div class="container" style="padding-top: 150px;">
+<div class="container" style="">
 	<div class="row">
 		<h2>Lista de géneros</h2>
 		<div class="col-md-12">
@@ -137,5 +145,3 @@ echo $OUTPUT->footer ();
 </div>
 <?php
 $tab = 1;
-include 'views/header.php';
-include 'views/footer.html';

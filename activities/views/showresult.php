@@ -3,9 +3,9 @@
 		<center>
 			<div style="text-align: left;">
 
-				<div class="row panel panel-default">
+				<div class="row card ">
 
-					<div class="col-xs-4 col-md-3 panel-body" style="text-align: left">
+					<div class="col-xs-4 col-md-3 card-body" style="text-align: left">
 						<br>
 						<p><?=$coursesOA?>
 						<hr>
@@ -23,7 +23,7 @@
 
 					<div class="col-xs-7 col-md-8 single-result-detail clearfix"
 						style="text-align: left">
-						<div id="descripcion" class="panel-body">
+						<div id="descripcion" class="card-body">
 
 							<span style="font-size: 16px;">Género: <?=$genre->name?></span>
 							<h3 class="title_result">

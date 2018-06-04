@@ -41,7 +41,7 @@ if (isguestuser ()) {
 $systemcontext = context_system::instance ();
 $PAGE->set_url ( $url );
 $PAGE->set_context ( $systemcontext );
-$PAGE->set_pagelayout ( 'embedded' );
+$PAGE->set_pagelayout ( 'standard' );
 
 
 echo $OUTPUT->header ();
@@ -117,5 +117,3 @@ echo $OUTPUT->footer ();
 </div>
 <?php
 $tab=1;
-include 'views/header.php';
-include 'views/footer.html';
