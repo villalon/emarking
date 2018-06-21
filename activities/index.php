@@ -27,8 +27,8 @@ $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
-$query = "SELECT id, genre, description, title
-		FROM {emarking_activities}
+$query = "SELECT a.id, g.name genrename, a.description, a.title
+		FROM {emarking_activities} a LEFT JOIN {emarking_activities_genres} g ON (g.id = a.genre)
 		WHERE status = 1 AND parent IS NULL	
 		ORDER BY RAND()
 			LIMIT 4"; 
@@ -36,10 +36,10 @@ $activities = $DB->get_records_sql($query);
 $activityArray=array();
 foreach ($activities as $activity){
 	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activity->id));
-	$genre=$DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
+	// $genre=$DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
 	$activityArray[]=array(
 			'title'=>$activity->title,
-			'genre'=>$genre->name,
+			'genre'=>$activity->genrename,
 			'description'=>$activity->description,
 			'link'=>$url
 	);

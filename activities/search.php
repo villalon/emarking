@@ -49,6 +49,10 @@ $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/search.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
+// Require jquery for modal.
+$PAGE->requires->jquery();
+$PAGE->requires->jquery_plugin('ui');
+$PAGE->requires->jquery_plugin('ui-css');
 
 echo $OUTPUT->header ();
 $teacherroleid = 3;

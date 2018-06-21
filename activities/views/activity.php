@@ -1,3 +1,6 @@
+<?php
+use core\event\user_loggedin;
+?>
 <script>
 $(function() {
 	var vote = '<?=$vote?>';
@@ -70,6 +73,7 @@ $(function() {
 						</div>
 						<?php
 						}
+						if($useristeacher) {
 						?>
 						<div class="activity_buttons">
 						<button type="button" class="btn  btn-success" data-toggle="modal"
@@ -84,6 +88,7 @@ $(function() {
 							Actividad
 						</button></a>
 						</div>
+						<?php } ?>
 						<br>
 					</div>
 				</div>
@@ -163,16 +168,11 @@ $(function() {
 
 						<div class="tab-content">
 							<div id="tostudent" class="tab-pane fade">
-<?php 						if ($usercaneditrubric) {
-	?>
-
 						<div class="activity_buttons">
 						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
-							<span class="glyphicon glyphicon-print"></span> Vista previa instrucciones
+							<span class="glyphicon glyphicon-print"></span> Descargar instrucciones
 						</button></a>
 						</div>
-
-<?php } ?>								
 								<div class="panel panel-default">
 									<div class="panel-body">
 										<h4 style="text-align: left;">Instrucciones</h4>
@@ -209,18 +209,11 @@ $(function() {
 
 
 							<div id="teaching" class="tab-pane fade  in active">
-								<h3 style="text-align: left;">Didáctica</h3>
-<?php 						if ($usercaneditrubric) {
-	?>
-
 						<div class="activity_buttons">
 						<a href="<?=$printteachingpdfUrl?>"><button type="button" class="btn btn-info">
-							<span class="glyphicon glyphicon-print"></span> Imprimir didáctica
+							<span class="glyphicon glyphicon-print"></span> Descargar didáctica
 						</button></a>
 						</div>
-
-<?php } ?>								
-
 								<div class="panel panel-default">
 									<div class="panel-body">
 										<h4 style="text-align: left;">Sugerencias</h4>	
@@ -244,7 +237,6 @@ $(function() {
 							</div>
 
 							<div id="evaluation" class="tab-pane fade">
-								<h3 style="text-align: left;">Evaluación</h3>
 	<?php if(isset($rubric)&& $rubric!=null){?>
 								<h4 style="text-align: left;"><?php echo $rubricname?></h4>
 							<?php echo $rubricdescription; ?>

@@ -4,7 +4,7 @@ $(document).ready(function () {
 	var type ='<?php echo $type;?>';
 	var oa ='<?php echo $oa;?>';
 	var pc ='<?php echo $pc;?>';
-	var genre ='<?php echo $genre;?>';
+	var genre ='<?php echo $genero;?>';
 	var checkbox13 ='<?php echo $chekbox13;?>';
 	var checkbox14 ='<?php echo $chekbox14;?>';
 	var checkbox15 ='<?php echo $chekbox15;?>';
