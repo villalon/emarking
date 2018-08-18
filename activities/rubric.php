@@ -32,6 +32,8 @@ $PAGE->set_context ( context_system::instance () );
 $url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php' );
 $PAGE->set_url ( $url );
 $PAGE->set_title ( 'escribiendo' );
+
+echo $OUTPUT->header ();
 // If not logged in, redirect to login/index.php
 if (!isloggedin ()) {
 	redirect(new moodle_url($CFG->wwwroot.'/login/index.php'), 0);
@@ -77,11 +79,11 @@ $sql='SELECT rl.*, rc.description as criteria, r.id as rubricid, i.max
 	ORDER BY rl.criterionid ASC, rl.score DESC';
 $levels = $DB->get_records_sql($sql);
 
-// print the header
-include 'views/header.php';
+
 
 // print the main page
 include 'views/rubric.php';
 
 // print the footer
-include 'views/footer.html';
+
+echo $OUTPUT->footer ();

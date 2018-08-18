@@ -17,7 +17,6 @@ if (isloggedin ()) {
 }
 $testMarkingnUrl = new moodle_url ( '/mod/emarking/activities/testmarking.php' );
 $testMarkingDatanUrl = new moodle_url ( '/mod/emarking/activities/testmarkingdata.php' );
-
 ?>
 <meta charset="UTF-8">
 <title>Escribiendo online</title>
@@ -51,7 +50,6 @@ $(function() {
 	var search = $('.search');
 	var fix = "<?php echo $fix; ?>";
 	 if(fix != true){
-
 	 if(width < 990){
    	  txt.removeClass('text_nav');
    	  txt.addClass('text_nav_1100');
@@ -186,11 +184,7 @@ $(function() {
               <li class="text_nac"><a href="<?=$loginUrl?>"><img
 							src="img/header/ingreso_05.png"></a></li>
              <?php }?></ul>
-
-
 			</div>
-
-
 		</div>
 		<!--/.nav-collapse -->
 		</div>

@@ -264,12 +264,16 @@ width:1px;
 min-height:100%; 
 } 
 
-/* tab */
+/* tab hello world */
 .active_tab >li.active  a{
     background-color: #ffffff !important;
     box-shadow: inset 0 3px 0 #06C;
     color: #29324e;
 	z-index: 1;
+	font-size: 1.5em;
+}
+.nav-tabs>li>a {
+	font-size: 1.5em;
 }
 .panel-shadow {
     box-shadow: rgba(0, 0, 0, 0.3) 7px 7px 7px;

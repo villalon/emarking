@@ -94,6 +94,7 @@ $editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivi
 		'activityid' => $activityid
 ) );
 
+$useristeacher = false;
 if (isloggedin ()) {
 	$courses = enrol_get_all_users_courses ( $USER->id );
 	$countcourses = count ( $courses );
@@ -103,6 +104,7 @@ if (isloggedin ()) {
 		foreach ( $roles as $rol ) {
 			if ($rol->roleid == $teacherroleid) {
 				$asteachercourses [$course->id] = $course->fullname;
+				$useristeacher = true;
 			}
 		}
 	}

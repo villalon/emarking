@@ -1,3 +1,6 @@
+<?php
+use core\event\user_loggedin;
+?>
 <script>
 $(function() {
 	var vote = '<?=$vote?>';
@@ -70,6 +73,7 @@ $(function() {
 						</div>
 						<?php
 						}
+						if($useristeacher) {
 						?>
 						<div class="activity_buttons">
 						<button type="button" class="btn  btn-success" data-toggle="modal"
@@ -84,6 +88,7 @@ $(function() {
 							Actividad
 						</button></a>
 						</div>
+						<?php } ?>
 						<br/>
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licencia Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />Esta obra está bajo una <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Licencia Creative Commons Atribución 4.0 Internacional</a>
 					</div>
@@ -164,16 +169,11 @@ $(function() {
 
 						<div class="tab-content">
 							<div id="tostudent" class="tab-pane fade">
-<?php 						if ($usercaneditrubric) {
-	?>
-
 						<div class="activity_buttons">
 						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
-							<span class="glyphicon glyphicon-print"></span> Vista previa instrucciones
+							<span class="glyphicon glyphicon-print"></span> Descargar instrucciones
 						</button></a>
 						</div>
-
-<?php } ?>								
 								<div class="panel panel-default">
 									<div class="panel-body">
 										<h4 style="text-align: left;">Instrucciones</h4>
@@ -210,18 +210,11 @@ $(function() {
 
 
 							<div id="teaching" class="tab-pane fade  in active">
-								<h3 style="text-align: left;">Didáctica</h3>
-<?php 						if ($usercaneditrubric) {
-	?>
-
 						<div class="activity_buttons">
 						<a href="<?=$printteachingpdfUrl?>"><button type="button" class="btn btn-info">
-							<span class="glyphicon glyphicon-print"></span> Imprimir didáctica
+							<span class="glyphicon glyphicon-print"></span> Descargar didáctica
 						</button></a>
 						</div>
-
-<?php } ?>								
-
 								<div class="panel panel-default">
 									<div class="panel-body">
 										<h4 style="text-align: left;">Sugerencias</h4>	
@@ -245,7 +238,6 @@ $(function() {
 							</div>
 
 							<div id="evaluation" class="tab-pane fade">
-								<h3 style="text-align: left;">Evaluación</h3>
 	<?php if(isset($rubric)&& $rubric!=null){?>
 								<h4 style="text-align: left;"><?php echo $rubricname?></h4>
 							<?php echo $rubricdescription; ?>

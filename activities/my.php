@@ -32,7 +32,7 @@ $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
 $PAGE->set_title('escribiendo');
-
+echo $OUTPUT->header ();
 $image = new moodle_url ( $CFG->wwwroot . '/user/pix.php/' . $USER->id . '/f1.jpg' );
 $createActivity = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/crear.php/' );
 $userData = $DB->get_record ( 'user', array (
@@ -97,11 +97,8 @@ foreach ( $usercourses as $usercourse ) {
 	$coursesarray [] =$usercourse->id;
 }
 
-//print the header
-include 'views/header.php';
 
 //print the body
 include 'views/my.php';
 
-//print the footer
-include 'views/footer.html';
+echo $OUTPUT->footer();
