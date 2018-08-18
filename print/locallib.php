@@ -86,7 +86,9 @@ function emarking_generate_personalized_exams($category = NULL) {
             $filedir = $CFG->dataroot . "/temp/emarking/$exam->id";
             emarking_initialize_directory($filedir, true);
         } catch (Exception $e) {
-            $message = 'exception printing';
+var_dump($e);
+die();           
+ $message = 'exception printing';
             // Update the exam status to error.
             $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
             $DB->update_record('emarking_exams', $exam);
@@ -326,7 +328,7 @@ function emarking_send_processanswers_notification($emarking, $course) {
         $eventdata->smallmessage = $postsubject;
         $eventdata->notification = 1;
         // $eventdata->courseid = $course->id;
-        message_send($eventdata);
+        //message_send($eventdata);
     }
     // Save the date of the digitization.
     $emarking->digitizingdate = time();
@@ -425,7 +427,7 @@ function emarking_send_digitizing_notification($cron = true, $debug = false, $de
             $eventdata->smallmessage = $postsubject;
             $eventdata->notification = 1;
             $eventdata->courseid = $course->id;
-            message_send($eventdata);
+            //message_send($eventdata);
         }
         // Save the date of the digitization.
         $emarking->digitizingnotified = 1;
@@ -1511,7 +1513,8 @@ function emarking_send_email_code($code, $user, $course, $examname) {
     $eventdata->smallmessage = $subject;
     $eventdata->notification = '0';
     $eventdata->courseid = $course->id;
-    return message_send($eventdata);
+    //return message_send($eventdata);
+    
 }
 
 /**

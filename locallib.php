@@ -1224,7 +1224,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
             }
         $eventdata = new core\message\message();
         $eventdata->component = 'mod_emarking';
-        $eventdata->courseid = $course->id;
+       // $eventdata->courseid = $course->id;
         $eventdata->name = 'notification';
         $eventdata->userfrom = $fromuser;
         $eventdata->userto = $user->id;
@@ -1234,7 +1234,7 @@ function emarking_send_notification($exam, $course, $postsubject, $posttext, $po
         $eventdata->fullmessagehtml = $thismessagehtml;
         $eventdata->smallmessage = $postsubject;
         $eventdata->notification = 1;
-        message_send($eventdata);
+       // message_send($eventdata);
     }
 }
 
