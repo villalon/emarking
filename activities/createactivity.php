@@ -49,11 +49,7 @@ file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instru
 
 // print the header
 ?>
-
-
-		<h2>Crear una actividad</h2>
-
-		
+<h2>Crear una actividad</h2>
 <?php
 $basic = new mod_emarking_activities_create_activity_basic ();
 $instructions = new mod_emarking_activities_create_activity_instructions (null,array('id'=>$activityid));

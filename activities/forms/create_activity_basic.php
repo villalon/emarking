@@ -38,12 +38,12 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		                       // Paso 1 Información básica
 		$mform->addElement ( 'header', 'db', 'Información Básica', null );
 		// Título
-		$mform->addElement ( 'text', 'title', 'Título' );
+		$mform->addElement ( 'text', 'title', 'Título', 'size=150' );
 		$mform->setType ( 'title', PARAM_TEXT );
 		$mform->addRule ( 'title', get_string ( 'required' ), 'required' );
 		// descripción
-		$mform->addElement ( 'static', '', '', 'Pequeña descrición sobre la actividad a realizar, max 500 caracteres.' );
-		$mform->addElement ( 'textarea', 'description', "Descripción", 'wrap="virtual" rows="10" cols="50" maxlength="300"' );
+		$mform->addElement ( 'static', '', '', 'Pequeña descrición sobre la actividad a realizar, max 300 caracteres.' );
+		$mform->addElement ( 'textarea', 'description', "Descripción", 'wrap="virtual" rows="10" cols="10" maxlength="300"' );
 		$mform->setType ( 'description', PARAM_TEXT );
 		
 		$mform->addElement ( 'static', '', '', 'Los objetivos que entrega el ministerio de educación.' );
@@ -58,6 +58,11 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 				'6' => '6° básico' 
 		);
 		$mform->addElement ( 'select', 'C1', 'Objetivos de Aprendizaje', $courseArray );
+		$options = array(
+		    'multiple' => true,
+		    'noselectionstring' => get_string('allareas', 'search'),
+		); 
+		$mform->addElement('autocomplete', 'areaids', get_string('searcharea', 'search'), $courseArray, $options);
 		
 		$oacheckboxarray = array ();
 		// creating days of the week
@@ -155,7 +160,7 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		$mform->addGroup ( $buttonar, 'buttonarr' );
 		
 		// Propósito comunicativo, en un futuro este campo debe ser de autocompletar
-		$mform->addElement ( 'text', 'comunicativepurpose', 'Propósito Comunicativo' );
+		$mform->addElement ( 'text', 'comunicativepurpose', 'Propósito Comunicativo', 'size=150'  );
 		$mform->addRule ( 'comunicativepurpose', get_string ( 'required' ), 'required' );
 		$mform->setType ( 'comunicativepurpose', PARAM_TEXT );
 		// $mform->addHelpButton('comunicativepurpose', 'pc','ciae');
@@ -165,7 +170,7 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		$mform->setType ( 'genre', PARAM_TEXT );
 		// $mform->addHelpButton('genre', 'genero','ciae');
 		// Audiencia
-		$mform->addElement ( 'text', 'audience', 'Audiencia' );
+		$mform->addElement ( 'text', 'audience', 'Audiencia' , 'size=150' );
 		$mform->setType ( 'audience', PARAM_TEXT );
 		// $mform->addHelpButton('audience', 'audiencia','ciae');
 		// Tiempo estimado

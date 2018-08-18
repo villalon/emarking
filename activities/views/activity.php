@@ -40,7 +40,14 @@ $(function() {
 
 						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
 						<hr>
+						<?php if($userobject->id == $USER->id) { ?>
+						<div class="activity_buttons">
+						<a href="<?= $CFG->wwwroot . '/mod/emarking/activities/createactivity.php?id='.$activity->id.'&step=1' ?>"><button type="button" class="btn btn-warning">
+							<span class="glyphicon glyphicon-paperclip"></span> Editar actividad
+						</button></a>
+						</div>												
 						<?php 
+                        }
 						if(isset($disabled) && $disabled!=null){
 						?>
 						<div class="activity_buttons">
