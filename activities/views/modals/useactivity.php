@@ -9,25 +9,25 @@
 			</div>
 				<div class="modal-body">
 		 		<form role="form" action="newsubmission.php">
-									<br> <br> <select class="form-control" name="course">
-										<option>Seleccione el curso</option>
+									<label>Curso </label><br> <select class="form-control" name="course" required>
+										<option value="0">Seleccione el curso</option>
  									 <?php
 							foreach ( $asteachercourses as $key => $asteachercourse ) {
 								echo '<option value="' . $key . '"> ' . $asteachercourse . ' </option>';
 							}
 							?>
   								</select>
-  								<br> <label><input type="checkbox" name="askMarking"
-										value=1>Solicitar corrección externa</label> <input type="hidden"
+  								<input type="hidden" name="askMarking"
+										value=1><input type="hidden"
 										value="<?php echo $activityid; ?>" name="id">
-  								<br> <label><input type="checkbox" name="printteaching"
-										value=1>Incluir didáctica en impresión</label>
-  								<br> <label><input type="checkbox" name="changelog"
-										value=1>Estudiantes pueden reescribir en línea</label>
-  								<br> <label>Forma de subir los textos<br/><select id="submissiontype" name="submissiontype" onchange="showmsg();">
+  								<br> <label>Forma de subir los textos</label><br/><select id="submissiontype" class="form-control" name="submissiontype" onchange="showmsg();">
   												<option value="1">Profesor escanea</option>
   												<option value="2">Estudiantes suben su PDF</option>
-  											</select></label><br>
+  											</select><br><label><input type="checkbox" name="printteaching"
+										value=1>&nbsp;Incluir didáctica en impresión</label>
+  								<input type="hidden" name="changelog"
+										value=1>
+
   								<div id="submissiontypemessage" style="display:none; color:#ff0000;">Los estudiantes deben guardar sus documentos en formato PDF para poder subirlos a la plataforma.</div>
 								<div style="text-align: right">
 								<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
