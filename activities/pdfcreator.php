@@ -6,10 +6,10 @@ require_once("$CFG->libdir/pdflib.php");
 require_once ($CFG->dirroot . '/mod/emarking/activities/locallib.php');
 GLOBAL $USER, $DB;
 
-require_login();
+/*require_login();
 if (isguestuser()) {
 	die();
-}
+}*/
 
 $activityid = required_param('id', PARAM_INT);
 if ( !$activity = $DB->get_record('emarking_activities', array('id' => $activityid))) {

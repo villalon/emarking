@@ -137,32 +137,32 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 	
 	$user_object = $DB->get_record('user', array('id' => $activity->userid));
 	
-	$usercontext=context_user::instance($USER->id);
+	$usercontext=context_user::instance($activity->userid);
 	
 	$fs = get_file_storage();
 	// create new PDF document
 	
-	$pdf = emarking_create_activity_pdf($user_object, $activity);
+	$pdf = emarking_create_activity_pdf($user_object, $activity, 10);
 	
 	if(isset($sections->header) && $sections->header == 1) {
 		$pdf->writeHTML('<h1>'.$activity->title.'</h1> ', true, false, false, false, '');
 	}
 	if(isset($sections->instructions)&&$sections->instructions==1){
 		$pdf->writeHTML('<h3>Instrucciones</h3> ', true, false, false, false, '');
-		$instructionshtml=emarking_activities_add_images_pdf($activity->instructions,$usercontext);
+		$instructionshtml=emarking_activities_add_images_pdf($activity->instructions);
 		$instructionshtml=emarking__activities_clean_html_to_print($instructionshtml);
 		$pdf->writeHTML($instructionshtml, true, false, false, false, '');
 	}
 	
 	if(isset($sections->planification)&&$sections->planification==1) {
-		$planificationhtml=emarking_activities_add_images_pdf($activity->planification,$usercontext);
+		$planificationhtml=emarking_activities_add_images_pdf($activity->planification);
 		$pdf->writeHTML('<h3>Planificación</h3>', true, false, false, false, '');
 		$planificationhtml=emarking__activities_clean_html_to_print($planificationhtml);
 		$pdf->writeHTML($planificationhtml, true, false, false, false, '');
 	}
 	
 	if(isset($sections->writing)&&$sections->writing==1) {
-		$writinghtml=emarking_activities_add_images_pdf($activity->writing,$usercontext);
+		$writinghtml=emarking_activities_add_images_pdf($activity->writing);
 		$writinghtml=emarking__activities_clean_html_to_print($writinghtml);
 	
 		$pdf->writeHTML('<h3>Escritura</h3>', true, false, false, false, '');
@@ -173,7 +173,7 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 		
 		$height = 0;
 		if(isset($sections->editing) && $sections->editing==1){
-			$editinghtml=emarking_activities_add_images_pdf($activity->editing,$usercontext);
+			$editinghtml=emarking_activities_add_images_pdf($activity->editing);
 			$editinghtml=emarking__activities_clean_html_to_print($editinghtml);
 			$pdf2 = emarking_create_activity_pdf($user_object, $activity);
 			$height = $pdf2->GetY();
@@ -191,14 +191,14 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 	}
 	
 	if(isset($sections->teaching) && $sections->teaching==1) {
-		$teachinghtml=emarking_activities_add_images_pdf($activity->teaching,$usercontext);
+		$teachinghtml=emarking_activities_add_images_pdf($activity->teaching);
 		$pdf->writeHTML('<h3>Sugerencias didácticas</h3>', true, false, false, false, '');
 		$teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
 		$pdf->writeHTML($teachinghtml, true, false, false, false, '');
 	}
 	
 	if(isset($sections->resources) && $sections->resources==1) {
-		$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources,$usercontext);
+		$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources);
 		$pdf->writeHTML('<h3>Recursos del lenguaje</h3>', true, false, false, false, '');
 		$languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
 		$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
@@ -262,7 +262,7 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 	}
 }
 
-function emarking_create_activity_pdf($user_object, $activity) {
+function emarking_create_activity_pdf($user_object, $activity, $topmargin = 40) {
 	global $USER;
 	
 	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -277,7 +277,7 @@ function emarking_create_activity_pdf($user_object, $activity) {
 	
 	// set auto page breaks
 	$pdf->SetAutoPageBreak(TRUE, 10);
-	$pdf->SetTopMargin(40);
+	$pdf->SetTopMargin($topmargin);
 	$pdf->SetRightMargin(10);
 	$pdf->SetLeftMargin(10);
 	// Add a page
@@ -487,16 +487,17 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 			'sectionid'=>$sectionid
 	);
 }
-function emarking_activities_add_images_pdf($html,$context){
+function emarking_activities_add_images_pdf($html){
 	global $DB, $CFG, $OUTPUT;
 
+	$tmpdir = random_string();
 	// Inclusión de librerías
 	require_once ($CFG->dirroot . '/mod/emarking/orm/locallib.php');
 	require_once ($CFG->dirroot . '/mod/emarking/print/locallib.php');
-	$filedir = $CFG->dataroot . "/temp/emarking/$context->id";
+	$filedir = $CFG->dataroot . "/temp/emarking/$tmpdir";
 	emarking_initialize_directory($filedir, false);
 
-	$fileimg = $CFG->dataroot . "/temp/emarking/$context->id/images";
+	$fileimg = $CFG->dataroot . "/temp/emarking/$tmpdir/images";
 	emarking_initialize_directory($fileimg, false);
 
 
@@ -634,6 +635,8 @@ function emarking__activities_clean_html_to_print($html)
 	$html = preg_replace('/border="\d+"/', '', $html);
 	$html = preg_replace('/<table(.*?)>/', '<br/><table border="1">', $html);
 	$html = preg_replace('/<div>(<input.*?)<\/div>/', '<br/>$1', $html);
+	$html = preg_replace('/<p align="justify"><\/p>/', '', $html);
+	$html = preg_replace('/(.*)<br\/?>/', '$1', $html);
 
 	return $html;
 }

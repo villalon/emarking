@@ -82,7 +82,8 @@ $printpdfUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/pdfcre
 		'instructions' => 1,
 		'writing' => 1,
 		'planification' => 1,
-		'editing' => 1
+		'editing' => 1,
+        'header' => 1
 ) );
 $printteachingpdfUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/pdfcreator.php', array (
 		'id' => $activityid,
@@ -90,10 +91,12 @@ $printteachingpdfUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activitie
 		'resources' => 1,
 		'header'=>1
 ) );
-$editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/editactivity.php', array (
-		'activityid' => $activityid
+$editUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php', array (
+		'id' => $activityid,
+        'step' => 1
 ) );
 
+$useristeacher = false;
 if (isloggedin ()) {
 	$courses = enrol_get_all_users_courses ( $USER->id );
 	$countcourses = count ( $courses );
@@ -103,6 +106,7 @@ if (isloggedin ()) {
 		foreach ( $roles as $rol ) {
 			if ($rol->roleid == $teacherroleid) {
 				$asteachercourses [$course->id] = $course->fullname;
+				$useristeacher = true;
 			}
 		}
 	}
