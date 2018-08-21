@@ -233,9 +233,7 @@ if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
 }
 // Show export buttons when grades are available
 if($usercangrade) {
-	
 	emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading);
-	
 }
 if($emarking->type == EMARKING_TYPE_MARKER_TRAINING) {
     echo $OUTPUT->heading(get_string('marking_progress', 'mod_emarking'), 5);

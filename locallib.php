@@ -2007,9 +2007,6 @@ function emarking_get_progress_circle($progress, $color = '', $onclick = '', $ti
  */
 function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emarking, $numdraftsgrading) {
     global $OUTPUT, $CFG;
-    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW || $emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {} else {
-        echo $OUTPUT->heading(get_string('students'), 4);
-    }
     echo html_writer::start_div('exportbuttons');
     if ($numdraftsgrading > 1 && $emarking->type != EMARKING_TYPE_MARKER_TRAINING && $emarking->type != EMARKING_TYPE_PEER_REVIEW) {
     	if (isset($CFG->emarking_pagelayouttype)&&$CFG->emarking_pagelayouttype!=EMARKING_PAGES_LAYOUT_EMBEDDED ) {
@@ -2020,14 +2017,14 @@ function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emar
     	}
     }
     // Show export to Excel button if supervisor and there are students to export.
-    echo "<table style='float:right;'><tr><td>";
+    echo "<table style='width:100%'><tr><td style='text-align: right;'>";
     if ($issupervisor && $rubriccriteria) {
         if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
         	$csvurl = new moodle_url($CFG->wwwroot.'/mod/emarking/view.php', array(
                 'id' => $cm->id,
                 'exportcsv' => 'grades'
             ));
-            echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'));
+            echo $OUTPUT->single_button($csvurl, get_string('exportgrades', 'mod_emarking'), 'get');
             echo "</td><td>";
             $csvurl = new moodle_url($CFG->wwwroot.'/mod/emarking/view.php', array(
                 'id' => $cm->id,
@@ -2064,6 +2061,9 @@ function emarking_show_export_buttons($issupervisor, $rubriccriteria, $cm, $emar
     }
     echo "</td></tr></table>";
     echo html_writer::end_div();
+    if ($emarking->type == EMARKING_TYPE_MARKER_TRAINING || $emarking->type == EMARKING_TYPE_PEER_REVIEW || $emarking->type == EMARKING_TYPE_STUDENT_TRAINING) {} else {
+        echo $OUTPUT->heading(get_string('students'), 4);
+    }
 }
 
 /**

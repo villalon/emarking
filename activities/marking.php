@@ -49,6 +49,7 @@ $PAGE->set_context ( $context );
 $url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/marking.php' );
 $PAGE->set_url ( $url );
 $PAGE->set_title ( 'escribiendo' );
+$PAGE->navbar->add($course->fullname);
 
 $disabled = null;
 $totalsubmissions = $DB->count_records_sql ( "

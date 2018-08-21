@@ -59,7 +59,7 @@ if(isset($tab)){
 							<input type="text" class="form-control"
 								placeholder="Buscar actividades" name="search"> <input
 								type="hidden" name="type" value="1">
-							<button class="btn btn-md btn-primary" type="submit">Buscar</button>
+							<input class="btn btn-md btn-primary" type="submit" value="Buscar">
 						</form>
 					</li>
 
