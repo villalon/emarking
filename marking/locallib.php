@@ -31,7 +31,7 @@
  * @param unknown $context
  * @return multitype:stdClass
  */
-function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context, $winwidth, $winheight) {
+function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymous, $context) {
     global $DB, $CFG, $USER;
     $emarkingpages = array();
     // Get criteria to filter pages.
@@ -128,7 +128,7 @@ function emarking_get_all_pages($emarking, $submission, $draft, $studentanonymou
             } else {
                 $emarkingpage->showmarker = 1;
             }
-            $emarkingpage->comments = emarking_get_comments_page($pagenumber, $draft->id, $winwidth, $winheight);
+            $emarkingpage->comments = emarking_get_comments_page($pagenumber, $draft->id);
             $emarkingpages [] = $emarkingpage;
         }
     }
@@ -179,7 +179,7 @@ function emarking_get_markers_in_training($emarkingid, $context, $filterbypartic
         $markersintraining,
         $userismarker);
 }
-function emarking_get_comments_page($pageno, $draftid, $winwidth, $winheight) {
+function emarking_get_comments_page($pageno, $draftid) {
     global $DB;
     $sqlcomments = "SELECT
 		aec.id,
