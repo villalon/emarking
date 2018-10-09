@@ -142,7 +142,7 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 	$fs = get_file_storage();
 	// create new PDF document
 	
-	$pdf = emarking_create_activity_pdf($user_object, $activity, 10);
+	$pdf = emarking_create_activity_pdf($user_object, $activity, 40);
 	
 	if(isset($sections->header) && $sections->header == 1) {
 		$pdf->writeHTML('<h1>'.$activity->title.'</h1> ', true, false, false, false, '');
