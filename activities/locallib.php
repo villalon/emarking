@@ -312,6 +312,60 @@ function emarking_create_activity_pdf($user_object, $activity, $topmargin = 40) 
 	
 	return $pdf;
 }
+function emarking_create_student_pdf($html, $emarking, $course) {
+    global $USER;
+    
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    
+    // set document information
+    $pdf->SetCreator($USER->firstname . ' ' . $USER->lastname);
+    $pdf->SetAuthor($USER->firstname . ' ' . $USER->lastname);
+    $pdf->SetTitle($USER->firstname . ' ' . $USER->lastname);
+    $pdf->SetPrintHeader(false);
+    $pdf->SetPrintFooter(false);
+    $pdf->SetFont('times', '', 12);
+    
+    // set auto page breaks
+    $pdf->SetAutoPageBreak(TRUE, 10);
+    $pdf->SetTopMargin(10);
+    $pdf->SetRightMargin(10);
+    $pdf->SetLeftMargin(10);
+    // Add a page
+    // This method has several options, check the source code documentation for more information.
+    $pdf->AddPage();
+    $css='
+        
+<style>
+   body {
+        font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+    }
+	p {
+		font-size: 12pt;
+	}
+	h3, p {
+		margin-top: 1px;
+		margin-bottom: 1px;
+	}
+	table {
+    	border: 1px solid black;
+	}
+	td {
+		width: 100%;
+		border-bottom: 1px dotted #999;
+		height: 10px;
+	}
+    </style>
+   ';
+    
+    $pdf->writeHTML($css, true, false, false, false, '');
+    $pdf->writeHTML($course->fullname, true, false, false, false, '');
+    $pdf->writeHTML($USER->firstname . ' ' . $USER->lastname , true, false, false, false, '');
+    $pdf->writeHTML("<h3>$emarking->name</h3>", true, false, false, false, '');
+    $pdf->writeHTML("<hr>", true, false, false, false, '');
+    $pdf->writeHTML($html, true, false, false, false, '');
+    
+    return $pdf;
+}
 function emarking_pdf_fill_writing_table(TCPDF $pdf, $saveHeight = 0) {
 	$footermargin = $pdf->getFooterMargin();
 	$pdf->SetAutoPageBreak(false);

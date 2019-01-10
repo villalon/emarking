@@ -22,7 +22,8 @@
 										value="<?php echo $activityid; ?>" name="id">
   								<br> <label>Forma de subir los textos</label><br/><select id="submissiontype" class="form-control" name="submissiontype" onchange="showmsg();">
   												<option value="1">Profesor escanea</option>
-  												<option value="2">Estudiantes suben su PDF</option>
+  												<option value="3">Estudiantes escriben en la plataforma</option>
+  												<option value="2">Estudiantes suben archivo PDF</option>
   											</select><br><label><input type="checkbox" name="printteaching"
 										value=1>&nbsp;Incluir didáctica en impresión</label>
   								<input type="hidden" name="changelog"

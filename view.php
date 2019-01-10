@@ -881,7 +881,23 @@ function emarking_get_actions($d, $emarking, $context, $draft, $usercangrade, $i
             $actionsarray[] = $OUTPUT->action_link($printversionurl, "PDF");
         }
     }
-    $divclass = $usercangrade ? 'printactions' : 'useractions';
+    if($emarking->uploadtype == EMARKING_UPLOAD_HTML &&
+        has_capability('mod/emarking:submit', $context) &&
+        ($owndraft || $issupervisor)) {
+            $uploadanswerurl = new moodle_url('/mod/emarking/write/index.php', array(
+                'id' => $cm->id
+            ));
+            if($d->status < EMARKING_STATUS_SUBMITTED) {
+                $actionsarray[] = $OUTPUT->action_link($uploadanswerurl, get_string('write', 'mod_emarking'));
+            } else if($owndraft && $d->status >= EMARKING_STATUS_GRADING && $d->pctmarked == 100) {
+                $printversionurl = new moodle_url('/mod/emarking/marking/printversion.php', array(
+                    'id' => $cm->id,
+                    'did' => $d->id
+                ));
+                $actionsarray[] = $OUTPUT->action_link($printversionurl, "PDF");
+            }
+        }
+        $divclass = $usercangrade ? 'printactions' : 'useractions';
     $actionshtml = implode("&nbsp;|&nbsp;", $actionsarray);
     if ($emarking->type != EMARKING_TYPE_MARKER_TRAINING) {
         $actions = html_writer::div($actionshtml, $divclass);

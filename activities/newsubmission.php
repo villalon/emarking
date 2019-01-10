@@ -27,6 +27,13 @@ $itemid=$pdf['itemid'];
 $numpages=$pdf['numpages'];
 $filedata=$pdf['filedata'];
 
+if($submissiontype == 1) {
+    $submissiontype = EMARKING_UPLOAD_QR;
+} elseif($submissiontype == 2) {
+    $submissiontype = EMARKING_UPLOAD_FILE;
+} else {
+    $submissiontype = EMARKING_UPLOAD_HTML;
+}
 $emarking = new stdClass();
 $emarking->course = $courseid;
 $emarking->name = $pdf['activitytitle'];
@@ -38,7 +45,7 @@ $emarking->grade = 7.0;
 $emarking->grademin = 1.0;
 $emarking->keywords = "keyword1,keyword2,sentence1";
 $emarking->exam=0;
-$emarking->uploadtype=$submissiontype == 2 ? EMARKING_UPLOAD_FILE : EMARKING_UPLOAD_QR;
+$emarking->uploadtype=$submissiontype;
 $emarking->changelog = $changelog == 0 ? 0 : 1;
 
 $data=emarking_create_activity_instance($emarking,$courseid,$itemid,$numpages,$filedata);
@@ -109,6 +116,13 @@ $marker->marker =0;
 $marker->qualitycontrol=0;
 $DB->insert_record('emarking_markers', $marker);
 }
-
+$usedactivity = new stdClass();
+$usedactivity->emarkingid = $data['id'];
+$usedactivity->activityid = $activityid;
+$usedactivity->printrubric = 0;
+$usedactivity->printteaching = 0;
+$usedactivity->onlinerewrite = 0;
+$usedactivity->uploadingtype = 0;
+$usedactivity->id = $DB->insert_record('emarking_used_activities', $usedactivity);
 $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php', array('id' => $data['cmid'],'tab'=>1));
 redirect($forkUrl, 0);
