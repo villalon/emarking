@@ -1,6 +1,7 @@
 <?php
 $homeUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/index.php' );
 $searchUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/search.php' );
+$foroUrl = new moodle_url($CFG->wwwroot . '/course/view.php?id=111');
 $createactivityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php' );
 $myUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
 $coursesUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/my.php' );
@@ -129,7 +130,7 @@ $(function() {
 				<ul class="nav navbar-nav navbar-left text_nav">
 					<li class="txt text_nav"><a href="<?=$homeUrl?>">Inicio</a></li>
 					<li class="txt text_nav"><a href="<?=$searchUrl?>">Actividades</a></li>
-					<li class="txt text_nav"><a href="#contact">Foro</a></li>
+					<li class="txt text_nav"><a href="<?=$foroUrl?>">Foro</a></li>
 
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
