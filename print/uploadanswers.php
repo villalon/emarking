@@ -198,7 +198,7 @@ if (count($digitizedanswersfiles) == 0) {
         get_string('filename', 'repository'),
         get_string('size'),
         'Mime type',
-        get_string('uploaded', 'hub'),
+        get_string('uploaded', 'mod_emarking'),
         get_string('status', 'mod_emarking'),
         core_text::strtotitle(get_string('pages', 'mod_emarking')),
         get_string('actions', 'mod_emarking')

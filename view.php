@@ -29,7 +29,6 @@ require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 require_once ($CFG->dirroot . "/lib/externallib.php");
 require_once ($CFG->dirroot . '/lib/excellib.class.php');
 require_once ($CFG->dirroot . "/mod/emarking/classes/event/unauthorizedaccess_attempted.php");
-require_once ($CFG->libdir . '/eventslib.php');
 global $USER, $OUTPUT, $DB, $CFG, $PAGE;
 // Obtains basic data from cm id.
 list ($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();

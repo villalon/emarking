@@ -33,7 +33,6 @@ require_once($CFG->dirroot . "/mod/emarking/lib/phpqrcode/phpqrcode.php");
 require_once($CFG->dirroot . "/mod/emarking/lib.php");
 require_once($CFG->dirroot . "/mod/emarking/locallib.php");
 require_once("locallib.php");
-require_once($CFG->libdir . "/eventslib.php");
 require_once($CFG->dirroot . "/mod/emarking/classes/event/invalidtokendownload_attempted.php");
 global $USER;
 // We validate login first as this page can be reached by the copy center
