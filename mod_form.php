@@ -940,6 +940,8 @@ class mod_emarking_mod_form extends moodleform_mod {
     }
     private function get_slope_errors($data) {
         $errors = array();
+        $grademin = $data ['grademin'];
+        $grademax = $data ['grade'];
         // Validate the adjusted slope.
         $adjustslope = isset($data ['adjustslope']) ? $data ['adjustslope'] : false;
         $adjustslopescore = isset($data ['adjustslopescore']) ? $data ['adjustslopescore'] : 0;
