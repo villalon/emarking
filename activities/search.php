@@ -26,28 +26,15 @@ require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.
 global $PAGE, $DB, $USER, $CFG;
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 
-$type = optional_param('type', 1, PARAM_INT);
-$oa = optional_param('oa', '', PARAM_TEXT);
-$pc = optional_param('pc', '', PARAM_TEXT);
+$oa_curso = optional_param('oa', 0, PARAM_INT);
+$oa = optional_param('oa', '', PARAM_SEQUENCE);
 $genero = optional_param('genero', '', PARAM_TEXT);
 $search = optional_param('search', '', PARAM_TEXT);
-
-// Checkbox de la busqueda por Objetivo de aprendizaje, 2do formulario de busqueda
-$chekbox13 = optional_param('13', 0, PARAM_INT);
-$chekbox14  = optional_param('14', 0, PARAM_INT);
-$chekbox15  = optional_param('15', 0, PARAM_INT);
-$chekbox16  = optional_param('16', 0, PARAM_INT);
-$chekbox17  = optional_param('17', 0, PARAM_INT);
-$chekbox18  = optional_param('18', 0, PARAM_INT);
-$chekbox19  = optional_param('19', 0, PARAM_INT);
-$chekbox20  = optional_param('20', 0, PARAM_INT);
-$chekbox21  = optional_param('21', 0, PARAM_INT);
-$chekbox22  = optional_param('22', 0, PARAM_INT);
 
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/search.php');
 $PAGE->set_url($url);
-$PAGE->set_title('escribiendo');
+$PAGE->set_title('Actividades');
 // Require jquery for modal.
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
@@ -59,84 +46,41 @@ $genres = $DB->get_records('emarking_activities_genres', null, 'name ASC');
 
 // Se incluye formulario para busqueda
 include_once $CFG->dirroot. '/mod/emarking/activities/forms/search.php';
-switch ($type){
-	case 1:
-		$search = $DB->sql_like_escape($search);
-		$activitiessql = "SELECT ea.*, eag.name AS genrename, u.firstname, u.lastname
+
+$activitiessql = "SELECT ea.*, eag.name AS genrename, u.firstname, u.lastname
 			FROM {emarking_activities} ea
             INNER JOIN {emarking_activities_genres} eag ON (ea.genre = eag.id)
             INNER JOIN {user} u ON (ea.userid = u.id)
-			WHERE parent IS NULL AND
-				(title LIKE '%$search%' OR
+			WHERE parent IS NULL AND status = 1";
+$params = array();
+
+if(strlen($search) > 3) {
+		$search = $DB->sql_like_escape($search);
+		$activitiessql .= "
+				AND (title LIKE '%$search%' OR
 				ea.description LIKE '%$search%' OR
 				audience LIKE '%$search%' OR
 				instructions LIKE '%$search%' OR
 				teaching LIKE '%$search%' OR
-				languageresources LIKE '%$search%')
-				AND status = 1";
-		$results = $DB->get_records_sql($activitiessql);
-		break;
-	case 2;
-		$oa = str_replace("°", "", $oa);
-		$sqlwhere = 'WHERE parent IS NULL 
-				AND status = 1 
-				AND learningobjectives like "'.$oa.'[%"';
-		if($chekbox13){
-			$sqlwhere .= 'AND learningobjectives like "%13%"';
-		}
-		if($chekbox14){
-			$sqlwhere .= 'AND learningobjectives like "%14%"';
-		}
-		if($chekbox15){
-			$sqlwhere .= 'AND learningobjectives like "%15%"';
-		}
-		if($chekbox16){
-			$sqlwhere .= 'AND learningobjectives like "%16%"';
-		}
-		if($chekbox17){
-			$sqlwhere .= 'AND learningobjectives like "%17%"';
-		}
-		if($chekbox18){
-			$sqlwhere .= 'AND learningobjectives like "%18%"';
-		}
-		if($chekbox19){
-			$sqlwhere .= 'AND learningobjectives like "%19%"';
-		}
-		if($chekbox20){
-			$sqlwhere .= 'AND learningobjectives like "%20%"';
-		}
-		if($chekbox21){
-			$sqlwhere .= 'AND learningobjectives like "%21%"';
-		}
-		if($chekbox22){
+				languageresources LIKE '%$search%')";
+}
+
+if($oa > 0 && $oa < 9) {
+	    echo "<hr>";
+		var_dump($oa);
+		echo "<hr>";
+		$sqlwhere = 'AND learningobjectives like "'.$oa_curso.'[%"';
+		if($oa){
 			$sqlwhere .= 'AND learningobjectives like "%22%"';
 		}
-		$activitiessql = "SELECT *
-				FROM {emarking_activities} ".$sqlwhere;
-		var_dump($activitiessql);
-		$results = $DB->get_records_sql($activitiessql);
-		break;
-	case 3:
-		$pc = $DB->sql_like_escape($pc);
-		$activitiessql = 'SELECT *
-				FROM {emarking_activities}
-				WHERE comunicativepurpose = ? AND parent IS NULL AND status = ?';
-		$results = $DB->get_records_sql($activitiessql, array(
-			$pc,
-			1
-		));
-		break;
-	case 4:
-		$genero= $DB->sql_like_escape($genero);
-		$activitiessql = 'SELECT *
-				FROM {emarking_activities}
-				WHERE genre = ? AND parent IS NULL AND status = ?';
-		$results = $DB->get_records_sql($activitiessql, array(
-			$genero,
-			1
-		));
-		break;
+		$activitiessql .= $sqlwhere;
 }
+
+if($genero > 0) {
+		$activitiessql .= 'AND genre = ?';
+		$params[] = $genero;
+}
+$results = $DB->get_records_sql($activitiessql, $params);
 // Display results search
 include 'views/results.php';
 

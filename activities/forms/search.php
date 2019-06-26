@@ -2,9 +2,16 @@
 .card ul {
     list-style: none;
     padding-left: 0px;
+    margin-bottom: 0px;
 }
 .card i {
     margin-right: 5px;
+}
+.card-footer div {
+    display: inline;
+}
+.card-footer .author {
+    float: right;
 }
 #oa label {
     margin-right: 5px;
@@ -19,9 +26,12 @@
     width: auto;
 }
 .card:hover {
--webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
--moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
+    -webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
+    -moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
+    box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
+}
+td.descripcion {
+    padding-top: 10px;
 }
 </style>
 <div class="container">

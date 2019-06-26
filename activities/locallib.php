@@ -109,8 +109,8 @@ function activities_show_result($data) {
 		$recordcleaned = emarking_activities_clean_string_to_json($communitysql->data);
 		$decode = json_decode($recordcleaned);
 		$social = $decode->data;
-		$comments = $social->Comentarios;
-		$votes = $social->Vote;
+		$comments = is_array($social->Comentarios) ? $social->Comentarios : array();
+		$votes = is_array($social->Vote) ? $social->Vote : array();
 		$countvotes = count($votes);
 		$countcomments = count($comments);
 		if($countvotes > 0){
