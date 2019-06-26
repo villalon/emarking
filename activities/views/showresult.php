@@ -1,69 +1,40 @@
-<div class="container">
-	<a href="<?= $activityUrl?>">
-		<center>
-			<div style="text-align: left;">
-
-				<div class="row card ">
-
-					<div class="col-xs-4 col-md-3 card-body" style="text-align: left">
-						<br>
-						<p><?=$coursesOA?>
-						<hr>
-					    Propósito Comunicativo: <?=$data->comunicativepurpose?><br>
-					    Audiencia: <?= $data->audience?><br>
-					    Tiempo estimado: <?=$data->estimatedtime?><br>
-						
-						
-						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
-					</div>
-
-					<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"
-						style="border-left: 1px solid #cccccc;"></div>
-
-
-					<div class="col-xs-7 col-md-8 single-result-detail clearfix"
-						style="text-align: left">
-						<div id="descripcion" class="card-body">
-
-							<span style="font-size: 16px;">Género: <?=$genre->name?></span>
-							<h3 class="title_result">
-								<b><?=ucfirst(strtolower($data->title));?></b>
-							</h3>
-							<br>
-							<p><?=$data->description?></p>
-						</div>
-
-						<div class="row" style="text-align: left">
-
-							<div class="result_list">
-								<span
-									class="glyphicon glyphicon-comment" aria-hidden="true"
-									style="margin-left: 10px;">&ensp;<?=$countcomments?> Comentario(s)&ensp;</span>
-							</div>
-							<div class="result_list">
-								<?php 
-								
-								for ($i=1;$i <= 5;$i++){
-									
-									if($i <= $average){
-										echo '<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>';
-									}
-									else {
-										echo '<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>';
-									}
-								}
-								
-								?>
-								<span class="glyphicon glyphicon-ok" aria-hidden="true"
-									style="margin-left: 10px;"> <?=$countvotes?> voto(s)</span>
-							</div>
-
-						</div>
-
-					</div>
-				</div>
-
-			</div>
-		</center>
-	</a>
+<div onClick="location.href='<?= $data->url?>'" style="cursor:pointer;">
+	<div class="card">
+		<div class="card-header">
+			<i class="fa fa-book" aria-hidden="true" title="Género"></i><?=$data->genrename?><h3><?=ucfirst(strtolower($data->title));?></h3>
+   			
+		</div>
+		<div class="card-body">
+			<table style="width:100%">
+				<tr>
+					<td width="100%">
+                		<ul>
+                			<li><i class="fa fa-pencil-square-o" aria-hidden="true" title="Propósito comunicativo"></i><?=$data->comunicativepurpose?></li>
+                			<li><i class="fa fa-bullseye" aria-hidden="true" title="Objetivos de aprendizaje"></i><?=$coursesOA?></li>
+                			<li><i class="fa fa-users" aria-hidden="true" title="Audiencia"></i><?= $data->audience?></li>
+                			<li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$data->estimatedtime?> minutos</li>
+                		</ul>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" width="100%">
+	    				<?=$data->description?>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="card-footer">
+			<?=$countcomments?> <i class="fa fa-comment" aria-hidden="true" title="Comentarios"></i> <?=$countvotes?> <i class="fa fa-star-half" aria-hidden="true" title="Votos"></i>
+			<?php 
+				for ($i=1;$i <= 5;$i++){
+					if($i <= $average){
+						echo '<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>';
+					} else {
+						echo '<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>';
+					}
+				}
+				?>
+				<i class="fa fa-user" aria-hidden="true" title="Autor"></i><?= $data->firstname.' '.$data->lastname ?>
+		</div>
+	</div>
 </div>

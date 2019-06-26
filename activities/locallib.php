@@ -73,7 +73,7 @@ function show_rubric($id) {
 function activities_show_result($data) {
 	GLOBAL $CFG, $DB;
 	
-	$activityUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
+	$data->url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
 			'id' => $data->id 
 	) );
 	$coursesOA="";
@@ -86,15 +86,11 @@ function activities_show_result($data) {
 			$secondSplit = explode ( "]", $firstSplit [1] );
 			$course = $firstSplit [0];
 			
-			$coursesOA .= '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
-			$coursesOA .= '<span>OA: ' . $secondSplit [0] . '</span><br>';
+			$coursesOA .= $firstSplit [0] . '° básico <span style="font-size:12px">' . $secondSplit [0] . '</span>';
 		}
 	}else{
-		$coursesOA .= '<span>Curso: </span><br>';
-		$coursesOA .= '<span>OA:</span><br>';
+		$coursesOA .= '';
 	}
-	$genre = $DB->get_record('emarking_activities_genres',array('id'=>$data->genre));
-	$userobject = $DB->get_record('user', array('id' => $data->userid));
 	
 	//Busca toda la información de la comunidad en esta actividad
 	$communitysql = $DB->get_record('emarking_social', array('activityid' => $data->id));	

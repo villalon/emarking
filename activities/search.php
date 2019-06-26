@@ -19,12 +19,11 @@
 * @package   mod_emarking
 * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
 * @copyright 2017 Hans Jeria (hansjeria@gmail.com)
+* @author 2019 Jorge Villalón (villalon@gmail.com)
 * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
 global $PAGE, $DB, $USER, $CFG;
-
-
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 
 $type = optional_param('type', 1, PARAM_INT);
@@ -55,32 +54,21 @@ $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
 echo $OUTPUT->header ();
-$teacherroleid = 3;
-if (isloggedin ()) {
-	$courses = enrol_get_all_users_courses ( $USER->id );
-	$countcourses = count ( $courses );
-	foreach ( $courses as $course ) {
-		$context = context_course::instance ( $course->id );
-		$roles = get_user_roles ( $context, $USER->id, true );
-		foreach ( $roles as $rol ) {
-			if ($rol->roleid == $teacherroleid) {
-				$asteachercourses [$course->id] = $course->fullname;
-			}
-		}
-	}
-}
 
+$genres = $DB->get_records('emarking_activities_genres', null, 'name ASC');
 
 // Se incluye formulario para busqueda
 include_once $CFG->dirroot. '/mod/emarking/activities/forms/search.php';
 switch ($type){
 	case 1:
 		$search = $DB->sql_like_escape($search);
-		$activitiessql = "SELECT *
-			FROM {emarking_activities}
+		$activitiessql = "SELECT ea.*, eag.name AS genrename, u.firstname, u.lastname
+			FROM {emarking_activities} ea
+            INNER JOIN {emarking_activities_genres} eag ON (ea.genre = eag.id)
+            INNER JOIN {user} u ON (ea.userid = u.id)
 			WHERE parent IS NULL AND
 				(title LIKE '%$search%' OR
-				description LIKE '%$search%' OR
+				ea.description LIKE '%$search%' OR
 				audience LIKE '%$search%' OR
 				instructions LIKE '%$search%' OR
 				teaching LIKE '%$search%' OR
@@ -125,6 +113,7 @@ switch ($type){
 		}
 		$activitiessql = "SELECT *
 				FROM {emarking_activities} ".$sqlwhere;
+		var_dump($activitiessql);
 		$results = $DB->get_records_sql($activitiessql);
 		break;
 	case 3:

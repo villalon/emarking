@@ -57,7 +57,7 @@
 				
 				<div class="col-xs-12 col-sm-5 col-md-4 col-lg-4 col_height"
 					style="background-color: #085B7F;">
-					
+					<?php if(count($activityArray) > 0) { ?>
 					<h4 class="subtit_actv">Género: <?=$activityArray[0]['genre']?></h4>
 					<h2 class="h2tit_actv">
 						<a class="h2tit_actv" href="<?=$activityArray[0]['link']?>"> <?=$activityArray[0]['title']?></a>
@@ -65,12 +65,13 @@
 					<hr>
 					<br>
 					<p class="text-justify text_actv"><?=$activityArray[0]['description']?></p>
-				
+					<?php } ?>
 				</div>
 				
 				<div class="col-xs-12 col-sm-2 col-md-4 col-lg-6 img1_actv"></div>
 				<div class="col-xs-12 col-sm-5 col-md-4 col-lg-4 col_height"
 					style="background-color: #097C5E;">
+					<?php if(count($activityArray) > 0) { ?>
 					<h4 class="subtit_actv">Género: <?=$activityArray[1]['genre']?></h4>
 					<h2 class="h2tit_actv">
 						<a class="h2tit_actv" href="<?=$activityArray[1]['link']?>"> <?=$activityArray[1]['title']?></a>
@@ -78,6 +79,7 @@
 					<hr>
 					<br>
 					<p class="text-justify text_actv"><?=$activityArray[1]['description']?></p>
+					<?php } ?>
 				</div>
 			</div>
 
@@ -85,6 +87,7 @@
 				<div class="col-xs-1 col-sm-1 col-md-2 col-lg-3 img2_actv"></div>
 				<div class="col-xs-11 col-sm-4 col-md-4 col-lg-4 col_height"
 					style="background-color: #7C3709;">
+					<?php if(count($activityArray) > 0) { ?>
 					<h4 class="subtit_actv">Género: <?=$activityArray[2]['genre']?></h4>
 					<h2 class="h2tit_actv">
 						<a class="h2tit_actv" href="<?=$activityArray[2]['link']?>"> <?=$activityArray[2]['title']?></a>
@@ -92,9 +95,11 @@
 					<hr>
 					<br>
 					<p class="text-justify text_actv"><?=$activityArray[2]['description']?></p>
+					<?php } ?>
 				</div>
 				<div class="col-xs-11 col-sm-4 col-md-4 col-lg-4 col_height"
 					style="background-color: #757A0A;">
+					<?php if(count($activityArray) > 0) { ?>
 					<h4 class="subtit_actv">Género: <?=$activityArray[3]['genre']?></h4>
 					<h2 class="h2tit_actv">
 						<a class="h2tit_actv" href="<?=$activityArray[3]['link']?>"> <?=$activityArray[3]['title']?></a>
@@ -102,6 +107,7 @@
 					<hr>
 					<br>
 					<p class="text-justify text_actv"><?=$activityArray[3]['description']?></p>
+					<?php } ?>
 				</div>
 				<div class="col-xs-1 col-sm-3 col-md-2 col-lg-3 img2_actv"></div>
 			</div>
