@@ -33,19 +33,28 @@
 td.descripcion {
     padding-top: 10px;
 }
+#myTab li.nav-item {
+    width: 33%;
+    text-align: center;
+}
+#myTab i {
+    display: block;
+    font-size: 2em;
+    text-align: center;
+}
 </style>
 <div class="container">
 	<form method="get" action="" class="pure-form">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item"><a class="nav-link active" id="keywords-tab"
 				data-toggle="tab" href="#keywords" role="tab" aria-controls="home"
-				aria-selected="true">Palabras clave</a></li>
+				aria-selected="true"><i class="fa fa-search" aria-hidden="true"></i>Palabras clave</a></li>
 			<li class="nav-item"><a class="nav-link" id="oa-tab"
 				data-toggle="tab" href="#oa" role="tab" aria-controls="oa"
-				aria-selected="false">Objetivos de aprendizaje</a></li>
+				aria-selected="false"><i class="fa fa-bullseye" aria-hidden="true"></i>Objetivos de aprendizaje</a></li>
 			<li class="nav-item"><a class="nav-link" id="genero-tab"
 				data-toggle="tab" href="#genero" role="tab" aria-controls="genero"
-				aria-selected="false">Género</a></li>
+				aria-selected="false"><i class="fa fa-book" aria-hidden="true"></i>Género</a></li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="keywords" role="tabpanel"
@@ -67,7 +76,7 @@ td.descripcion {
 			    		<?php } ?>
    					</select>
 			    	<?php for ($i=13;$i<23;$i++) { ?>
-						<label><?= $i ?></label><input type="checkbox" name="oa"
+						<label><?= $i ?></label><input type="checkbox" name="oa[]"
 						value="<?= $i ?>">
 			    	<?php } ?>
 				</div>

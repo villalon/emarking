@@ -23,11 +23,11 @@
 * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
-global $PAGE, $DB, $USER, $CFG;
+global $PAGE, $DB, $OUTPUT, $CFG;
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 
-$oa_curso = optional_param('oa', 0, PARAM_INT);
-$oa = optional_param('oa', '', PARAM_SEQUENCE);
+$oa_curso = optional_param('oa_curso', 0, PARAM_INT);
+$oa = optional_param('oa', array(), PARAM_RAW);
 $genero = optional_param('genero', '', PARAM_TEXT);
 $search = optional_param('search', '', PARAM_TEXT);
 
@@ -51,7 +51,7 @@ $activitiessql = "SELECT ea.*, eag.name AS genrename, u.firstname, u.lastname
 			FROM {emarking_activities} ea
             INNER JOIN {emarking_activities_genres} eag ON (ea.genre = eag.id)
             INNER JOIN {user} u ON (ea.userid = u.id)
-			WHERE parent IS NULL AND status = 1";
+			WHERE parent IS NULL AND status = 1 ";
 $params = array();
 
 if(strlen($search) > 3) {
@@ -65,13 +65,10 @@ if(strlen($search) > 3) {
 				languageresources LIKE '%$search%')";
 }
 
-if($oa > 0 && $oa < 9) {
-	    echo "<hr>";
-		var_dump($oa);
-		echo "<hr>";
-		$sqlwhere = 'AND learningobjectives like "'.$oa_curso.'[%"';
-		if($oa){
-			$sqlwhere .= 'AND learningobjectives like "%22%"';
+if($oa_curso > 0 && $oa_curso < 9) {
+		$sqlwhere = "AND learningobjectives like '".$oa_curso."[%'";
+		foreach($oa as $oaid){
+			$sqlwhere .= " AND learningobjectives like '%$oaid%'";
 		}
 		$activitiessql .= $sqlwhere;
 }
