@@ -17,11 +17,12 @@
 /**
  *
  * @package   mod_emarking
- * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
+ * @copyright 2017 Centro de Investigación Avanzada en Educación, Universidad de Chile
+ * @author Francisco Ralph fco.ralph@gmail.com
+ * @author Jorge Villalón villalon@gmail.com
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
-
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 global $PAGE, $DB, $USER, $CFG;
 
@@ -60,13 +61,14 @@ $meses = array(
 if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activityid))) {
 	print_error("ID de Actividad invalido");
 }
+
 $genre = $DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
 
-$PAGE->set_context ( context_system::instance () );
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
-$PAGE->set_url($url);
-$PAGE->set_title('escribiendo');
 
+$PAGE->set_context ( context_system::instance () );
+$PAGE->set_url($url);
+$PAGE->set_title($activity->title);
 
 $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking.php', array (
 		'id' => $activityid
@@ -250,10 +252,13 @@ if(isset($communitysql->data) && $communitysql->data != null) {
 }
 
 //print the header
-include 'views/header.php';
+echo $OUTPUT->header();
+echo $OUTPUT->heading('Actividad');
+// include 'views/header.php';
 
 // Display activity information
 include 'views/activity.php';
 
+echo $OUTPUT->footer();
 //print the footer
-include 'views/footer.html';
+// include 'views/footer.html';

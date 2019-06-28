@@ -106,11 +106,11 @@ function add_row(result=null){
 	var newRow = $("<tr>");
 	var cols = "";
 	var obj = JSON.parse(result);
-	var criteria ='Click para editar';
-	var levelone ='Click para editar';
-	var leveltwo ='Click para editar';
-	var levelthree ='Click para editar';
-	var levelfour ='Click para editar';
+	var criteria ='Clic para editar';
+	var levelone ='Clic para editar';
+	var leveltwo ='Clic para editar';
+	var levelthree ='Clic para editar';
+	var levelfour ='Clic para editar';
 	var textcriteria ='';
 	var textone ='';
 	var texttwo ='';
@@ -155,32 +155,32 @@ function add_row(result=null){
 		var levelfourid=obj.levelids[4];
 		}
 	}
-	cols += '<td class="col-sm-2" id="td-0-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
+	cols += '<td class="" id="td-0-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols +='<input id="leveltext-0-'+num+'" onblur="hideinput(this)"type="text" name="criteria['+num+']" class="form-control" style="display:none;" value="'+textcriteria+'"/>';
 	cols +='<input type="hidden" name="criteriaid['+num+']" value="'+criterionid+'"/>';
 	cols +='<span id="level-0-'+num+'">'+criteria+'</span></td>';
 
-	cols +='<td class="col-sm-2" id="td-1-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
+	cols +='<td class="" id="td-1-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-1-'+num+'" onblur="hideinput(this)" name="level['+num+'][4]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textfour+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][4]" value="'+levelfourid+'"/>';
 	cols +='<span id="level-1-'+num+'">'+levelfour+'</span></td>';
 
-	cols +='<td class="col-sm-2" id="td-2-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
+	cols +='<td class="" id="td-2-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-2-'+num+'" onblur="hideinput(this)" name="level['+num+'][3]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textthree+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][3]" value="'+levelthreeid+'"/>';
 	cols +='<span id="level-2-'+num+'">'+levelthree+'</span></td>';
 
-	cols +='<td class="col-sm-2" id="td-3-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
+	cols +='<td class="" id="td-3-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-3-'+num+'" onblur="hideinput(this)" name="level['+num+'][2]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+texttwo+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][2]" value="'+leveltwoid+'"/>';
 	cols +='<span id="level-3-'+num+'">'+leveltwo+'</span></td>';
 
-	cols +='<td class="col-sm-2" id="td-4-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
+	cols +='<td class="" id="td-4-'+num+'" onclick="showinput(this)" style="vertical-align: middle; cursor: pointer;">';
 	cols += '<textarea id="leveltext-4-'+num+'" onblur="hideinput(this)" name="level['+num+'][1]"  class="form-control" style="display:none;height: 157px; width: 100%;">'+textone+'</textarea>';
 	cols +='<input type="hidden" name="levelid['+num+'][1]" value="'+leveloneid+'"/>';
 	cols +='<span id="level-4-'+num+'">'+levelone+'</span></td>';
 
-	cols += '<td class="col-sm-1" style="vertical-align: middle;"><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Borrar"></td>';
+	cols += '<td class="col-sm-1" style="vertical-align: middle;"><input type="button" class="ibtnDel btn btn-md btn-danger "  value="Borrar criterio"></td>';
 	newRow.append(cols);
 	$("table.rubric").append(newRow);
 		

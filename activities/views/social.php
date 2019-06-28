@@ -15,7 +15,7 @@
  	</button>
  </form>
 <?php }else{?>
-<p>Para comentar la actividad debes estar logueado. <p>
+<p>Para comentar la actividad debes ingresar. <p>
 <?php }?>
 </div>	
 </div>

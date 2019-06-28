@@ -25,6 +25,8 @@ require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/confi
 require_once ('locallib.php');
 global $PAGE, $DB, $USER, $CFG;
 
+require_login();
+
 $id = optional_param ( 'id',0 ,PARAM_INT );
 $activityid = required_param ( 'activityid', PARAM_INT );
 
@@ -32,16 +34,16 @@ $PAGE->set_context ( context_system::instance () );
 $url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php' );
 $PAGE->set_url ( $url );
 $PAGE->set_title ( 'escribiendo' );
+// Require jquery for modal.
+$PAGE->requires->jquery();
+$PAGE->requires->jquery_plugin('ui');
+$PAGE->requires->jquery_plugin('ui-css');
+$PAGE->requires->js(new moodle_url('https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js'),true);
 
 echo $OUTPUT->header ();
-// If not logged in, redirect to login/index.php
-if (!isloggedin ()) {
-	redirect(new moodle_url($CFG->wwwroot.'/login/index.php'), 0);
-	die();
-}
 
 $activity = $DB->get_record('emarking_activities', array('id' => $activityid));
-if ($activity->userid != $USER->id) {
+if ($activity->userid != $USER->id && !is_siteadmin()) {
 	$backUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 	redirect($backUrl, 0);	
 }
@@ -51,8 +53,6 @@ if (isset ( $_POST['submit'])) {
 	$data = $_POST;
 	if(isset($id) && $id != null){
 		update_rubric($id,$data);
-		//die();
-		
 	}else{
 		insert_rubric($data,$activityid);
 	}

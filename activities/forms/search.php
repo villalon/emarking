@@ -42,17 +42,34 @@ td.descripcion {
     font-size: 2em;
     text-align: center;
 }
+.card-header, .card-footer {
+    background-color: #00547C;
+    color: #fff;
+}
 </style>
-<div class="container">
+<?php
+    $active_palabras = "";
+    $active_oa = "";
+    $active_genero = "";
+    if(strlen($search) > 3) {
+        $active_palabras = "active";
+    } elseif($oa_curso > 0) {
+        $active_oa = "active";
+    } elseif($genero > 0) {
+        $active_genero = "active";
+    } else {
+        $active_palabras = "active";
+    }
+    ?>
 	<form method="get" action="" class="pure-form">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
-			<li class="nav-item"><a class="nav-link active" id="keywords-tab"
+			<li class="nav-item"><a class="nav-link <?= $active_palabras ?>" id="keywords-tab"
 				data-toggle="tab" href="#keywords" role="tab" aria-controls="home"
 				aria-selected="true"><i class="fa fa-search" aria-hidden="true"></i>Palabras clave</a></li>
-			<li class="nav-item"><a class="nav-link" id="oa-tab"
+			<li class="nav-item"><a class="nav-link <?= $active_oa ?>" id="oa-tab"
 				data-toggle="tab" href="#oa" role="tab" aria-controls="oa"
 				aria-selected="false"><i class="fa fa-bullseye" aria-hidden="true"></i>Objetivos de aprendizaje</a></li>
-			<li class="nav-item"><a class="nav-link" id="genero-tab"
+			<li class="nav-item"><a class="nav-link <?= $active_genero ?>" id="genero-tab"
 				data-toggle="tab" href="#genero" role="tab" aria-controls="genero"
 				aria-selected="false"><i class="fa fa-book" aria-hidden="true"></i>Género</a></li>
 		</ul>
@@ -71,8 +88,12 @@ td.descripcion {
 				<div class="form-group">
 					<select id="select_oa" class="form-control" name="oa_curso">
 						<option value="">Seleccione un curso</option>
-						<?php for ($i=8;$i>=1;$i--) { ?>
-   					 	<option value="<?= $i ?>"><?= $i ?>°</option>
+						<?php for ($i=8;$i>=1;$i--) {
+						    $selected = "";
+						    if($oa_curso > 0 && $oa_curso == $i) { 
+						        $selected = "selected";
+						    }?>
+   					 	<option value="<?= $i ?>" <?= $selected ?>><?= $i ?>°</option>
 			    		<?php } ?>
    					</select>
 			    	<?php for ($i=13;$i<23;$i++) { ?>
@@ -99,9 +120,8 @@ td.descripcion {
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-12">
+			<div class="col-md-12 text-right">
 				<button type="submit" class="btn btn-default btn-lg">Buscar</button>
 			</div>
 		</div>
 	</form>
-</div>

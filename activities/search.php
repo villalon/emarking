@@ -17,8 +17,9 @@
 /**
  *
 * @package   mod_emarking
-* @copyright 2017 Francisco Ralph fco.ralph@gmail.com
-* @copyright 2017 Hans Jeria (hansjeria@gmail.com)
+* @copyright 2017 CIAE Universidad de Chile
+* @author 2017 Francisco Ralph fco.ralph@gmail.com
+* @author 2017 Hans Jeria (hansjeria@gmail.com)
 * @author 2019 Jorge Villalón (villalon@gmail.com)
 * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
@@ -41,6 +42,7 @@ $PAGE->requires->jquery_plugin('ui');
 $PAGE->requires->jquery_plugin('ui-css');
 
 echo $OUTPUT->header ();
+echo $OUTPUT->heading ('Actividades');
 
 $genres = $DB->get_records('emarking_activities_genres', null, 'name ASC');
 

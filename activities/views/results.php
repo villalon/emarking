@@ -1,4 +1,3 @@
-<div class="container">		
 	<div class="card-columns">
 		<?php			
 			if ( count($results) > 0 ) {
@@ -10,4 +9,3 @@
 			}
 		?>
 	</div>	
-</div>

@@ -19,122 +19,107 @@ $(function() {
 	  
 	});
 </script>
+<style>
+.activity ul {
+    list-style: none;
+    padding-left: 0px;
+}
+.activity .ficha-tecnica li i {
+    font-size: 1.2em;
+    margin-right: 5px;
+}
+#activityTab {
+    margin-bottom: 1em;
+}
+.activity .btn {
+    border-radius: 5px;
+    color: #fff;
+    margin-bottom: 1em;
+}
+</style>
 <!-- BUSCADOR -->
 <div class="activity">
-	<div class="container">
 		<div class="row">
-			<h2></h2>
 			<div class="col-md-3">
-
 				<div class="panel panel-default">
-					<div class="panel-body">
-						<h3>Ficha técnica</h3>
-
-						<p><?=$coursesOA?>
-
+					<div class="panel-body ficha-tecnica">
+						<h4>Ficha técnica</h4>
+						<p><?=$coursesOA?></p>
 						<hr>
-						Género: <?php echo $genre->name; ?><br>
-					    Propósito comunicativo: <?=$activity->comunicativepurpose?><br>
-					    Audiencia: <?= $activity->audience?><br>
-					    Tiempo estimado: <?=$activity->estimatedtime?><br>
-
-						<p>Creado por: <?php echo $userobject->firstname.' '.$userobject->lastname ?>.</p>
+						<ul>
+    						<li><i class="fa fa-book" aria-hidden="true" title="Género"></i><?php echo $genre->name; ?></li>
+    					    <li><i class="fa fa-bullhorn" aria-hidden="true" title="Propóstico comunicativo"></i><?=$activity->comunicativepurpose?></li>
+    					    <li><i class="fa fa-users" aria-hidden="true" title="Audiencia"></i><?= $activity->audience?></li>
+    					    <li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$activity->estimatedtime?></li>
+    						<li><i class="fa fa-user" aria-hidden="true" title="Autor"></i><?php echo $userobject->firstname.' '.$userobject->lastname ?></li>
+						</ul>
 						<hr>
-						<?php if($userobject->id == $USER->id) { ?>
 						<div class="activity_buttons">
-						<a href="<?= $CFG->wwwroot . '/mod/emarking/activities/createactivity.php?id='.$activity->id.'&step=1' ?>"><button type="button" class="btn btn-warning">
-							<span class="glyphicon glyphicon-paperclip"></span> Editar actividad
-						</button></a>
-						</div>												
+						<ul>
+						<?php if($userobject->id == $USER->id) { ?>
+						<li><a href="<?= $CFG->wwwroot . '/mod/emarking/activities/createactivity.php?id='.$activity->id.'&step=1' ?>"><button type="button" class="btn btn-warning">
+							<i class="fa fa-paperclip" aria-hidden="true"></i> Editar actividad
+						</button></a></li>
 						<?php 
                         }
-						if(isset($disabled) && $disabled!=null){
+                        if(isset($disabled) && $disabled!=null && $usercaneditrubric){
 						?>
-						<div class="activity_buttons">
-						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
-							<span class="glyphicon glyphicon-paperclip"></span> Crear Rúbrica
-						</button></a>
-						</div>						
+						<li><a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
+							<i class="fa fa-paperclip" aria-hidden="true"></i> Crear Rúbrica
+						</button></a></li>
 						<?php
 						$canuse="#myModalCantUse";
 						} elseif ($usercaneditrubric) {
 						?>
-						<div class="activity_buttons">
-						<a href="<?=$importrubricUrl?>"><button type="button" class="btn btn-warning">
-							<span class="glyphicon glyphicon-paperclip"></span> Importar Rúbrica
-						</button></a>
-						</div>
-						<div class="activity_buttons">
+						<li><a href="<?=$importrubricUrl?>"><button type="button" class="btn btn-warning">
+							<i class="fa fa-paperclip" aria-hidden="true"></i> Importar Rúbrica
+						</button></a></li>
+						<li>
 						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
-							<span class="glyphicon glyphicon-paperclip"></span> Editar Rúbrica
-						</button></a>
-						</div>
+							<i class="fa fa-paperclip" aria-hidden="true"></i> Editar Rúbrica
+						</button></a></li>
 						<?php
 						}
 						if ($usercaneditrubric) {
 						?>
-						<div class="activity_buttons">
-						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
-							<span class="glyphicon glyphicon-print"></span> Vista previa instrucciones
-						</button></a>
-						</div>
+						<li><a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
+							<i class="fa fa-print" aria-hidden="true"></i> Descargar instrucciones
+						</button></a></li>
 						<?php
 						}
 						if($useristeacher) {
 						?>
-						<div class="activity_buttons">
+						<li>
 						<button type="button" class="btn  btn-success" data-toggle="modal"
 							data-target="<?=$canuse?>" >
-							<span class="glyphicon glyphicon-floppy-disk"></span> Usar
+							<i class="fa fa-floppy-o" aria-hidden="true"></i> Usar
 							Actividad
-						</button>
-						</div>
-						<div class="activity_buttons">
+						</button></li>
+						<li>
 						<a href="<?=$forkingUrl?>"><button type="button" class="btn btn-primary">
-							<span class="glyphicon glyphicon-floppy-disk"></span> Adaptar
+							<i class="fa fa-floppy-o" aria-hidden="true"></i> Adaptar
 							Actividad
-						</button></a>
-						</div>
+						</button></a></li>
 						<?php } ?>
-						<br/>
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licencia Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />Esta obra está bajo una <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Licencia Creative Commons Atribución 4.0 Internacional</a>
+						</ul>
 					</div>
-				</div>
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<h3>Calificación</h3>
-						<div class="rating-block" style="text-align: center;">
-							<h2 id="average" class="bold padding-bottom-7">
-								<?=round($average)?> <small>/ 5</small> <small id="countVotes"
-									style="font-size: 13px; color: black;"><?=$countVotes?> voto(s)</small>
-							</h2>
-							<button id="1" type="button"
-								class="btn btn-default btn-grey btn-sm" aria-label="Left Align"
-								value="1" onclick="rating(this.value)">
-								<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-							</button>
-							<button id="2" type="button"
-								class="btn btn-default btn-grey btn-sm" aria-label="Left Align"
-								value="2" onclick="rating(this.value)">
-								<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>
-							</button>
-							<button id="3" type="button"
-								class="btn btn-default btn-grey btn-sm" aria-label="Left Align"
-								value="3" onclick="rating(this.value)">
-								<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>
-							</button>
-							<button id="4" type="button"
-								class="btn btn-default btn-grey btn-sm" aria-label="Left Align"
-								value="4" onclick="rating(this.value)">
-								<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>
-							</button>
-							<button id="5" type="button"
-								class="btn btn-default btn-grey btn-sm" aria-label="Left Align"
-								value="5" onclick="rating(this.value)">
-								<span class="glyphicon glyphicon-star" aria-hidden="true"> </span>
-							</button>
-
-						</div>
+					<h4>Calificación</h4>
+					<div class="stars">
+					<?php for ($i=1;$i <= 5;$i++){
+					       if($i <= $average){
+						      echo '<i class="fa fa-star" aria-hidden="true"> </i>';
+					       } else {
+						      echo '<i class="fa fa-star-o" aria-hidden="true"></i>';
+					       }
+				        }
+				echo "&nbsp;$average/5";
+				?></div>
+    				<div class="creative-commons">
+    					<hr>
+    					<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+    					<img alt="Licencia Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
+    					<p>Esta obra está bajo una <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Licencia Creative Commons Atribución 4.0 Internacional</a></p>
+    				</div>
 					</div>
 				</div>
 			</div>
@@ -150,35 +135,27 @@ $(function() {
 						
 					<?php
 						}								
-						if(isset($disabled) && $disabled!=null){
+						if(isset($disabled) && $disabled!=null && $usercaneditrubric){
 					?>
 						<div class="alert alert-warning">
 						  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a> o <a href="<?=$importrubricUrl?>">Importar Rúbrica</a>
 						</div>
 					<?php }?>
-						<h3 class="title_result">
-								<b><?=ucfirst(strtolower($activity->title));?></b>
-							</h3>
-							<br>
-							<p><?=$activity->description?></p>
-					
-							 
-							 
-								<br/> 
-
+						<h2 class="title_result"><?=ucfirst(strtolower($activity->title));?></h2>
+						<p><?=$activity->description?></p>
 						<!-- Aqui agregue el cambio para las tabs -->
-						<ul class="nav nav-tabs active_tab">
-						<li class="active"><a data-toggle="tab" href="#teaching">Didáctica</a></li>
-							<li><a data-toggle="tab" href="#tostudent">Para el
+						<ul class="nav nav-tabs active_tab" id="activityTab" role="tablist">
+							<li class="nav-item"><a class="nav-link active" id="didactica-tab" data-toggle="tab" href="#teaching">Didáctica</a></li>
+							<li class="nav-item"><a class="nav-link" id="estudiante-tab" data-toggle="tab" href="#tostudent">Para el
 									estudiante</a></li>
-							<li><a data-toggle="tab" href="#evaluation">Evaluación</a></li>
+							<li class="nav-item"><a class="nav-link" id="evaluacion-tab" data-toggle="tab" href="#evaluation">Evaluación</a></li>
 						</ul>
 
 						<div class="tab-content">
 							<div id="tostudent" class="tab-pane fade">
 						<div class="activity_buttons">
 						<a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
-							<span class="glyphicon glyphicon-print"></span> Descargar instrucciones
+							<i class="fa fa-print" aria-hidden="true"></i> Descargar instrucciones
 						</button></a>
 						</div>
 								<div class="panel panel-default">
@@ -216,10 +193,10 @@ $(function() {
 							</div>
 
 
-							<div id="teaching" class="tab-pane fade  in active">
+					<div id="teaching" class="tab-pane fade  in active">
 						<div class="activity_buttons">
 						<a href="<?=$printteachingpdfUrl?>"><button type="button" class="btn btn-info">
-							<span class="glyphicon glyphicon-print"></span> Descargar didáctica
+							<i class="fa fa-print" aria-hidden="true"></i> Descargar didáctica
 						</button></a>
 						</div>
 								<div class="panel panel-default">
@@ -247,7 +224,23 @@ $(function() {
 							<div id="evaluation" class="tab-pane fade">
 	<?php if(isset($rubric)&& $rubric!=null){?>
 								<h4 style="text-align: left;"><?php echo $rubricname?></h4>
-							<?php echo $rubricdescription; ?>
+						<?php if(isset($disabled) && $disabled!=null && $usercaneditrubric){
+						?>
+						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
+							<i class="fa fa-paperclip" aria-hidden="true"></i> Crear Rúbrica
+						</button></a>
+						<?php
+						} elseif ($usercaneditrubric) {
+						?>
+						<a href="<?=$importrubricUrl?>"><button type="button" class="btn btn-warning">
+							<i class="fa fa-paperclip" aria-hidden="true"></i> Importar Rúbrica
+						</button></a>
+						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
+							<i class="fa fa-paperclip" aria-hidden="true"></i> Editar Rúbrica
+						</button></a>
+						<?php
+						}
+						echo $rubricdescription; ?>
 			<table class="table table-bordered">
 									<thead>
 										<tr>
@@ -298,22 +291,18 @@ echo "</tr>";
 					</div>
 				</div>
 			</div>
-		</div>
-
 	</div>
 	<!-- FIN BUSCADOR -->
 	<section>
-		<div class="container">
 			<div class="row">
-				<h2></h2>
-				<div class="panel panel-default">
+				<div class="col-md-12 panel panel-default">
 					<div class="panel-body">
-						<h2 class="title">Comentarios</h2>
+						<hr>
+						<h4 class="title">Comentarios</h4>
 						<?php include 'social.php';?>
 					</div>
 				</div>
 			</div>
-		</div>
 	</section>
 
 	<!-- Modal -->

@@ -18,6 +18,8 @@ if (isloggedin ()) {
 $testMarkingnUrl = new moodle_url ( '/mod/emarking/activities/testmarking.php' );
 $testMarkingDatanUrl = new moodle_url ( '/mod/emarking/activities/testmarkingdata.php' );
 ?>
+<!DOCTYPE meta PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
 <meta charset="UTF-8">
 <title>Escribiendo online</title>
 <!-- CSS Font, Bootstrap, style de la página y auto-complete  -->
@@ -91,7 +93,6 @@ $(function() {
 
 <!-- Script para filtro de genero -->
 <header class="pageheader">
-
 	<nav class="navbar navbar-default <?= $fixed ?> pageheader">
 		<div class="container">
 		<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -190,5 +191,4 @@ $(function() {
 		</div>
 		</div>
 	</nav>
-	
 </header>
