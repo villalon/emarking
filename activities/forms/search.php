@@ -1,67 +1,38 @@
-<style>
-.card ul {
-    list-style: none;
-    padding-left: 0px;
-    margin-bottom: 0px;
-}
-.card i {
-    margin-right: 5px;
-}
-.card-footer div {
-    display: inline;
-}
-.card-footer .author {
-    float: right;
-}
-#oa label {
-    margin-right: 5px;
-    padding-left: 10px;
-    border-left: 1px solid #999;
-}
-#myTabContent {
-    padding-top: 1em;
-}
-#select_oa {
-    display:inline;
-    width: auto;
-}
-.card:hover {
-    -webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
-    -moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
-    box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.50);
-}
-td.descripcion {
-    padding-top: 10px;
-}
-#myTab li.nav-item {
-    width: 33%;
-    text-align: center;
-}
-#myTab i {
-    display: block;
-    font-size: 2em;
-    text-align: center;
-}
-.card-header, .card-footer {
-    background-color: #00547C;
-    color: #fff;
-}
-</style>
 <?php
     $active_palabras = "";
     $active_oa = "";
     $active_genero = "";
+    $show_palabras = "";
+    $show_oa = "";
+    $show_genero = "";
     if(strlen($search) > 3) {
         $active_palabras = "active";
+        $show_palabras = "show";
     } elseif($oa_curso > 0) {
         $active_oa = "active";
+        $show_oa = "show";
     } elseif($genero > 0) {
         $active_genero = "active";
+        $show_genero = "show";
     } else {
         $active_palabras = "active";
+        $show_palabras = "show";
+    }
+    $genrename = "";
+    foreach ($genres as $genre) {
+        if($genre->id = $genero) {
+            $genrename = $genre->name;
+        }
     }
     ?>
-	<form method="get" action="" class="pure-form">
+<script type="text/javascript">
+function onGenreChange() {
+    if(document.getElementById("select_genre").selectedIndex > 0) {
+    	document.getElementById("activitySearchForm").submit();      
+    }
+}
+ </script>
+	<form method="get" action="" class="pure-form" id="activitySearchForm">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item"><a class="nav-link <?= $active_palabras ?>" id="keywords-tab"
 				data-toggle="tab" href="#keywords" role="tab" aria-controls="home"
@@ -74,20 +45,24 @@ td.descripcion {
 				aria-selected="false"><i class="fa fa-book" aria-hidden="true"></i>Género</a></li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade show active" id="keywords" role="tabpanel"
+			<div class="tab-pane fade <?= $active_palabras . " " . $show_palabras ?>" id="keywords" role="tabpanel"
 				aria-labelledby="keywords-tab">
-				<div class="form-group">
-					<div class="col-md-12">
+				<div class="input-group">
 						<input class="form-control" type="text" name="search"
 							value="<?= $search ?>">
+					<div class="input-group-append">
+						<button class="btn btn-outline-secondary"><i class="fa fa-search" aria-hidden="true"></i></button>
 					</div>
 				</div>
 			</div>
-			<div class="tab-pane fade" id="oa" role="tabpanel"
+			<div class="tab-pane fade <?= $active_oa . " " . $show_oa ?>" id="oa" role="tabpanel"
 				aria-labelledby="oa-tab">
-				<div class="form-group">
-					<select id="select_oa" class="form-control" name="oa_curso">
-						<option value="">Seleccione un curso</option>
+				<div class="container-fluid">
+				<div class="row">
+				<div class="col-md-3">
+					<label>Curso</label>
+					<select id="select_oa" class="form-control" name="oa_curso" onChange="onOAchange()">
+						<option value="">Seleccione</option>
 						<?php for ($i=8;$i>=1;$i--) {
 						    $selected = "";
 						    if($oa_curso > 0 && $oa_curso == $i) { 
@@ -96,17 +71,32 @@ td.descripcion {
    					 	<option value="<?= $i ?>" <?= $selected ?>><?= $i ?>°</option>
 			    		<?php } ?>
    					</select>
-			    	<?php for ($i=13;$i<23;$i++) { ?>
-						<label><?= $i ?></label><input type="checkbox" name="oa[]"
-						value="<?= $i ?>">
+   				</div>
+   				<div class="col-md-7 pt-1 oa-chk">
+   				OA
+			    	<?php for ($i=13;$i<23;$i++) {
+			    	    $checked = "";
+			    	    if(in_array($i, $oa)) {
+			    	        $checked = "checked";
+			    	    }
+			    	    ?>
+						<label><?= $i ?></label>
+						<input type="checkbox" name="oa[]"
+						value="<?= $i ?>" <?= $checked ?>>
 			    	<?php } ?>
+						<label>&nbsp;</label>
+			    </div>
+			    <div class="col-md-2 text-right">
+				<button type="submit" class="btn btn-default btn-lg">Buscar</button>
+				</div>
+				</div>
 				</div>
 			</div>
-			<div class="tab-pane fade" id="genero" role="tabpanel"
+			<div class="tab-pane fade <?= $active_genero ." ". $show_genero ?>" id="genero" role="tabpanel"
 				aria-labelledby="genero-tab">
-				<div class="form-group">
+				<div class="input-group">
 					<div class="col-md-8">
-						<select id="select_genre" name="genero" class="form-control">
+						<select id="select_genre" name="genero" class="form-control" onChange="onGenreChange()">
 							<option value="">Seleccione un género</option>
 						<?php
     foreach ($genres as $genre) {
@@ -119,9 +109,17 @@ td.descripcion {
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-md-12 text-right">
-				<button type="submit" class="btn btn-default btn-lg">Buscar</button>
-			</div>
-		</div>
 	</form>
+ <div class="row filtros">
+ 	<?php if($active_palabras === "active") { ?>
+     <button class="btn btn-primary"><?= $search ?><i class="fa fa-times" aria-hidden="true"></i></button>
+     <?php
+        }
+        foreach($oa as $oachk) { ?>
+     <button class="btn btn-primary"><?= $oa_curso . "-" . $oachk ?><i class="fa fa-times" aria-hidden="true"></i></button>
+     <?php }
+     if($genero > 0) { ?>
+     <button class="btn btn-primary"><?= $genrename ?><i class="fa fa-times" aria-hidden="true"></i></button>
+     <?php } ?>
+ </div>
+	

@@ -28,7 +28,7 @@ global $PAGE, $DB, $OUTPUT, $CFG;
 require_once ($CFG->dirroot. '/mod/emarking/activities/locallib.php');
 
 $oa_curso = optional_param('oa_curso', 0, PARAM_INT);
-$oa = optional_param('oa', array(), PARAM_RAW);
+$oa = isset($_REQUEST['oa'])? $_REQUEST['oa'] : Array();
 $genero = optional_param('genero', '', PARAM_TEXT);
 $search = optional_param('search', '', PARAM_TEXT);
 
@@ -43,7 +43,6 @@ $PAGE->requires->jquery_plugin('ui-css');
 
 echo $OUTPUT->header ();
 echo $OUTPUT->heading ('Actividades');
-
 $genres = $DB->get_records('emarking_activities_genres', null, 'name ASC');
 
 // Se incluye formulario para busqueda
@@ -79,6 +78,7 @@ if($genero > 0) {
 		$activitiessql .= 'AND genre = ?';
 		$params[] = $genero;
 }
+
 $results = $DB->get_records_sql($activitiessql, $params);
 // Display results search
 include 'views/results.php';
