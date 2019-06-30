@@ -909,3 +909,14 @@ $string['enabled'] = 'Habilitado';
 $string['disabled'] = 'Deshabilitado';
 $string['changelog'] = 'Bitácora de cambios';
 $string['changelog_help'] = 'Permite a los estudiantes escribir una bitácora de cambios como actividad a continuación de revisar su retroalimentación.';
+// ACTIVITIES
+$string['activity_instructions'] = 'Instrucciones';
+$string['activity_instructions_help'] = 'Instrucciones a los estudiantes';
+$string['activity_description'] = 'Descripción';
+$string['activity_description_help'] = 'Descripción corta de la actividad (máximo 300 caracteres)';
+$string['activity_title'] = 'Título';
+$string['activity_title_help'] = 'Título de la actividad';
+$string['selectoa'] = 'No ha seleccionado objetivos de aprendizaje';
+$string['searchoa'] = 'Buscar objetivos de aprendizaje';
+$string['oas'] = 'Objetivos de Aprendizaje';
+$string['oas_help'] = 'Seleccione los OAs a los que aplica la actividad, de acuerdo al curriculum nacional';

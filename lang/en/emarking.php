@@ -904,3 +904,14 @@ $string['enabled'] = 'Enabled';
 $string['disabled'] = 'Disabled';
 $string['changelog'] = 'Change log';
 $string['changelog_help'] = 'Allows students to write a change log as a follow up activity after reviewing their feedback.';
+// ACTIVITIES
+$string['activity_instructions'] = 'Instructions';
+$string['activity_instructions_help'] = 'Instructions for students';
+$string['activity_description'] = 'Description';
+$string['activity_description_help'] = 'Short description of the activity';
+$string['activity_title'] = 'Title';
+$string['activity_title_help'] = 'Title of the activity';
+$string['selectoa'] = 'There are no learning objectives selected';
+$string['searchoa'] = 'Search learning objectives';
+$string['oas'] = 'Learning objectives';
+$string['oas_help'] = 'Learning objectives according to the Education Ministry';

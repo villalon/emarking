@@ -13,13 +13,29 @@
 .card-footer .author {
     float: right;
 }
-.oa-chk label {
-    margin-right: 5px;
-    padding-left: 10px;
-    border-left: 1px solid #999;
+#oa .form-check label {
+    padding-right: 10px;
+    border-right: 1px solid #999;
+}
+@media (min-width: 600px) {
+    #oa .form-check {
+        display: inline;
+        margin-left: 1em;
+    }
+}
+#oa .input-group {
+    width: auto;
 }
 #myTabContent {
     padding-top: 1em;
+}
+.oas {
+    margin-left: 2em;
+    margin-top: 1em;
+}
+.label-curso {
+    padding-top: 1em;
+    margin-right: 1em;
 }
 #select_oa {
     display:inline;
@@ -50,12 +66,16 @@ td.descripcion {
     padding-left: 0px;
     padding-right: 0px;
 }
-#activitySearchForm {
+#activitySearchForm, .filtros {
     margin-bottom: 1em;
 }
 .filtros .btn {
     margin-right: 1em;
 }
+.filtros i {
+    margin-left: 1em;
+}
+
 </style>
 	<div class="card-columns">
 		<?php			

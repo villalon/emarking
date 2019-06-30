@@ -28,118 +28,78 @@ require_once ('forms/create_activity_instructions.php');
 require_once ('forms/create_activity_teaching.php');
 require_once ('locallib.php');
 require_login ();
+
 $step = optional_param ( 'step',1 ,PARAM_INT );
 $activityid = optional_param ( 'id',0 ,PARAM_INT );
 
-$PAGE->set_pagelayout ( 'standard' );
 $context = context_system::instance ();
+$PAGE->set_pagelayout ( 'standard' );
 $PAGE->set_context ( $context );
 $url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php' );
 $PAGE->set_url ( $url );
-$PAGE->set_title ( 'escribiendo' );
+if($activityid > 0) {
+    $PAGE->set_title ( 'Editar actividad' );
+} else {
+    $PAGE->set_title ( 'Crear actividad' );
+}
 
 echo $OUTPUT->header ();
 
-if (empty ( $area->id )) {
-	$area = new stdClass ();
-	$area->id = 0;
-}
 $draftid_editor = file_get_submitted_draft_itemid ( 'instructions' );
-file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instructions', $area->id, null );
+file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instructions', $activityid, null );
 
 // print the header
 ?>
 <h2>Crear una actividad</h2>
 <?php
-$basic = new mod_emarking_activities_create_activity_basic ();
-$instructions = new mod_emarking_activities_create_activity_instructions (null,array('id'=>$activityid));
-$teaching = new mod_emarking_activities_create_activity_teaching (null,array('id'=>$activityid));
-if($step == 1){
-	if($activityid!=0){
-		$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-		
-		$area->title 						= $activity->title;
-		$area->description 					= $activity->description;
-		$area->comunicativepurpose 			= $activity->comunicativepurpose;
-		$area->genre 						= $activity->genre;
-		$area->audience 					= $activity->audience;
-		$area->estimatedtime 				= $activity->estimatedtime;
-		$area->id							= $activityid;
-		$area->editing						= 1;
-		$area->estimatedtime 				= $activity->estimatedtime;
-		$basic->set_data ( $area );
-			
-	}
+$basic = new mod_emarking_activities_create_activity_basic (NULL, array('id'=>$activityid));
+if($activityid!=0){
+    $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
+    $activity->instructions = array (
+        'text' => $activity->instructions,
+        '',
+        'itemid' => $draftid_editor
+    );
+    $activity->planification = array (
+        'text' => $activity->planification,
+        '',
+        'itemid' => $draftid_editor
+    );
+    $activity->writing = array (
+        'text' => $activity->writing,
+        '',
+        'itemid' => $draftid_editor
+    );
+    $activity->editing = array (
+        'text' => $activity->editing,
+        '',
+        'itemid' => $draftid_editor
+    );
+    $activity->teaching = array (
+        'text' => $activity->teaching,
+        '',
+        'itemid' => $draftid_editor
+    );
+    $activity->languageresources = array (
+        'text' => $activity->languageresources,
+        '',
+        'itemid' => $draftid_editor
+    );
+    $basic->set_data ( $activity );
+}
+$basic->display();
 
-	$basic->display ();
-}elseif($step == 2){
-	if ($fromformbasic = $basic->get_data ()) {
+if ($fromformbasic = $basic->get_data ()) {
 	//if is creating or editing a rubric
 	if($fromformbasic->editing==0){
-	$activityid=add_new_activity_basic ( $fromformbasic);
-	$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php', array('id' => $activityid, 'step' => 2));
-	redirect($forkUrl, 0);
+	   $activityid=add_new_activity_basic ( $fromformbasic);
+	   $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php', array('id' => $activityid, 'step' => 2));
+	   redirect($forkUrl, 0);
 	}else{
 		edit_activity_basic ( $fromformbasic,$activityid);
 	}
-	}
-	$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-	$area->instructions = array (
-			'text' => $activity->instructions,
-			'',
-			'itemid' => $draftid_editor
-	);
-	$area->planification = array (
-			'text' => $activity->planification,
-			'',
-			'itemid' => $draftid_editor
-	);
-	$area->writing = array (
-			'text' => $activity->writing,
-			'',
-			'itemid' => $draftid_editor
-	);
-	$area->editing = array (
-			'text' => $activity->editing,
-			'',
-			'itemid' => $draftid_editor
-	);
-	$area->id 	= $activityid;
-	$instructions->set_data ( $area );
-	
-	$instructions->display ();
-}elseif ($step == 3){
-	
-	if ($fromforminstructions = $instructions->get_data ()) {
-	add_new_activity_instructions ( $fromforminstructions,$activityid,$context );
-	$activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
-	$area->teaching = array (
-			'text' => $activity->teaching,
-			'',
-			'itemid' => $draftid_editor
-	);
-	$area->languageresources = array (
-			'text' => $activity->languageresources,
-			'',
-			'itemid' => $draftid_editor
-	);
-	$area->id 	= $activityid;
-	$teaching->set_data ( $area );
-	
-	}
-	$teaching->display();
 }
-elseif ($step == 4){
-	if ($fromformteaching = $teaching->get_data ()) {
-		add_new_activity_teaching ( $fromformteaching,$activityid,$context );
-		$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
-			'id' => $activityid 
-				) );
-			redirect ( $url, 0 );
-			
-	}
 
-}
 echo $OUTPUT->footer ();
 
 

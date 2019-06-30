@@ -50,14 +50,14 @@ $(function() {
     						<li><i class="fa fa-book" aria-hidden="true" title="Género"></i><?php echo $genre->name; ?></li>
     					    <li><i class="fa fa-bullhorn" aria-hidden="true" title="Propóstico comunicativo"></i><?=$activity->comunicativepurpose?></li>
     					    <li><i class="fa fa-users" aria-hidden="true" title="Audiencia"></i><?= $activity->audience?></li>
-    					    <li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$activity->estimatedtime?></li>
+    					    <li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$activity->estimatedtime?> minutos</li>
     						<li><i class="fa fa-user" aria-hidden="true" title="Autor"></i><?php echo $userobject->firstname.' '.$userobject->lastname ?></li>
 						</ul>
 						<hr>
 						<div class="activity_buttons">
 						<ul>
-						<?php if($userobject->id == $USER->id) { ?>
-						<li><a href="<?= $CFG->wwwroot . '/mod/emarking/activities/createactivity.php?id='.$activity->id.'&step=1' ?>"><button type="button" class="btn btn-warning">
+						<?php if($userobject->id == $USER->id || is_siteadmin()) { ?>
+						<li><a href="<?= $CFG->wwwroot . '/mod/emarking/activities/createactivity.php?id='.$activity->id.'&step=1' ?>"><button type="button" class="btn btn-success">
 							<i class="fa fa-paperclip" aria-hidden="true"></i> Editar actividad
 						</button></a></li>
 						<?php 

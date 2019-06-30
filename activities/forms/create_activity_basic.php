@@ -22,14 +22,16 @@
  * @copyright 2016 Francisco Ralph <francisco.garcia@ciae.uchile.cl>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+global $CFG;
 require_once ($CFG->libdir . '/formslib.php');
 require_once ($CFG->dirroot . '/course/lib.php');
 class mod_emarking_activities_create_activity_basic extends moodleform {
 	public function definition() {
-		global $CFG, $OUTPUT, $COURSE, $DB;
+		global $CFG, $DB;
 		
 		$genres = $DB->get_records ( 'emarking_activities_genres', null, 'name ASC' );
-		$genrearray [0] = "Seleccione un género";
+		$genrearray = array();
+		$genrearray[0] = "Seleccione un género";
 		foreach ( $genres as $genre ) {
 			$genrearray [$genre->id] = $genre->name;
 		}
@@ -38,126 +40,31 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		                       // Paso 1 Información básica
 		$mform->addElement ( 'header', 'db', 'Información Básica', null );
 		// Título
-		$mform->addElement ( 'text', 'title', 'Título', 'size=150' );
+		$mform->addElement ( 'text', 'title', get_string('activity_title', 'mod_emarking'), 'size=150' );
 		$mform->setType ( 'title', PARAM_TEXT );
 		$mform->addRule ( 'title', get_string ( 'required' ), 'required' );
+		$mform->addHelpButton('title', 'activity_title', 'mod_emarking');
 		// descripción
-		$mform->addElement ( 'static', '', '', 'Pequeña descrición sobre la actividad a realizar, max 300 caracteres.' );
-		$mform->addElement ( 'textarea', 'description', "Descripción", 'wrap="virtual" rows="10" cols="10" maxlength="300"' );
+//		$mform->addElement ( 'static', '', '', 'Pequeña descripción sobre la actividad a realizar, max 300 caracteres.' );
+		$mform->addElement ( 'textarea', 'description', get_string('activity_description', 'mod_emarking'), 'wrap="virtual" rows="10" cols="100" maxlength="300"' );
 		$mform->setType ( 'description', PARAM_TEXT );
+		$mform->addHelpButton('description', 'activity_description', 'mod_emarking');
 		
-		$mform->addElement ( 'static', '', '', 'Los objetivos que entrega el ministerio de educación.' );
 		// Curso
-		$courseArray = array (
-				'0' => 'Seleccione un curso',
-				'1' => '1° básico',
-				'2' => '2° básico',
-				'3' => '3° básico',
-				'4' => '4° básico',
-				'5' => '5° básico',
-				'6' => '6° básico' 
-		);
-		$mform->addElement ( 'select', 'C1', 'Objetivos de Aprendizaje', $courseArray );
+		$oas = array ();
+		for($i=8;$i>=1;$i--) {
+		    for($j=13;$j<23;$j++) {
+		      $oas[$i.'-'.$j] = $i . '° básico - ' . $j;
+		    }
+		    
+		}
 		$options = array(
 		    'multiple' => true,
-		    'noselectionstring' => get_string('allareas', 'search'),
+		    'noselectionstring' => get_string('selectoa', 'mod_emarking'),
+		    'placeholder' => get_string('searchoa', 'mod_emarking')
 		); 
-		$mform->addElement('autocomplete', 'areaids', get_string('searcharea', 'search'), $courseArray, $options);
-		
-		$oacheckboxarray = array ();
-		// creating days of the week
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '13  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA13' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '14  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA14' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '15  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA15' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '16  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA16' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '17  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA17' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '18  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA18' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '19  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA19' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '20  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA20' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '21  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA21' );
-		$oacheckboxarray [] = & $mform->createElement ( 'static', '', '', '22  ' );
-		$oacheckboxarray [] = & $mform->createElement ( 'checkbox', 'C1OA22' );
-		// display them into one row
-		$mform->addGroup ( $oacheckboxarray, 'CODC1' );
-		
-		$mform->addElement ( 'hidden', 'oacount', 1, array (
-				'id' => 'oacount' 
-		) );
-		$mform->setType ( 'oacount', PARAM_INT );
-		$mform->addElement ( 'html', '<div id="CODC2" style="display:none;">' );
-		$mform->addElement ( 'select', 'C2', '', $courseArray );
-		$oacheckboxarray2 = array ();
-		// creating days of the week
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '13 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA13' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '14 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA14' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '15 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA15' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '16 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA16' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '17 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA17' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '18 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA18' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '19 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA19' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '20 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA20' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '21 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA21' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'static', '', '', '22 ' );
-		$oacheckboxarray2 [] = & $mform->createElement ( 'checkbox', 'C2OA22' );
-		// display them into one row
-		$mform->addGroup ( $oacheckboxarray2, 'CODC2' );
-		$mform->addElement ( 'html', '</div>' );
-		
-		$mform->addElement ( 'html', '<div id="CODC3" style="display:none;">' );
-		$mform->addElement ( 'select', 'C3', '', $courseArray );
-		$oacheckboxarray3 = array ();
-		// creating days of the week
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '13 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA13' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '14 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA14' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '15 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA15' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '16 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA16' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '17 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA17' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '18 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA18' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '19 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA19' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '20 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA20' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '21 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA21' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'static', '', '', '22 ' );
-		$oacheckboxarray3 [] = & $mform->createElement ( 'checkbox', 'C3OA22' );
-		// display them into one row
-		$mform->addGroup ( $oacheckboxarray3, 'CODC3' );
-		$mform->addElement ( 'html', '</div>' );
-		
-		$buttonar = array ();
-		$buttonar [] = $mform->createElement ( 'button', 'more', '+', array (
-				'onclick' => 'showDiv()' 
-		) );
-		$buttonar [] = $mform->createElement ( 'button', 'less', '-', array (
-				'onclick' => 'hideDiv()',
-				'style' => 'display:none;' 
-		) );
-		$mform->addGroup ( $buttonar, 'buttonarr' );
+		$mform->addElement('autocomplete', 'oas', get_string('oas', 'mod_emarking'), $oas, $options);
+		$mform->addHelpButton('oas', 'oas', 'mod_emarking');
 		
 		// Propósito comunicativo, en un futuro este campo debe ser de autocompletar
 		$mform->addElement ( 'text', 'comunicativepurpose', 'Propósito Comunicativo', 'size=150'  );
@@ -183,66 +90,26 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		$mform->addElement ( 'select', 'estimatedtime', 'Tiempo Estimado', $tiempoEstimado );
 		$mform->addRule ( 'estimatedtime', get_string ( 'required' ), 'required' );
 		$mform->setType ( 'estimatedtime', PARAM_TEXT );
-		$mform->addElement ( 'hidden', 'step', 2 );
-		$mform->setType ( 'step', PARAM_INT );
-		$mform->addElement ( 'hidden', 'id', 0 );
-		$mform->setType ( 'id', PARAM_INT );
-		$mform->addElement ( 'hidden', 'editing', 0 );
-		$mform->setType ( 'editing', PARAM_INT );
-		
-		$this->add_action_buttons ( false, 'Siguiente' );
-		
-		?>
-<script>
-        function showDiv() {
-        	document.getElementById('oacount').value++;
-            if(document.getElementById('oacount').value==2){
-            	document.getElementById("id_buttonarr_less").style.display = "inline";
-            
-             }
-            if(document.getElementById('oacount').value==3){
-            	document.getElementById("id_buttonarr_more").style.display = "none";
-            
-             }
-        		
-        		var num ="CODC"+document.getElementById('oacount').value;
-            	console.log(document.getElementById('oacount').value);
-        	    document.getElementById(num).style.display = "block";
-        	   
-        	}
-        function hideDiv() {
-        
-        var hidden = document.getElementById('oacount').value;
-        var hiddenB =hidden-1;
-        if(hidden==3){
-        	document.getElementById("id_buttonarr_more").style.display = "inline";
-        
-         }
-        if(hidden==2){
-        	document.getElementById("id_buttonarr_less").style.display = "none";
-        
-         }
-        var select = "id_C"+hidden;
-
-        var num ="CODC"+document.getElementById('oacount').value;
-     	document.getElementById(num).style.display = "none";
-     	document.getElementById(select).value=0;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA13").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA14").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA15").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA16").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA17").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA18").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA19").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA20").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA21").checked = false;
-     	document.getElementById("id_CODC"+hidden+"_C"+hidden+"OA22").checked = false;	   	
-     	
-     	document.getElementById('oacount').value=hiddenB;
-     	
-     	}
-        </script>
-<?php
+		//Paso 2 Instrucciones
+		$mform->addElement('header', 'IA', 'Instrucciones para el estudiante', null);
+		$systemcontext = context_system::instance();
+		$editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES, 'context'=>$systemcontext);
+		$mform->addElement('editor', 'instructions', get_string('activity_instructions', 'mod_emarking'),null,$editoroptions);
+		$mform->setType('instructions', PARAM_RAW);
+		$mform->addHelpButton('instructions', 'activity_instructions', 'mod_emarking');
+		$mform->addElement('editor', 'planification', 'Planificación',null,$editoroptions);
+		$mform->setType('planification', PARAM_RAW);
+		$mform->addElement('editor', 'writing', 'Escritura',null,$editoroptions);
+		$mform->setType('writing', PARAM_RAW);
+		//Paso 3 Didáctica
+		$mform->addElement('header', 'DI', 'Didáctica', null);
+		$mform->addElement('editor', 'teaching', 'Sugerencias',null,$editoroptions);
+		$mform->setType('teaching', PARAM_RAW);
+		//$mform->setAdvanced('teachingsuggestions');
+		$mform->addElement('editor', 'languageresources', 'Recursos del Lenguaje',null,$editoroptions);
+		$mform->setType('languageresources', PARAM_RAW);
+		//$mform->setAdvanced('languageresources');
+		$this->add_action_buttons ( true, 'Guardar cambios' );		
 	}
 	// Custom validation should be added here
 }
