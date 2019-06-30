@@ -16,45 +16,45 @@
 
 /**
  *
- * @package mod_emarking
- * @copyright 2017 Francisco Ralph fco.ralph@gmail.com
+ * @package mod
+ * @subpackage emarking
+ * @copyright CIAE, Universidad de Chile
+ * @author 2017 Francisco Ralph fco.ralph@gmail.com
+ * @author 2019 Jorge Villalón villalon@gmail.com
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
-global $PAGE, $DB, $USER, $CFG, $OUTPUT;
+global $PAGE, $DB, $CFG, $OUTPUT;
 
-require_once ('forms/create_activity_basic.php');
-require_once ('forms/create_activity_instructions.php');
-require_once ('forms/create_activity_teaching.php');
+require_once ('forms/activity.php');
 require_once ('locallib.php');
+
 require_login ();
 
-$step = optional_param ( 'step',1 ,PARAM_INT );
 $activityid = optional_param ( 'id',0 ,PARAM_INT );
-
+if($activityid > 0){
+    if(!$activity=$DB->get_record('emarking_activities',array('id'=>$activityid))) {
+        print_error('Invalid activity');
+    }
+}
+$title = $activityid > 0 ? 'Editar actividad ' . $activity->title : 'Crear actividad';
 $context = context_system::instance ();
+$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php', array('id'=>$activityid));
+
 $PAGE->set_pagelayout ( 'standard' );
 $PAGE->set_context ( $context );
-$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/createactivity.php' );
 $PAGE->set_url ( $url );
-if($activityid > 0) {
-    $PAGE->set_title ( 'Editar actividad' );
-} else {
-    $PAGE->set_title ( 'Crear actividad' );
-}
+$PAGE->set_title ( $title );
 
 echo $OUTPUT->header ();
+echo $OUTPUT->heading ( $title );
 
 $draftid_editor = file_get_submitted_draft_itemid ( 'instructions' );
 file_prepare_draft_area ( $draftid_editor, $context->id, 'mod_emarking', 'instructions', $activityid, null );
 
-// print the header
-?>
-<h2>Crear una actividad</h2>
-<?php
-$basic = new mod_emarking_activities_create_activity_basic (NULL, array('id'=>$activityid));
-if($activityid!=0){
-    $activity=$DB->get_record('emarking_activities',array('id'=>$activityid));
+$activityform = new mod_emarking_activities_create_activity_basic (NULL, array('id'=>$activityid));
+
+if($activityid > 0) {
     $activity->instructions = array (
         'text' => $activity->instructions,
         '',
@@ -85,19 +85,27 @@ if($activityid!=0){
         '',
         'itemid' => $draftid_editor
     );
-    $basic->set_data ( $activity );
+    
+    if($activity->learningobjectives) {
+        $matches = NULL;
+        preg_match("/^(?<curso>\d+)\[(?<oas>\d+(\s*,\s*\d+)*)\]$/i", $activity->learningobjectives, $matches);
+        if($matches != NULL && isset($matches['curso']) && isset($matches['oas'])) {
+            $curso = $matches['curso'];
+            $oas = explode(',',$matches['oas']);
+            $lo = array();
+            foreach($oas as $oa) {
+                $lo[] = $curso . '-' .  $oa;
+            }
+            $activity->learningobjectives = $lo;
+        }
+    }
+    
+    $activityform->set_data ( $activity );
 }
-$basic->display();
+$activityform->display();
 
-if ($fromformbasic = $basic->get_data ()) {
-	//if is creating or editing a rubric
-	if($fromformbasic->editing==0){
-	   $activityid=add_new_activity_basic ( $fromformbasic);
-	   $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/createactivity.php', array('id' => $activityid, 'step' => 2));
-	   redirect($forkUrl, 0);
-	}else{
-		edit_activity_basic ( $fromformbasic,$activityid);
-	}
+if ($fromformbasic = $activityform->get_data ()) {
+    var_dump($fromformbasic);
 }
 
 echo $OUTPUT->footer ();

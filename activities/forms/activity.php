@@ -17,14 +17,17 @@
 /**
  * This form is used to upload a zip file containing digitized answers
  *
- * @package local
- * @subpackage ciae
- * @copyright 2016 Francisco Ralph <francisco.garcia@ciae.uchile.cl>
+ * @package mod
+ * @subpackage emarking
+ * @copyright CIAE Universidad de Chile
+ * @author 2016 Francisco Ralph <francisco.garcia@ciae.uchile.cl>
+ * @author 2019 Jorge Villalón <villalon@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 global $CFG;
 require_once ($CFG->libdir . '/formslib.php');
 require_once ($CFG->dirroot . '/course/lib.php');
+
 class mod_emarking_activities_create_activity_basic extends moodleform {
 	public function definition() {
 		global $CFG, $DB;
@@ -45,7 +48,6 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		$mform->addRule ( 'title', get_string ( 'required' ), 'required' );
 		$mform->addHelpButton('title', 'activity_title', 'mod_emarking');
 		// descripción
-//		$mform->addElement ( 'static', '', '', 'Pequeña descripción sobre la actividad a realizar, max 300 caracteres.' );
 		$mform->addElement ( 'textarea', 'description', get_string('activity_description', 'mod_emarking'), 'wrap="virtual" rows="10" cols="100" maxlength="300"' );
 		$mform->setType ( 'description', PARAM_TEXT );
 		$mform->addHelpButton('description', 'activity_description', 'mod_emarking');
@@ -63,8 +65,8 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		    'noselectionstring' => get_string('selectoa', 'mod_emarking'),
 		    'placeholder' => get_string('searchoa', 'mod_emarking')
 		); 
-		$mform->addElement('autocomplete', 'oas', get_string('oas', 'mod_emarking'), $oas, $options);
-		$mform->addHelpButton('oas', 'oas', 'mod_emarking');
+		$mform->addElement('autocomplete', 'learningobjectives', get_string('oas', 'mod_emarking'), $oas, $options);
+		$mform->addHelpButton('learningobjectives', 'oas', 'mod_emarking');
 		
 		// Propósito comunicativo, en un futuro este campo debe ser de autocompletar
 		$mform->addElement ( 'text', 'comunicativepurpose', 'Propósito Comunicativo', 'size=150'  );

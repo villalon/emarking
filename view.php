@@ -21,6 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname(dirname(dirname(__FILE__))) . '/config.php');
+global $CFG;
 require_once ("lib.php");
 require_once ($CFG->libdir . '/tablelib.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");
@@ -29,7 +30,7 @@ require_once ($CFG->dirroot . "/mod/emarking/print/locallib.php");
 require_once ($CFG->dirroot . "/lib/externallib.php");
 require_once ($CFG->dirroot . '/lib/excellib.class.php');
 require_once ($CFG->dirroot . "/mod/emarking/classes/event/unauthorizedaccess_attempted.php");
-global $USER, $OUTPUT, $DB, $CFG, $PAGE;
+global $USER, $OUTPUT, $DB, $PAGE;
 // Obtains basic data from cm id.
 list ($cm, $emarking, $course, $context) = emarking_get_cm_course_instance();
 // Check that user is logued in the course.
@@ -42,7 +43,6 @@ $urlemarking = new moodle_url('/mod/emarking/view.php', array(
     'id' => $cm->id
 ));
 // If it was an import.
-
 if($emarking->parent > 0 && $emarking->copiedfromparent == 0) {
     $srcemarking = $DB->get_record('emarking', array('id'=>$emarking->parent));
     emarking_copy_peer_review($srcemarking, $emarking);

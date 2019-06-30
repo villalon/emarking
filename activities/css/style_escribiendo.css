@@ -109,10 +109,9 @@ body {
 
 
 /* CSS Activities */
-.row_activities{
+.row_actividades {
 	background-color: #003551;
 	color: white;
-	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
 	font-size: 12px;
 }
 .tit_actv {

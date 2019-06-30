@@ -69,6 +69,33 @@ function show_rubric($id) {
 	
 	return $table;
 }
+/**
+ * Gets four random activities to show in the home page
+ * @return moodle_url[][]|NULL[][]
+ */
+function emarking_get_random_activities() {
+    global $DB, $CFG;
+    
+    $query = "SELECT a.id, g.name genrename, a.description, a.title
+		FROM {emarking_activities} a
+        LEFT JOIN {emarking_activities_genres} g ON (g.id = a.genre)
+		WHERE status = 1 AND parent IS NULL
+		ORDER BY RAND()
+		LIMIT 4";
+    
+    $activities = $DB->get_records_sql($query);
+    $activityArray = Array();
+    foreach ($activities as $activity){
+        $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activity->id));
+        $activityArray[] = Array(
+            'title'=>$activity->title,
+            'genre'=>$activity->genrename,
+            'description'=>$activity->description,
+            'link'=>$url
+        );
+    }
+    return $activityArray;
+}
 
 function activities_show_result($data) {
 	GLOBAL $CFG, $DB;
@@ -1052,45 +1079,6 @@ function change_images_url($obj,$itemid){
 	$obj = str_replace ( $urlAntigua, $urlnueva, $obj );
 	return $obj;
 }
-function clean_oa_code($fromform){
-	$OAC1 = "";
-	if (isset ( $fromform->C1 )) {
-	
-		if (isset ( $fromform->CODC1 )) {
-			foreach ( $fromform->CODC1 as $key => $value ) {
-				$porciones = explode ( "C1OA", $key );
-				$OAC1 .= $porciones [1] . ",";
-			}
-			$OAC1 = substr ( $OAC1, 0, - 1 );
-			$OAC1 = $fromform->C1 . "[" . $OAC1 . "]";
-		}
-	}
-	$OAC2 = "";
-	if (isset ( $fromform->C2 )) {
-		if (isset ( $fromform->CODC2 )) {
-			foreach ( $fromform->CODC2 as $key => $value ) {
-				$porciones = explode ( "C2OA", $key );
-				$OAC2 .= $porciones [1] . ",";
-			}
-			$OAC2 = substr ( $OAC2, 0, - 1 );
-			$OAC2 = "-" . $fromform->C2 . "[" . $OAC2 . "]";
-		}
-	}
-	$OAC3 = "";
-	if (isset ( $fromform->C3 )) {
-		if (isset ( $fromform->CODC3 )) {
-			foreach ( $fromform->CODC3 as $key => $value ) {
-				$porciones = explode ( "C3OA", $key );
-				$OAC3 .= $porciones [1] . ",";
-			}
-			$OAC3 = substr ( $OAC3, 0, - 1 );
-			$OAC3 = "-" . $fromform->C3 . "[" . $OAC3 . "]";
-		}
-	}
-	$oaCode = $OAC1 . $OAC2 . $OAC3;
-	return $oaCode;
-}
-
 function emarking_activity_send_notification($cm,$userto) {
 	global $CFG;
 	

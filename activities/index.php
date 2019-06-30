@@ -21,35 +21,20 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once (dirname (dirname ( dirname ( dirname ( __FILE__ ) ) ) ). '/config.php');
-global $PAGE, $DB, $USER, $CFG;
+global $PAGE, $CFG, $OUTPUT;
+require_once ('locallib.php');
 
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/index.php');
 $PAGE->set_url($url);
-$PAGE->set_title('escribiendo');
-$query = "SELECT a.id, g.name genrename, a.description, a.title
-		FROM {emarking_activities} a LEFT JOIN {emarking_activities_genres} g ON (g.id = a.genre)
-		WHERE status = 1 AND parent IS NULL	
-		ORDER BY RAND()
-			LIMIT 4"; 
-$activities = $DB->get_records_sql($query);
-$activityArray=array();
-foreach ($activities as $activity){
-	$url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id'=>$activity->id));
-	// $genre=$DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
-	$activityArray[]=array(
-			'title'=>$activity->title,
-			'genre'=>$activity->genrename,
-			'description'=>$activity->description,
-			'link'=>$url
-	);
-}
+$PAGE->set_title('Escribiendo.online');
+$PAGE->requires->css('/mod/emarking/activities/css/style_escribiendo.css');
 
 //print the header
-include 'views/header.php';
+echo $OUTPUT->header();
 
 //print the body
 include 'views/index.php';
 
 //print the footer
-include 'views/footer.html';
+echo $OUTPUT->footer();
