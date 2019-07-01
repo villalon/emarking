@@ -103,21 +103,7 @@ function activities_show_result($data) {
 	$data->url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (
 			'id' => $data->id 
 	) );
-	$coursesOA="";
-	if( isset($data->learningobjectives) && $data->learningobjectives != null){
-		
-		$oaComplete = explode ( "-", $data->learningobjectives );
-		foreach ( $oaComplete as $oaPerCourse ) {
-			
-			$firstSplit = explode ( "[", $oaPerCourse );
-			$secondSplit = explode ( "]", $firstSplit [1] );
-			$course = $firstSplit [0];
-			
-			$coursesOA .= $firstSplit [0] . '° básico <span style="font-size:12px">' . $secondSplit [0] . '</span>';
-		}
-	}else{
-		$coursesOA .= '';
-	}
+	$coursesOA=oas_string($data);
 	
 	//Busca toda la información de la comunidad en esta actividad
 	$communitysql = $DB->get_record('emarking_social', array('activityid' => $data->id));	
@@ -978,13 +964,12 @@ function add_new_activity_basic($fromform){
 	global $DB,$USER, $CFG;
 
 	
-	$oaCode=clean_oa_code($fromform);
-	
 	$record = new stdClass ();
 	$record->title = $fromform->title;
 	$record->description = $fromform->description;
-	$record->learningobjectives = $oaCode;
+	$record->learningobjectives = implode(',',$fromform->learningobjectives);
 	$record->comunicativepurpose = $fromform->comunicativepurpose;
+	$record->status = $fromform->status;
 	$record->genre = $fromform->genre;
 	$record->audience = $fromform->audience;
 	$record->estimatedtime = $fromform->estimatedtime;
@@ -1000,20 +985,76 @@ function add_new_activity_basic($fromform){
 	
 	return $instertnewactivity;
 }
-function edit_activity_basic($fromform,$activityid){
+function edit_activity_basic($fromform,$activityid) {
 	global $DB,$CFG,$USER;
-	$oaCode=clean_oa_code($fromform);
 	
 	$record=$DB->get_record('emarking_activities',array('id'=>$activityid));
 	$record->title = $fromform->title;
 	$record->description = $fromform->description;
-	$record->learningobjectives = $oaCode;
+	$record->learningobjectives = implode(',',$fromform->learningobjectives);
 	$record->comunicativepurpose = $fromform->comunicativepurpose;
+	$record->status = $fromform->status;
 	$record->genre = $fromform->genre;
 	$record->audience = $fromform->audience;
 	$record->estimatedtime = $fromform->estimatedtime;
 	$DB->update_record('emarking_activities', $record);
 	
+}
+/**
+ * Extract learning objectives from an activity.
+ * It uses a backward compatibility approach.
+ * @param unknown $activity
+ * @return string|unknown|NULL
+ */
+function extract_oas($activity) {
+    if($activity->learningobjectives) {
+        $matches = NULL;
+        preg_match("/^(?<curso>\d+)\[(?<oas>\d+(\s*,\s*\d+)*)\]$/i", $activity->learningobjectives, $matches);
+        if($matches != NULL && isset($matches['curso']) && isset($matches['oas'])) {
+            $curso = $matches['curso'];
+            $oas = explode(',',$matches['oas']);
+            $lo = array();
+            foreach($oas as $oa) {
+                $lo[] = $curso . '-' .  $oa;
+            }
+            return $lo;
+        }
+        preg_match("/^(\d+\-\d+)(,\d+\-\d+)*$/i", $activity->learningobjectives, $matches);
+        if($matches != NULL) {
+            return explode(',', $activity->learningobjectives);
+        }
+    }
+    return null;
+}
+/**
+ * String with a lista of courses and learning objectives, separated by a dash.
+ * @param unknown $activity
+ * @return string
+ */
+function oas_string($activity) {
+    $coursesOA="";
+    if( isset($activity->learningobjectives) && $activity->learningobjectives != null){
+        if($oas = extract_oas($activity)) {
+            $lastcourse = '';
+            foreach ( $oas as $oa ) {
+                $parts = explode ( "-", $oa);
+                $course = $parts[0];
+                $oacode = $parts[1];
+                if($course !== $lastcourse) {
+                    $prefix = $lastcourse === '' ? '' : '&nbsp;-&nbsp;';
+                    $coursesOA .= $prefix . $course . '° <span style="font-size:12px">' . $oacode . '</span>';
+                    $lastcourse = $course;
+                } else {
+                    $coursesOA .= ',<span style="font-size:12px">' . $oacode . '</span>';
+                }
+            }
+        } else {
+            var_dump($activity->learningobjectives);
+        }
+    } else {
+        $coursesOA .= '';
+    }
+    return $coursesOA;
 }
 function add_new_activity_instructions($fromform,$activityid,$context){
 	global $DB, $USER;

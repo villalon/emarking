@@ -211,4 +211,11 @@ $capabilities = array(
 						'teacher' => CAP_PROHIBIT,
 						'editingteacher' => CAP_PROHIBIT,
 						'manager' => CAP_PROHIBIT)),
-			);
+        'mod/emarking:manageactivities' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'student' => CAP_PROHIBIT,
+            'teacher' => CAP_PROHIBIT,
+            'editingteacher' => CAP_PROHIBIT,
+            'manager' => CAP_PREVENT)),);

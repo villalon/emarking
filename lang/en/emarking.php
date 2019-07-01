@@ -905,6 +905,8 @@ $string['disabled'] = 'Disabled';
 $string['changelog'] = 'Change log';
 $string['changelog_help'] = 'Allows students to write a change log as a follow up activity after reviewing their feedback.';
 // ACTIVITIES
+$string['emarking:manageactivities']='Manage activities';
+$string['visible'] = 'Visible';
 $string['activity_instructions'] = 'Instructions';
 $string['activity_instructions_help'] = 'Instructions for students';
 $string['activity_description'] = 'Description';

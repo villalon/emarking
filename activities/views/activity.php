@@ -56,37 +56,12 @@ $(function() {
 						<hr>
 						<div class="activity_buttons">
 						<ul>
-						<?php if($userobject->id == $USER->id || is_siteadmin()) { ?>
+						<?php if($userobject->id == $USER->id || has_capability('mod/emarking:manageactivities', context_system::instance())) { ?>
 						<li><a href="<?= $CFG->wwwroot . '/mod/emarking/activities/createactivity.php?id='.$activity->id.'&step=1' ?>"><button type="button" class="btn btn-success">
 							<i class="fa fa-paperclip" aria-hidden="true"></i> Editar actividad
 						</button></a></li>
 						<?php 
                         }
-                        if(isset($disabled) && $disabled!=null && $usercaneditrubric){
-						?>
-						<li><a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
-							<i class="fa fa-paperclip" aria-hidden="true"></i> Crear Rúbrica
-						</button></a></li>
-						<?php
-						$canuse="#myModalCantUse";
-						} elseif ($usercaneditrubric) {
-						?>
-						<li><a href="<?=$importrubricUrl?>"><button type="button" class="btn btn-warning">
-							<i class="fa fa-paperclip" aria-hidden="true"></i> Importar Rúbrica
-						</button></a></li>
-						<li>
-						<a href="<?=$rubricUrl?>"><button type="button" class="btn btn-warning">
-							<i class="fa fa-paperclip" aria-hidden="true"></i> Editar Rúbrica
-						</button></a></li>
-						<?php
-						}
-						if ($usercaneditrubric) {
-						?>
-						<li><a href="<?=$printpdfUrl?>"><button type="button" class="btn btn-info">
-							<i class="fa fa-print" aria-hidden="true"></i> Descargar instrucciones
-						</button></a></li>
-						<?php
-						}
 						if($useristeacher) {
 						?>
 						<li>

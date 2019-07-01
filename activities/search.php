@@ -31,11 +31,12 @@ $oa_curso = optional_param('oa_curso', 0, PARAM_INT);
 $oa = isset($_REQUEST['oa'])? $_REQUEST['oa'] : Array();
 $genero = optional_param('genero', '', PARAM_TEXT);
 $search = optional_param('search', '', PARAM_TEXT);
-
-$PAGE->set_context(context_system::instance());
+$context = context_system::instance();
+$PAGE->set_context($context);
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/search.php');
 $PAGE->set_url($url);
-$PAGE->set_title('Actividades');
+$PAGE->set_title(get_string('activities', 'mod_emarking'));
+$PAGE->navbar->add(get_string('activities', 'mod_emarking'));
 // Require jquery for modal.
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
@@ -48,11 +49,12 @@ $genres = $DB->get_records('emarking_activities_genres', null, 'name ASC');
 // Se incluye formulario para busqueda
 include_once $CFG->dirroot. '/mod/emarking/activities/forms/search.php';
 
+$managersql = has_capability('mod/emarking:manageactivities', $context) ? '' : ' AND status = 1';
 $activitiessql = "SELECT ea.*, eag.name AS genrename, u.firstname, u.lastname
 			FROM {emarking_activities} ea
             INNER JOIN {emarking_activities_genres} eag ON (ea.genre = eag.id)
             INNER JOIN {user} u ON (ea.userid = u.id)
-			WHERE parent IS NULL AND status = 1 ";
+			WHERE parent IS NULL $managersql";
 $params = array();
 
 if(strlen($search) > 3) {
@@ -78,7 +80,7 @@ if($genero > 0) {
 		$activitiessql .= 'AND genre = ?';
 		$params[] = $genero;
 }
-
+$activitiessql .= ' ORDER BY ea.status DESC, ea.title';
 $results = $DB->get_records_sql($activitiessql, $params);
 // Display results search
 include 'views/results.php';

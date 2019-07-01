@@ -910,6 +910,8 @@ $string['disabled'] = 'Deshabilitado';
 $string['changelog'] = 'Bitácora de cambios';
 $string['changelog_help'] = 'Permite a los estudiantes escribir una bitácora de cambios como actividad a continuación de revisar su retroalimentación.';
 // ACTIVITIES
+$string['emarking:manageactivities']='Gestionar actividades';
+$string['visible'] = 'Visible';
 $string['activity_instructions'] = 'Instrucciones';
 $string['activity_instructions_help'] = 'Instrucciones a los estudiantes';
 $string['activity_description'] = 'Descripción';

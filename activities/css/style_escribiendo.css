@@ -1,113 +1,11 @@
 @charset "utf-8";
 /* CSS Escribiendo */
-html {
-  min-height: 100%;
-  position: relative;
-}
-body {
-	color: black;
-	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
-	font-size: 15px;
-	
-	background-color: white;
-}
-
-
-.pageheader {
-	background-color: #00547C;
-	
-}
-
 .row_caract {
 	background-color: #117E89;
 }
 .row_info {
 	background-color: white;
 }
-
-/*CSS Header*/
-.navbar{
-	max-height:none;
-	margin-bottom: 0px;
-
-}
-
-.navbar-default{border-color: transparent;} .navbar-text{color:#DAE5EC}.navbar-default .navbar-nav>li>a{color:#DAE5EC}.navbar-default .navbar-nav>li>a:focus,.navbar-default .navbar-nav>li>a:hover{
-	color: #71A7BB;
-	text-decoration:underline;
-	
-}
-
-/*Submenu*/
-#menu>li:hover>ul{
-	display: block;
-	position:relative;
-	font-family: "Century Gothic", "Myriad Pro", "Myriad Pro Light";
-	font-size: 0.7em;
-	text-transform:none;
-	list-style:none;
-	color:#00B0D0;
-	-webkit-transition: all .3s ease;
-	-moz-transition: all .3s ease;
-	-ms-transition: all .3s ease;
-	-o-transition: all .3s ease;
-	transition: all .3s ease;
-}
-#menu>li>ul {
-	display: none;
-}
-.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover {
-    color: white;
-    background-color: #094969;
-}
-
-.dropdown-menu {
-	background-color: #094969;
-	border-radius: 6px;
-}
-
-.dropdown-menu> li> a {
-	color: #DAE5EC;
-	text-decoration: none;
-}
-.logos_head {
-	background-image: url(../img/header/logos_escribiendo_02.png);
-	background-repeat: no-repeat;
-	background-color: #00547C;
-	margin-left: 5px;
-	min-height: 140px;
-	min-width: 190px;
-}
-.logos_head_fixed {
-	background-image: url(../img/header/logo_fixed.png);
-	background-repeat: no-repeat;
-	background-color: #00547C;
-	margin-left: 5px;
-	min-width: 145px;
-}
-.text_nav {
-	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
-	font-size: 1.5em;
-	text-transform: capitalize;
-}
-.text_nav_1100 {
-	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
-	font-size: 0.8em;
-	text-transform: capitalize;
-}
-
-.text_nav_fixed_1100 {
-	font-family: "Berlin Sans FB", "Berlin Sans FB Demi", Arial, Helvetica;
-	font-size: 0.83em;
-	text-transform: capitalize;
-}
-
-.hr_nav {
-	margin: 0 0 0 0px;
-	opacity: 0.7;
-}
-
-
 /* CSS Activities */
 .row_actividades {
 	background-color: #003551;
@@ -152,9 +50,6 @@ body {
 	min-height: 374px;
 	padding: 15 25 0 25px;
 }
-
-
-
 /* CSS Us */
 .tit_blue {
 	color: #06C;
@@ -167,9 +62,6 @@ body {
 color: #727176;
 font-size: 0.7em;
 }
-
-
-
 /* footer */
 #container_footer, #container2_footer, #container3_footer {
 	width: 100%;

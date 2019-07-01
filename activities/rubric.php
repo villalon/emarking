@@ -30,10 +30,20 @@ require_login();
 $id = optional_param ( 'id',0 ,PARAM_INT );
 $activityid = required_param ( 'activityid', PARAM_INT );
 
+if(!$activity = $DB->get_record('emarking_activities', array('id' => $activityid))) {
+    print_error('Invalid activity id');
+}
+
+$title = $id > 0 ? 'Editar rúbrica' : 'Crear rúbrica';
 $PAGE->set_context ( context_system::instance () );
 $url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php' );
+$activityurl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array('id'=>$activityid) );
+$activitiesurl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/search.php');
 $PAGE->set_url ( $url );
-$PAGE->set_title ( 'escribiendo' );
+$PAGE->set_title ( $title );
+$PAGE->navbar->add(get_string('activities', 'mod_emarking'), $activitiesurl);
+$PAGE->navbar->add($activity->title, $activityurl);
+$PAGE->navbar->add($title);
 // Require jquery for modal.
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin('ui');
@@ -41,9 +51,9 @@ $PAGE->requires->jquery_plugin('ui-css');
 $PAGE->requires->js(new moodle_url('https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js'),true);
 
 echo $OUTPUT->header ();
+echo $OUTPUT->heading($title . ' ' . strtolower(get_string('for')) . ' ' . $activity->title);
 
-$activity = $DB->get_record('emarking_activities', array('id' => $activityid));
-if ($activity->userid != $USER->id && !is_siteadmin()) {
+if ($activity->userid != $USER->id && !has_capability('mod/emarking:manageactivities', context_system::instance())) {
 	$backUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
 	redirect($backUrl, 0);	
 }
@@ -60,8 +70,8 @@ if (isset ( $_POST['submit'])) {
 
 $rubricname = "";
 $rubricdescription = "";
-if(isset($id) && $id != null){
-	$rubricdetails = $DB->get_record('emarking_rubrics', array('id' => $id));
+$rubric = Array();
+if(isset($id) && $id != null && $id > 0 && $rubricdetails = $DB->get_record('emarking_rubrics', array('id' => $id))) {
 	$rubricname = $rubricdetails->name;
 	$rubricdescription = $rubricdetails->description;
 	$sql = "SELECT rc.id 
@@ -78,8 +88,6 @@ $sql='SELECT rl.*, rc.description as criteria, r.id as rubricid, i.max
 			FROM {emarking_rubrics_levels} as rl group by criterionid) as i on (i.criterionid = rl.criterionid)
 	ORDER BY rl.criterionid ASC, rl.score DESC';
 $levels = $DB->get_records_sql($sql);
-
-
 
 // print the main page
 include 'views/rubric.php';

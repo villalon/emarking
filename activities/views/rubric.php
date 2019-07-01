@@ -7,18 +7,20 @@
 <div class="rubrics">
 		<div class="row">
 			<div class="col-md-12">
-				<h3>Crear rúbrica</h3>
-					<form action="" method="post" onsubmit="return validateform()" name="rubricCreator">
+					<form action="" class="needs-validation" method="post" onsubmit="return validateform()" name="rubricCreator">
 						<div class="form-group">
-							<label>Nombre:</label> <input type="text" class="form-control"
+							<label for="rubricname">Nombre</label> <input type="text" class="form-control"
 								name="rubricname" id="rubricname" value="<?=$rubricname?>">
+							<small id="rubricnameHelp" class="form-text text-muted">Nombre de la rúbrica, p.ej: Evaluación de estructura y gramática.</small>
+							<div class="invalid-feedback">
+          Ingrese un nombre que contenga al menos tres letras
+        					</div>
 						</div>
 						<div class="form-group">
-							<label>Descripción</label>
-							<textarea class="form-control" rows="5" name="rubricdescription"><?=$rubricdescription?></textarea>
+							<label for="rubricdescription">Descripción</label>
+							<textarea id="rubricdescription" class="form-control" rows="5" name="rubricdescription"><?=$rubricdescription?></textarea>
 						</div>
-						<br> <br>
-						<table class="table rubric">
+						<table class="table rubric" id="table-rubric">
 							<thead>
 								<tr style="text-align: center;">
 									<th>Criterio</th>
@@ -50,34 +52,6 @@
 					</form>
 			</div>
 		</div>
-<!-- 		<div class="row">
-			<div class="col-md-12">
-				<h3>Buscador de criterios</h3>
-				<table id="example" class="table rubricSearch">
-					<thead>
-						<tr style="text-align: center;">
-							<td>Criterio</td>
-							<td>Nivel 4</td>
-							<td>Nivel 3</td>
-							<td>Nivel 2</td>
-							<td>Nivel 1</td>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody>
-						
-		      <?php
-		      add_row($levels,2);
-		      ?>
-        
-					</tbody>
-
-				</table>
-			</div>
-
-		</div>
-	</div> -->
-
 <?php 
 if($id!=0){
 foreach($rubric as $criteria){

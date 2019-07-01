@@ -90,7 +90,7 @@ function hideinput(e){
 	var row = split[1];
 	var count = split[2];
 	var spanid = 'level-'+row+'-'+count;
-	var span =document.getElementById(spanid) 
+	var span =document.getElementById(spanid);
 	
 	if(input.value.length == 0){
 		span.innerHTML="Click para editar";
@@ -188,8 +188,21 @@ function add_row(result=null){
 }
 function validateform(){  
 	var name=document.rubricCreator.rubricname.value; 
-	if (name==null || name==""){  
-	  alert("Debes ingresar un nombre a la rúbrica.");  
+	if (name==null || name=="") {
+		var el = document.getElementById('rubricname');
+		if(el) {
+		    el.className += el.className ? ' is-invalid' : 'is-invalid';
+		}
 	  return false;  
-	}  
-	}  
+	}
+	var criterion = document.getElementById('leveltext-0-1');
+	if(criterion == undefined || criteron.value.length < 3) {
+		var el = document.getElementById('table-rubric');
+		if(el) {
+		    el.className += el.className ? ' is-invalid' : 'is-invalid';
+		}
+		console.log('La rúbrica debería tener al menos un criteiro');
+		return false;
+	}
+	return false;
+}  

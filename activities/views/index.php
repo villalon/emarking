@@ -4,7 +4,7 @@ $activities = emarking_get_random_activities();
 <!-- Carousel -->
 <div class="row">
 	<div id="carouselExampleControls" class="carousel slide"
-		data-ride="carousel">
+		data-ride="carousel" style="width:100%">
 		<div class="carousel-inner">
 			<div class="carousel-item active">
 				<img class="d-block w-100" src="img/slide1.png" alt="First slide">

@@ -28,7 +28,7 @@ global $CFG;
 require_once ($CFG->libdir . '/formslib.php');
 require_once ($CFG->dirroot . '/course/lib.php');
 
-class mod_emarking_activities_create_activity_basic extends moodleform {
+class mod_emarking_form_activity extends moodleform {
 	public function definition() {
 		global $CFG, $DB;
 		
@@ -41,6 +41,9 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 				
 		$mform = $this->_form; // Don't forget the underscore!
 		                       // Paso 1 Información básica
+		$activityid = $this->_customdata['id'];
+		$mform->addElement('hidden', 'id', $activityid);
+		$mform->setType('id', PARAM_INT);
 		$mform->addElement ( 'header', 'db', 'Información Básica', null );
 		// Título
 		$mform->addElement ( 'text', 'title', get_string('activity_title', 'mod_emarking'), 'size=150' );
@@ -52,6 +55,10 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		$mform->setType ( 'description', PARAM_TEXT );
 		$mform->addHelpButton('description', 'activity_description', 'mod_emarking');
 		
+		$yesno = Array(0=>'No',1=>'Yes');
+		$mform->addElement ( 'select', 'status', get_string('visible', 'mod_emarking'), $yesno );
+		$mform->setType ( 'status', PARAM_INT );
+		$mform->setDefault( 'status', 0);
 		// Curso
 		$oas = array ();
 		for($i=8;$i>=1;$i--) {
@@ -103,6 +110,8 @@ class mod_emarking_activities_create_activity_basic extends moodleform {
 		$mform->setType('planification', PARAM_RAW);
 		$mform->addElement('editor', 'writing', 'Escritura',null,$editoroptions);
 		$mform->setType('writing', PARAM_RAW);
+		$mform->addElement('editor', 'editing', 'Revisión y Edición',null,$editoroptions);
+		$mform->setType('editing', PARAM_RAW);
 		//Paso 3 Didáctica
 		$mform->addElement('header', 'DI', 'Didáctica', null);
 		$mform->addElement('editor', 'teaching', 'Sugerencias',null,$editoroptions);

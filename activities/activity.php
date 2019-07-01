@@ -65,10 +65,13 @@ if (! $activity = $DB->get_record ( 'emarking_activities', array ('id' => $activ
 $genre = $DB->get_record('emarking_activities_genres',array('id'=>$activity->genre));
 
 $url = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
+$activitiesurl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/search.php');
 
 $PAGE->set_context ( context_system::instance () );
 $PAGE->set_url($url);
 $PAGE->set_title($activity->title);
+$PAGE->navbar->add(get_string('activities','mod_emarking'), $activitiesurl);
+$PAGE->navbar->add($activity->title);
 
 $forkingUrl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/forking.php', array (
 		'id' => $activityid
@@ -112,7 +115,7 @@ if (isloggedin ()) {
 	}
 }
 
-$usercaneditrubric = $USER->id == $activity->userid || is_siteadmin();
+$usercaneditrubric = $USER->id == $activity->userid || has_capability('mod/emarking:manageactivities', context_system::instance());
 
 $userobject = $DB->get_record('user', array('id' => $activity->userid));
 
@@ -146,20 +149,8 @@ if(isset($rubric)&& $rubric!=null){
 	}
 	$row = sizeof($table);
 }
-$coursesOA = '<span>Curso: </span><br>';
-$coursesOA .= '<span>OA:</span><br>';
-if (isset($activity->learningobjectives) && $activity->learningobjectives != null) {
-	$oaComplete = explode("-", $activity->learningobjectives );
-	
-	foreach ( $oaComplete as $oaPerCourse ) {	
-		$firstSplit = explode ( "[", $oaPerCourse );
-		$secondSplit = explode ( "]", $firstSplit [1] );
-		$course = $firstSplit [0];
-	
-		$coursesOA = '<span>Curso: ' . $firstSplit [0] . '° básico</span><br>';
-		$coursesOA .= '<span>OA: ' . $secondSplit [0] . '</span><br>';
-	}
-}
+$coursesOA = 'OAs: ' . oas_string($activity);
+
 //Busca toda la información de la comunidad en esta actividad
 $communitysql = $DB->get_record('emarking_social', array('activityid'=>$activityid));
 if(!$communitysql){	
