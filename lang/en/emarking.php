@@ -917,3 +917,4 @@ $string['selectoa'] = 'There are no learning objectives selected';
 $string['searchoa'] = 'Search learning objectives';
 $string['oas'] = 'Learning objectives';
 $string['oas_help'] = 'Learning objectives according to the Education Ministry';
+$string['removeallfilters'] = 'Remove all filters';

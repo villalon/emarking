@@ -1,31 +1,31 @@
 <?php
-    $active_palabras = "";
-    $active_oa = "";
-    $active_genero = "";
-    $show_palabras = "";
-    $show_oa = "";
-    $show_genero = "";
-    if(strlen($search) > 3) {
-        $active_palabras = "active";
-        $show_palabras = "show";
-    } elseif($oa_curso > 0) {
-        $active_oa = "active";
-        $show_oa = "show";
-    } elseif($genero > 0) {
-        $active_genero = "active";
-        $show_genero = "show";
-    } else {
-        $active_palabras = "active";
-        $show_palabras = "show";
+$active_palabras = "";
+$active_oa = "";
+$active_genero = "";
+$show_palabras = "";
+$show_oa = "";
+$show_genero = "";
+if(strlen($search) > 3) {
+    $active_palabras = "active";
+    $show_palabras = "show";
+} elseif($oa_curso > 0) {
+    $active_oa = "active";
+    $show_oa = "show";
+} elseif($genero > 0) {
+    $active_genero = "active";
+    $show_genero = "show";
+} else {
+    $active_palabras = "active";
+    $show_palabras = "show";
+}
+$genrename = "";
+foreach ($genres as $genre) {
+    if($genre->id === $genero) {
+        $genrename = $genre->name;
     }
-    $genrename = "";
-    foreach ($genres as $genre) {
-        if($genre->id === $genero) {
-            $genrename = $genre->name;
-        }
-    }
-    $filteractive = strlen($search) > 3 || $oa_curso > 0 || $genero > 0;
-    ?>
+}
+$filteractive = strlen($search) > 3 || $oa_curso > 0 || $genero > 0;
+?>
 <script type="text/javascript">
 function validarGenero() {
    	if(document.getElementById("select_genre").selectedIndex > 0) {
@@ -137,7 +137,7 @@ window.addEventListener('load', function() {
 			</div>
 			<div class="tab-pane fade <?= $active_oa . " " . $show_oa ?>" id="oa" role="tabpanel"
 				aria-labelledby="oa-tab">
-					<div class="d-flex justify-content-between">
+					<div class="d-flex justify-content-center">
 						<div class="form-group">
     					<label for="select_oa" class="label-curso">Curso</label>
     					<select id="select_oa" class="form-control" name="oa_curso" onChange="">
@@ -210,6 +210,7 @@ window.addEventListener('load', function() {
          <button class="btn btn-primary" onClick="location.href='<?= $link ?>'"><?= $search ?><i class="fa fa-times" aria-hidden="true"></i></button>
          <?php
             }
+            // Remove OA link
             foreach($oa as $oachk) {
                 $link = '?';
                 if(strlen($search) >= 3) {
@@ -219,11 +220,16 @@ window.addEventListener('load', function() {
                     $link .= 'genero=' . urlencode($genero) . '&';
                 }
                 if($oa_curso > 0) {
-                    $link .= 'oa_curso=' . $oa_curso . '&';
+                    $linkoa = 'oa_curso=' . $oa_curso . '&';
+                    $found = false;
                     foreach($oa as $oachklink) {
                         if($oachk !== $oachklink) {
-                            $link .= urlencode('oa[]').'='.$oachk . '&';
+                            $linkoa .= urlencode('oa[]').'='.$oachklink . '&';
+                            $found = true;
                         }
+                    }
+                    if($found) {
+                        $link .= $linkoa;
                     }
                 }
                 $link = $CFG->wwwroot . '/mod/emarking/activities/search.php' . $link;
@@ -244,7 +250,9 @@ window.addEventListener('load', function() {
              $link = $CFG->wwwroot . '/mod/emarking/activities/search.php' . $link;
              ?>
          <button class="btn btn-primary" onClick="location.href='<?= $link ?>'"><?= $genrename ?><i class="fa fa-times" aria-hidden="true"></i></button>
-         <?php } ?>
+         <?php }
+         $link = $CFG->wwwroot . '/mod/emarking/activities/search.php';?>
+         <button class="btn btn-primary" onClick="location.href='<?= $link ?>'"><?= get_string('removeallfilters', 'mod_emarking') ?><i class="fa fa-times" aria-hidden="true"></i></button>
     </div>
 </div>
 <?php } ?>

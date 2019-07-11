@@ -27,16 +27,22 @@ global $PAGE, $DB, $USER, $CFG;
 
 require_login();
 
-$id = optional_param ( 'id',0 ,PARAM_INT );
 $activityid = required_param ( 'activityid', PARAM_INT );
 
 if(!$activity = $DB->get_record('emarking_activities', array('id' => $activityid))) {
     print_error('Invalid activity id');
 }
 
+if ($activity->userid != $USER->id && !has_capability('mod/emarking:manageactivities', context_system::instance())) {
+    $backUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
+    redirect($backUrl, 0);
+    die();
+}
+
+$id = $activity->rubricid;
 $title = $id > 0 ? 'Editar rúbrica' : 'Crear rúbrica';
 $PAGE->set_context ( context_system::instance () );
-$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php' );
+$url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/rubric.php', array('activityid'=>$activityid) );
 $activityurl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array('id'=>$activityid) );
 $activitiesurl = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/search.php');
 $PAGE->set_url ( $url );
@@ -51,13 +57,7 @@ $PAGE->requires->jquery_plugin('ui-css');
 $PAGE->requires->js(new moodle_url('https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js'),true);
 
 echo $OUTPUT->header ();
-echo $OUTPUT->heading($title . ' ' . strtolower(get_string('for')) . ' ' . $activity->title);
-
-if ($activity->userid != $USER->id && !has_capability('mod/emarking:manageactivities', context_system::instance())) {
-	$backUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/activity.php', array('id' => $activityid));
-	redirect($backUrl, 0);	
-}
-$id = $activity->rubricid;
+echo $OUTPUT->heading($title . ' ' . strtolower(get_string('of','mod_emarking')) . ' ' . $activity->title);
 
 if (isset ( $_POST['submit'])) {
 	$data = $_POST;

@@ -32,6 +32,7 @@
 .oas {
     margin-left: 2em;
     margin-top: 1em;
+    margin-right: 1em;
 }
 .label-curso {
     padding-top: 1em;

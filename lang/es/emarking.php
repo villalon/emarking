@@ -922,3 +922,4 @@ $string['selectoa'] = 'No ha seleccionado objetivos de aprendizaje';
 $string['searchoa'] = 'Buscar objetivos de aprendizaje';
 $string['oas'] = 'Objetivos de Aprendizaje';
 $string['oas_help'] = 'Seleccione los OAs a los que aplica la actividad, de acuerdo al curriculum nacional';
+$string['removeallfilters'] = 'Quitar filtros';
