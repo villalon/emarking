@@ -1,0 +1,39 @@
+/* Fondo sitio */
+body {
+    background-color: #003551;
+}
+/* Fondo login para logo escribiendo */
+#page-login-index .card-header {
+    background-color: rgb(0,84,124);
+}
+/* Login recordar nombre de usuario */
+.rememberpass {
+   display: none;
+}
+/* Encabezado página inicio Escribiendo */
+#page-mod-emarking-activities-index header#page-header {
+    display: none;
+}
+#page-mod-emarking-activities-index #region-main {
+    border: none;
+    padding: 0px;
+}
+/* Header de navegación del sitio */
+.navbar-light .navbar-nav .nav-link:hover, .navbar-light .navbar-nav .nav-link:focus, .navbar .usermenu .userbutton:hover {
+    color: #eee;
+   font-size: 2em;
+}
+.navbar-light .navbar-nav .nav-link, .navbar .usermenu .userbutton {
+    color: #fff;
+   font-size: 2em;
+}
+.navbar .usermenu .userbutton, .navbar .usermenu .userbutton:hover {
+   font-size: 1em;
+}
+.navbar {
+    background-color: rgb(0,84,124) !important;
+    color: white;
+}
+.navbar .bg-white {
+    background-color: none;
+}
