@@ -41,7 +41,7 @@ $activities = emarking_get_random_activities();
 		<p class="text-justify text_actv"><?=$activities[0]['description']?></p>
 		<?php } ?>
 	</div>
-	<div class="col-xs-12 col-sm-2 col-md-4 col-lg-4 img1_actv"></div>
+	<div class="col-xs-12 col-sm-2 col-md-4 col-lg-4 img1_actv img_actv"></div>
 	<div class="col-xs-12 col-sm-5 col-md-4 col-lg-4 col_height" style="background-color: #097C5E;">
 	<?php if(count($activities) > 1) { ?>
 		<div class="subtit_actv h4">Género: <?=$activities[1]['genre']?></div>
@@ -55,7 +55,7 @@ $activities = emarking_get_random_activities();
 		</div>
 </div>
 <div class="row row_actividades">
-	<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 img2_actv"></div>
+	<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 img2_actv img_actv"></div>
 	<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 col_height"
 		style="background-color: #7C3709;">
 					<?php if(count($activities) > 2) { ?>
@@ -80,7 +80,7 @@ $activities = emarking_get_random_activities();
 		<p class="text-justify text_actv"><?=$activities[3]['description']?></p>
 					<?php } ?>
 				</div>
-	<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 img2_actv"></div>
+	<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3 img3_actv img_actv"></div>
 </div>
 <!-- Actividades END -->
 

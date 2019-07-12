@@ -31,20 +31,19 @@
 	font-size: 12px;
 	opacity: 0.7;
 }
-.img1_actv {
-	background-image: url(../img/index/img_fnd01.jpg);
+.img_actv {
+	background-size: cover;
 	background-repeat: no-repeat;
 	min-height: 374px;
+}
+.img1_actv {
+	background-image: url(../img/index/img_fnd01.jpg);
 }
 .img2_actv {
 	background-image: url(../img/index/img_fnd02.jpg);
-	background-repeat: no-repeat;
-	min-height: 374px;
 }
 .img3_actv {
 	background-image: url(../img/index/img_fnd03.jpg);
-	background-repeat: no-repeat;
-	min-height: 374px;
 }
 .col_height {
 	min-height: 374px;
