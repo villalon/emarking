@@ -97,7 +97,7 @@ function emarking_get_random_activities() {
     return $activityArray;
 }
 
-function activities_show_result($data) {
+function activities_show_result($data, $genreclass) {
 	GLOBAL $CFG, $DB;
 	
 	$data->url = new moodle_url ( $CFG->wwwroot . '/mod/emarking/activities/activity.php', array (

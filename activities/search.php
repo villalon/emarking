@@ -50,7 +50,7 @@ $genres = $DB->get_records('emarking_activities_genres', null, 'name ASC');
 include_once $CFG->dirroot. '/mod/emarking/activities/forms/search.php';
 
 $managersql = has_capability('mod/emarking:manageactivities', $context) ? '' : ' AND status = 1';
-$activitiessql = "SELECT ea.*, eag.name AS genrename, u.firstname, u.lastname
+$activitiessql = "SELECT ea.*, eag.id AS genreid, eag.name AS genrename, u.firstname, u.lastname
 			FROM {emarking_activities} ea
             INNER JOIN {emarking_activities_genres} eag ON (ea.genre = eag.id)
             INNER JOIN {user} u ON (ea.userid = u.id)

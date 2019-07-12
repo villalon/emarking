@@ -1,4 +1,11 @@
 <style>
+.card {
+    border: none;
+}
+.card-body {
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
 .card ul {
     list-style: none;
     padding-left: 0px;
@@ -76,13 +83,45 @@ td.descripcion {
 .filtros i {
     margin-left: 1em;
 }
+.c1 {
+background-color: rgb(0, 132, 255);
+}
+.c2 {
+background-color: rgb(0, 75, 145);
+}
+.c3 {
+background-color: rgb(10, 105, 85);
+}
+.c4 {
+background-color: rgb(128, 70, 165);
+}
+.c5 {
+background-color: rgb(15, 165, 115);
+}
+.c6 {
+background-color: rgb(19, 58, 94);
+}
+.c7 {
+background-color: rgb(227, 120, 12);
+}
+.c8 {
+background-color: rgb(230, 0, 35);
+}
+.c9 {
+background-color: rgb(242, 52, 52);
+}
+.c10 {
+background-color: rgb(54, 74, 76);
+}
 
 </style>
 	<div class="card-columns">
 		<?php			
 			if ( count($results) > 0 ) {
 				foreach ( $results as $result ) {
-					activities_show_result($result);
+				    $classnum = intval($result->genreid) % 10 + 1;
+				    $genreclass = "c" . $classnum;
+					activities_show_result($result, $genreclass);
 				}
 			} else {
 				echo '<h3>No se encontraron resultados</h3>';

@@ -1,6 +1,6 @@
 <div onClick="location.href='<?= $data->url?>'" style="cursor:pointer;">
 	<div class="card">
-		<div class="card-header">
+		<div class="card-header <?= $genreclass ?>">
 			<div class="container-fluid activity-header">
 				<div class="row">
 					<div class="col-md-12">
@@ -47,7 +47,7 @@
 				</tr>
 			</table>
 		</div>
-		<div class="card-footer">
+		<div class="card-footer <?= $genreclass ?>">
 			<div class="d-flex justify-content-between">
     			<div class="comments"><?=$countcomments?> <i class="fa fa-comment" aria-hidden="true" title="Comentarios"></i>
     			</div>
