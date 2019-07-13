@@ -21,11 +21,11 @@ body {
 /* Header de navegación del sitio */
 .navbar-light .navbar-nav .nav-link:hover, .navbar-light .navbar-nav .nav-link:focus, .navbar .usermenu .userbutton:hover {
     color: #eee;
-   font-size: 2em;
+   font-size: 1.3em;
 }
 .navbar-light .navbar-nav .nav-link, .navbar .usermenu .userbutton {
     color: #fff;
-   font-size: 2em;
+   font-size: 1.3em;
 }
 .navbar .usermenu .userbutton, .navbar .usermenu .userbutton:hover {
    font-size: 1em;
@@ -36,4 +36,14 @@ body {
 }
 .navbar .bg-white {
     background-color: none;
+}
+/* Menú del sitio */
+#nav-drawer [data-key="calendar"], #nav-drawer [data-key="privatefiles"] {
+    display: none;
+}
+.navbar .site-name {
+    display: none !important;
+}
+#nav-drawer {
+    background-color: rgb(0,84,124) !important;
 }

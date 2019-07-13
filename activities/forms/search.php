@@ -25,6 +25,7 @@ foreach ($genres as $genre) {
     }
 }
 $filteractive = strlen($search) > 3 || $oa_curso > 0 || $genero > 0;
+global $OAS;
 ?>
 <script type="text/javascript">
 function validarGenero() {

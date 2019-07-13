@@ -10,7 +10,7 @@ $activityid = required_param('id', PARAM_INT);
 $courseid = required_param('course', PARAM_INT);
 $askMarking = optional_param('askMarking',0, PARAM_INT);
 $printteaching = optional_param('printteaching',0, PARAM_INT);
-$changelog = optional_param('changelog',0, PARAM_INT);
+$changelog = optional_param('changelog',1, PARAM_INT);
 $submissiontype = optional_param('submissiontype',1, PARAM_INT);
 require_login($courseid);
 $sections = new stdClass ();
