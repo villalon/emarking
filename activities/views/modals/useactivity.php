@@ -11,8 +11,8 @@
 		 		<input type="hidden" value="<?php echo $activityid; ?>" name="id">
 		 		<div class="form-group">
 		 			<label for="select-course">Curso</label>
-					<select class="form-control" id="select-course" name="course">
-										<option>Seleccione el curso</option>
+					<select class="form-control" id="select-course" name="course" required>
+										<option value="">Seleccione el curso</option>
  									 <?php
 							foreach ( $asteachercourses as $key => $asteachercourse ) {
 								echo '<option value="' . $key . '"> ' . $asteachercourse . ' </option>';
@@ -22,7 +22,7 @@
   				</div>
   				<div class="form-group">
   								<label for="submissiontype">Forma de subir los textos</label>
-  								<select id="submissiontype" class="form-control" name="submissiontype">
+  								<select id="submissiontype" class="form-control" name="submissiontype" required>
   									<option value="">Seleccione una forma</option>
   									<option value="1">Profesor escanea</option>
   									<option value="2">Estudiantes suben archivo PDF</option>

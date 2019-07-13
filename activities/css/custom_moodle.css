@@ -47,3 +47,8 @@ body {
 #nav-drawer {
     background-color: rgb(0,84,124) !important;
 }
+.path-mod-emarking .nav-item .active {
+    border-top: 2px solid blue;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}

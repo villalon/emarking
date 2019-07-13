@@ -544,7 +544,7 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 		// Update exam object to store the PDF's file id.
 		$exam->file = $file->get_id ();
 		if (! $DB->update_record ( 'emarking_exams', $exam )) {
-			$fs->delete_area_files ( $contextid, 'emarking', 'exams', $exam->id );
+			$fs->delete_area_files ( $context->id, 'mod_emarking', 'exams', $exam->id );
 			print_error ( get_string ( 'errorsavingpdf', 'mod_emarking' ) );
 		}
 	
@@ -566,7 +566,7 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 	$mod->instance = $data->id;
 	$mod->section = 0;
 	$mod->visible = 1; // Hide the forum.
-	$mod->visibleold = 0; // Hide the forum.
+	$mod->visibleold = 1; // Hide the forum.
 	$mod->groupmode = 0;
 	$mod->grade = 100;
 	if (! $cmid = add_course_module ( $mod )) {

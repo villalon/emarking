@@ -22,7 +22,11 @@
 	max-width: 150px;
 	min-width: 150px;
 }
-
+.path-mod-emarking .nav-item .active {
+    border-top: 2px solid blue;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
 .tablemodify {
 	width: 90%;
 }
