@@ -834,7 +834,7 @@ function emarking_get_regrade_motives() {
  * @return multitype:tabobject
  */
 function emarking_tabs($context, $cm, $emarking, $draft=null) {
-    global $CFG, $USER;
+    global $CFG;
     $usercangrade = has_capability("mod/emarking:grade", $context);
     $issupervisor = has_capability("mod/emarking:supervisegrading", $context);
     $enabledreports = isset($CFG->emarking_reportsenabled) ? explode(',',$CFG->emarking_reportsenabled) : Array();
@@ -851,8 +851,10 @@ function emarking_tabs($context, $cm, $emarking, $draft=null) {
     $uploadanswers = new tabobject("uploadanswers", $CFG->wwwroot . "/mod/emarking/print/uploadanswers.php?id={$cm->id}", get_string('uploadanswers', 'mod_emarking'));
     $orphanpages = new tabobject('orphanpages', $CFG->wwwroot . "/mod/emarking/print/orphanpages.php?id={$cm->id}", get_string('orphanpages', 'mod_emarking'));
     $scantab->subtree[] = $scanlist;
-    if ($usercangrade && $issupervisor && $emarking->type != EMARKING_TYPE_PRINT_ONLY
-         && $emarking->uploadtype == EMARKING_UPLOAD_QR) {
+    if ($usercangrade 
+        && $issupervisor 
+        && $emarking->type != EMARKING_TYPE_PRINT_ONLY
+        && $emarking->uploadtype == EMARKING_UPLOAD_QR) {
         $printtab->subtree[] = $uploadanswers;
         $printtab->subtree[] = $orphanpages;
     }
@@ -874,7 +876,7 @@ function emarking_tabs($context, $cm, $emarking, $draft=null) {
         }
     }
     // Settings tab.
-    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string('settings'));
+    $settingstab = new tabobject("settings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string('settings'), "title", true);
     // Settings for marking.
     if ($emarking->type == EMARKING_TYPE_ON_SCREEN_MARKING) {
         $settingstab->subtree[] = new tabobject("osmsettings", $CFG->wwwroot . "/mod/emarking/marking/settings.php?id={$cm->id}", get_string("marking", 'mod_emarking'));

@@ -113,7 +113,9 @@ background-color: rgb(242, 52, 52);
 .c10 {
 background-color: rgb(54, 74, 76);
 }
-
+#page-header {
+    display:none;
+}
 </style>
 	<div class="card-columns">
 		<?php			

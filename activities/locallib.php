@@ -1,6 +1,89 @@
 <?php
 require_once (dirname ( dirname ( dirname ( dirname ( __FILE__ ) ) ) ) . '/config.php');
 
+global $OAS;
+$OAS = json_decode('[
+{"curso":1, "oa":[
+    {"id":13, "descripcion":"Experimentar con la escritura para comunicar hechos, ideas y sentimientos, entre otros."},
+    {"id":14, "descripcion":"Escribir oraciones completas para transmitir mensajes."},
+    {"id":15, "descripcion":"Escribir con letra clara, separando las palabras con un espacio para que puedan ser leídas por otros con facilidad."},
+    {"id":16, "descripcion":"Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos."}]},
+{"curso":2, "oa":[
+    {"id":12, "descripcion":"Escribir frecuentemente, para desarrollar la creatividad y expresar sus ideas, textos como poemas, diarios de vida, anécdotas, cartas, recados, etc."},
+    {"id":13, "descripcion":"Escribir creativamente narraciones (experiencias personales, relatos de hechos, cuentos, etc.) que tengan inicio, desarrollo y desenlace."},
+    {"id":14, "descripcion":"Escribir artículos informativos para comunicar información sobre un tema."},
+    {"id":15, "descripcion":"Escribir con letra clara, separando las palabras con un espacio para que puedan ser leídas por otros con facilidad."},
+    {"id":16, "descripcion":"Planificar la escritura, generando ideas a partir de: observación de imágenes; conversaciones con sus pares o el docente sobre experiencias personales y otros temas."},
+    {"id":17, "descripcion":"Escribir, revisar y editar sus textos para satisfacer un propósito y transmitir sus ideas con claridad. Durante este proceso: organizan las ideas en oraciones que comienzan con mayúscula y terminan con punto; utilizan un vocabulario variado; mejoran la redacción del texto a partir de sugerencias de los pares y el docente; corrigen la concordancia de género y número, la ortografía y la presentación."},
+    {"id":18, "descripcion":"Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos."},
+    {"id":19, "descripcion":"Comprender la función de los artículos, sustantivos y adjetivos en textos orales y escritos, y reemplazarlos o combinarlos de diversas maneras para enriquecer o precisar sus producciones."},
+    {"id":20, "descripcion":"Identificar el género y número de las palabras para asegurar la concordancia en sus escritos."},
+    {"id":21, "descripcion":"Escribir correctamente para facilitar la comprensión por parte del lector, usando de manera apropiada: combinaciones ce-ci, que-qui, ge-gi, gue-gui, güe-güi; r-rr-nr; mayúsculas al iniciar una oración y al escribir sustantivos propios; punto al finalizar una oración; signos de interrogación y exclamación al inicio y final de preguntas y exclamaciones (Unidad 2)."}]},
+{"curso":3, "oa":[
+    {"id":12, "descripcion":"Escribir frecuentemente, para desarrollar la creatividad y expresar sus ideas, textos como poemas, diarios de vida, cuentos, anécdotas, cartas, comentarios sobre sus lecturas, etc."},
+    {"id":13, "descripcion":"Escribir creativamente narraciones (experiencias personales, relatos de hechos, cuentos, etc.) que incluyan: una secuencia lógica de eventos; inicio, desarrollo y desenlace; conectores adecuados."},
+    {"id":14, "descripcion":"Escribir artículos informativos para comunicar información sobre un tema: organizando las ideas en párrafos; desarrollando las ideas mediante información que explica el tema."},
+    {"id":15, "descripcion":"Escribir cartas, instrucciones, afiches, reportes de una experiencia, entre otros, para lograr diferentes propósitos: usando un formato adecuado; transmitiendo el mensaje con claridad."},
+    {"id":16, "descripcion":"Escribir con letra clara para que pueda ser leída por otros con facilidad."},
+    {"id":17, "descripcion":"Planificar la escritura: estableciendo propósito y destinatario; generando ideas a partir de conversaciones, investigaciones, lluvia de ideas u otra estrategia."},
+    {"id":18, "descripcion":"Escribir, revisar y editar sus textos para satisfacer un propósito y transmitir sus ideas con claridad. Durante este proceso: organizan las ideas en párrafos separados con punto aparte; utilizan conectores apropiados; utilizan un vocabulario variado; mejoran la redacción del texto a partir de sugerencias de los pares y el docente; corrigen la ortografía y la presentación."},
+    {"id":19, "descripcion":"Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos."},
+    {"id":20, "descripcion":"Comprender la función de los artículos, sustantivos y adjetivos en textos orales y escritos, y reemplazarlos o combinarlos de diversas maneras para enriquecer o precisar sus producciones."},
+    {"id":21, "descripcion":"Comprender la función de los pronombres en textos orales y escritos, y usarlos para ampliar las posibilidades de referirse a un sustantivo en sus producciones."},
+    {"id":22, "descripcion":"Escribir correctamente para facilitar la comprensión por parte del lector, aplicando lo aprendido en años anteriores y usando de manera apropiada: mayúsculas al iniciar una oración y al escribir sustantivos propios; punto al finalizar una oración y punto aparte al finalizar un párrafo; plurales de palabras terminadas en z; palabras con ge-gi, je-ji; palabras terminadas en cito-cita; coma en enumeración."}]},
+{"curso":4, "oa":[
+    {"id":11, "descripcion":"Escribir frecuentemente, para desarrollar la creatividad y expresar sus ideas, textos como poemas, diarios de vida, cuentos, anécdotas, cartas, comentarios sobre sus lecturas, noticias, etc."},
+    {"id":12, "descripcion":"Escribir creativamente narraciones (experiencias personales, relatos de hechos, cuentos, etc.) que incluyan: una secuencia lógica de eventos; inicio, desarrollo y desenlace; conectores adecuados; descripciones; un lenguaje expresivo para desarrollar la acción."},
+    {"id":13, "descripcion":"Escribir artículos informativos para comunicar información sobre un tema: presentando el tema en una oración; desarrollando una idea central por párrafo; utilizando sus propias palabras."},
+    {"id":14, "descripcion":"Escribir cartas, instrucciones, afiches, reportes de una experiencia o noticias, entre otros, para lograr diferentes propósitos: usando un formato adecuado; transmitiendo el mensaje con claridad."},
+    {"id":15, "descripcion":"Escribir con letra clara para que pueda ser leída por otros con facilidad."},
+    {"id":16, "descripcion":"Planificar la escritura: estableciendo propósito y destinatario; generando ideas a partir de conversaciones, investigaciones, lluvia de ideas u otra estrategia."},
+    {"id":17, "descripcion":"Escribir, revisar y editar sus textos para satisfacer un propósito y transmitir sus ideas con claridad. Durante este proceso: organizan las ideas en párrafos separados con punto aparte; utilizan conectores apropiados; emplean un vocabulario preciso y variado; adecuan el registro al propósito del texto y al destinatario; mejoran la redacción del texto a partir de sugerencias de los pares y el docente; corrigen la ortografía y la presentación."},
+    {"id":18, "descripcion":"Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos."},
+    {"id":19, "descripcion":"Comprender la función de los adverbios en textos orales y escritos, y reemplazarlos o combinarlos para enriquecer o precisar sus producciones."},
+    {"id":20, "descripcion":"Comprender la función de los verbos en textos orales y escritos, y usarlos manteniendo la concordancia con el sujeto."},
+    {"id":21, "descripcion":"Escribir correctamente para facilitar la comprensión por parte del lector, aplicando todas las reglas de ortografía literal y puntual aprendidas en años anteriores, además de: palabras con b-v; palabras con h de uso frecuente; escritura de ay, hay, ahí; acentuación de palabras agudas, graves, esdrújulas y sobreesdrújulas."}]},
+{"curso":5, "oa":[
+    {"id":13, "descripcion":"Escribir frecuentemente, para desarrollar la creatividad y expresar sus ideas, textos como poemas, diarios de vida, cuentos, anécdotas, cartas, blogs, etc."},
+    {"id":14, "descripcion":"Escribir creativamente narraciones (relatos de experiencias personales, noticias, cuentos, etc.) que: tengan una estructura clara; utilicen conectores adecuados; incluyan descripciones y diálogo (si es pertinente) para desarrollar la trama, los personajes y el ambiente."},
+    {"id":15, "descripcion":"Escribir artículos informativos para comunicar información sobre un tema: presentando el tema en una oración; desarrollando una idea central por párrafo; agregando las fuentes utilizadas."},
+    {"id":16, "descripcion":"Escribir frecuentemente para compartir impresiones sobre sus lecturas, desarrollando un tema relevante del texto leído y fundamentando sus comentarios con ejemplos."},
+    {"id":17, "descripcion":"Planificar sus textos: estableciendo propósito y destinatario; generando ideas a partir de sus conocimientos e investigación; organizando las ideas que compondrán su escrito."},
+    {"id":18, "descripcion":"Escribir, revisar y editar sus textos para satisfacer un propósito y transmitir sus ideas con claridad. Durante este proceso: desarrollan las ideas agregando información; emplean un vocabulario preciso y variado, y un registro adecuado; releen a medida que escriben; aseguran la coherencia y agregan conectores; editan, en forma independiente, aspectos de ortografía y presentación; utilizan las herramientas del procesador de textos para buscar sinónimos, corregir ortografía y gramática, y dar formato (cuando escriben en computador)."},
+    {"id":19, "descripcion":"Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos."},
+    {"id":20, "descripcion":"Distinguir matices entre sinónimos al leer, hablar y escribir para ampliar su comprensión y capacidad expresiva."},
+    {"id":21, "descripcion":"Conjugar correctamente los verbos regulares al utilizarlos en sus producciones escritas."},
+    {"id":22, "descripcion":"Escribir correctamente para facilitar la comprensión por parte del lector, aplicando las reglas ortográficas aprendidas en años anteriores, además de: uso de c-s-z; raya para indicar diálogo; acento diacrítico y dierético; coma en frases explicativas."}]},
+{"curso":6, "oa":[
+    {"id":13, "descripcion":"Escribir frecuentemente, para desarrollar la creatividad y expresar sus ideas, textos como poemas, diarios de vida, cuentos, anécdotas, cartas, blogs, etc."},
+    {"id":14, "descripcion":"Escribir creativamente narraciones (relatos de experiencias personales, noticias, cuentos, etc.) que: tengan una estructura clara; utilicen conectores adecuados; tengan coherencia en sus oraciones; incluyan descripciones y diálogo (si es pertinente) que desarrollen la trama, los personajes y el ambiente."},
+    {"id":15, "descripcion":"Escribir artículos informativos para comunicar información sobre un tema: organizando el texto en una estructura clara; desarrollando una idea central por párrafo; agregando las fuentes utilizadas."},
+    {"id":16, "descripcion":"Escribir frecuentemente para compartir impresiones sobre sus lecturas, desarrollando un tema relevante del texto leído y fundamentando sus comentarios con ejemplos."},
+    {"id":17, "descripcion":"Planificar sus textos: estableciendo propósito y destinatario; generando ideas a partir de sus conocimientos e investigación; organizando las ideas que compondrán su escrito."},
+    {"id":18, "descripcion":"Escribir, revisar y editar sus textos para satisfacer un propósito y transmitir sus ideas con claridad. Durante este proceso: agregan ejemplos, datos y justificaciones para profundizar las ideas; emplean un vocabulario preciso y variado, y un registro adecuado; releen a medida que escriben; aseguran la coherencia y agregan conectores; editan, en forma independiente, aspectos de ortografía y presentación; utilizan las herramientas del procesador de textos para buscar sinónimos, corregir ortografía y gramática, y dar formato (cuando escriben en computador)."},
+    {"id":19, "descripcion":"Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos."},
+    {"id":20, "descripcion":"Ampliar su capacidad expresiva, utilizando los recursos que ofrece el lenguaje para expresar un mismo mensaje de diversas maneras; por ejemplo: sinónimos, hipónimos e hiperónimos, locuciones, comparaciones, otros."},
+    {"id":21, "descripcion":"Utilizar correctamente los participios irregulares (por ejemplo, roto, abierto, dicho, escrito, muerto, puesto, vuelto) en sus producciones escritas."},
+    {"id":22, "descripcion":"Escribir correctamente para facilitar la comprensión por parte del lector, aplicando todas las reglas de ortografía literal, acentual y puntual aprendidas en años anteriores, además de: escritura de los verbos haber, tener e ir, en los tiempos más utilizados; coma en frases explicativas; coma en presencia de conectores que la requieren; acentuación de pronombres interrogativos y exclamativos."}]},
+{"curso":7, "oa":[
+    {"id":12, "descripcion":"Expresarse en forma creativa por medio de la escritura de textos de diversos géneros (por ejemplo, cuentos, crónicas, diarios de vida, cartas, poemas, etc.), escogiendo libremente: El tema. El género. El destinatario."},
+    {"id":13, "descripcion":"Escribir, con el propósito de explicar un tema, textos de diversos géneros (por ejemplo, artículos, informes, reportajes, etc.), caracterizados por: Una presentación clara del tema. La presencia de información de distintas fuentes. La inclusión de hechos, descripciones, ejemplos o explicaciones que desarrollen el tema. Una progresión temática clara, con especial atención al empleo de recursos anafóricos. El uso de imágenes u otros recursos gráficos pertinentes. Un cierre coherente con las características del género. El uso de referencias según un formato previamente acordado."},
+    {"id":14, "descripcion":"Escribir, con el propósito de persuadir, textos breves de diversos géneros (por ejemplo, cartas al director, editoriales, críticas literarias, etc.), caracterizados por: La presentación de una afirmación referida a temas contingentes o literarios. La presencia de evidencias e información pertinente. La mantención de la coherencia temática."},
+    {"id":15, "descripcion":"Planificar, escribir, revisar, reescribir y editar sus textos en función del contexto, el destinatario y el propósito: Recopilando información e ideas y organizándolas antes de escribir. Adecuando el registro, específicamente el vocabulario (uso de términos técnicos, frases hechas, palabras propias de las redes sociales, términos y expresiones propios del lenguaje hablado), el uso de la persona gramatical y la estructura del texto al género discursivo, contexto y destinatario. Incorporando información pertinente. Asegurando la coherencia y la cohesión del texto. Cuidando la organización a nivel oracional y textual. Usando conectores adecuados para unir las secciones que componen el texto. Usando un vocabulario variado y preciso. Reconociendo y corrigiendo usos inadecuados, especialmente de pronombres personales y reflejos, conjugaciones verbales, participios irregulares, y concordancia sujeto-verbo, artículo-sustantivo y sustantivo-adjetivo. Corrigiendo la ortografía y mejorando la presentación. Usando eficazmente las herramientas del procesador de textos."},
+    {"id":16, "descripcion":"Aplicar los conceptos de oración, sujeto y predicado con el fin de revisar y mejorar sus textos: Produciendo consistentemente oraciones completas. Conservando la concordancia entre sujeto y predicado. Ubicando el sujeto para determinar de qué o quién se habla."},
+    {"id":17, "descripcion":"Usar en sus textos recursos de correferencia léxica: Empleando adecuadamente la sustitución léxica, la sinonimia y la hiperonimia. Reflexionando sobre las relaciones de sinonimia e hiperonimia y su papel en la redacción de textos cohesivos y coherentes."},
+    {"id":18, "descripcion":"Escribir correctamente para facilitar la comprensión al lector: Aplicando todas las reglas de ortografía literal y acentual. Verificando la escritura de las palabras cuya ortografía no está sujeta a reglas. Usando correctamente punto, coma, raya y dos puntos."}]},
+{"curso":8, "oa":[
+    {"id":13, "descripcion":"Expresarse en forma creativa por medio de la escritura de textos de diversos géneros (por ejemplo, cuentos, crónicas, diarios de vida, cartas, poemas, etc.), escogiendo libremente: --El tema. --El género. --El destinatario."},
+    {"id":14, "descripcion":"Escribir, con el propósito de explicar un tema, textos de diversos géneros (por ejemplo, artículos, informes, reportajes, etc.) caracterizados por: --Una presentación clara del tema en que se esbozan los aspectos que se abordarán. --La presencia de información de distintas fuentes. --La inclusión de hechos, descripciones, ejemplos o explicaciones que desarrollen el tema. --Una progresión temática clara, con especial atención al empleo de recursos anafóricos. --El uso de imágenes u otros recursos gráficos pertinentes. --Un cierre coherente con las características del género. --El uso de referencias según un formato previamente acordado."},
+    {"id":15, "descripcion":"Escribir, con el propósito de persuadir, textos breves de diversos géneros (por ejemplo, cartas al director, editoriales, críticas literarias, etc.), caracterizados por: --La presentación de una afirmación referida a temas contingentes o literarios. --La presencia de evidencias e información pertinente. --La mantención de la coherencia temática."},
+    {"id":16, "descripcion":". Planificar, escribir, revisar, reescribir y editar sus textos en función del contexto, el destinatario y el propósito: --Recopilando información e ideas y organizándolas antes de escribir. --Adecuando el registro, específicamente, el vocabulario (uso de términos técnicos, frases hechas, palabras propias de las redes sociales, términos y expresiones propios del lenguaje hablado), el uso de la persona gramatical, y la estructura del texto al género discursivo, contexto y destinatario. --Incorporando información pertinente. --Asegurando la coherencia y la cohesión del texto. --Cuidando la organización a nivel oracional y textual. --Usando conectores adecuados para unir las secciones que componen el texto y relacionando las ideas dentro de cada párrafo. --Usando un vocabulario variado y preciso. --Reconociendo y corrigiendo usos inadecuados, especialmente de pronombres personales y reflejos, conjugaciones verbales, participios irregulares, y concordancia sujeto-verbo, artículo-sustantivo y sustantivo-adjetivo. --Corrigiendo la ortografía y mejorando la presentación. --Usando eficazmente las herramientas del procesador de textos."},
+    {"id":17, "descripcion":"Usar adecuadamente oraciones complejas: --Manteniendo un referente claro. --Conservando la coherencia temporal. --Ubicando el sujeto, para determinar de qué o quién se habla."},
+    {"id":18, "descripcion":"Construir textos con referencias claras: --Usando recursos de correferencia como deícticos -en particular, pronombres personales tónicos y átonos- y nominalización, sustitución pronominal y elipsis, entre otros. --Analizando si los recursos de correferencia utilizados evitan o contribuyen a la pérdida del referente, cambios de sentido o problemas de estilo."},
+    {"id":19, "descripcion":"Conocer los modos verbales, analizar sus usos y seleccionar el más apropiado para lograr un efecto en el lector, especialmente al escribir textos con finalidad persuasiva."},
+    {"id":20, "descripcion":"Escribir correctamente para facilitar la comprensión al lector: --Aplicando todas las reglas de ortografía literal y acentual. --Verificando la escritura de las palabras cuya ortografía no está sujeta a reglas. --Usando correctamente punto, coma, raya y dos puntos."}]}
+]');
+
 /**
  * Function to create the table for rubrics
  *
@@ -461,7 +544,7 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 		// Update exam object to store the PDF's file id.
 		$exam->file = $file->get_id ();
 		if (! $DB->update_record ( 'emarking_exams', $exam )) {
-			$fs->delete_area_files ( $contextid, 'emarking', 'exams', $exam->id );
+			$fs->delete_area_files ( $context->id, 'mod_emarking', 'exams', $exam->id );
 			print_error ( get_string ( 'errorsavingpdf', 'mod_emarking' ) );
 		}
 	
@@ -483,7 +566,7 @@ function emarking_create_activity_instance(stdClass $data,$destinationcourse,$it
 	$mod->instance = $data->id;
 	$mod->section = 0;
 	$mod->visible = 1; // Hide the forum.
-	$mod->visibleold = 0; // Hide the forum.
+	$mod->visibleold = 1; // Hide the forum.
 	$mod->groupmode = 0;
 	$mod->grade = 100;
 	if (! $cmid = add_course_module ( $mod )) {
