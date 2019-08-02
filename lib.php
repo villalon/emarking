@@ -103,6 +103,14 @@ define ( 'EMARKING_BUTTON_PEN', 5 );
 define ( 'EMARKING_BUTTON_QUESTION', 6 );
 define ( 'EMARKING_BUTTON_HIGHLIGHT', 7 );
 
+// Reports.
+define ( 'EMARKING_REPORT_FEEDBACK', 1 );
+define ( 'EMARKING_REPORT_GRADES', 2 );
+define ( 'EMARKING_REPORT_MARKING', 3 );
+define ( 'EMARKING_REPORT_RANKING', 4 );
+define ( 'EMARKING_REPORT_OUTCOMES', 5 );
+define ( 'EMARKING_REPORT_JUSTICE', 6 );
+
 // Moodle core API.
 /**
  * Returns the information on whether the module supports a feature

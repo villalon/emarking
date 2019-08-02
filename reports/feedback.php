@@ -65,8 +65,8 @@ if($form->get_data()) {
 	$form->set_data($emarkingdefault);
 }
 // Print eMarking tabs.
-if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD){
-	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), 'feedback');
+if($CFG->emarking_pagelayouttype == EMARKING_PAGES_LAYOUT_STANDARD) {
+	echo $OUTPUT->tabtree(emarking_tabs($context, $cm, $emarking), "feedback");
 }
 list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
     emarking_validate_rubric($context, true, true);

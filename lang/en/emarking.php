@@ -376,6 +376,12 @@ $string ['anonymousfile'] = 'Anonymous file';
 $string ['noorphanpages'] = 'There are no orphan pages';
 $string ['rotatepage'] = 'Rotate page';
 // REPORTS.
+$string ['enableconfigtab'] = 'Tab configuration enabled';
+$string ['enableconfigtab_help'] = 'If enabled, a tab for configuration of the Emarking activity will be shown for the teacher.';
+$string ['enableregrading'] = 'Regrading enabled';
+$string ['enableregrading_help'] = 'Regrading allows students to complain on the grading of one or more criteria. They must fill a form indicating the complain type and a comment.';
+$string ['reportsenabled'] = 'Reports enabled';
+$string ['reportsenabled_help'] = 'Select which reports will be enabled in the reports tab';
 $string ['gradereport'] = 'Grades report';
 $string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular EMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
 			<strong>Basic statistics:</strong>Shows the average, quartiles and ranges for the course.<br/>

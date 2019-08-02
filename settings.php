@@ -19,7 +19,7 @@
  *
  * @package mod
  * @subpackage emarking
- * @copyright 2012 Jorge Villalon
+ * @copyright 2012-onwards Jorge Villalon
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -43,14 +43,37 @@ $settings->add(
         new admin_setting_configmultiselect('emarking_markingbuttonsenabled',
                 get_string('markingbuttonsenabled', 'mod_emarking'),
                 get_string('markingbuttonsenabled_help', 'mod_emarking'), array_keys($buttonchoices), $buttonchoices));
+// Reports enabled in this Moodle site
+$reportschoices = array(
+    EMARKING_REPORT_FEEDBACK => get_string('feedback', 'mod_emarking'),
+    EMARKING_REPORT_GRADES => get_string('grades', 'grades'),
+    EMARKING_REPORT_MARKING => get_string('marking', 'mod_emarking'),
+    EMARKING_REPORT_RANKING => get_string('ranking', 'mod_emarking'),
+    EMARKING_REPORT_OUTCOMES => get_string('outcomes', 'grades'),
+    EMARKING_REPORT_JUSTICE=> get_string('justice', 'mod_emarking')
+);
+$settings->add(
+    new admin_setting_configmultiselect('emarking_reportsenabled',
+        get_string('reportsenabled', 'mod_emarking'),
+        get_string('reportsenabled_help', 'mod_emarking'), 
+        array_keys($buttonchoices), 
+        $reportschoices));
 $yesno = array(
         0 => get_string('no'),
         1 => get_string('yes')
 );
 $settings->add(
-        new admin_setting_configselect('emarking_coloredrubricforced', 
-                get_string('coloredrubricforced','mod_emarking'), 
-                get_string('coloredrubricforced_help','mod_emarking'), 0, $yesno));
+    new admin_setting_configselect('emarking_enableconfigtab',
+        get_string('enableconfigtab','mod_emarking'),
+        get_string('enableconfigtab_help','mod_emarking'), 0, $yesno));
+$settings->add(
+        new admin_setting_configselect('emarking_enableregrading', 
+                get_string('enableregrading','mod_emarking'), 
+                get_string('enableregrading_help','mod_emarking'), 0, $yesno));
+$settings->add(
+    new admin_setting_configselect('emarking_coloredrubricforced',
+        get_string('coloredrubricforced','mod_emarking'),
+        get_string('coloredrubricforced_help','mod_emarking'), 0, $yesno));
 $settings->add(
 		new admin_setting_configselect('emarking_formativefeedbackonly',
 				get_string('formativefeedbackonly','mod_emarking'),

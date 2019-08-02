@@ -370,6 +370,12 @@ $string ['anonymousfile'] = 'Archivo anónimo';
 $string ['noorphanpages'] = 'No hay páginas huérfanas';
 $string ['rotatepage'] = 'Rotar página';
 // REPORTS.
+$string ['enableconfigtab'] = 'Etiqueta configuración habilitada';
+$string ['enableconfigtab_help'] = 'Si se habilita, se mostrará una etiqueta de configuración en la actividad, que incluye configuraciones avanzadas.';
+$string ['enableregrading'] = 'Recorrección habilitada';
+$string ['enableregrading_help'] = 'La recorrección permite que los estudiantes soliciten recorregir una o más preguntas, llenando un formulario con el tipo de reclamo y un comentario.';
+$string ['reportsenabled'] = 'Reportes habilitados';
+$string ['reportsenabled_help'] = 'Seleccione los reportes que se mostrarán en la etiqueta reportes de cada actividad Emarking.';
 $string ['reports'] = 'Reportes';
 $string ['gradereport'] = 'Grades report';
 $string ['gradereport_help'] = 'This report shows basic statistics and a three graphs. It includes the grades from a particular EMarking activity but other activities from other courses can be added if the parallel courses settings are configured.<br/>
