@@ -117,5 +117,5 @@ $marker->qualitycontrol=0;
 $DB->insert_record('emarking_markers', $marker);
 }
 
-$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/activities/marking.php', array('id' => $data['cmid'],'tab'=>1));
+$forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/view.php', array('id' => $data['cmid']));
 redirect($forkUrl, 0);
