@@ -30,9 +30,19 @@ class generate_personalized_exams extends \core\task\scheduled_task {
     }
     public function execute() {
         global $CFG, $DB;
-        require_once ($CFG->dirroot . "/lib/pdflib.php");
-        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        if ($CFG->version > 2020010100) {
+            require_once ($CFG->dirroot . "/lib/pdflib.php");
+            require_once ($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/autoload.php');
+            require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/Tcpdf/Fpdi.php");
+        }
+        elseif ($CFG->version > 2015111600) {
+            require_once ($CFG->dirroot . "/lib/pdflib.php");
+            require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
+            require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        } else {
+            require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
+            require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        }
         require_once ($CFG->dirroot . "/mod/emarking/lib/phpqrcode/phpqrcode.php");
         require_once ($CFG->dirroot . '/mod/emarking/lib.php');
         require_once ($CFG->dirroot . "/mod/emarking/locallib.php");

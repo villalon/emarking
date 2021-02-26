@@ -2075,5 +2075,19 @@ function xmldb_emarking_upgrade($oldversion) {
     	// Emarking savepoint reached.
     	upgrade_mod_savepoint(true, 2017112700, 'emarking');
     }
+        if ($oldversion < 2021022600) {
+
+        // Define field timemodified to be added to emarking_exams.
+        $table = new xmldb_table('emarking_exams');
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'timecreated');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Emarking savepoint reached.
+        upgrade_mod_savepoint(true, 2021022600, 'emarking');
+    }
     return true;
 }

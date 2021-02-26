@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,17 +14,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of emarking
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
- * 
- * @package mod
- * @subpackage emarking
- * @copyright 2011-onwards Jorge Villalón
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Javascript to handle print orders in emarking.
+ *
+ * @module     mod_emarking/printorders
+ * @package    mod_emarking
+ * @copyright  2021 Jorge Villalón <villalon@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      3.8
  */
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2021022600; //The current module version (Date: YYYYMMDDXX).
-$plugin->requires = 2020010100; // Requires this Moodle version.
-$plugin->component = 'mod_emarking'; // To check on upgrade, that module sits in correct place.
+define([], function () {
+  return {
+    init: function () {
+      document.addEventListener("change", function (e) {
+        var someNode = e.target.closest(".someclass")
+        if (someNode) {
+          alert("It changed!")
+        }
+      })
+    },
+  }
+})

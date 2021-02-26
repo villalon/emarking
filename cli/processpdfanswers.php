@@ -34,9 +34,19 @@ require (dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 $CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
 $CFG->debugdisplay = 1;             // NOT FOR PRODUCTION SERVERS!
 require_once ($CFG->libdir . '/clilib.php'); // cli only functions
-require_once ($CFG->dirroot . "/lib/pdflib.php");
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+if ($CFG->version > 2020010100) {
+    require_once ($CFG->dirroot . "/lib/pdflib.php");
+    require_once ($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/autoload.php');
+    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/Tcpdf/Fpdi.php");
+}
+elseif ($CFG->version > 2015111600) {
+    require_once ($CFG->dirroot . "/lib/pdflib.php");
+    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
+    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+} else {
+    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
+    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+}
 require_once ($CFG->dirroot . "/mod/emarking/lib/phpqrcode/phpqrcode.php");
 require_once ($CFG->dirroot . '/mod/emarking/lib.php');
 require_once ($CFG->dirroot . "/mod/emarking/locallib.php");

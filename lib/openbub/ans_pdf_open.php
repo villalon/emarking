@@ -1,7 +1,7 @@
 <?php
 
 
-class BubPdf extends FPDI
+class BubPdf extends setasign\Fpdi\Tcpdf\Fpdi
 {
 
 /* BubPdf Documentation:

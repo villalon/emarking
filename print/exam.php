@@ -68,9 +68,10 @@ switch($CFG->emarking_pagelayouttype){
 		break;
 }
 $PAGE->navbar->add ( get_string ( "print", "mod_emarking" ) );
-if (has_capability ( "mod/emarking:downloadexam", $context )) {
-	$PAGE->requires->js ( "/mod/emarking/js/printorders.js" );
-}
+$PAGE->requires->jquery();
+$PAGE->requires->jquery_plugin('ui');
+$PAGE->requires->jquery_plugin('ui-css');
+$PAGE->requires->js_call_amd('mod_emarking/printorders','init');
 // If there are no exams to show.
 $params = array (
 		"course" => $course->id,
@@ -95,6 +96,9 @@ if($action==='reprocess' && is_siteadmin()) {
 	$fs->delete_area_files($context->id, 'mod_emarking', 'examstoprint', $exam->emarking);
 	redirect($url, get_string('changessaved', 'mod_emarking'),2);
 	die();
+}
+if($action==='download') {
+
 }
 echo $OUTPUT->header ();
 // Heading and tabs if we are within a course module.
@@ -210,8 +214,8 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 	var multipdfs = "0";
 	var incourse = "1";
 </script>
+<!-- The panel DIV goes at the end to make sure it is loaded before javascript starts 
 <div id="loadingPanel"></div>
-<!-- The panel DIV goes at the end to make sure it is loaded before javascript starts -->
 <div id="panelContent">
 	<div class="yui3-widget-bd">
 		<form style="width: 100%">
@@ -224,6 +228,7 @@ if (has_capability ( "mod/emarking:downloadexam", $context )) {
 		</form>
 	</div>
 </div>
+-->
 <?php
 }
 if (has_capability("mod/emarking:downloadexam", $context)) {
@@ -232,9 +237,11 @@ if (has_capability("mod/emarking:downloadexam", $context)) {
              core_text::strtolower(get_string('examstatusbeingprocessed', 'mod_emarking')) : get_string('downloadexam', 'mod_emarking');
     $disabled = $exam->status < EMARKING_EXAM_BEING_PROCESSED ? 'disabled' : '';
     if (! $directdownload) {
-        $downloadexambutton = "<input type='button' class='downloademarking btn btn-default' examid ='$exam->id' value='" . $buttontext .
-                 "' $disabled>";
-        echo $downloadexambutton;
+        $downloadurl = new moodle_url('/mod/emarking/print/exam.php', 
+                array(
+					"id" => $cm->id,
+                    'action' => 'download'));
+        echo $OUTPUT->single_button($downloadurl, $buttontext, 'GET');
     } else {
         $directdownloadurl = new moodle_url('/mod/emarking/print/download.php', 
                 array(
@@ -278,7 +285,7 @@ if($exam->status < EMARKING_EXAM_BEING_PROCESSED) {
 	echo '<script>
 setTimeout(function(){
 	window.location.reload(1);
-}, 5000);
+}, 60000);
 		</script>';
 }
 echo $OUTPUT->footer ();

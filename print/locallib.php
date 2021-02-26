@@ -43,9 +43,11 @@ function emarking_generate_personalized_exams($category = NULL) {
         SELECT e.*, c.fullname, c.shortname, c.id AS courseid, c.category
         FROM {emarking_exams} e
         INNER JOIN {course} c ON (e.course = c.id)
-        WHERE status = :status AND emarking > 0
+        WHERE (status = :statusuploaded OR status = :statusprocessing OR status = :statuserrorprocessing) AND emarking > 0
         ' . $categoryfilter, array(
-        'status' => EMARKING_EXAM_UPLOADED
+        'statusuploaded' => EMARKING_EXAM_UPLOADED,
+        'statusprocessing' => EMARKING_EXAM_BEING_PROCESSED,
+        'statuserrorprocessing' => EMARKING_EXAM_ERROR_PROCESSING
     ));
     // Generate each exam.
     $i = 0;
@@ -66,6 +68,7 @@ function emarking_generate_personalized_exams($category = NULL) {
         }
         // We start processing the exam.
         $exam->status = EMARKING_EXAM_BEING_PROCESSED;
+        $exam->timemodified = time();
         $DB->update_record('emarking_exams', $exam);
         // The transaction is for the generation.
         try {
@@ -86,9 +89,9 @@ function emarking_generate_personalized_exams($category = NULL) {
             $filedir = $CFG->dataroot . "/temp/emarking/$exam->id";
             emarking_initialize_directory($filedir, true);
         } catch (Exception $e) {
-var_dump($e);
-die();           
- $message = 'exception printing';
+            var_dump($e);
+            die();           
+            $message = 'exception printing';
             // Update the exam status to error.
             $exam->status = EMARKING_EXAM_ERROR_PROCESSING;
             $DB->update_record('emarking_exams', $exam);
@@ -540,14 +543,22 @@ function emarking_send_examprinted_notification($exam, $course) {
  */
 function emarking_pdf_count_pages($newfile, $tempdir, $doubleside = true) {
     global $CFG;
-    if ($CFG->version > 2015111600) {
+    if ($CFG->version > 2020010100) {
+        require_once ($CFG->dirroot . "/lib/pdflib.php");
+        require_once ($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/autoload.php');
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/Tcpdf/Fpdi.php");
+        $doc = new setasign\Fpdi\Tcpdf\Fpdi();
+    }
+    elseif ($CFG->version > 2015111600) {
         require_once ($CFG->dirroot . "/lib/pdflib.php");
         require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        $doc = new FPDI();
     } else {
         require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        $doc = new FPDI();
     }
-    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
-    $doc = new FPDI();
     $files = $doc->setSourceFile($newfile);
     $doc->Close();
     return $files;
@@ -566,22 +577,31 @@ function emarking_pdf_count_pages($newfile, $tempdir, $doubleside = true) {
  */
 function emarking_create_printform($context, $exam, $userrequests, $useraccepts, $category, $course) {
     global $CFG;
-    if ($CFG->version > 2015111600) {
+    if ($CFG->version > 2020010100) {
+        require_once ($CFG->dirroot . "/lib/pdflib.php");
+        require_once ($CFG->dirroot.'/mod/assign/feedback/editpdf/fpdi/autoload.php');
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/Tcpdf/Fpdi.php");
+        $pdf = new setasign\Fpdi\Tcpdf\Fpdi();
+    }
+    elseif ($CFG->version > 2015111600) {
         require_once ($CFG->dirroot . "/lib/pdflib.php");
         require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        $pdf = new FPDI();
     } else {
         require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi2tcpdf_bridge.php");
+        require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+        $pdf = new FPDI();
     }
-    require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
     $originalsheets = $exam->totalpages + $exam->extrasheets;
     $copies = $exam->totalstudents + $exam->extraexams;
     $totalpages = emarking_exam_total_pages_to_print($exam);
-    $pdf = new FPDI();
     $pdf->setSourceFile($CFG->dirroot . "/mod/emarking/img/printformtemplate.pdf");
     // Adds the form page from the template.
     $pdf->AddPage();
     $tplidx = $pdf->importPage(1);
-    $pdf->useTemplate($tplidx, 0, 0, 0, 0, true);
+    $size = $pdf->getTemplateSize($tplidx);
+    $pdf->useTemplate($tplidx, 0, 0, $size['width'], $size['height'], true);
     // Copy / Printing.
     $pdf->SetXY(32, 48.5);
     $pdf->Write(1, "x");
@@ -1892,7 +1912,11 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     $logofilepath = emarking_get_logo_file($filedir);
     // If asked to do so we create a PDF witht the students list.
     if ($downloadexam->printlist == 1) {
-        $pdf = new FPDI();
+        if ($CFG->version > 2020010100) {
+            $pdf = new setasign\Fpdi\Tcpdf\Fpdi();
+        } else {
+            $pdf = new FPDI();
+        }
         $pdf->SetPrintHeader(false);
         $pdf->SetPrintFooter(false);
         emarking_draw_student_list($pdf, $logofilepath, $downloadexam, $course, $studentinfo);
@@ -1911,7 +1935,11 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             $pbar->update($currentstudent + 1, count($studentinfo), $stinfo->name);
         }
         // We create the PDF file.
-        $pdf = new FPDI();
+        if ($CFG->version > 2020010100) {
+            $pdf = new setasign\Fpdi\Tcpdf\Fpdi();
+        } else {
+            $pdf = new FPDI();
+        }
         $pdf->SetPrintHeader(false);
         $pdf->SetPrintFooter(false);
         // We use the next form available from the list of PDF forms sent.
@@ -1931,7 +1959,8 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
             // If the page is not an extra page, we import the page from the template.
             if ($pagenumber <= $originalpdfpages) {
                 $template = $pdf->importPage($pagenumber);
-                $pdf->useTemplate($template, 0, 0, 0, 0, true);
+                $size = $pdf->getTemplateSize($template);
+                $pdf->useTemplate($template, 0, 0, $size['width'], $size['height'], true);
             }
             // If we have a personalized header, we add it.
             if ($downloadexam->headerqr) {
@@ -1998,7 +2027,11 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     }
     $examfilename = emarking_clean_filename($course->shortname, true) . '_' . emarking_clean_filename($downloadexam->name, true);
     // We create the final big PDF file.
-    $pdf = new FPDI();
+    if ($CFG->version > 2020010100) {
+        $pdf = new setasign\Fpdi\Tcpdf\Fpdi();
+    } else {
+        $pdf = new FPDI();
+    }
     $pdf->SetPrintHeader(false);
     $pdf->SetPrintFooter(false);
     // We import the students list if required.
@@ -2064,7 +2097,7 @@ function emarking_download_exam($examid, $multiplepdfs = false, $groupid = null,
     }
 }
 
-function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport) {
+function emarking_import_pdf_into_pdf($pdf, $pdftoimport) {
     $originalpdfpages = $pdf->setSourceFile($pdftoimport);
     $pdf->SetAutoPageBreak(false);
     // Add all pages in the template, adding the header if it corresponds.
@@ -2072,7 +2105,8 @@ function emarking_import_pdf_into_pdf(FPDI $pdf, $pdftoimport) {
         // Adding a page.
         $pdf->AddPage();
         $template = $pdf->importPage($pagenumber);
-        $pdf->useTemplate($template, 0, 0, 0, 0, true);
+        $size = $pdf->getTemplateSize($template);
+        $pdf->useTemplate($template, 0, 0, $size['width'], $size['height'], true);
     }
 }
 
