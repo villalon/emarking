@@ -839,7 +839,7 @@ function emarking_tabs($context, $cm, $emarking, $draft=null) {
     $issupervisor = has_capability("mod/emarking:supervisegrading", $context);
     $enabledreports = isset($CFG->emarking_reportsenabled) ? explode(',',$CFG->emarking_reportsenabled) : Array();
     $enabledregrading = isset($CFG->emarking_enableregrading) && $CFG->emarking_enableregrading == 1;
-    $enabledconfigtab = isset($CFG->emarking_enabledconfigtab) && $CFG->emarking_enabledconfigtab == 1;
+    $enabledconfigtab = isset($CFG->emarking_enableconfigtab) && $CFG->emarking_enableconfigtab == 1;
     $tabs = array();
     // Print tab.
     $printtab = new tabobject('printscan', $CFG->wwwroot . "/mod/emarking/print/exam.php?id={$cm->id}", $emarking->type == EMARKING_TYPE_PRINT_ONLY ? get_string('print', 'mod_emarking') : get_string('type_print_scan', 'mod_emarking'));
