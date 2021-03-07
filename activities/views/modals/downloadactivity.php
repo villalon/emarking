@@ -44,7 +44,7 @@
   					<div class="form-check">
    			 			<label class="form-check-label">
       						<input type="checkbox" class="form-check-input" name="resources" value="1" checked>
-     						 Recursos de la lengua
+     						 Contenidos complementarios
    						</label>
   					</div>
   					<div class="form-check">

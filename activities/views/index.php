@@ -84,43 +84,14 @@ $activities = emarking_get_random_activities();
 </div>
 <!-- Actividades END -->
 
-<!-- Caracteristicas -->
-<div class="row row_caract">
-		<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" align="center">
-			<img src="img/caract_01_01.png">
-			<h4>Crea tu Perfil</h4>
-		</div>
-		<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" align="center">
-			<img src="img/caract_01_03.png">
-			<h4>Crea Actividades</h4>
-		</div>
-		<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" align="center">
-			<img src="img/caract_01_05.png">
-			<h4>Participa en el Foro</h4>
-		</div>
-		<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" align="center">
-			<img src="img/caract_01_08.png">
-			<h4>Conviértete en Corrector</h4>
-		</div>
-</div>
-<!-- Caracteristicas End -->
 <!-- Quienes Somos -->
 <div class="row row_info">
 	<div class="col-xs-12 col-sm-3 col-md-6 col-lg-6 tit_blue">
 		<h2>Quiénes Somos</h2>
 		<br>
-		<p class="text_grey1" align="justify">Escribiendo.online es una
-			comunidad de aprendizaje comprometida con la enseñanza de la
-			escritura en las aulas chilenas. Sabemos que aprender a escribir es
-			un proceso complejo en el que los estudiantes necesitan ser guiados
-			por sus profesores. Pero también sabemos lo difícil y lento que puede
-			resultar revisar y retroalimentar la escritura de los estudiantes.</p>
-		<p class="text_grey1" align="justify">Por esto hemos creado esta
-			plataforma colaborativa en línea que permite a los profesores
-			compartir actividades, videos y pautas de evaluación de la escritura,
-			así como corregir y retroalimentar en línea los textos de sus
-			estudiantes o recibir una evaluación experta de los textos de sus
-			alumnos.</p>
+		<p class="text_grey1" align="justify">
+Escribiendo online es una herramienta para la enseñanza y la evaluación formativa de la escritura en la educación básica a través de una plataforma en línea. Esta plataforma permite a los profesores corregir y retroalimentar en línea los textos de sus estudiantes mediante rúbricas y comentarios. Contiene una gran variedad de actividades de escritura que incluye orientaciones didácticas para los profesores(as), una hoja de trabajo para el estudiante, rúbricas de evaluación y, en algunas de ellas, videos demostrativos. Esta herramienta fue desarrollada por el Centro de Investigación Avanzada de Educación de  la Universidad de Chile, la Fundación Educacional Arauco y la Agencia de Calidad de la Educación, en el contexto del Proyecto Fondef denominado “Enseñanza y evaluación de la escritura mediante plataforma tecnológica colaborativa”, código IT15I10002 . 
+</p>
 	</div>
 
 	<div class="col-xs-12 col-sm-9 col-md-6 col-lg-6 tit_blue"

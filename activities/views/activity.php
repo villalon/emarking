@@ -50,7 +50,7 @@ $(function() {
     						<li><i class="fa fa-book" aria-hidden="true" title="Género"></i><?php echo $genre->name; ?></li>
     					    <li><i class="fa fa-bullhorn" aria-hidden="true" title="Propóstico comunicativo"></i><?=$activity->comunicativepurpose?></li>
     					    <li><i class="fa fa-users" aria-hidden="true" title="Audiencia"></i><?= $activity->audience?></li>
-    					    <li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$activity->estimatedtime?> minutos</li>
+    					    <li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$activity->estimatedtime?> horas</li>
     						<li><i class="fa fa-user" aria-hidden="true" title="Autor"></i><?php echo $userobject->firstname.' '.$userobject->lastname ?></li>
 						</ul>
 						<hr>
@@ -116,7 +116,7 @@ $(function() {
 						  <strong>Atención!</strong> Es necesario crear una rúbrica para que esta actividad pueda ser utilizada. <a href="<?=$rubricUrl?>">Crear Rúbrica</a> o <a href="<?=$importrubricUrl?>">Importar Rúbrica</a>
 						</div>
 					<?php }?>
-						<h2 class="title_result"><?=ucfirst(strtolower($activity->title));?></h2>
+						<h2 class="title_result"><?=$activity->title ?></h2>
 						<p><?=$activity->description?></p>
 						<!-- Aqui agregue el cambio para las tabs -->
 						<ul class="nav nav-tabs active_tab" id="activityTab" role="tablist">
@@ -185,7 +185,7 @@ $(function() {
 								</div>
 								<div class="panel panel-default">
 									<div class="panel-body">
-										<h4 style="text-align: left;">Recursos de la lengua</h4>	
+										<h4 style="text-align: left;">Contenidos complementarios</h4>	
 				<?php
 				echo $activity->languageresources;
 				?>
@@ -221,9 +221,16 @@ $(function() {
 										<tr>
 											<td></td>
 <?php
+$maxlevel = 3;
 $i = $maxlevel;
+$niveles = array(
+	"",
+	"Principiante",
+	"Intermedio",
+	"Avanzado",
+);
 while($i>0) {
-	echo "<th>Nivel $i</th>";
+	echo "<th>". $niveles[$i] . "</th>";
 	$i--;
 }
 
@@ -248,7 +255,10 @@ if (!array_key_exists(4, $value) && $maxlevel >= 4)
 	$value[4]="";
 krsort($value);
 foreach ( $value as $score => $level ) {
-echo "<th>$level</th>";
+	if($score > $maxlevel) {
+		continue;
+	}
+echo "<td>$level</td>";
 }
 echo "</tr>";
 }

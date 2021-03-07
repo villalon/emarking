@@ -51,7 +51,7 @@ class mod_emarking_form_activity extends moodleform {
 		$mform->addRule ( 'title', get_string ( 'required' ), 'required' );
 		$mform->addHelpButton('title', 'activity_title', 'mod_emarking');
 		// descripción
-		$mform->addElement ( 'textarea', 'description', get_string('activity_description', 'mod_emarking'), 'wrap="virtual" rows="10" cols="100" maxlength="300"' );
+		$mform->addElement ( 'textarea', 'description', get_string('activity_description', 'mod_emarking'), 'wrap="virtual" rows="10" cols="100" maxlength="500"' );
 		$mform->setType ( 'description', PARAM_TEXT );
 		$mform->addHelpButton('description', 'activity_description', 'mod_emarking');
 		
@@ -90,12 +90,16 @@ class mod_emarking_form_activity extends moodleform {
 		$mform->setType ( 'audience', PARAM_TEXT );
 		// $mform->addHelpButton('audience', 'audiencia','ciae');
 		// Tiempo estimado
-		$tiempoEstimado = array (
-				'45' => '45 minutos',
-				'90' => '90 minutos',
-				'135' => '135 minutos',
-				'180' => '180 minutos' 
-		);
+		$tiempoEstimado = array();
+		for($i=1;$i<13;$i++) {
+			$tiempoEstimado[$i] = $i . " horas";
+		}
+		$tiempoEstimado = array_merge($tiempoEstimado, array (
+				'45' => '45 horas',
+				'90' => '90 horas',
+				'135' => '135 horas',
+				'180' => '180 horas' 
+		));
 		$mform->addElement ( 'select', 'estimatedtime', 'Tiempo Estimado', $tiempoEstimado );
 		$mform->addRule ( 'estimatedtime', get_string ( 'required' ), 'required' );
 		$mform->setType ( 'estimatedtime', PARAM_TEXT );
@@ -117,7 +121,7 @@ class mod_emarking_form_activity extends moodleform {
 		$mform->addElement('editor', 'teaching', 'Sugerencias',null,$editoroptions);
 		$mform->setType('teaching', PARAM_RAW);
 		//$mform->setAdvanced('teachingsuggestions');
-		$mform->addElement('editor', 'languageresources', 'Recursos del Lenguaje',null,$editoroptions);
+		$mform->addElement('editor', 'languageresources', 'Contenidos complementarios',null,$editoroptions);
 		$mform->setType('languageresources', PARAM_RAW);
 		//$mform->setAdvanced('languageresources');
 		$this->add_action_buttons ( true, 'Guardar cambios' );		

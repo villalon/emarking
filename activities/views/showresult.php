@@ -7,14 +7,14 @@
 						<i class="fa fa-book" aria-hidden="true" title="Género"></i><?=$data->genrename?>
 					</div>
 					<div class="col-md-12 h3">
-						<?=ucfirst(strtolower($data->title));?>
+						<?=$data->title ?>
 					</div>
 				</div>
-				<div class="row">
+				<!--<div class="row">
 					<div class="col-md-12 text-right">
 						<div class="author"><i class="fa fa-user" aria-hidden="true" title="Autor"></i><?= $data->firstname.' '.$data->lastname ?></div>
 					</div>
-				</div>
+				</div>-->
 			</div>   			
 		</div>
 		<div class="card-body">
@@ -28,7 +28,7 @@
                 	</td>
 					<td width="50%">
 						<ul>
-                			<li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$data->estimatedtime?> minutos</li>
+                			<li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$data->estimatedtime?> horas</li>
                 			<li>&nbsp;</li>
                 		</ul>
 					</td>
@@ -49,7 +49,7 @@
 		</div>
 		<div class="card-footer <?= $genreclass ?>">
 			<div class="d-flex justify-content-between">
-    			<div class="comments"><?=$countcomments?> <i class="fa fa-comment" aria-hidden="true" title="Comentarios"></i>
+    			<!--<div class="comments"><?=$countcomments?> <i class="fa fa-comment" aria-hidden="true" title="Comentarios"></i>
     			</div>
     			<div class="stars">
     			<?php 
@@ -62,8 +62,8 @@
     				}
     				echo "$average/5";
     				?>
-    			</div>
-			</div>
+    			</div>-->
+		</div>
     	</div>
 	</div>
 </div>

@@ -291,7 +291,7 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 	
 	if(isset($sections->resources) && $sections->resources==1) {
 		$languageresourceshtml=emarking_activities_add_images_pdf($activity->languageresources);
-		$pdf->writeHTML('<h3>Recursos del lenguaje</h3>', true, false, false, false, '');
+		$pdf->writeHTML('<h3>Contenidos complementarios</h3>', true, false, false, false, '');
 		$languageresourceshtml=emarking__activities_clean_html_to_print($languageresourceshtml);
 		$pdf->writeHTML($languageresourceshtml, true, false, false, false, '');
 	}
