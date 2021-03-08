@@ -76,6 +76,14 @@ $(function() {
 							Actividad
 						</button></a></li>
 						<?php } ?>
+                                                <?php if($userobject->id == $USER->id || has_capability('mod/emarking:manageactivities', context_system::instance())) { ?>
+                                                <li><a href="<?= $CFG->wwwroot . '/mod/emarking/activities/deleteactivity.php?id='.$activity->id?>"><button type="button" class="btn btn-danger">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i> Borrar actividad
+                                                </button></a></li>
+                                                <?php
+                                                }
+?>
+
 						</ul>
 					</div>
 					<h4>Calificación</h4>

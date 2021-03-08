@@ -235,7 +235,7 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 	// create new PDF document
 	
 	$pdf = emarking_create_activity_pdf($user_object, $activity);
-	
+
 	if(isset($sections->header) && $sections->header == 1) {
 		$pdf->writeHTML('<h1>'.$activity->title.'</h1> ', true, false, false, false, '');
 	}
@@ -283,9 +283,10 @@ function emarking_get_pdf_activity($activity, $download = false, $sections = nul
 	}
 	
 	if(isset($sections->teaching) && $sections->teaching==1) {
-		$teachinghtml=emarking_activities_add_images_pdf($activity->teaching);
 		$pdf->writeHTML('<h3>Sugerencias didácticas</h3>', true, false, false, false, '');
+		$teachinghtml=emarking_activities_add_images_pdf($activity->teaching);
 		$teachinghtml=emarking__activities_clean_html_to_print($teachinghtml);
+		// var_dump($teachinghtml);die();
 		$pdf->writeHTML($teachinghtml, true, false, false, false, '');
 	}
 	
@@ -369,7 +370,7 @@ function emarking_create_activity_pdf($user_object, $activity) {
 	
 	// set auto page breaks
 	$pdf->SetAutoPageBreak(TRUE, 10);
-	$pdf->SetTopMargin(40);
+	$pdf->SetTopMargin(10);
 	$pdf->SetRightMargin(10);
 	$pdf->SetLeftMargin(10);
 	// Add a page
@@ -686,10 +687,10 @@ function emarking_activities_get_file_from_url($url, $pathname)
 		if ($fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename)) {
 			$file = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
 		
-			$file->copy_content_to($pathname . $filename);		
-			$imageinfo = getimagesize($pathname . $filename);
+			$file->copy_content_to($pathname . "/" . $filename);		
+			$imageinfo = getimagesize($pathname . "/" . $filename);
 			return array(
-					$pathname . $filename,
+					"/../.." . $pathname . "/" . $filename,
 					$imageinfo
 			);
 		}
@@ -702,13 +703,13 @@ function emarking_activities_get_file_from_url($url, $pathname)
 	fclose($handle);
 
 	// Save the binary file
-	$file = fopen($pathname . $filename, "wb+");
+	$file = fopen($pathname . "/" . $filename, "wb+");
 	fputs($file, $content);
 	fclose($file);
 
-	$imageinfo = getimagesize($pathname . $filename);
+	$imageinfo = getimagesize($pathname . "/" . $filename);
 	return array(
-			$pathname . $filename,
+			$pathname . "/" . $filename,
 			$imageinfo
 	);
 }
@@ -727,6 +728,7 @@ function emarking__activities_clean_html_to_print($html)
 	$html = preg_replace('/border="\d+"/', '', $html);
 	$html = preg_replace('/<table(.*?)>/', '<br/><table border="1">', $html);
 	$html = preg_replace('/<div>(<input.*?)<\/div>/', '<br/>$1', $html);
+	$html = preg_replace('/class="img-responsive atto_image_button_text-bottom"/', '', $html);
 
 	return $html;
 }
