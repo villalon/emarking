@@ -51,7 +51,7 @@ $(function() {
     					    <li><i class="fa fa-bullhorn" aria-hidden="true" title="Propóstico comunicativo"></i><?=$activity->comunicativepurpose?></li>
     					    <li><i class="fa fa-users" aria-hidden="true" title="Audiencia"></i><?= $activity->audience?></li>
     					    <li><i class="fa fa-clock-o" aria-hidden="true" title="Tiempo estimado"></i><?=$activity->estimatedtime?> horas</li>
-    						<li><i class="fa fa-user" aria-hidden="true" title="Autor"></i><?php echo $userobject->firstname.' '.$userobject->lastname ?></li>
+    						<!-- <li><i class="fa fa-user" aria-hidden="true" title="Autor"></i><?php echo $userobject->firstname.' '.$userobject->lastname ?></li> -->
 						</ul>
 						<hr>
 						<div class="activity_buttons">

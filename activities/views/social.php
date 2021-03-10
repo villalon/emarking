@@ -26,7 +26,7 @@
 </div>
 <?php 
 
-if(isset($comments)&& $comments!=null){
+if(isset($comments)&& $comments!=null && is_array($comments)){
 	krsort($comments);
 
 	function addComment($comment, $date) {
