@@ -906,7 +906,7 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
     }
    
     if ($extension === 'pdf') {
-        if($emarking->uploadtype != EMARKING_UPLOAD_FILE) {
+        if($emarking->uploadtype != EMARKING_UPLOAD_FILE && $emarking->uploadtype != EMARKING_UPLOAD_HTML) {
             $command = 'java -jar ' . $CFG->dirroot . '/mod/emarking/lib/qrextractor/emarking.jar '
                 . '--url ' . $CFG->wwwroot . '/ --user ' . $CFG->emarking_qr_user . ' --pwd '
                 . $CFG->emarking_qr_password . ' --pdf ' . $filepath . ' --tmp ' . $tempdir . ' --log4j '
@@ -925,11 +925,11 @@ function emarking_upload_answers($emarking, $filepath, $course, $cm, $doubleside
         }
         $lastline = exec($command, $output, $return_var);
         if($return_var != 0) {
-            $errormsg = $lastline;
+            $errormsg = $output;
             emarking_initialize_directory($tempdir, true);
             return array(
             false,
-            $errormsg,
+            'Falló qrextractor: '. print_r($errormsg, true),
             0,
             0
         );

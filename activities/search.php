@@ -69,9 +69,9 @@ if(strlen($search) > 3) {
 }
 
 if($oa_curso > 0 && $oa_curso < 9) {
-		$sqlwhere = " AND learningobjectives like '".$oa_curso."[%'";
+		$sqlwhere = "";
 		foreach($oa as $oaid){
-			$sqlwhere .= " AND learningobjectives like '%$oaid%'";
+			$sqlwhere .= " AND learningobjectives like '%$oa_curso"."-"."$oaid%'";
 		}
 		$activitiessql .= $sqlwhere;
 }
