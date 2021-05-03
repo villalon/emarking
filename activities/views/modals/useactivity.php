@@ -24,9 +24,9 @@
   								<label for="submissiontype">Forma de subir los textos</label>
   								<select id="submissiontype" class="form-control" name="submissiontype" required>
   									<option value="">Seleccione una forma</option>
-  									<option value="1">Profesor escanea</option>
-  									<option value="2">Estudiantes suben archivo PDF</option>
-  									<option value="3">Estudiantes escriben en línea</option>
+  									<option value="10">Profesor escanea</option>
+  									<option value="20">Estudiantes suben archivo PDF</option>
+  									<option value="40">Estudiantes escriben en línea</option>
   								</select>
   				</div>
 		</div>

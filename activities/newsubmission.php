@@ -46,7 +46,8 @@ $emarking->keywords = "keyword1,keyword2,sentence1";
 $emarking->exam=0;
 $emarking->visible=1;
 $emarking->visibleold=1;
-$emarking->uploadtype=$submissiontype == 2 ? EMARKING_UPLOAD_FILE : EMARKING_UPLOAD_QR;
+// $emarking->uploadtype=$submissiontype == 2 ? EMARKING_UPLOAD_FILE : EMARKING_UPLOAD_QR;
+$emarking->uploadtype=$submissiontype;
 $emarking->changelog = 10;
 
 $data=emarking_create_activity_instance($emarking,$courseid,$itemid,$numpages,$filedata);
@@ -116,6 +117,16 @@ $marker->marker =0;
 $marker->qualitycontrol=0;
 $DB->insert_record('emarking_markers', $marker);
 }
+
+$emarking_activity = new stdClass();
+$emarking_activity->emarkingid = $data['id'];
+$emarking_activity->activityid = $activityid;
+$emarking_activity->printrubric = 0;
+$emarking_activity->printteaching = $printteaching;
+$emarking_activity->onlinerewrite = 0;
+$emarking_activity->uploadingtype = $submissiontype;
+
+$emarking_activity->id = $DB->insert_record('emarking_used_activities', $emarking_activity);
 
 $forkUrl = new moodle_url($CFG->wwwroot.'/mod/emarking/view.php', array('id' => $data['cmid']));
 redirect($forkUrl, 0);

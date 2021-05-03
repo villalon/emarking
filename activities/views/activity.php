@@ -67,8 +67,7 @@ $(function() {
 						<li>
 						<button type="button" class="btn  btn-success" data-toggle="modal"
 							data-target="<?=$canuse?>" >
-							<i class="fa fa-floppy-o" aria-hidden="true"></i> Usar
-							Actividad
+							<i class="fa fa-floppy-o" aria-hidden="true"></i> Usar Actividad
 						</button></li>
 						<li>
 						<a href="<?=$forkingUrl?>"><button type="button" class="btn btn-primary">

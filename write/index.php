@@ -37,7 +37,6 @@ if (isguestuser()) {
     die();
 }
 $urlemarking = new moodle_url("/mod/emarking/write/index.php", array('id'=>$cm->id));
-
 $activity = null;
 if($usedactivity = $DB->get_record('emarking_used_activities', array('emarkingid'=>$emarking->id))) {
     $activity = $DB->get_record('emarking_activities', array('id'=>$usedactivity->activityid));
@@ -73,7 +72,6 @@ if($mform->get_data()) {
     $result = emarking_upload_answers($emarking, $pathname, $course, $cm, false, false, $USER);
     echo $OUTPUT->header();
     echo $OUTPUT->notification('Texto subido', 'notifysuccess');
-    var_dump($result);
     echo $OUTPUT->footer();    
     die;
 }
